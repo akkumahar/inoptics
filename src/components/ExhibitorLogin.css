@@ -1,0 +1,189 @@
+.exhibitorlogin-page {
+  min-height: 100vh;
+  width: 100vw;
+  font-family: "Quicksand", sans-serif;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.exhibitorlogin-main-content-wrapper {
+  flex: 1;
+  background: #00003f;
+  margin-top: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 0;
+}
+
+.exhibitorlogin-bottom-container {
+  position: relative;
+  width: 100%;
+  max-width: 1100px;
+  height: 700px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin: 70px 0px 30px 0px;
+  background: #fff;
+  overflow: hidden;
+}
+
+/* 🔹 Top 40% blue gradient */
+.exhibitorlogin-gradient-section {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 40%;
+  background: linear-gradient(135deg, #2e3192, #1bffff);
+  display: flex;
+  align-items: flex-start;
+  padding: 40px 60px;
+  box-sizing: border-box;
+  z-index: 1;
+}
+
+.exhibitorlogin-text-container {
+  max-width: 50%;
+  color: #fff;
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+.exhibitorlogin-text-container p {
+  color: #fff;
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+/* 🔹 Left Image Section (under gradient) */
+.exhibitorlogin-image-container {
+  position: absolute;
+  top: 40%; /* Below gradient */
+  /* left: 60px; */
+  width: 1100px;
+  height: 420px;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.exhibitorlogin-image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 🔹 Floating Login box (half above gradient, half above image) */
+.exhibitorlogin-container {
+  position: absolute;
+  right: 60px;
+  top: 50%; /* 50% between gradient top and image */
+  transform: translateY(-50%);
+  width: 400px;
+  background: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0px 6px 25px rgba(0, 0, 0, 0.15);
+  z-index: 2;
+}
+
+.exhibitorlogin-form-heading {
+  font-size: 28px;
+  color: #25254d;
+  margin-bottom: 20px;
+  font-family: "Times New Roman", Times, serif;
+  font-weight: bold;
+  text-align: center;
+}
+
+.exhibitorlogin-form-container {
+  display: flex;
+  justify-content: center;
+}
+
+.exhibitorlogin-form {
+  width: 100%;
+  text-align: left;
+}
+
+.exhibitorlogin-form label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 14px;
+  color: #333;
+}
+
+.exhibitorlogin-form input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+.password-input-wrapper {
+  margin-bottom: 15px;
+}
+
+.password-field {
+  position: relative;
+}
+
+.password-field input {
+  width: 100%;
+  padding-right: 40px;
+}
+
+.password-toggle-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-80%);
+  cursor: pointer;
+  font-size: 18px;
+  color: #555;
+}
+
+.exhibitorlogin-btn {
+  width: 100%;
+  background-color: #0167c6;
+  color: white;
+  padding: 12px;
+  font-size: 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.exhibitorlogin-btn:hover {
+  background-color: #004c91;
+}
+
+.error-text {
+  color: red;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.exhibitorlogin-register-text {
+  margin-top: 15px;
+  font-size: 14px;
+  color: #333;
+  text-align: center;
+}
+
+.exhibitorlogin-register-text .register-link {
+  color: #0167c6;
+  font-weight: 600;
+  text-decoration: none;
+  margin-left: 5px;
+}
+
+.exhibitorlogin-register-text .register-link:hover {
+  text-decoration: underline;
+  color: #004c91;
+}

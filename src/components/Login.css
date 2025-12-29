@@ -1,0 +1,141 @@
+.main-login-container {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  flex: 1;
+  width: 100%;
+  max-width: 1000px;
+  margin: 120px auto 80px auto;
+  padding: 0 20px;
+}
+
+.login-text-container {
+  text-align: center;
+  padding: 10px;
+}
+
+.login-text-container h2 {
+  color: #25254d;
+  font-size: 32px;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.login-text-container p {
+  font-size: 16px;
+  color: #666;
+}
+
+.login-columns {
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  align-items: stretch;
+  flex-wrap: wrap; 
+}
+
+.login-container {
+  flex: 0 0 auto;          /* prevent stretching */
+  width: 100%;             /* take full width on small screens */
+  max-width: 400px;        /* small box size */
+  margin: 0 auto;          /* center horizontally */
+  padding: 25px;
+  border: 6px solid #004c99;
+  border-radius: 20px;
+  background: #f4f8ff;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.login-main-heading {
+  font-size: 40px;
+  color: #25254d;
+  text-align: center;
+  margin-bottom: 20px;
+  font-family: 'Times New Roman', Times, serif;
+  text-decoration: underline;
+}
+
+.login-form-container {
+  display: flex;
+  justify-content: center;
+}
+
+.login-form {
+  width: 100%;
+  max-width: 350px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.login-form label {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #25254d;
+}
+
+.login-form input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  transition: border 0.3s ease;
+}
+
+.login-form input:focus {
+  border: 1px solid #004c99;
+  outline: none;
+  box-shadow: 0px 0px 4px rgba(0, 76, 153, 0.5);
+}
+
+.login-form button {
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: bold;
+  background-color: #004c99;
+  color: white;
+  border: none;
+  margin-top: 10px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.1s ease;
+}
+
+.login-form button:hover {
+  background-color: #003366;
+  transform: translateY(-2px);
+}
+
+.error-text {
+  color: #d9534f;
+  background: #ffe5e5;
+  border: 1px solid #f5c6c6;
+  padding: 6px 10px;
+  border-radius: 5px;
+  font-size: 13px;
+  text-align: center;
+}
+.password-input-wrapper {
+  margin-top: 15px;
+}
+
+.password-field {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.password-field input {
+  flex: 1;
+  padding-right: 35px; /* space for the icon */
+}
+
+.password-toggle-icon {
+  position: absolute;
+  right: 10px;
+  cursor: pointer;
+  color: #555;
+  font-size: 18px;
+}

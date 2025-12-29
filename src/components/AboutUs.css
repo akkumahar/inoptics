@@ -1,0 +1,187 @@
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+.about-us-breadcrumb .breadcrumb-link {
+  color: white;}
+
+.about-us-breadcrumb .current {
+  color: white;}
+
+.about-us-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 1;
+    overflow: visible;
+    scroll-behavior: smooth;
+    width: 100%;
+    max-width: 1000px;
+    margin: 40px auto 100px auto ;
+    background-color: black;
+    text-align: center;
+}
+  
+  .about-title {
+    color: #ffffff;
+    font-weight: 300;
+    letter-spacing: -2px;
+    line-height: 0px;
+  }
+
+  .vision-heading {
+    color: #ffffff;
+    font-weight: 300;
+    text-align: center;
+    letter-spacing: -2px;
+    margin: 40px 0px 40px 0px;
+    padding-top: 40px;
+  }
+
+  .about-heading {
+  margin-bottom: 40px;
+  }
+
+
+  .about-paragraph,
+  .vision-paragraph {
+    padding: 0px 100px 0px 100px;
+    color: #ffffff;
+    font-weight: 500;
+    letter-spacing: -0.75px;
+    line-height: 22.5px;
+    text-align: left;
+  }
+
+  .vision-container-wrapper {
+  background-color: rgb(255, 255, 255);
+  }
+
+  .vision-container {
+   margin: 15px 0px 0px 0px;
+   padding: 0px 0px 20px 0px ;
+   background-color: rgb(0, 0, 0);
+  }
+
+  .about-container {
+   margin: 40px 0;
+  }
+
+
+  /* Mobile phones only ( 767px): */
+
+@media only screen and (max-width: 767px) {
+
+    .about-us-container {
+      margin: 250px 10px 50px 10px;
+      width: auto;
+    }
+
+    .breadcrumbs {
+    margin-top: 50px;
+    font-size: 14px;
+    font-family: "Montserrat", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: -0.5px;
+    font-weight: 500;
+    margin-bottom: 40px;
+    }
+
+    .about-paragraph,
+    .vision-paragraph {
+      padding: 0px 20px 0px 20px;
+      font-size: 14px;
+      line-height: 20px;
+    }
+
+    .vision-heading {
+      font-size: 40px;
+      margin: 20px 0px 20px 0px;
+      padding-top: 20px;
+    }
+
+    .about-title {
+      font-size: 24px;
+      line-height: 28px;
+    }
+
+    .about-heading {
+      font-size: 30px;
+      margin-bottom: 20px;
+    }
+
+    .image-container {
+      justify-content: center;
+      margin: 10px 0px 10px 0px;
+    }
+
+    .about-container {
+    margin: 0;
+    }
+
+
+}
+
+/* Tablet Portrait (600px – 900px) */
+
+@media only screen and (min-width: 600px) and (max-width: 900px) and (orientation: portrait) {
+.about-us-container {
+      margin: 250px 10px 50px 10px;
+      width: auto;
+    }
+
+    .breadcrumbs {
+    margin-top: 50px;
+    font-size: 14px;
+    font-family: "Montserrat", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: -0.5px;
+    font-weight: 500;
+    margin-bottom: 40px;
+    }
+
+    .about-paragraph,
+    .vision-paragraph {
+      padding: 0px 20px 0px 20px;
+      font-size: 14px;
+      line-height: 20px;
+    }
+
+    .vision-heading {
+      font-size: 40px;
+      margin: 20px 0px 20px 0px;
+      padding-top: 20px;
+    }
+
+    .about-title {
+      font-size: 24px;
+      line-height: 28px;
+    }
+
+    .about-heading {
+      font-size: 30px;
+      margin-bottom: 20px;
+    }
+
+    .image-container {
+      justify-content: center;
+      margin: 10px 0px 10px 0px;
+    }
+
+    .about-container {
+    margin: 0;
+    }
+}
+/* Tablet Landscape (600px – 1200px) */
+@media only screen and (min-width: 600px) and (max-width: 1200px) and (orientation: landscape) {
+  body {
+    font-size: 16px;
+    background-color: #c7f0d0;
+  }
+  .container {
+    padding: 25px;
+  }
+}

@@ -1,0 +1,104 @@
+.floating-card {
+  position: fixed;
+  top: 120px;
+  right: 20px;
+  background: black;
+  color: #fff;
+  z-index: 9999;
+  cursor: move;
+  /* border-radius: 10px; */
+  padding: 10px;
+  transition: all 0.3s ease;
+  width: 320px;
+}
+
+.floating-card.minimized {
+  width: auto;
+  height: auto;
+  padding: 10px;
+}
+
+/* Expanded Layout */
+.card-body {
+  display: flex;
+  gap: 12px;
+}
+
+/* Left text */
+.card-text {
+  flex: 1;
+  /* text-align: center; */
+  position: relative;
+}
+
+/* Minimize button → left side now */
+.minimize-btn {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: #ff4444;
+  border: none;
+  /* border-radius: 50%; */
+  color: #fff;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* Vertical icons */
+.social-icons-vertical {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  font-size: 28px;
+  align-items: center;
+}
+
+/* Minimized mode icons */
+.minimized-icons {
+  align-items: center;
+}
+
+/* Expand button at bottom */
+.expand-btn {
+  margin-top: 12px;
+  background: #28a745;
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* Hover styles */
+.social-icons-vertical a {
+  transition: transform 0.3s, color 0.3s;
+}
+
+.instagram { color: #e4405f; }
+.instagram:hover { transform: scale(1.2); color: #c13584; }
+
+.youtube { color: #ff0000; }
+.youtube:hover { transform: scale(1.2); color: #cc0000; }
+
+.facebook { color: #1877f2; }
+.facebook:hover { transform: scale(1.2); color: #0e5a8a; }
+
+.twitter { color: #1da1f2; }
+.twitter:hover { transform: scale(1.2); color: #0c85d0; }
+
+.linkedin { color: #0077b5; }
+.linkedin:hover { transform: scale(1.2); color: #005582; }
+
+/* Hide on small screens */
+@media only screen and (max-width: 767px) {
+  .floating-card {
+    display: none;
+  }
+}

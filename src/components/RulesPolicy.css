@@ -1,0 +1,13 @@
+.Rules-container {
+     display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 1;
+    overflow: visible;
+    scroll-behavior: smooth;
+    width: 100%;
+    max-width: 1000px;
+    margin: 40px auto 0px auto;
+    margin-bottom: 200px
+  }
+  

@@ -1,0 +1,121 @@
+.visitor-guide-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1;
+  overflow: visible;
+  scroll-behavior: smooth;
+  width: 100%;
+  max-width: 1000px;
+  margin: 40px auto 0px auto;
+  margin-bottom: 200px;
+  
+}
+
+/* ✅ Cards Layout */
+.visitor-cards {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  height: auto !important;
+}
+
+.visitor-card {
+  flex: 1;
+  /* background: #f8f8f8; */
+  padding: 10px;
+  text-align: center;
+  transition: transform 0.3s ease;
+  height: auto !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+    border: 1px solid;
+    position: relative;   /* 👈 this anchors the button */
+  /* overflow: hidden; */
+  min-height: fit-content;
+}
+
+/* .visitor-card:hover {
+  transform: translateY(-5px);
+  border-bottom: 4px solid #02062c; 
+} */
+
+
+/* ✅ Venue Card Styles */
+.visitor-guide-venue-address {
+  text-align: center;
+  margin-top: 60px;
+}
+
+.venue-title {
+  font-size: 25px;
+  font-weight: bold;
+  margin: 0;
+  color: #02062c;
+}
+
+.venue-subtext {
+  font-size: 18px;
+  margin-top: 8px;
+  color: #333;
+  font-family: "Quicksand", sans-serif;
+}
+
+.get-badge-btn {
+  margin-top: auto;             
+  display: inline-block;         
+  margin-left: auto;             
+  margin-right: auto;            
+  padding: 10px 20px;            
+  background: transparent;       
+  border: 1px solid #000;        
+  color: #000;                   
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  
+  width: auto;                   
+  white-space: nowrap;          
+}
+
+.get-badge-btn:hover {
+  background-color: #031438;    
+  color: #fff;                  
+}
+
+.visitor-extra-container {
+  margin-top: 40px;
+  height: auto;
+}
+
+.visitor-extra-title {
+  margin-bottom: 20px;
+}
+
+.visitor-extra-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  height: auto;
+  margin-top: 30px;
+}
+
+.visitor-extra-text {
+  flex: 1;
+  padding: 10px;
+}
+
+.visitor-extra-image-wrapper {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  
+}
+
+.visitor-extra-image {
+  max-width: 400px;
+  height: auto; 
+}

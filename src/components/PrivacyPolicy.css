@@ -1,0 +1,31 @@
+.privacy-policy-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1 1;
+  width: 100%;
+  max-width: 1000px;
+  margin: 40px auto 0px auto;
+  scroll-behavior: smooth;
+}
+
+
+.privacy-main-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  position: relative;
+  background-color: #ffffffae;
+  z-index: 999;
+  padding-bottom: 60px; 
+}
+  
+  
+  .privacy-content-container {
+    width: 1000px; 
+    background-color: white;
+    padding: 20px;
+    margin-top: 20px;
+
+  }

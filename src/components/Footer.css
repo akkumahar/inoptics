@@ -1,0 +1,496 @@
+
+/* === Footer Base Styles === */
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  background-color: #000;
+  padding: 10px;
+  color: white;
+  box-sizing: border-box;
+}
+
+.media-boxes-container {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.media-box {
+  height: 210px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.media-box img {
+  z-index: 2;
+  max-width: 80%;
+  max-height: 60%;
+  object-fit: contain;
+}
+
+/* Full-size images (Platinum & Gold sponsors) */
+.media-box img.full-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  max-width: none;
+  max-height: none;
+}
+
+.footer-media-title {
+  z-index: 2;
+  color: #0b0b0b;
+  font-size: 1.6rem;
+  font-weight: bold;
+  text-align: center;
+  font-family: 'Cinzel', serif;
+  margin-bottom: 30px;
+}
+
+/* === Footer Layout Sections === */
+.footer-address {
+  max-width: 1300px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 35px 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  box-sizing: border-box;
+}
+
+.footer-col,
+.footer-col1,
+.footer-column2,
+.footer-column3 {
+  flex: 1 1 200px;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  box-sizing: border-box;
+}
+
+.footer-column2,
+.footer-column3 {
+  max-width: 100%;
+}
+
+.footer-logo-img {
+  max-width: 200px;
+  margin-bottom: 10px;
+  filter: brightness(1.5);
+}
+
+/* === Text Styles === */
+.footer-description,
+.footer-description1,
+.footer-description2 {
+  color: #ffffff;
+  font-size: 12px;
+  font-family: "Montserrat", sans-serif;
+  line-height: 15px;
+  margin: 0;
+}
+
+.stay-updated {
+  color: #ffffff;
+  font-size: 18px;
+  font-family: "Montserrat", sans-serif;
+  letter-spacing: -0.25px;
+  margin: 0;
+}
+
+.stay-updated2 {
+  color: #ffffff;
+  font-size: 14px;
+  font-family: "Montserrat", sans-serif;
+  letter-spacing: -0.25px;
+  width: 200px;
+}
+
+/* === Mailing List === */
+.mailing-list {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  position: relative;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.mailing-list input[type="text"] {
+  width: 100%;
+  padding: 10px 45px 10px 15px;
+  border-radius: 25px;
+  font-size: 16px;
+  border: none;
+  box-sizing: border-box;
+}
+
+.mailing-list button {
+  position: absolute;
+  right: 70px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #171616;
+  cursor: pointer;
+}
+
+
+/* === Find Us Section === */
+.find-us {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.find-us i {
+  font-size: 14px;
+}
+
+.find-us p {
+  margin: 0 0 7px;
+  line-height: 16px;
+}
+
+/* === Org Section === */
+.org {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.event-image1,
+.event-image2 {
+  max-width: 150px;
+  height: auto;
+}
+
+.event-image1 {
+  margin-left: -25px;
+  margin-top: 2px;
+}
+
+.event-image2 {
+  margin-top: 5px;
+}
+
+/* === Copyright === */
+.copyright-area {
+  width: 100%;
+  background-color: #000;
+  border-top: 1px solid #222;
+}
+
+.cp-description {
+  margin: 0;
+  text-align: center;
+  font-size: 12px;
+  font-family: "Montserrat", sans-serif;
+  color: white;
+  padding: 7px 0;
+}
+
+.separator {
+  margin: 0 10px;
+  color: white;
+}
+
+/* === Links & Button === */
+.link {
+  cursor: pointer;
+  color: #fafcff;
+  text-decoration: underline;
+}
+
+.link:hover {
+  color: #0056b3;
+}
+
+.privacy-back-button {
+  background-color: #080808;
+  color: white;
+  padding: 8px 16px;
+  margin-bottom: 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+  position: relative;
+  top: 20px;
+  left: auto;
+}
+
+.privacy-back-button:hover {
+  background-color: #368be7;
+}
+
+/* === Responsive Media Queries === */
+
+/* Mobile Phones (up to 767px) */
+@media only screen and (max-width: 767px) {
+  .footer-address {
+    max-width: 1300px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 35px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+    box-sizing: border-box;
+  }
+
+  .footer-col,
+  .footer-col1,
+  .footer-column2,
+  .footer-column3 {
+        align-items: center;
+        text-align: center;
+        border: 1px solid white;
+        border-width: 0px 0px 1px 0;
+        padding: 10px;
+  }
+
+  .media-box {
+    flex: 1 1 100%;
+    height: auto;
+  }
+
+  .mailing-list {
+    display: flex;
+    position: relative;
+    margin: 0 auto;
+    max-width: 70%;
+    width: 100%;
+  }
+
+  .mailing-list input[type="text"] {
+    width: 100%;
+    margin: 10px 0px 10px 0px;
+    padding: 7px 50px 7px 12px;
+    border-radius: 25px;
+    font-size: 16px;
+    border: none;
+  }
+
+  .mailing-list button {
+    position: absolute;
+    top: 50%;
+    right: 5px;
+    transform: translateY(-50%);
+    border: none; 
+    background: none;
+    font-size: 25px;
+    color: #171616;
+  }
+
+  .stay-updated {
+    font-size: 16px;
+  }
+
+  .privacy-back-button {
+    left: 0;
+    top: 10px;
+    margin: 0 auto 20px;
+  }
+
+  .org {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+/* Tablets Portrait (600px – 900px) */
+@media only screen and (min-width: 600px) and (max-width: 900px) and (orientation: portrait) {
+  .footer-address {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .media-box {
+    flex: 1 1 48%;
+  }
+}
+
+/* Tablets Landscape (600px – 1200px) */
+@media only screen and (min-width: 600px) and (max-width: 1200px) and (orientation: landscape) {
+  .footer-address {
+    justify-content: space-around;
+  }
+
+  .media-box {
+    flex: 1 1 30%;
+  }
+}
+
+/* === Footer Menu Base === */
+.mobile-footer-navbar {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 9999;
+  flex-direction: column;
+}
+
+/* Visible only on portrait mobile/tablets */
+@media screen and (max-width: 768px) and (orientation: portrait) {
+  .mobile-footer-navbar {
+    display: flex;
+  }
+}
+
+/* === Nav Buttons Bar === */
+.footer-nav-buttons {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 12px;
+  background-color: #002244;
+  border-top: 1px solid #ffffff22;
+}
+
+.footer-nav-buttons button {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 14px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  cursor: pointer;
+  gap: 10px;
+}
+
+.footer-nav-buttons i {
+  font-size: 18px;
+}
+
+/* === Slide-up Panels === */
+.footer-slideup-panel {
+  position: absolute;
+  bottom: 60px; /* push above button bar height */
+  width: 100%;
+  background-color: #003366;
+  color: white;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out, padding 0.3s ease;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+  z-index: 999;
+}
+
+.footer-slideup-panel.open {
+  max-height: 300px;
+  padding: 10px 0;
+}
+
+.footer-slideup-panel ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-slideup-panel li {
+  padding: 12px 20px;
+  border-bottom: 1px solid #ffffff22;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.footer-slideup-panel li:hover {
+  background-color: #004080;
+}
+
+/* === Hide completely on desktop or landscape === */
+@media screen and (min-width: 769px), screen and (orientation: landscape) and (max-width: 1024px) {
+  .mobile-footer-navbar {
+    display: none !important;
+  }
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: #0073e6;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: underline;
+}
+.custom-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px; /* spacing for smaller screens */
+}
+
+.custom-modal-box {
+  background: #fff;
+  width: 90%;
+  max-width: 1200px; /* modal not too wide */
+  max-height: 90%;
+ 
+  border-radius: 12px;
+  box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.custom-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: #00050a; 
+  border-bottom: 1px solid #ddd;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.custom-modal-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #fcfcfc;
+}
+
+.custom-close-btn {
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  color: #f70808;
+  transition: color 0.2s ease;
+}
+
+.custom-close-btn:hover {
+  color: #f60606;
+}
+
+.custom-modal-content {
+  padding: 40px;
+  overflow-y: auto;
+}

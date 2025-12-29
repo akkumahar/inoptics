@@ -1,0 +1,144 @@
+.exhibitors-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1;
+  overflow: visible;
+  scroll-behavior: smooth;
+  width: 100%;
+  max-width: 1000px;
+  margin: 140px auto 0px auto;
+  margin-bottom: 200px;
+}
+/* Overall layout */
+.exhibitors-layout {
+  display: flex;
+  align-items: stretch;
+  gap: 20px;
+  width: 100%;
+  max-width: 1100px;
+  margin: 140px auto 200px auto;
+}
+
+/* Left side */
+.exhibitors-left {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Right side */
+.exhibitors-counter-wrapper {
+  flex: 1; 
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  top: 140px;
+  align-items: flex-start; 
+}
+
+/* Counter Boxes */
+.exhibitors-counter-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 220px;   
+  height: 180px;  
+  background: #000;
+  color: #fff;
+  margin: 0;
+}
+
+/* Counter number */
+.exhibitors-counter-box h2 {
+  font-size: 1.3rem;
+  margin: 5px 0;
+  font-weight: bold;
+  color: #fff;
+}
+
+/* Counter label */
+.exhibitors-counter-box p {
+  font-size: 0.85rem;
+  margin: 0;
+  text-align: center;
+  color: #ddd;
+}
+
+/* Counter icon */
+.exhibitors-counter-icon {
+  font-size: 1.8rem;
+  margin-bottom: 8px;
+  color: #fff;
+}
+
+/* Quick Links Wrapper with border */
+.exhibitors-quick-links {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 10px;               
+  border: 1px solid #070707;  
+  border-radius: 12px;         
+  background: #f9faff;         
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1); 
+}
+
+/* Quick Links Heading */
+.exhibitors-quick-links h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #0073e6;
+}
+
+/* Quick Links List */
+.exhibitors-quick-links ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Each Link Card */
+.exhibitors-quick-links li {
+  background: #0073e6; /* vibrant blue */
+  color: #fff;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Hover effect for each link */
+.exhibitors-quick-links li:hover {
+  background: #005bb5; /* darker blue on hover */
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+/* Links inside cards */
+.exhibitors-quick-links a {
+  color: #fff;
+  text-decoration: none;
+  display: block;
+}
+
+/* Optional small arrow for visual cue */
+.exhibitors-quick-links a::after {
+  content: "→";
+  margin-left: 8px;
+  transition: margin-left 0.3s;
+}
+
+/* Arrow moves slightly on hover */
+.exhibitors-quick-links li:hover a::after {
+  margin-left: 12px;
+}

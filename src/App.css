@@ -1,38 +1,21 @@
-.App {
-  text-align: center;
+.scroll-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden; /* Keep this to disable scrolling at container level */
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.page {
+  width: 100vw;
+  flex-shrink: 0;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.page:first-child {
+  height: 100vh; /* LandingPage stays full-screen */
+  overflow: hidden;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.page:last-child {
+  min-height: 100vh; /* HomePage should scroll if content is taller */
+  overflow-y: auto;
 }

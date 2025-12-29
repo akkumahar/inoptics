@@ -1,0 +1,44 @@
+.press-release-container{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 1;
+    overflow: visible;
+    scroll-behavior: smooth;
+    width: 100%;
+    max-width: 1000px;
+    margin: 40px auto 0px auto;
+    margin-bottom: 200px;
+}
+
+.press-heading{
+   color: #110e36;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-weight: 100;
+    font-size: 36px;
+    letter-spacing: -1.2px;
+    line-height: 25px;
+    margin: 20px 0px 0px 0px;
+    padding: 0px;
+    text-decoration: underline;
+}
+.press-heading-two{
+    /* color: #0b98ef;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 400;
+    font-size: 28px; */
+    letter-spacing: -1.2px;
+    line-height: 25px;
+    margin: 40px 0px 20px 0px;
+    padding: 0px;
+}
+.press-para{
+        margin: 0px 0px 20px 0px;
+    padding: 0px;
+    /* color: #2a3942;
+    font-family: "Quicksand", sans-serif;
+    font-weight: 500;
+    font-size: 17px; */
+    letter-spacing: -0.75px;
+    line-height: 22.5px;
+}

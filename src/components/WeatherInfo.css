@@ -1,0 +1,273 @@
+.weather-container {
+  overflow: hidden;
+  scroll-behavior: smooth;
+  width: 100%;
+  max-width: 1000px;
+  margin: 40px auto 0px auto;
+  margin-bottom: 200px;
+}
+
+
+.weather-image {
+position: absolute;
+background-size: cover;
+background-position: center;
+z-index: -2;
+width: 100%;
+}
+
+.weather-combined {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  flex: 1;
+  min-height: 100vh;
+  margin: 20px auto; 
+  position: relative;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.weather-left,
+.weather-right {
+  flex: 1;
+  margin-top: 40%;
+  width: 50%;
+}
+
+.date-time-container {
+  position: relative;  /* Ensures the absolute positioning of child elements */
+}
+
+.day-text {
+  font-size: clamp(20px, 5vw, 45px);
+  font-weight: bold;
+  color: #ba660c;
+  -webkit-text-stroke: 2px aliceblue;
+  position: absolute;
+  top: 52%; 
+  left: 32%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.month-text {
+  font-family: 'Kolker Brush', cursive;
+  font-size: clamp(60px, 18vw, 250px);
+  line-height: 200px;
+  text-align: left;
+  color: #ffffff;
+  position: relative;
+  z-index: 1; 
+  letter-spacing: -5px;
+  margin-left: 20px;
+ 
+}
+
+.date-row .label, .time-row .label {
+  font-size: 18px;  
+  font-weight: 400; 
+  font-family: "Quicksand", sans-serif;
+  letter-spacing: -0.5;
+  color: white;
+  margin: 0px 0px 0px 30px;
+}
+
+.date-row .value, .time-row .value {
+  font-size: 18px;  
+  font-weight: 400; 
+  font-family: "Quicksand", sans-serif;
+  letter-spacing: -0.5px;
+  color: white; 
+  margin: 0px 0px 0px 9px;
+}
+
+.main-temp {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  margin-top: 60px;
+}
+
+.temp-left h1 {
+  font-family: "Montserrat", sans-serif;
+  letter-spacing: -5px;
+  font-size: 100px; 
+  font-weight: 700;
+  margin: 0;
+  color: #240800;
+  line-height: 75px;
+}
+
+.temp-left sup {
+  font-family: "Montserrat", sans-serif;
+  letter-spacing: -5px;
+  font-size: 50px; 
+  font-weight: 700;
+  margin: 0px;
+  color: #240800;
+  top: -35px;
+}
+
+.temp-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.temp-right .state, .description, .high-low {
+  font-size: 18px;  
+  font-weight: 500; 
+  font-family: "Quicksand", sans-serif;
+  letter-spacing: -0.75px;
+  color: #240800;
+  margin: 0px;
+  text-transform: capitalize;
+  line-height: 24px;
+}
+
+.bottom-section {
+  display: flex;
+  column-gap: 50px;
+  margin-top: 25px;
+}
+
+.bottom-section strong {
+  text-transform: uppercase;
+  font-size: 18px;  
+  font-weight: 500; 
+  font-family: "Quicksand", sans-serif;
+  letter-spacing: -0.75px;
+  color: #240800;
+  margin: 0px;
+  line-height: 20px;
+}
+
+.bottom-section p  {
+  text-transform: uppercase;
+  font-size: 18px;  
+  font-weight: 500; 
+  font-family: "Quicksand", sans-serif;
+  letter-spacing: -0.75px;
+  color: #240800;
+  line-height: 20px;
+  margin: 0px 0px 5px 0px;
+  }
+
+
+h4.uv-header {
+  text-transform: uppercase;
+  font-size: 20px;  
+  font-weight: 700; 
+  font-family: "Quicksand", sans-serif;
+  letter-spacing: -0.75px;
+  color: #240800;
+  line-height: 20px;
+  margin: 0px 0px 5px 0px;
+}
+
+
+p.uv-text {
+  text-transform: uppercase;
+  font-size: 16px;  
+  font-weight: 500; 
+  font-family: "Quicksand", sans-serif;
+  letter-spacing: -0.75px;
+  color: #240800;
+  line-height: 20px;
+  margin: 10px 0px 0px 0px;
+}
+
+.uv-bar {
+  width: 120px;
+  height: 20px;
+  background-color: #ddd;
+  overflow: hidden;
+}
+
+.uv-level {
+  height: 20px;
+  background-color: orange;
+}
+
+.forecast-box1 {
+  margin-top: 110px;
+}
+
+.forecast-box1 h3 {
+  text-transform: uppercase;
+  font-size: 22px;  
+  font-weight: 500; 
+  font-family: "Montserrat", sans-serif;
+  letter-spacing: -0.75px;
+  color: #ffffffef;
+  line-height: 20px;
+  margin: 0px 0px 9px 0px;
+}
+
+/* Hourly Forecast Grid */
+.forecast-items-grid {
+  display: flex;
+  justify-content: flex-start;
+  column-gap: 5px;
+  flex-wrap: nowrap;
+}
+
+/* Hourly Forecast Item */
+.forecast-item-hourly {
+  text-align: center;
+  width: calc(100% / 6 - 7px);
+  background: rgba(59, 10, 2, 0.877);
+  padding: 5px 0px;
+  }
+
+.forecast-hour, .forecast-description, .forecast-temp  {
+  font-size: 14px;  
+  font-weight: 300; 
+  font-family: "Montserrat", sans-serif;
+  color: #ffffffef;
+}
+
+
+.forecast-item-hourly img {
+filter: brightness(1.2);  
+}
+
+.forecast-box2 {
+  margin-top: 65px;
+}
+
+.forecast-box2 h3 {
+  text-transform: uppercase;
+  font-size: 22px;  
+  font-weight: 500; 
+  font-family: "Montserrat", sans-serif;
+  letter-spacing: -0.75px;
+  color:  #240800;
+  line-height: 20px;
+  margin: 0px 0px 9px 0px;
+}
+
+.forecast-days-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 100px);
+  gap: 5px;
+  row-gap: 5px;
+  padding-right: 100px;
+}
+
+/* Daily Forecast Item */
+.forecast-item-daily {
+  text-align: center;
+  padding: 5px 0px 5px 0px;
+  background: rgba(59, 10, 2, 0.877);
+  font-size: 14px;  
+  font-weight: 300; 
+  font-family: "Montserrat", sans-serif;
+  color: #ffffffef;
+  
+}
+
+.forecast-days-grid img {
+filter: brightness(1.2);  
+}

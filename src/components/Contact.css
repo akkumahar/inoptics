@@ -1,0 +1,135 @@
+.contact-page-container{
+     display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 1;
+    overflow: visible;
+    scroll-behavior: smooth;
+    width: 100%;
+    max-width: 1200px;
+    margin: 40px auto 0px auto;
+    margin-bottom: 200px;
+}
+.contact-form-row {
+  display: flex;
+  gap: 40px;
+  margin-top: 20px;
+}
+
+.contact-left-container,
+.contact-right-container {
+  flex: 1;
+}
+.contact-heading{
+        font-family: "Playfair Display", serif;
+    font-size: 77px;
+    font-weight: 200;
+    text-transform: uppercase;
+    line-height: 0.9em;
+    letter-spacing: -5px;
+    color: #000000;
+}
+.contact-heading-two{
+      font-family: "Playfair Display", serif;
+       font-size: 77px;
+    font-weight: 200;
+    text-transform: uppercase;
+    background-color: black;
+    margin-top: 10px;
+    padding: 0px 30px 0px 25px;
+    color: white;
+    display: inline-block;
+    border-radius: 50px;
+}
+
+.contact-label{
+      display: block;
+  font-size: 18px;
+  font-weight: 300;
+  margin: 10px 0px 2px 0px;
+  color: #070707;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.contact-input-box {
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 18px;
+  background-color: #CFCFCF;
+  border: solid #000000;
+  border-width: 0px;
+  border-radius: 0px 50px 50px 50px;
+  margin-bottom: 16px;
+  font-family: inherit;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.contact-row-inputs {
+  display: flex;
+  gap: 20px;
+}
+
+.contact-column {
+  flex: 1;
+}
+
+.contact-checkbox-section {
+  display: flex;
+  /* align-items: flex-start; */
+  gap: 15px;
+  margin-top: 20px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.contact-form-footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  margin-top: 20px;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+
+
+.contact-send-button {
+  font-family: "Montserrat", Sans-serif;
+    font-size: 17px;
+    font-weight: 400;
+    text-transform: uppercase;
+   background-color: #000000;
+   color: white;
+  padding: 12px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+
+}
+
+.send-button:hover {
+  background-color: #0056b3;
+}
+
+.contact-right-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.contact-info i {
+  color: #040404;
+  margin-right: 10px;
+  font-size: 18px; /* Optional: make icons match text size */
+}
+
+.contact-info p {
+  margin: 8px 0;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #333;
+  font-family: "Montserrat", Sans-serif;
+    font-size: 17px;
+    font-weight: 400;
+}
+

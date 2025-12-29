@@ -1,0 +1,34 @@
+.exhibition-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 1;
+    overflow: visible;
+    scroll-behavior: smooth;
+    width: 100%;
+    max-width: 1000px;
+    margin: 40px auto 0px auto;
+    margin-bottom: 200px;
+  }
+
+  .exh-header {
+  margin: 40px 0px 30px 0px;
+  font-size: 70px;
+    color: #02062c;
+    font-family: "Playfair Display", serif;
+    font-weight: 300;
+    text-align: left;
+    letter-spacing: -2px;
+    line-height: 0px;
+}
+
+.exh-text {
+ margin: 10px 0px 60px 0px;
+  font-size: 22px;
+    color: #02062c;
+    font-family: "Quicksand", sans-serif;
+    font-weight: 400;
+    text-align: left;
+    letter-spacing: -1px;
+    line-height: 0px;
+}
