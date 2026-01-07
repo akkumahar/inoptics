@@ -24,6 +24,10 @@ import {
   faEye,
 } from "@fortawesome/free-solid-svg-icons";
 
+import { FaCircleCheck } from "react-icons/fa6";
+import { IoMdCloseCircle } from "react-icons/io";
+
+
 // React Icons package
 import {
   FaTachometerAlt,
@@ -44,10 +48,12 @@ import {
   FaTrash,
   FaEnvelope,
   FaEye,
+  FaDownload,
 } from "react-icons/fa";
 import TemplateLogo from "../assets/RSD_invoice_logo.png";
 import html2pdf from "html2pdf.js";
 import jsPDF from "jspdf";
+import { toast } from "react-toastify";
 // import { useMemo } from 'react';
 
 const AdminDashboard = () => {
@@ -1669,6 +1675,7 @@ const AdminDashboard = () => {
   );
 
   const [finalListData, setFinalListData] = useState([]);
+  const [formsMap, setFormsMap] = useState({}); // { formName: [dataObjects] }
 
   // Billing Form States
   const [totalAmount, setTotalAmount] = useState("");
@@ -2010,9 +2017,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleMailClick = (exhibitor) => {
-    console.log("Send mail to:", exhibitor.email);
-  };
+  const handleMailClick = (exhibitor) => {};
 
   const handleDeleteClick = async (id) => {
     if (!window.confirm("Are you sure you want to delete this exhibitor?"))
@@ -2195,7 +2200,6 @@ const AdminDashboard = () => {
       return;
     }
 
-    console.log("WhatsApp Message Saved:", whatsappMessage);
     alert("WhatsApp message saved successfully!");
   };
 
@@ -2296,7 +2300,6 @@ const AdminDashboard = () => {
       return;
     }
 
-    console.log("Saved Messages:", smsMessages);
     alert("Messages saved successfully!");
   };
 
@@ -2645,7 +2648,6 @@ const AdminDashboard = () => {
 
       // If the response is OK, parse the JSON data
       const data = await res.json();
-      console.log("1. Fetched raw data from API:", data); // Debugging: Check what data is received
 
       // This is the most important part for displaying: Update your React state
       setContractorUndertakingData(data);
@@ -3051,10 +3053,7 @@ const AdminDashboard = () => {
 
       // Fetch power payments
       let localPowerPayments = [];
-      console.log(
-        "Fetching power payments for company:",
-        formData.company_name
-      );
+
       try {
         const res = await fetch(
           `https://inoptics.in/api/get_exhibitor_power_payment.php?company_name=${encodeURIComponent(
@@ -3062,7 +3061,6 @@ const AdminDashboard = () => {
           )}`
         );
         const data = await res.json();
-        console.log("API response for power payments:", data);
 
         if (data.success && data.records && data.records.length > 0) {
           localPowerPayments = data.records.map((pay) => ({
@@ -3082,7 +3080,6 @@ const AdminDashboard = () => {
       }
 
       // Log power payments
-      console.log("localPowerPayments for email:", localPowerPayments);
 
       // Prepare power requirement details
       const setup = exhibitorPreviewList.find((r) =>
@@ -3232,10 +3229,7 @@ const AdminDashboard = () => {
 
       // Fetch badge payments
       let localBadgePayments = [];
-      console.log(
-        "Fetching badge payments for company:",
-        formData.company_name
-      );
+
       try {
         const res = await fetch(
           `https://inoptics.in/api/get_exhibitor_badge_payment.php?company_name=${encodeURIComponent(
@@ -3243,7 +3237,6 @@ const AdminDashboard = () => {
           )}`
         );
         const data = await res.json();
-        console.log("API response for badge payments:", data);
 
         if (data.success && data.records && data.records.length > 0) {
           localBadgePayments = data.records.map((pay) => ({
@@ -3261,9 +3254,6 @@ const AdminDashboard = () => {
       } catch (error) {
         console.error("Error fetching badge payments:", error);
       }
-
-      // Log badge payments
-      console.log("localBadgePayments for email:", localBadgePayments);
 
       // Get billing details
       const { count, total, cgst, sgst, igst, grandTotal } =
@@ -3391,13 +3381,13 @@ const AdminDashboard = () => {
     parsedContent = parsedContent.replace(/bsp;*/g, "");
 
     // Log final parsed content and request body for debugging
-    console.log("Final parsed content:", parsedContent);
-    console.log("Sending email with body:", {
-      email_name: emailTemplateName,
-      to: email,
-      html: parsedContent,
-      secondary_emails: formData.secondary_emails || "",
-    });
+    // console.log("Final parsed content:", parsedContent);
+    // console.log("Sending email with body:", {
+    //   email_name: emailTemplateName,
+    //   to: email,
+    //   html: parsedContent,
+    //   secondary_emails: formData.secondary_emails || "",
+    // });
 
     // ---------- SEND MAIL ----------
     try {
@@ -3414,7 +3404,6 @@ const AdminDashboard = () => {
       });
 
       const text = await response.text();
-      console.log("Server response:", text);
       const result = text ? JSON.parse(text) : {};
 
       if (response.ok) {
@@ -3559,7 +3548,6 @@ const AdminDashboard = () => {
       );
 
       const vendorResult = await vendorResponse.json();
-      console.log("Vendor Mail Response:", vendorResult);
 
       if (vendorResult.message?.includes("Mail sent successfully")) {
         // 9️⃣ Build Exhibitor Confirmation Mail
@@ -3592,7 +3580,7 @@ const AdminDashboard = () => {
         );
 
         const exhibitorResult = await exhibitorResponse.json();
-        console.log("Exhibitor Mail Response:", exhibitorResult);
+        // console.log("Exhibitor Mail Response:", exhibitorResult);
 
         if (exhibitorResult.message?.includes("Mail sent successfully")) {
           alert("✅ Mail sent successfully!");
@@ -3611,7 +3599,7 @@ const AdminDashboard = () => {
   };
 
   const handleSaveRegistrationItem = (item, index) => {
-    console.log("Saving item:", index, item);
+    // console.log("Saving item:", index, item);
     // You can use `fetch` or `axios` here to POST data to your backend
     alert(`Saved item ${index + 1}`);
   };
@@ -4094,7 +4082,7 @@ const AdminDashboard = () => {
       );
 
       const text = await res.text();
-      console.log("Raw response text:", text);
+      // console.log("Raw response text:", text);
 
       let data;
       try {
@@ -4124,7 +4112,7 @@ const AdminDashboard = () => {
       );
       const data = await response.json();
 
-      console.log("Fetched branding data:", data); // For debugging
+      // console.log("Fetched branding data:", data); // For debugging
 
       const normalizedData = data.map((item) => ({
         ...item,
@@ -4871,7 +4859,7 @@ const AdminDashboard = () => {
         }));
 
         alert("Data submitted successfully!");
-        console.log(result);
+        // console.log(result);
         setExhibitorPreviewList([]); // clear table after submission
       } else {
         alert("Submission failed: " + result.error);
@@ -4896,7 +4884,7 @@ const AdminDashboard = () => {
       const result = await response.json();
 
       if (response.ok && result.entries && result.entries.length > 0) {
-        console.log("Power data result:", result.entries);
+        // console.log("Power data result:", result.entries);
 
         // Map entries for table display
         const tableData = result.entries.map((item) => ({
@@ -4917,12 +4905,12 @@ const AdminDashboard = () => {
         setGrandTotal(parseFloat(result.entries[0].grand_total || 0));
 
         // 🔹 Capture lock and unlock state
-        console.log(
-          "Lock status:",
-          result.entries[0].is_locked,
-          "Type:",
-          typeof result.entries[0].is_locked
-        );
+        // console.log(
+        //   "Lock status:",
+        //   result.entries[0].is_locked,
+        //   "Type:",
+        //   typeof result.entries[0].is_locked
+        // );
         setIsLocked(result.entries[0].is_locked == 1); // flexible check
         setUnlockRequested(result.entries[0].unlock_requested == 1);
       } else {
@@ -4991,8 +4979,8 @@ const AdminDashboard = () => {
   };
 
   const handleResetRow = async (item, companyName) => {
-    console.log("Item to delete:", item);
-    console.log("Company name from formData:", companyName);
+    // console.log("Item to delete:", item);
+    // console.log("Company name from formData:", companyName);
 
     if (!companyName) {
       alert("Invalid row data: missing company_name");
@@ -5746,13 +5734,13 @@ const AdminDashboard = () => {
     }
 
     if (showExhibitorEditForm) {
-      console.log("Updating exhibitor:", formData);
+      // console.log("Updating exhibitor:", formData);
 
       updateExhibitor(formData);
     }
     // Add mode
     else if (showExhibitorAddForm) {
-      console.log("Adding new exhibitor:", formData);
+      // console.log("Adding new exhibitor:", formData);
 
       addExhibitor(formData);
     }
@@ -5880,7 +5868,7 @@ const AdminDashboard = () => {
       );
 
       const text = await res.text(); // get raw response body
-      console.log("Raw response text:", text);
+      // console.log("Raw response text:", text);
 
       let data;
       try {
@@ -5931,8 +5919,8 @@ const AdminDashboard = () => {
       setSelectedFurniture(normalizedData);
       setLockState(data.lockState || { is_locked: 0, unlock_requested: 0 });
 
-      console.log("Fetched furniture:", normalizedData);
-      console.log("Lock state:", data.lockState);
+      // console.log("Fetched furniture:", normalizedData);
+      // console.log("Lock state:", data.lockState);
     } catch (error) {
       console.error("Error fetching selected furniture data:", error);
     }
@@ -6210,7 +6198,7 @@ const AdminDashboard = () => {
       }
 
       const data = await response.json();
-      console.log("Raw stalls from API:", data);
+      // console.log("Raw stalls from API:", data);
 
       // ✅ Your custom rounding rule
       const customRound = (value) => {
@@ -6245,7 +6233,7 @@ const AdminDashboard = () => {
 
               grand_total: customRound(stall.grand_total),
             };
-            console.log("Raw discount from API:", stall.discount);
+            // console.log("Raw discount from API:", stall.discount);
           })
         : data;
       setStallList(roundedData);
@@ -6357,7 +6345,7 @@ const AdminDashboard = () => {
       if (response.ok) {
         const result = await response.json();
         alert("Stall data submitted successfully!");
-        console.log(result);
+        // console.log(result);
 
         fetchExhibitorData();
 
@@ -6801,7 +6789,7 @@ const AdminDashboard = () => {
       );
 
       const result = await res.json();
-      console.log("Save address result:", result);
+      // console.log("Save address result:", result);
 
       if (result.success) {
         alert("Address updated successfully!");
@@ -7891,7 +7879,7 @@ const AdminDashboard = () => {
       }
 
       const data = await res.json();
-      console.log("Fetched instructions:", data);
+      // console.log("Fetched instructions:", data);
       setInstructionData(data);
     } catch (error) {
       console.error("Error fetching instructions:", error);
@@ -8188,7 +8176,7 @@ const AdminDashboard = () => {
       if (!response.ok) throw new Error("Failed to save news");
 
       const result = await response.json();
-      console.log("Success:", result.message);
+      // console.log("Success:", result.message);
 
       setShowLatestNewsModal(false);
       fetchLatestNews();
@@ -8220,7 +8208,7 @@ const AdminDashboard = () => {
     try {
       const res = await fetch("https://inoptics.in/api/get_latest_news.php");
       const data = await res.json();
-      console.log("Fetched news from API:", data);
+      // console.log("Fetched news from API:", data);
       setLatestNewsData(data);
     } catch (err) {
       console.error("Failed to fetch latest news", err);
@@ -8637,10 +8625,10 @@ const AdminDashboard = () => {
         "https://www.inoptics.in/api/get_power_requirement.php"
       );
       const text = await response.text();
-      console.log("Raw response text:", text);
+      // console.log("Raw response text:", text);
 
       const data = JSON.parse(text);
-      console.log("Parsed powerData:", data); // ⬅️ Add this
+      // console.log("Parsed powerData:", data); // ⬅️ Add this
 
       setPowerData(data);
     } catch (error) {
@@ -9722,10 +9710,6 @@ const AdminDashboard = () => {
   // Extract normalized sender and recipient state
   const fromState2 = normalizeState(formTemplateData.senderState);
   const toState2 = normalizeState(formTemplateData.stateCity?.split(",")[0]);
-
-  // ✅ Log to help debug if needed
-  console.log("Sender State:", fromState2);
-  console.log("Buyer State:", toState2);
 
   // Subtotal & Discount
   const subTotal2 = invoiceRows.reduce(
@@ -12293,6 +12277,146 @@ const AdminDashboard = () => {
       box.style.fontSize = `${currentSize - 0.5}px`;
     }
   }, [currentLabelIndex, labelData]);
+
+  // exhibitor unlock request contractor from
+  const [unlockRequests, setUnlockRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [processing, setProcessing] = useState(null);
+
+  useEffect(() => {
+    fetchUnlockRequests();
+  }, []);
+
+  const fetchUnlockRequests = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(
+        "https://inoptics.in/api/admin_unlock_requests.php"
+      );
+      const data = await res.json();
+
+      if (Array.isArray(data)) {
+        setUnlockRequests(data);
+      } else {
+        setUnlockRequests(data.data || []);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    setLoading(false);
+  };
+
+  const handleUnlock = async (company) => {
+    const confirm = window.confirm(`Unlock contractor form for ${company}?`);
+
+    if (!confirm) return;
+
+    setProcessing(company);
+
+    try {
+      const res = await fetch(
+        "https://inoptics.in/api/admin_unlock_contractor.php",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ exhibitor_company: company }),
+        }
+      );
+
+      const text = await res.text();
+      const data = JSON.parse(text);
+
+      if (data.success) {
+        toast.success("Contractor form unlocked successfully!");
+
+        // 🔥 Remove request from admin list immediately
+        setUnlockRequests((prev) =>
+          prev.filter((item) => item.exhibitor_company !== company)
+        );
+      } else {
+        toast.error("Unlock failed");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Server error while unlocking");
+    }
+
+    setProcessing(null);
+  };
+
+ const fetchUploadedForms = async () => {
+  try {
+    const res = await fetch("https://inoptics.in/api/get_all_uploaded_exhibitor_forms.php");
+    const json = await res.json();
+
+    console.log("Forms API raw:", json);
+
+    if (!json.success || !Array.isArray(json.data)) {
+      console.warn("No forms data");
+      return;
+    }
+
+    // 🔥 Convert array → company based map
+    const map = {};
+
+    json.data.forEach((row) => {
+      const company = row.exhibitor_company_name;
+
+      if (!map[company]) {
+        map[company] = [];
+      }
+
+      map[company].push({
+        file_name: row.file_name,
+        file_path: row.file_path,
+      });
+    });
+
+    console.log("Forms Map:", map); // 👈 must show company name as key
+
+    setFormsMap(map);
+  } catch (error) {
+    console.error("Forms fetch failed", error);
+  }
+};
+
+
+useEffect(() => {
+  fetchUploadedForms();
+}, []);
+
+
+  useEffect(() => {
+    fetchAllFinalSelections();
+    fetchUploadedForms();
+  }, []);
+
+
+
+  const approveBooth = (id) => {
+  fetch("https://inoptics.in/api/approve_booth_design.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.success) alert("Booth Design Approved");
+  });
+};
+
+const rejectBooth = (id) => {
+  fetch("https://inoptics.in/api/reject_booth_design.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.success) alert("Booth Design Rejected");
+  });
+};
+
 
   return (
     <div className="dashboard-container">
@@ -15129,15 +15253,9 @@ const AdminDashboard = () => {
 
                     {/* View Mode (READ-ONLY) */}
                     {isViewOnly ? (
-                      <div
-                        className="view-only-details"
-                       
-                      >
+                      <div className="view-only-details">
                         <h3 style={{ marginBottom: "10px" }}>BASIC DETAILS</h3>
-                        <div
-                          className="details-grid"
-                          
-                        >
+                        <div className="details-grid">
                           <p>
                             <strong>COMPANY NAME:</strong>{" "}
                             <span>{formData.company_name}</span>
@@ -17737,7 +17855,6 @@ const AdminDashboard = () => {
                                             selectedFurniture
                                           )
                                             .then(() => {
-                                              console.log("Update successful");
                                               setSelectedFurniture([]);
                                             })
                                             .catch((err) => {
@@ -24133,6 +24250,7 @@ const AdminDashboard = () => {
                     "Final List",
                     "Undertaking & Registration Fees",
                     "Guidelines For Construction",
+                    "Unlock Exhibitors",
                   ].map((tab) => (
                     <li
                       key={tab}
@@ -24149,6 +24267,70 @@ const AdminDashboard = () => {
 
               {/* Contractor Content */}
               <div className="contractor-tab-content">
+                {activeContractorTab === "Unlock Exhibitors" && (
+                  <>
+                    <div className="table-scroll-wrapper">
+                      <div className="contractor-table-container">
+                        <table className="contractor-table">
+                          <thead>
+                            <tr>
+                              <th>ID</th>
+                              <th>Exhibitor Company</th>
+                              <th>Exhibitor Email</th>
+                              <th>Contractor Name</th>
+                              <th>Contractor Email</th>
+                              <th>Requested At</th>
+                              <th>Action</th>
+                            </tr>
+                          </thead>
+
+                          <tbody>
+                            {loading ? (
+                              <tr>
+                                <td colSpan="7">Loading...</td>
+                              </tr>
+                            ) : !Array.isArray(unlockRequests) ||
+                              unlockRequests.length === 0 ? (
+                              <tr>
+                                <td colSpan="7">No unlock requests</td>
+                              </tr>
+                            ) : (
+                              unlockRequests.map((req, index) => (
+                                <tr key={req.exhibitor_company}>
+                                  <td>{index + 1}</td>
+                                  <td>{req.exhibitor_company}</td>
+                                  <td>{req.exhibitor_email}</td>
+                                  <td>{req.contractor_name}</td>
+                                  <td className="contractor-email-cell">
+                                    {req.contractor_email}
+                                  </td>
+                                  <td>{req.requested_at}</td>
+
+                                  <td className="contractor-action-cell">
+                                    <button
+                                      className="action-btn edit-btn"
+                                      disabled={
+                                        processing === req.exhibitor_company
+                                      }
+                                      onClick={() =>
+                                        handleUnlock(req.exhibitor_company)
+                                      }
+                                    >
+                                      {processing === req.exhibitor_company
+                                        ? "Unlocking..."
+                                        : "Unlock"}
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </>
+                )}
+
                 {activeContractorTab === "Contractors Requirement" && (
                   <>
                     <div className="table-scroll-wrapper">
@@ -24373,34 +24555,61 @@ const AdminDashboard = () => {
                         <thead>
                           <tr>
                             <th>ID</th>
-                            <th>EXHIBITOR COMPANY NAME</th>
-                            <th>CONTRACTOR NAME</th>
-                            <th>CONTRACTOR COMPANY NAME</th>
+                            <th>EXHIBITOR</th>
+                            <th>CONTRACTOR</th>
                             <th>BADGES</th>
-                            <th>UNDERTAKING</th>
-                            <th>REGISTRATION FEES</th>
+                            <th>FORMS</th>
+                            <th>SECURITY</th>
                             <th>BOOTH DESIGN</th>
+                            <th>STATUS</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {finalListData.length > 0 ? (
-                            finalListData.map((item, index) => (
-                              <tr key={index}>
-                                <td>{index + 1}</td>
-                                <td>{item.exhibitor_company_name || "N/A"}</td>
-                                <td>{item.contractor_name || "N/A"}</td>
-                                <td>{item.contractor_company_name || "N/A"}</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                              </tr>
-                            ))
-                          ) : (
-                            <tr>
-                              <td colSpan="8">No data found</td>
-                            </tr>
-                          )}
+                          {finalListData.map((item, index) => {
+  const forms = formsMap[item.exhibitor_company_name] || {};
+
+  return (
+    <tr key={index}>
+      <td>{index + 1}</td>
+      <td>{item.exhibitor_company_name}</td>
+      <td>{item.contractor_name}</td>
+      <td>{item.contractor_company_name}</td>
+
+      {/* FORMS COLUMN */}
+      <td>
+  <div className="forms-icons-row">
+    {formsMap[item.exhibitor_company_name]?.length > 0 ? (
+      formsMap[item.exhibitor_company_name].map((f, i) => (
+        <a
+          key={i}
+          href={`https://inoptics.in/api/${f.file_path}`}
+          target="_blank"
+          rel="noreferrer"
+          title={f.file_name}
+          className="form-view-icon"
+        >
+          <FaEye />
+        </a>
+      ))
+    ) : (
+      <span style={{ color: "#999" }}>—</span>
+    )}
+  </div>
+</td>
+
+
+      <td></td>
+      <td></td>
+      <td>
+        <div className="contractor-final-list-btn">
+          <button onClick={()=>rejectBooth(item.id)} className="contractor-final-list-btn-reject"><IoMdCloseCircle /></button>
+          <button  onClick={()=>approveBooth(item.id)} className="contractor-final-list-btn-approve"><FaCircleCheck /></button>
+        </div>
+      </td>
+    </tr>
+  );
+})}
+
                         </tbody>
                       </table>
                     </div>

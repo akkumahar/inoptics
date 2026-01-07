@@ -1,3 +1,19 @@
+/* Universal responsive safety */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+img, iframe, video {
+  max-width: 100%;
+  height: auto;
+}
+
 /* Container */
 .exhibitordashboard-container {
   display: flex;
@@ -29,8 +45,7 @@
 }
 
 .exhibitordashboard-sidebar-title {
-  font-size: 18px;
-  font-weight: bold;
+  font-size: 28px;
   margin: 0;
   white-space: nowrap;
 }
@@ -138,9 +153,6 @@
   justify-content: space-between; 
   align-items: center;
   padding: 10px 20px;
-  background: #f8f9fa;
-  border-bottom: 1px solid #ddd;
-  font-family: "Montserrat";
   font-weight: 500;
 }
 
@@ -426,6 +438,97 @@
   font-weight: 600;
 }
 
+
+.checklist-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;            /* 👈 gap kam */
+  margin-top: 10px;
+}
+
+/* Card row */
+.checklist-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  padding: 10px 14px;   /* 👈 height kam */
+  border-radius: 10px; /* 👈 softer curve */
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.04); /* 👈 subtle shadow */
+  transition: 0.2s ease;
+}
+
+/* Hover for premium feel */
+.checklist-row:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.06);
+}
+
+/* Left side */
+.checklist-left {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* 👈 gap kam */
+}
+
+.checklist-icon {
+  width: 26px;     /* 👈 smaller */
+  height: 26px;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checklist-name {
+  font-size: 14px;  /* 👈 thoda smaller */
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.checklist-status {
+  font-size: 13px;
+  font-weight: 600;
+  
+}
+
+/* DONE (black) */
+.checklist-row.completed {
+  background: #292a28;
+  border-color: #e9e9e9;
+  color: #ffffff;
+}
+.checklist-row.completed .checklist-icon {
+  background: #ffffff;
+  color: #292a28;
+}
+
+.checklist-row.completed .checklist-name {
+  color: #ffffff;
+}
+
+/* PENDING (gray) */
+.checklist-row.pending {
+  background: #e9e9e9;
+  border-color: #636362
+;
+}
+.checklist-row.pending .checklist-icon {
+  background: #636362;
+  color: white;
+}
+.checklist-row.pending .checklist-status {
+  color: #636362;
+}
+
+
+
+
+
+
 /* Responsive adjustments */
 @media (max-width: 992px) {
   .exhibitordashboard-row {
@@ -444,6 +547,180 @@
     grid-template-columns: 1fr; /* 1 per row on mobile */
   }
 }
+
+
+/* mandatory form section style start */
+/* ROOT */
+.mandatory-root {
+  display: flex;
+  height: 80vh;
+  background: #f3f4f6;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
+}
+
+/* LEFT PANEL */
+.mandatory-left {
+  width: 35%;
+  background: #ffffff;
+  border-right: 1px solid #e5e7eb;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.mandatory-left h3 {
+  margin-bottom: 14px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* CARD */
+.mandatory-item {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+  transition: 0.2s ease;
+  cursor: pointer;
+}
+
+.mandatory-item:hover {
+  background: #f3f4f6;
+}
+
+.mandatory-item.active {
+  border-color: #3b82f6;
+  background: #eff6ff;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.12);
+}
+
+.mandatory-info {
+  margin-bottom: 10px;
+}
+
+.mandatory-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.mandatory-sub {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+/* ACTION BUTTONS */
+.mandatory-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Shared Button Style */
+.doc-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  transition: 0.2s ease;
+  text-transform: uppercase;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+.contractor-form-btn{
+  display: flex;
+  justify-content: center;
+}
+
+/* next button disable when not uploaded form by exhibitor */
+.btn-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+
+
+.download-btn{
+  text-decoration: none;
+}
+.doc-btn:hover {
+  background: #f9fafb;
+  transform: translateY(-1px);
+}
+
+/* Icons */
+.doc-icon {
+  font-size: 13px;
+}
+
+.doc-icon-exhibitor{
+  margin: 5px;
+  display: inline-block;
+
+}
+
+
+/* RIGHT PANEL */
+.mandatory-right {
+  width: 65%;
+  background: #f9fafb;
+  display: flex;
+  flex-direction: column;
+}
+
+.preview-title {
+  padding: 12px 16px;
+  font-weight: 600;
+  font-size: 14px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  color: #111827;
+}
+
+.preview-frame {
+  flex: 1;
+  width: 100%;
+  border: none;
+  background: white;
+}
+
+.preview-empty {
+  margin: auto;
+  font-size: 15px;
+  color: #6b7280;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .mandatory-root {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .mandatory-left,
+  .mandatory-right {
+    width: 100%;
+  }
+
+  .mandatory-right {
+    height: 60vh;
+  }
+}
+
+/* mandatory form section style end */
 
 /* Table Css */
 .particular-heading {
@@ -2014,37 +2291,37 @@ html, body {
 
 .ExhibitorContractors-rightContainer {
   flex: 0 0 40%;
-  height: calc(96vh - 60px); 
+  height: calc(96vh - 70px); 
   background-color: #eeeeee;
   padding: 20px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 15px;
-  overflow-y: auto !important;  
-  overflow-x: hidden !important;
+  
 }
 
 
 .ExhibitorContractors-left-top-row {
-  display: flex;
-  gap: 20px;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: 1fr 1fr;   /* two equal cards */
+  gap: 16px;
+  align-items: stretch;
 }
 
 
 .ExhibitorContractors-left-top-item {
-  flex: 1;
-  padding: 14px 16px;
-  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: 100%;
 }
-
 
 .ExhibitorContractors-heading {
   font-family: "Montserrat", sans-serif;
   font-weight: 600;
-  font-size: 22px;
-  color: #1a237e;
+  font-size: 17px;
+  color: black;
   margin: 0 0 10px 0;
   text-transform: uppercase;
 }
@@ -2066,15 +2343,25 @@ html, body {
 .ExhibitorContractors-points li {
   font-family: "Montserrat", sans-serif;
   font-weight: 400;
-  font-size: 14px;
-  margin-bottom: 6px;
+  font-size: 13.5px;
+  margin-bottom: 16px;
   color: #201d1d;
   line-height: 1.5;
 }
 
 
 .ExhibitorContractors-table-section {
+  margin-top: 35px;
   width: 100%;
+  padding: 10px 15px;
+  border-radius: 20px;
+  border-bottom: 5px solid #d9d9d9;
+}
+
+.ExhibitorContractors-table-section .ExhibitorContractors-info{
+  font-family: "Montserrat", sans-serif;
+  font-size: 15px;
+  color: #555555;
 }
 
 
@@ -2164,14 +2451,17 @@ html, body {
   border-radius: 6px;
   cursor: pointer;
   color: #fff;
+  border: 1px solid #CCCCCC;
   font-size: 13px;
 }
 
 .ExhibitorContractors-select-btn {
-  background-color: #28a745;
+  background-color: #F9FAFB;
+  color: #000;
 }
 .ExhibitorContractors-select-btn:hover {
-  background-color: #218838;
+  background-color: #d5d6d6;
+  color: #000;
 }
 .ExhibitorContractors-select-btn:disabled {
   opacity: 0.6;
@@ -2190,6 +2480,7 @@ html, body {
   font-family: "Montserrat", sans-serif;
   font-size: 14px;
   font-weight: 500;
+  margin-top: 20px;
   margin-bottom: 4px;
   color: #37474f;
 }
@@ -2292,7 +2583,7 @@ iframe img {
 
 
 .ContractorPopup-box {
-  width: 420px;
+  width: 650px;
   background: white;
   padding: 25px;
   border-radius: 10px;
@@ -2335,14 +2626,14 @@ iframe img {
 
 .PopupOkBtn {
   padding: 8px 18px;
-  background: #28a745;
-  color: #fff;
-  border: none;
+  background: #F9FAFB;
+  color: #000;
+  border: 1px solid #CCCCCC;
   border-radius: 6px;
   cursor: pointer;
 }
 .PopupOkBtn:hover {
-  background: #1e7e34;
+  background: #dee0e0;
 }
 
 
@@ -2355,7 +2646,7 @@ iframe img {
   height: 100%; 
   transition: transform 0.45s cubic-bezier(.2,.9,.2,1), opacity 0.35s ease;
   will-change: transform, opacity;
-  padding: 20px;
+  padding: 5px 20px;
 }
 
 
@@ -2401,8 +2692,7 @@ iframe img {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 12px;
-  padding: 10px 4px;
+  padding: 0px 0px;
   margin-bottom: 12px;
   z-index: 5;
   position: relative; 
@@ -2412,7 +2702,6 @@ iframe img {
   display: inline-flex; 
   align-items: center;
   gap: 8px;
-  padding: 6px 10px;
   min-width: 92px;
   transition: background 0.25s, color 0.25s, transform 0.25s;
 }
@@ -2422,7 +2711,8 @@ iframe img {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fff;
+  background: rgba(187, 185, 185, 0.699);
+  color: #000000;
   font-weight: 700;
   box-shadow: 0 1px 3px rgba(0,0,0,0.06);
   line-height: 0;
@@ -2434,8 +2724,7 @@ iframe img {
   text-transform: uppercase;
 }
 .wf-step.active {
-  background: #000000;
-  color: #fff;
+  color: black;
 }
 .wf-step.active .wf-step-num {
   background: #6b0000;
@@ -2459,23 +2748,21 @@ iframe img {
 
 .Workflow-panel {
   position: absolute;
-  top: 135px;         
-  left: 0;
-  width: 100%;
+  top: 0px;         
+  left: 5px;
+  width: 98%;
   height: calc(100% - 65px); 
-  padding: 14px;
-  transition: transform 0.35s ease, opacity 0.35s ease;
-  overflow-y: auto;  
+  transition: transform 0.35s ease, opacity 0.35s ease; 
 }
 .panel-step-1, .panel-step-2 {
   height: auto;
 }
 
 
-.Workflow-panel.show {
+/* .Workflow-panel.show {
   transform: translateX(0);
   opacity: 1;
-}
+} */
 
 .Workflow-panel.hide-left {
   transform: translateX(-30%);
@@ -2492,25 +2779,48 @@ iframe img {
 .workflow-left-top-actions {
   display: flex;
   justify-content: flex-start;
-  gap: 12px;
- margin: 20px 0px 20px 20px;
+  gap: 10px;
+  margin-top: 5px;
 }
 
 .workflow-left-top-actions .unlock-btn,
 .workflow-left-top-actions .view-list-btn,
 .workflow-left-top-actions .view-uploaded-btn {
-  padding: 8px 14px;
-  background: #004aad;
-  border: none;
-  color: white;
-  border-radius: 4px;
+  padding: 6px 23px;
+  background: #FFFFFF;
+  border: 1px solid #D1D5DB;
+  text-decoration: none;
+  color: #374151;
+  border-radius: 35px;
   font-size: 14px;
   cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  /* transition: background 0.3s, box-shadow 0.3s; */
 }
 
-.workflow-left-top-actions .view-uploaded-btn {
-  background: #27ae60;
+.workflow-left-top-actions .unlock-btn:hover,
+.workflow-left-top-actions .view-list-btn:hover{
+  background: #FFFFFF;
+  border: 1px solid #D1D5DB;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
 }
+.workflow-left-top-actions .view-uploaded-btn:hover{
+  transform: translateY(-2px);
+   border: 1px solid #D1D5DB;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+.workflow-left-top-actions .unlock-btn,
+.workflow-left-top-actions .view-list-btn,
+.workflow-left-top-actions .view-uploaded-btn,
+.workflow-left-top-actions .btn-icon {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 12px;
+}
+
 
 
 
@@ -2576,10 +2886,13 @@ iframe img {
 .Workflow-upload-btn {
   background: #1a237e;
   color: #fff;
-}
-.Workflow-send-btn {
-  background: #28a745;
-  color: #fff;
+  background: #FFFFFF;
+  color: #374151;
+  border: 1px solid #374151;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer; 
+  transition: all 0.3s ease;
 }
 
 
@@ -2589,35 +2902,25 @@ iframe img {
   .Workflow-iframeBox { height: 360px; }
 }
 
-.Workflow-next-btn {
-  padding: 8px 20px;
-  background: #1a237e;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  min-width: 100px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.3s ease;
-}
+
+
 
 .Workflow-next-btn::after {
   content: "→";
-  font-size: 18px;
-  font-weight: bold;
+  font-size: 12px;
+  
 }
 
+
+
 .Workflow-next-btn:hover {
-  background: #0d47a1;
-  transform: translateY(-1px);
+  background: #FFFFFF;
 }
 
 .step-1-actions {
   display: flex;
   gap: 16px;
+  margin-top: 10px;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
@@ -2712,7 +3015,7 @@ iframe img {
 .Workflow-actions-top {
   display: flex;
   gap: 16px;
-  /* padding: 20px 14px; */
+  padding: 2px 0px;
   flex-wrap: wrap;
 }
 
@@ -2735,20 +3038,47 @@ iframe img {
 
 .workflow-left-flex-row {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: flex-start;
-  gap: 20px;
-  margin-top: 20px;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .selected-contractor-container {
   flex: 1;
+  width: 100%;
   padding: 18px;
+}
+.selected-contractor-container .selected-contractor-container-box{
+ display: flex;
+ gap: 15px;
 }
 
 .exhibitor-instruction-box {
   flex: 1;
   padding: 18px;
+}
+
+
+.exhibitor-instruction-box-checklist{
+  flex: 1;
+  background: none;
+  box-shadow: none;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid #ccc;
+
+
+}
+.exhibitor-instruction-header{
+  font-family: "Montserrat", sans-serif;
+  display: flex;
+  text-align: center;
+  align-items: center;
+  font-size: 16px;
+  padding: 12px 15px;
+  color: #000000;
+  text-transform: uppercase;
 }
 
 /* .workflow-left-top-actions {
@@ -2759,7 +3089,7 @@ iframe img {
 } */
 
 .selected-contractor-container p {
-  margin: 5px 0;
+  margin: 2px 0;
   font-size: 14px;
   color: #333;
   font-family: "Montserrat", sans-serif;
@@ -2878,3 +3208,681 @@ iframe img {
 .overlay-table-wrapper {
   margin-top: 20px;
 }
+
+
+/* contractor list overlay section style start */
+
+
+
+/* contractor list overlay section style end */
+
+
+
+.ExhibitorContractors-root {
+  width: 100%;
+  padding-left: 20px;
+}
+
+.ExhibitorContractors-main-split {
+  display: flex;
+  gap: 30px;
+  height: calc(100vh - 120px);
+}
+
+/* LEFT = instructions */
+.ExhibitorContractors-leftContainer {
+  flex: 0.6;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow: hidden;
+}
+
+/* RIGHT = table + workflow */
+.ExhibitorContractors-rightContainer {
+  flex: 1.4;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Instruction cards */
+.ExhibitorContractors-left-top-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.ExhibitorContractors-left-top-item {
+  display: flex;
+  flex-direction: column;
+}
+
+
+
+.ExhibitorContractors-appointed-contractor-wrapper {
+  width: 100%;
+}
+
+.ExhibitorContractors-exhibitor-cont-table-container {
+  max-height: 520px;
+  overflow-y: auto;
+}
+
+.ExhibitorContractors-appointed-contractor-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ExhibitorContractors-appointed-contractor-table thead th {
+  position: sticky;
+  top: 0;
+  background: #fff;
+  border-bottom: 2px solid #000;
+}
+
+.ExhibitorContractors-appointed-contractor-table td {
+  padding: 10px;
+  font-size: 14px;
+}
+
+
+/* GLOBAL THEME OVERRIDE */
+
+.ExhibitorContractors-leftContainer,
+.ExhibitorContractors-rightContainer,
+.contractor-ui-body,
+.ExhibitorContractors-left-top-item,
+.selected-contractor-container,
+.exhibitor-instruction-box,
+.mandatory-form-container,
+.contractor-mandatory-panel,
+.ExhibitorContractors-appointed-contractor-wrapper,
+.ExhibitorContractors-exhibitor-cont-table-container,
+.ExhibitorContractors-formBox,
+.Workflow-iframeBox {
+  background: none;
+  box-shadow: none;
+}
+
+/* Left side cards bottom border */
+.ExhibitorContractors-left-top-item,
+.selected-contractor-container,
+.exhibitor-instruction-box,
+.mandatory-form-container,
+.contractor-mandatory-panel {
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  padding: 10px 25px 15px 15px;
+}
+
+/* Table header style */
+.ExhibitorContractors-appointed-contractor-table thead th {
+  background: none;
+  color: #000;
+}
+
+
+
+
+@media (max-width: 1024px) {
+  .ExhibitorContractors-main-split {
+    flex-direction: column;
+  }
+
+  .ExhibitorContractors-leftContainer,
+  .ExhibitorContractors-rightContainer {
+    flex: 1;
+    width: 100%;
+  }
+
+  .ExhibitorContractors-left-top-row {
+    grid-template-columns: 1fr; /* stack cards */
+  }
+}
+
+@media (max-width: 600px) {
+  .contractor-ui-body {
+    padding: 10px;
+  }
+
+  .ExhibitorContractors-appointed-contractor-table th,
+  .ExhibitorContractors-appointed-contractor-table td {
+    font-size: 11px;
+    padding: 6px;
+  }
+
+  .ExhibitorContractors-select-btn,
+  .ExhibitorContractors-unselect-btn {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+}
+
+
+
+/* current step 1 exhibitor from process insturction preview start */
+
+
+/* contractor check list section style start */
+
+.exhibitor-instruction-box-checklist {
+  width: 100%;
+  border-radius: 12px;
+}
+
+
+.exhibitor-instruction-header h4 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.exhibitorInstructions-container {
+  display: flex;
+  padding: 0 16px;
+}
+
+/* LEFT STEP BAR */
+.Workflow-progress {
+  width: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.wf-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 0.4;
+}
+
+.wf-step.active {
+  opacity: 1;
+}
+
+.wf-step-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #111;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+}
+
+.wf-step-label {
+  font-size: 11px;
+  margin-top: 6px;
+  color: #111;
+  text-align: center;
+}
+
+.wf-line {
+  width: 2px;
+  height: 40px;
+  background: #ccc;
+  margin: 8px 0;
+}
+
+.wf-line.active {
+  background: #111;
+}
+
+/* RIGHT CONTENT */
+.exhibitorinsructionchecklist-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+
+.ExhibitorContractors-heading {
+  font-size: 20px;
+  margin-bottom: 20px;
+  font-weight: 500;
+  color: #111;
+}
+.ExhibitorContractors-heading-checklist {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111;
+}
+/* contractor check list section style end */
+
+
+.ExhibitorStep1-grid {
+  display: grid;
+  grid-template-columns: 45% 55%;
+  gap: 24px;
+  margin-top: 45px;
+  height: calc(100vh - 300px); /* matches right panel */
+}
+
+
+
+/* LEFT PANEL */
+.ExhibitorInstructions {
+  border-radius: 12px;
+  color: #fff;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
+  display: flex;
+  border: 1px solid #ddd;
+  padding: 16px;
+  flex-direction: column;
+}
+
+.thankyou-card-container{
+  border: none;
+}
+
+.ExhibitorInstructions h4 {
+  font-size: 20px;
+  color: #000000;
+}
+
+.ExhibitorInstructions ul {
+  list-style:square;
+  padding: 0;
+  margin: 0;
+  padding: 0px 20px 0px 24px;
+}
+
+.ExhibitorInstructions li {
+  position: relative;
+  margin-bottom: 25px;
+  line-height: 1.6;
+  color: #383131;
+}
+
+
+
+/* RIGHT PDF */
+.ExhibitorPDFPreview {
+  background: #111;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
+}
+
+.ExhibitorPDFPreview iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* current step 1 exhibitor from process insturction preview end */
+
+
+/* left side chekc list selected contractor start */
+
+/* Make progress container vertical */
+
+
+.Workflow-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.exhibitorInstructions-container {
+  text-align: center;
+  display: flex;
+
+}
+
+.exhibitorInstructions-content-box{
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.exhibitorinsructionchecklist-box{
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  gap: 9px;
+  margin-left: 15px;
+  margin-top: 6px;
+}
+
+/* Each step */
+.wf-step {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+/* Step number circle */
+.wf-step-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #111;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,0.3);
+  margin-bottom: 6px;
+}
+
+/* Step label under number */
+.wf-step-label {
+  font-size: 12px;
+  color: black;
+  text-align: center;
+}
+
+/* Vertical connecting line */
+.wf-line {
+  width: 2px;
+  height: 80px;              /* controls spacing between steps */
+  background: rgba(255,255,255,0.25);
+  margin: 10px 0;
+}
+
+/* Active states */
+.wf-step.active .wf-step-num {
+  background: black;
+  color: #fff;
+}
+
+.wf-line.active {
+  background: #fff;
+}
+
+
+.ExhibitorContractors-checkpoints li{
+  position: relative;
+  padding:8px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  border-radius: 12px;
+  background: #cfcece;
+  color: rgb(49, 44, 44);
+  line-height: 1.6;
+}
+
+
+/* payment card style section start */
+.payment-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  align-items: stretch;
+}
+
+.payment-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Title */
+.payment-card h4 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111;
+}
+
+/* Billing Box */
+.billing-summary {
+   flex-grow: 1;
+  background: #fafafa;
+  border-radius: 14px;
+  padding: 18px;
+  margin-top: 12px;
+  border: 1px solid #eee;
+}
+
+/* Each Row */
+.billing-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  font-size: 14.5px;
+  color: #555;
+  border-bottom: 1px dashed #e6e6e6;
+}
+
+.billing-row:last-child {
+  border-bottom: none;
+}
+
+.billing-row:last-of-type {
+  border-bottom: none;
+}
+
+/* Values */
+.billing-row strong {
+  font-weight: 600;
+  color: #111;
+}
+
+/* Grand Total Row */
+.billing-row.total {
+  font-size: 16px;
+  font-weight: 600;
+  color: #000;
+  margin-top: 6px;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Pending amount text */
+.billing-row.pending {
+  color: #e53935;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+/* QR */
+.payment-card img {
+  border: 1px solid #eee;
+  padding: 6px;
+  background: #fff;
+  border-radius: 10px;
+}
+
+/* Black Pending Button */
+.payment-card button {
+  width: 100%;
+  margin-top: 18px;
+  padding: 14px;
+  border-radius: 14px;
+  background: linear-gradient(90deg, #111, #333);
+  color: white;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.payment-card button:hover {
+  background: linear-gradient(90deg, #000, #222);
+  transform: translateY(-1px);
+}
+
+/* payment card style section end */
+
+
+
+/* left side chekc list selected contractor end */
+
+
+
+/* contractor form upload and pdf preview popup card strat*/
+
+
+.Workflow-warning-popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Popup box */
+.Workflow-pdf-preview-popup {
+  width: 70vw;
+  max-width: 900px;
+  height: 75vh;
+  background: #fff;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Header */
+.Workflow-pdf-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 18px;
+  border-bottom: 1px solid #eee;
+}
+
+.Workflow-pdf-header h4 {
+  margin: 0;
+  font-size: 16px;
+  color: #111;
+}
+
+.Workflow-pdf-close-btn {
+  border: none;
+  background: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* Body */
+.Workflow-pdf-body {
+  flex: 1;
+  background: #f5f5f5;
+}
+
+.Workflow-pdf-body iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Footer */
+.Workflow-pdf-footer {
+  padding: 12px;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.Workflow-pdf-submit-btn {
+  background: linear-gradient(90deg, #111, #333);
+  color: #fff;
+  padding: 10px 22px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* contractor form upload and pdf preview popup card end */
+
+
+/* show thankyou card css start */
+
+
+
+.contractor-thankyou-card {
+  width: 100%;
+  max-width: 450px;
+  margin: 45px 0 0 0;
+  padding: 30px;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  text-align: left;
+}
+.thankyou-card{
+  border: none !important;
+}
+
+.contractor-thankyou-card h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.contractor-thankyou-card p {
+  font-size: 16px;
+  color: #6b7280;
+}
+
+/* show thankyou card css end */
+
+
+/* only view upload contractor form start  */
+.pdf-preview-overlay {
+  position: fixed;
+  margin-top: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.pdf-preview-card.small-card {
+  background: white;
+  width: 420px;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.pdf-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.form-icon-close{
+  background: none;
+  border: none;
+}
+
+.uploaded-file-list {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.uploaded-file-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f4f4f4;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+.file-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.file-actions a {
+  font-size: 16px;
+  color: #000;
+}
+
+.form-icon{
+  border: none;
+  color: #000;
+}
+
+
+/* only view upload contractor form end */
