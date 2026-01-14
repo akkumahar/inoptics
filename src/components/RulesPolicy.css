@@ -1,13 +1,530 @@
+/* Base Container Styles - Mobile First */
 .Rules-container {
-     display: flex;
-    flex-direction: column;
-    gap: 20px;
-    flex: 1;
-    overflow: visible;
-    scroll-behavior: smooth;
-    width: 100%;
-    max-width: 1000px;
-    margin: 40px auto 0px auto;
-    margin-bottom: 200px
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1;
+  width: 100%;
+  max-width: 1000px;
+  margin: 40px auto 0 auto;
+  margin-bottom: 80px;
+  padding: 0 20px;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+}
+
+/* Main Content Container */
+.rules-content-container {
+  width: 100%;
+  background-color: white;
+  padding: 40px 0px; /* ✅ Professional side padding */
+  box-sizing: border-box;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Rules Section */
+.rules-section {
+  margin-bottom: 25px;
+  padding: 0;
+}
+
+.rules-section:last-child {
+  margin-bottom: 0;
+}
+
+/* Rule Text Styling */
+.rule-text {
+  font-size: 16px;
+  line-height: 1.8;
+  color: #333;
+  margin: 0 0 15px 0;
+  text-align: justify;
+}
+
+.rule-text:last-child {
+  margin-bottom: 0;
+}
+
+/* Headings inside HTML content */
+.rule-text h1,
+.rule-text h2,
+.rule-text h3 {
+  margin-top: 25px;
+  margin-bottom: 15px;
+  color: #02062c;
+  font-weight: 600;
+}
+
+.rule-text h1 {
+  font-size: 28px;
+}
+
+.rule-text h2 {
+  font-size: 24px;
+}
+
+.rule-text h3 {
+  font-size: 20px;
+}
+
+/* Lists inside HTML content */
+.rule-text ul,
+.rule-text ol {
+  padding-left: 25px;
+  margin: 10px 0;
+}
+
+.rule-text li {
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+/* Links inside content */
+.rule-text a {
+  color: #0167c6;
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+.rule-text a:hover {
+  color: #004c91;
+}
+
+/* Tables inside HTML content */
+.rule-text table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 15px 0;
+}
+
+.rule-text th,
+.rule-text td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
+.rule-text th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+}
+
+/* ============================================ */
+/* RESPONSIVE MEDIA QUERIES */
+/* ============================================ */
+
+/* Desktop Extra Large (1441px+) */
+@media screen and (min-width: 1441px) {
+  .Rules-container {
+    max-width: 1200px;
+    padding: 0 40px;
+    margin-bottom: 100px;
   }
-  
+
+  .rules-content-container {
+    max-width: 1200px;
+    padding: 50px 60px;
+  }
+
+  .rule-text {
+    font-size: 17px;
+    line-height: 1.9;
+  }
+
+  .rule-text h1 {
+    font-size: 30px;
+  }
+
+  .rule-text h2 {
+    font-size: 26px;
+  }
+
+  .rule-text h3 {
+    font-size: 22px;
+  }
+}
+
+/* Desktop Large (1201px - 1440px) */
+@media screen and (min-width: 1201px) and (max-width: 1440px) {
+  .Rules-container {
+    max-width: 1100px;
+    padding: 0 35px;
+    margin-bottom: 90px;
+  }
+
+  .rules-content-container {
+    padding: 45px 55px;
+  }
+
+  .rule-text {
+    font-size: 16px;
+  }
+}
+
+/* Desktop (1025px - 1200px) */
+@media screen and (min-width: 1025px) and (max-width: 1200px) {
+  .Rules-container {
+    max-width: 960px;
+    padding: 0 30px;
+    margin-top: 35px;
+    margin-bottom: 85px;
+  }
+
+  .rules-content-container {
+    padding: 40px 50px;
+  }
+
+  .rule-text {
+    font-size: 16px;
+    line-height: 1.75;
+  }
+
+  .rule-text h1 {
+    font-size: 26px;
+  }
+
+  .rule-text h2 {
+    font-size: 22px;
+  }
+
+  .rule-text h3 {
+    font-size: 19px;
+  }
+}
+
+/* Tablet Landscape (769px - 1024px) */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .Rules-container {
+    max-width: 720px;
+    padding: 0 25px;
+    margin-top: 30px;
+    margin-bottom: 70px;
+  }
+
+  .rules-content-container {
+    padding: 35px 40px;
+  }
+
+  /* ✅ Tablet: Add side padding to section */
+  .rules-section {
+    padding: 0 30px;
+    margin-bottom: 20px;
+  }
+
+  .rule-text {
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  .rule-text h1 {
+    font-size: 24px;
+  }
+
+  .rule-text h2 {
+    font-size: 21px;
+  }
+
+  .rule-text h3 {
+    font-size: 18px;
+  }
+
+  .rule-text th,
+  .rule-text td {
+    padding: 8px;
+    font-size: 14px;
+  }
+}
+
+/* Tablet Portrait (481px - 768px) */
+@media screen and (min-width: 481px) and (max-width: 768px) {
+  .Rules-container {
+    max-width: 100%;
+    padding: 0 20px;
+    margin-top: 25px;
+    margin-bottom: 60px;
+    gap: 15px;
+  }
+
+  .rules-content-container {
+    padding: 30px 35px;
+  }
+
+  /* ✅ Tablet Portrait: Add side padding to section */
+  .rules-section {
+    padding: 0 25px;
+    margin-bottom: 18px;
+  }
+
+  .rule-text {
+    font-size: 15px;
+    line-height: 1.65;
+    text-align: left;
+  }
+
+  .rule-text h1 {
+    font-size: 22px;
+    margin-top: 20px;
+  }
+
+  .rule-text h2 {
+    font-size: 19px;
+    margin-top: 18px;
+  }
+
+  .rule-text h3 {
+    font-size: 17px;
+    margin-top: 16px;
+  }
+
+  .rule-text ul,
+  .rule-text ol {
+    padding-left: 20px;
+  }
+
+  .rule-text th,
+  .rule-text td {
+    padding: 7px;
+    font-size: 13px;
+  }
+}
+
+/* Mobile Large (376px - 480px) */
+@media screen and (min-width: 376px) and (max-width: 480px) {
+  .Rules-container {
+    max-width: 100%;
+    padding: 0 15px;
+    margin-top: 20px;
+    margin-bottom: 50px;
+    gap: 12px;
+  }
+
+  /* .rules-content-container {
+    padding: 25px 0px;
+  } */
+
+  /* ✅ Mobile Large: Add side padding to section */
+  .rules-section {
+    padding: 0 20px;
+    margin-bottom: 16px;
+  }
+
+  .rule-text {
+    font-size: 14px;
+    line-height: 1.6;
+    text-align: left;
+  }
+
+  .rule-text h1 {
+    font-size: 20px;
+    margin-top: 18px;
+    margin-bottom: 12px;
+  }
+
+  .rule-text h2 {
+    font-size: 18px;
+    margin-top: 16px;
+    margin-bottom: 10px;
+  }
+
+  .rule-text h3 {
+    font-size: 16px;
+    margin-top: 14px;
+    margin-bottom: 10px;
+  }
+
+  .rule-text ul,
+  .rule-text ol {
+    padding-left: 18px;
+  }
+
+  .rule-text li {
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+
+  .rule-text table {
+    font-size: 12px;
+  }
+
+  .rule-text th,
+  .rule-text td {
+    padding: 6px;
+    font-size: 12px;
+  }
+}
+
+/* Mobile Standard (321px - 375px) */
+@media screen and (min-width: 321px) and (max-width: 375px) {
+  .Rules-container {
+    max-width: 100%;
+    padding: 0 12px;
+    margin-top: 18px;
+    margin-bottom: 45px;
+    gap: 10px;
+  }
+
+  .rules-content-container {
+    padding: 22px 25px;
+  }
+
+  /* ✅ Mobile Standard: Add side padding to section */
+  .rules-section {
+    padding: 0 18px;
+    margin-bottom: 14px;
+  }
+
+  .rule-text {
+    font-size: 14px;
+    line-height: 1.55;
+    text-align: left;
+  }
+
+  .rule-text h1 {
+    font-size: 19px;
+    margin-top: 16px;
+    margin-bottom: 10px;
+  }
+
+  .rule-text h2 {
+    font-size: 17px;
+    margin-top: 14px;
+    margin-bottom: 9px;
+  }
+
+  .rule-text h3 {
+    font-size: 15px;
+    margin-top: 12px;
+    margin-bottom: 8px;
+  }
+
+  .rule-text ul,
+  .rule-text ol {
+    padding-left: 16px;
+  }
+
+  .rule-text li {
+    margin-bottom: 5px;
+    font-size: 13px;
+  }
+
+  .rule-text table {
+    font-size: 11px;
+  }
+
+  .rule-text th,
+  .rule-text td {
+    padding: 5px;
+    font-size: 11px;
+  }
+}
+
+/* Mobile Small (280px - 320px) */
+@media screen and (max-width: 320px) {
+  .Rules-container {
+    max-width: 100%;
+    padding: 0 10px;
+    margin-top: 15px;
+    margin-bottom: 40px;
+    gap: 8px;
+  }
+
+  .rules-content-container {
+    padding: 18px 20px;
+  }
+
+  /* ✅ Mobile Small: Add side padding to section */
+  .rules-section {
+    padding: 0 15px;
+    margin-bottom: 12px;
+  }
+
+  .rule-text {
+    font-size: 13px;
+    line-height: 1.5;
+    text-align: left;
+  }
+
+  .rule-text h1 {
+    font-size: 18px;
+    margin-top: 14px;
+    margin-bottom: 9px;
+  }
+
+  .rule-text h2 {
+    font-size: 16px;
+    margin-top: 12px;
+    margin-bottom: 8px;
+  }
+
+  .rule-text h3 {
+    font-size: 14px;
+    margin-top: 10px;
+    margin-bottom: 7px;
+  }
+
+  .rule-text ul,
+  .rule-text ol {
+    padding-left: 14px;
+  }
+
+  .rule-text li {
+    margin-bottom: 4px;
+    font-size: 12px;
+  }
+
+  .rule-text table {
+    font-size: 10px;
+  }
+
+  .rule-text th,
+  .rule-text td {
+    padding: 4px;
+    font-size: 10px;
+  }
+}
+
+/* Landscape Mode for Mobile Devices */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+  .Rules-container {
+    margin-top: 15px;
+    margin-bottom: 35px;
+  }
+
+  .rules-content-container {
+    padding: 20px 30px;
+  }
+
+  .rules-section {
+    padding: 0 20px;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .Rules-container {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .rules-content-container {
+    box-shadow: none;
+    padding: 20px 30px;
+    page-break-inside: avoid;
+  }
+
+  .rules-section {
+    padding: 0 20px;
+    page-break-inside: avoid;
+  }
+
+  .rule-text a {
+    color: #000;
+    text-decoration: underline;
+  }
+
+  .rule-text table {
+    page-break-inside: avoid;
+  }
+}

@@ -1,0 +1,135 @@
+/* Floating Button */
+.inoptics-chat-launcher {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  width: 58px;
+  height: 58px;
+  background: linear-gradient(135deg, #0a5fff, #00c6ff);
+  border-radius: 50%;
+  box-shadow: 0 10px 25px rgba(0, 90, 255, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 9999;
+}
+
+.inoptics-chat-launcher img {
+  width: 28px;
+}
+
+/* Chat Box */
+.inoptics-chatbox {
+  position: fixed;
+  bottom: 90px;
+  right: 25px;
+  width: 360px;
+  height: 520px;
+  background: rgba(255,255,255,0.96);
+  border-radius: 18px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 9999;
+  animation: slideUp .4s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Header */
+.inoptics-chat-header {
+  background: linear-gradient(135deg, #007bff, #00c6ff);
+  color: white;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.inoptics-chat-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.inoptics-chat-header-left img {
+  width: 34px;
+}
+
+.inoptics-chat-title {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* Messages */
+.inoptics-chat-body {
+  flex: 1;
+  padding: 18px;
+  overflow-y: auto;
+  background: #f4f8ff;
+}
+
+.inoptics-msg {
+  margin-bottom: 12px;
+  max-width: 80%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.inoptics-user {
+  background: #007bff;
+  color: white;
+  margin-left: auto;
+  border-bottom-right-radius: 4px;
+}
+
+.inoptics-ai {
+  background: #e9f1ff;
+  color: #222;
+  border-bottom-left-radius: 4px;
+}
+
+/* Input */
+.inoptics-chat-input {
+  display: flex;
+  padding: 12px;
+  border-top: 1px solid #ddd;
+  background: white;
+}
+
+.inoptics-chat-input input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 10px 14px;
+  border-radius: 30px;
+  background: #f1f4f9;
+}
+
+.inoptics-chat-input button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 0 18px;
+  margin-left: 8px;
+  border-radius: 50px;
+  cursor: pointer;
+}
+
+/* Mobile */
+@media(max-width: 500px){
+  .inoptics-chatbox {
+    width: 100%;
+    right: 0;
+    bottom: 0;
+    height: 100vh;
+    border-radius: 0;
+  }
+}

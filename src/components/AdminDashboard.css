@@ -9991,6 +9991,32 @@ margin-top: -720px;
 } */
 
 /* stall cards section style end */
+.payment-modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.payment-modal-card {
+  background: white;
+  padding: 25px;
+  width: 520px;
+  border-radius: 10px;
+  box-shadow: 0 0 30px rgba(0,0,0,.4);
+}
+
+.payment-modal-close {
+  float: right;
+  background: red;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  padding: 6px 10px;
+  cursor: pointer;
+}
 
 
  /* only view section style end */

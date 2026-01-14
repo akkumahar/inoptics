@@ -19,6 +19,7 @@ import {
   FaCloudUploadAlt,
 } from "react-icons/fa";
 import "./ExhibitorDashboard.css";
+import ExhibitorBadgeForm from "./ExhibitorBadgeForm";
 
 const ExhibitorDashboard = () => {
   const navigate = useNavigate();
@@ -251,6 +252,7 @@ const ExhibitorDashboard = () => {
     { name: "Mails Inbox", icon: <FaEnvelope /> },
     { name: "Additional Requirements", icon: <FaClipboardList /> },
     { name: "Contractors", icon: <FaHardHat /> },
+    { name: "Exhibitor Badges", icon: <FaHardHat /> },
     { name: "Payment", icon: <FaMoneyBill /> },
   ];
 
@@ -1832,6 +1834,12 @@ const ExhibitorDashboard = () => {
       fetchSelectedContractor(formData.company_name);
       fetchBoothDesignStatus(); // 👈 important
     }
+    // Poll every 5 seconds until approved/rejected
+    const interval = setInterval(() => {
+      fetchBoothDesignStatus();
+    }, 5000);
+
+    return () => clearInterval(interval);
   }, [activeMenu, formData.company_name, contractorData]);
 
   useEffect(() => {
@@ -1979,6 +1987,10 @@ const ExhibitorDashboard = () => {
           body: JSON.stringify({
             exhibitor_company_name: exhibitorCompany,
             current_contractor: selectedContractorName,
+            exhibitorName: formData.name,
+            stallNo: formData.stall_no,
+            exhibitorEmail: formData.email,
+            contractorName: selectedContractor.name,
             request_type: "unlock_contractor_change",
             message: `${exhibitorCompany} has requested to change their selected contractor (${selectedContractorName}).`,
           }),
@@ -2476,8 +2488,6 @@ const ExhibitorDashboard = () => {
     }
   }, []);
 
-
-
   useEffect(() => {
     if (activeMenu !== "Contractors") return;
 
@@ -2502,21 +2512,17 @@ const ExhibitorDashboard = () => {
     }
   }, [activeMenu, isLocked, selectedContractorId]);
 
-
-
   useEffect(() => {
-  if (boothDesignStatus === "rejected") {
-    // only rejected should go back
-    setCurrentStep(3);   // booth design upload step
-  }
+    if (boothDesignStatus === "rejected") {
+      // only rejected should go back
+      setCurrentStep(3); // booth design upload step
+    }
 
-  if (boothDesignStatus === "approved" || boothDesignStatus === "pending") {
-    // approved & pending must stay on thankyou screen
-    setCurrentStep(4);
-  }
-}, [boothDesignStatus]);
-
-
+    if (boothDesignStatus === "approved" || boothDesignStatus === "pending") {
+      // approved & pending must stay on thankyou screen
+      setCurrentStep(4);
+    }
+  }, [boothDesignStatus]);
 
   const fetchBoothDesignStatus = async () => {
     try {
@@ -2723,6 +2729,7 @@ const ExhibitorDashboard = () => {
             </header>
           </div>
         )}
+
 
         {/* Dynamic content */}
         <div className="exhibitordashboard-declaration-content">
@@ -3463,8 +3470,6 @@ const ExhibitorDashboard = () => {
                   </div>
                 </div>
               )}
-
-              
 
               {importantPage === "Furniture Requirements" && (
                 <div className="furniture-requirements-container">
@@ -5246,7 +5251,14 @@ const ExhibitorDashboard = () => {
                 )}
               </div>
 
-              
+
+
+
+
+              {/* Overlay Panel for Additional Requirements */}
+        {(activeMenu === "Exhibitor Badges") && (
+          <ExhibitorBadgeForm />
+        )}
 
               {!importantPage && activeMenu === "Payment" && (
                 <div className="exhibitordashboard-content">

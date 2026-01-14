@@ -1,15 +1,18 @@
+/* Base Container Styles */
 .privacy-policy-container {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  flex: 1 1;
+  flex: 1;
   width: 100%;
   max-width: 1000px;
-  margin: 40px auto 0px auto;
+  margin: 40px auto 0 auto;
   scroll-behavior: smooth;
+  padding: 0 20px;
+  box-sizing: border-box;
 }
 
-
+/* Main Content Container */
 .privacy-main-container {
   width: 100%;
   display: flex;
@@ -18,14 +21,463 @@
   position: relative;
   background-color: #ffffffae;
   z-index: 999;
-  padding-bottom: 60px; 
+  padding-bottom: 60px;
 }
-  
-  
-  .privacy-content-container {
-    width: 1000px; 
-    background-color: white;
-    padding: 20px;
-    margin-top: 20px;
 
+/* Content Container */
+.privacy-content-container {
+  width: 100%;
+  max-width: 1000px;
+  background-color: white;
+  padding: 40px 50px; /* ✅ Professional side padding */
+  margin-top: 20px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Privacy Section */
+.privacy-section {
+  margin-bottom: 25px;
+  padding: 0 40px;
+}
+
+.privacy-section:last-child {
+  margin-bottom: 0;
+}
+
+/* Privacy Text Styling */
+.privacy-text {
+  font-size: 16px;
+  line-height: 1.8;
+  color: #333;
+  margin: 0 0 15px 0;
+  text-align: justify;
+  /* ✅ Removed extra padding - container handles it */
+}
+
+.privacy-text:last-child {
+  margin-bottom: 0;
+}
+
+/* Headings inside HTML content */
+.privacy-text h1,
+.privacy-text h2,
+.privacy-text h3 {
+  margin-top: 25px;
+  margin-bottom: 15px;
+  color: #02062c;
+  font-weight: 600;
+}
+
+.privacy-text h1 {
+  font-size: 28px;
+}
+
+.privacy-text h2 {
+  font-size: 24px;
+}
+
+.privacy-text h3 {
+  font-size: 20px;
+}
+
+/* Lists inside HTML content */
+.privacy-text ul,
+.privacy-text ol {
+  padding-left: 25px;
+  margin: 10px 0;
+}
+
+.privacy-text li {
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+/* Links inside content */
+.privacy-text a {
+  color: #0167c6;
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+.privacy-text a:hover {
+  color: #004c91;
+}
+
+/* ============================================ */
+/* RESPONSIVE MEDIA QUERIES */
+/* ============================================ */
+
+/* Desktop Extra Large (1441px+) */
+@media screen and (min-width: 1441px) {
+  .privacy-policy-container {
+    max-width: 1200px;
+    padding: 0 40px;
   }
+
+  .privacy-content-container {
+    max-width: 1200px;
+    padding: 50px 60px; /* ✅ More spacious on large screens */
+  }
+
+  .privacy-text {
+    font-size: 17px;
+    line-height: 1.9;
+  }
+}
+
+/* Desktop Large (1201px - 1440px) */
+@media screen and (min-width: 1201px) and (max-width: 1440px) {
+  .privacy-policy-container {
+    max-width: 1100px;
+    padding: 0 35px;
+  }
+
+  .privacy-content-container {
+    padding: 45px 55px; /* ✅ Professional spacing */
+  }
+
+  .privacy-text {
+    font-size: 16px;
+  }
+}
+
+/* Desktop (1025px - 1200px) */
+@media screen and (min-width: 1025px) and (max-width: 1200px) {
+  .privacy-policy-container {
+    max-width: 960px;
+    padding: 0 30px;
+    margin-top: 35px;
+  }
+
+  .privacy-content-container {
+    padding: 40px 50px; /* ✅ Balanced padding */
+  }
+
+  .privacy-text {
+    font-size: 16px;
+    line-height: 1.75;
+  }
+
+  .privacy-text h1 {
+    font-size: 26px;
+  }
+
+  .privacy-text h2 {
+    font-size: 22px;
+  }
+
+  .privacy-text h3 {
+    font-size: 19px;
+  }
+}
+
+/* Tablet Landscape (769px - 1024px) */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .privacy-policy-container {
+    max-width: 720px;
+    padding: 0 25px;
+    margin-top: 30px;
+    margin-bottom: 40px;
+  }
+
+  .privacy-main-container {
+    padding-bottom: 50px;
+    padding: 0 40px;
+  }
+
+  .privacy-content-container {
+    padding: 35px 40px; /* ✅ Professional tablet spacing */
+    margin-top: 18px;
+  }
+
+  .privacy-text {
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  .privacy-section {
+    margin-bottom: 20px;
+  }
+
+  .privacy-text h1 {
+    font-size: 24px;
+  }
+
+  .privacy-text h2 {
+    font-size: 21px;
+  }
+
+  .privacy-text h3 {
+    font-size: 18px;
+  }
+}
+
+/* Tablet Portrait (481px - 768px) */
+@media screen and (min-width: 481px) and (max-width: 768px) {
+  .privacy-policy-container {
+    max-width: 100%;
+    padding: 0 20px;
+    margin-top: 25px;
+    margin-bottom: 35px;
+    gap: 15px;
+  }
+
+  .privacy-main-container {
+    padding-bottom: 45px;
+  }
+
+  .privacy-content-container {
+    padding: 30px 35px; /* ✅ Comfortable side padding */
+    margin-top: 15px;
+  }
+
+  .privacy-text {
+    font-size: 15px;
+    line-height: 1.65;
+    text-align: left;
+  }
+
+  .privacy-section {
+    margin-bottom: 18px;
+  }
+
+  .privacy-text h1 {
+    font-size: 22px;
+    margin-top: 20px;
+  }
+
+  .privacy-text h2 {
+    font-size: 19px;
+    margin-top: 18px;
+  }
+
+  .privacy-text h3 {
+    font-size: 17px;
+    margin-top: 16px;
+  }
+
+  .privacy-text ul,
+  .privacy-text ol {
+    padding-left: 20px;
+  }
+}
+
+/* Mobile Large (376px - 480px) */
+@media screen and (min-width: 376px) and (max-width: 480px) {
+  .privacy-policy-container {
+    max-width: 100%;
+    padding: 0 15px;
+    margin-top: 20px;
+    margin-bottom: 30px;
+    gap: 12px;
+  }
+
+  .privacy-main-container {
+    padding-bottom: 40px;
+  }
+
+  .privacy-content-container {
+    padding: 25px 28px; /* ✅ Good mobile spacing */
+    margin-top: 12px;
+  }
+
+  .privacy-text {
+    font-size: 14px;
+    line-height: 1.6;
+    text-align: left;
+  }
+
+  .privacy-section {
+    margin-bottom: 16px;
+  }
+
+  .privacy-text h1 {
+    font-size: 20px;
+    margin-top: 18px;
+    margin-bottom: 12px;
+  }
+
+  .privacy-text h2 {
+    font-size: 18px;
+    margin-top: 16px;
+    margin-bottom: 10px;
+  }
+
+  .privacy-text h3 {
+    font-size: 16px;
+    margin-top: 14px;
+    margin-bottom: 10px;
+  }
+
+  .privacy-text ul,
+  .privacy-text ol {
+    padding-left: 18px;
+  }
+
+  .privacy-text li {
+    margin-bottom: 6px;
+  }
+}
+
+/* Mobile Standard (321px - 375px) */
+@media screen and (min-width: 321px) and (max-width: 375px) {
+  .privacy-policy-container {
+    max-width: 100%;
+    padding: 0 12px;
+    margin-top: 18px;
+    margin-bottom: 25px;
+    gap: 10px;
+  }
+
+  .privacy-main-container {
+    padding-bottom: 35px;
+  }
+
+  .privacy-content-container {
+    padding: 22px 25px; /* ✅ Balanced mobile padding */
+    margin-top: 10px;
+  }
+
+  .privacy-text {
+    font-size: 14px;
+    line-height: 1.55;
+    text-align: left;
+  }
+
+  .privacy-section {
+    margin-bottom: 14px;
+  }
+
+  .privacy-text h1 {
+    font-size: 19px;
+    margin-top: 16px;
+    margin-bottom: 10px;
+  }
+
+  .privacy-text h2 {
+    font-size: 17px;
+    margin-top: 14px;
+    margin-bottom: 9px;
+  }
+
+  .privacy-text h3 {
+    font-size: 15px;
+    margin-top: 12px;
+    margin-bottom: 8px;
+  }
+
+  .privacy-text ul,
+  .privacy-text ol {
+    padding-left: 16px;
+  }
+
+  .privacy-text li {
+    margin-bottom: 5px;
+    font-size: 13px;
+  }
+}
+
+/* Mobile Small (280px - 320px) */
+@media screen and (max-width: 320px) {
+  .privacy-policy-container {
+    max-width: 100%;
+    padding: 0 10px;
+    margin-top: 15px;
+    margin-bottom: 20px;
+    gap: 8px;
+  }
+
+  .privacy-main-container {
+    padding-bottom: 30px;
+  }
+
+  .privacy-content-container {
+    padding: 18px 20px; /* ✅ Minimum professional padding */
+    margin-top: 8px;
+  }
+
+  .privacy-text {
+    font-size: 13px;
+    line-height: 1.5;
+    text-align: left;
+  }
+
+  .privacy-section {
+    margin-bottom: 12px;
+  }
+
+  .privacy-text h1 {
+    font-size: 18px;
+    margin-top: 14px;
+    margin-bottom: 9px;
+  }
+
+  .privacy-text h2 {
+    font-size: 16px;
+    margin-top: 12px;
+    margin-bottom: 8px;
+  }
+
+  .privacy-text h3 {
+    font-size: 14px;
+    margin-top: 10px;
+    margin-bottom: 7px;
+  }
+
+  .privacy-text ul,
+  .privacy-text ol {
+    padding-left: 14px;
+  }
+
+  .privacy-text li {
+    margin-bottom: 4px;
+    font-size: 12px;
+  }
+}
+
+/* Landscape Mode for Mobile Devices */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+  .privacy-policy-container {
+    margin-top: 15px;
+    margin-bottom: 25px;
+  }
+
+  .privacy-main-container {
+    padding-bottom: 35px;
+  }
+
+  .privacy-content-container {
+    padding: 20px 30px;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .privacy-policy-container {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .privacy-main-container {
+    background-color: transparent;
+    padding-bottom: 0;
+  }
+
+  .privacy-content-container {
+    box-shadow: none;
+    padding: 20px 30px; /* ✅ Professional print margins */
+    page-break-inside: avoid;
+  }
+
+  .privacy-section {
+    page-break-inside: avoid;
+  }
+
+  .privacy-text a {
+    color: #000;
+    text-decoration: underline;
+  }
+}

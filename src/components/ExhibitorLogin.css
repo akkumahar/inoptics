@@ -4,17 +4,17 @@
   font-family: "Quicksand", sans-serif;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
 .exhibitorlogin-main-content-wrapper {
   flex: 1;
   background: #00003f;
-  margin-top: 50px;
+  margin-top: 80px;
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 40px 0;
+  padding: 40px 20px;
 }
 
 .exhibitorlogin-bottom-container {
@@ -25,12 +25,14 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin: 70px 0px 30px 0px;
+  margin: 70px 0 30px 0;
   background: #fff;
   overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
 }
 
-/* 🔹 Top 40% blue gradient */
+/* 🔹 Top Gradient Section */
 .exhibitorlogin-gradient-section {
   position: absolute;
   top: 0;
@@ -56,15 +58,16 @@
   color: #fff;
   font-size: 18px;
   line-height: 1.6;
+  margin: 0;
 }
 
-/* 🔹 Left Image Section (under gradient) */
+/* 🔹 Image Section */
 .exhibitorlogin-image-container {
   position: absolute;
-  top: 40%; /* Below gradient */
-  /* left: 60px; */
-  width: 1100px;
-  height: 420px;
+  top: 40%;
+  left: 0;
+  width: 100%;
+  height: 60%;
   overflow: hidden;
   z-index: 0;
 }
@@ -75,17 +78,17 @@
   object-fit: cover;
 }
 
-/* 🔹 Floating Login box (half above gradient, half above image) */
+/* 🔹 Floating Login Form */
 .exhibitorlogin-container {
   position: absolute;
   right: 60px;
-  top: 50%; /* 50% between gradient top and image */
+  top: 50%;
   transform: translateY(-50%);
   width: 400px;
   background: #fff;
   padding: 30px;
   border-radius: 10px;
-  box-shadow: 0px 6px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.2);
   z-index: 2;
 }
 
@@ -110,22 +113,37 @@
 
 .exhibitorlogin-form label {
   display: block;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
   font-size: 14px;
   color: #333;
+  font-weight: 600;
 }
 
 .exhibitorlogin-form input {
   width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
   border-radius: 6px;
-  border: 1px solid #ccc;
+  border: 2px solid #ddd;
   font-size: 14px;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  min-height: 44px;
+}
+
+.exhibitorlogin-form input:focus {
+  outline: none;
+  border-color: #0167c6;
+  box-shadow: 0 0 0 3px rgba(1, 103, 198, 0.1);
+}
+
+.exhibitorlogin-form input::placeholder {
+  color: #999;
+  font-size: 13px;
 }
 
 .password-input-wrapper {
-  margin-bottom: 15px;
+  margin-bottom: 16px;
 }
 
 .password-field {
@@ -134,46 +152,69 @@
 
 .password-field input {
   width: 100%;
-  padding-right: 40px;
+  padding-right: 45px;
 }
 
 .password-toggle-icon {
   position: absolute;
-  right: 10px;
+  right: 12px;
   top: 50%;
-  transform: translateY(-80%);
+  transform: translateY(-50%);
   cursor: pointer;
-  font-size: 18px;
+  font-size: 20px;
   color: #555;
+  padding: 10px;
+  margin: -10px;
+  transition: color 0.3s ease;
+}
+
+.password-toggle-icon:hover {
+  color: #0167c6;
 }
 
 .exhibitorlogin-btn {
   width: 100%;
   background-color: #0167c6;
   color: white;
-  padding: 12px;
+  padding: 14px 20px;
   font-size: 16px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  min-height: 48px;
+  box-shadow: 0 2px 8px rgba(1, 103, 198, 0.3);
 }
 
 .exhibitorlogin-btn:hover {
   background-color: #004c91;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(1, 103, 198, 0.4);
+}
+
+.exhibitorlogin-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(1, 103, 198, 0.3);
 }
 
 .error-text {
-  color: red;
-  font-size: 14px;
-  margin-bottom: 10px;
+  color: #d32f2f;
+  font-size: 13px;
+  margin-bottom: 12px;
+  text-align: center;
+  background: #ffebee;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border-left: 3px solid #d32f2f;
 }
 
 .exhibitorlogin-register-text {
-  margin-top: 15px;
+  margin-top: 18px;
   font-size: 14px;
   color: #333;
   text-align: center;
+  line-height: 1.5;
 }
 
 .exhibitorlogin-register-text .register-link {
@@ -181,9 +222,550 @@
   font-weight: 600;
   text-decoration: none;
   margin-left: 5px;
+  transition: color 0.3s ease;
 }
 
 .exhibitorlogin-register-text .register-link:hover {
   text-decoration: underline;
   color: #004c91;
+}
+
+/* ============================================ */
+/* RESPONSIVE BREAKPOINTS - MOBILE FIRST */
+/* ============================================ */
+
+/* ✅ DESKTOP EXTRA LARGE (1441px+) */
+@media screen and (min-width: 1441px) {
+  .exhibitorlogin-main-content-wrapper {
+    padding: 50px 40px;
+  }
+
+  .exhibitorlogin-bottom-container {
+    max-width: 1200px;
+    height: 750px;
+  }
+
+  .exhibitorlogin-container {
+    width: 450px;
+    padding: 35px;
+  }
+}
+
+/* ✅ DESKTOP LARGE (1201px - 1440px) */
+@media screen and (min-width: 1201px) and (max-width: 1440px) {
+  .exhibitorlogin-main-content-wrapper {
+    padding: 45px 35px;
+  }
+
+  .exhibitorlogin-bottom-container {
+    max-width: 1100px;
+  }
+}
+
+/* ✅ DESKTOP (1025px - 1200px) */
+@media screen and (min-width: 1025px) and (max-width: 1200px) {
+  .exhibitorlogin-main-content-wrapper {
+    padding: 40px 30px;
+  }
+
+  .exhibitorlogin-bottom-container {
+    max-width: 960px;
+    height: 650px;
+  }
+
+  .exhibitorlogin-gradient-section {
+    padding: 35px 50px;
+  }
+
+  .exhibitorlogin-text-container {
+    font-size: 16px;
+    max-width: 55%;
+  }
+
+  .exhibitorlogin-text-container p {
+    font-size: 16px;
+  }
+
+  .exhibitorlogin-container {
+    right: 50px;
+    width: 380px;
+    padding: 28px;
+  }
+
+  .exhibitorlogin-form-heading {
+    font-size: 26px;
+  }
+}
+
+/* ✅ TABLET LANDSCAPE (769px - 1024px) - ✅ CONTENT UPAR, FORM NEECHE */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .exhibitorlogin-main-content-wrapper {
+    margin-top: 100px;
+    padding: 30px 20px;
+  }
+
+  .exhibitorlogin-bottom-container {
+    max-width: 720px;
+    height: auto;
+    min-height: auto;
+    display: flex;
+    flex-direction: column; /* ✅ Vertical stacking */
+    margin: 40px 0 20px 0;
+  }
+
+  /* ✅ 1. Gradient section first (upar) */
+  .exhibitorlogin-gradient-section {
+    position: relative;
+    height: auto;
+    min-height: 200px;
+    padding: 30px 40px;
+    order: 1; /* ✅ First */
+  }
+
+  .exhibitorlogin-text-container {
+    max-width: 100%;
+    font-size: 15px;
+  }
+
+  .exhibitorlogin-text-container p {
+    font-size: 15px;
+  }
+
+  /* ✅ 2. Image second (middle) */
+  .exhibitorlogin-image-container {
+    position: relative;
+    top: 0;
+    width: 100%;
+    height: 320px;
+    order: 2; /* ✅ Second */
+  }
+
+  /* ✅ 3. Form third (neeche) */
+  .exhibitorlogin-container {
+    position: relative;
+    right: auto;
+    top: auto;
+    transform: none;
+    width: 90%;
+    max-width: 500px;
+    margin: 30px auto 40px auto; /* ✅ Bottom margin for spacing */
+    padding: 28px;
+    order: 3; /* ✅ Third (last) */
+  }
+
+  .exhibitorlogin-form-heading {
+    font-size: 24px;
+  }
+
+  .exhibitorlogin-form input {
+    font-size: 15px;
+    padding: 13px 14px;
+  }
+
+  .exhibitorlogin-btn {
+    font-size: 16px;
+    padding: 15px 20px;
+  }
+}
+
+/* ✅ TABLET PORTRAIT (481px - 768px) - ✅ CONTENT UPAR, FORM NEECHE */
+@media screen and (min-width: 481px) and (max-width: 768px) {
+  .exhibitorlogin-main-content-wrapper {
+    margin-top: 100px;
+    padding: 25px 15px;
+  }
+
+  .exhibitorlogin-bottom-container {
+    max-width: 100%;
+    height: auto;
+    min-height: auto;
+    display: flex;
+    flex-direction: column; /* ✅ Vertical stacking */
+    margin: 30px 0 15px 0;
+    border-radius: 8px;
+  }
+
+  /* ✅ 1. Gradient first */
+  .exhibitorlogin-gradient-section {
+    position: relative;
+    height: auto;
+    min-height: 180px;
+    padding: 25px 30px;
+    order: 1;
+  }
+
+  .exhibitorlogin-text-container {
+    max-width: 100%;
+    font-size: 14px;
+  }
+
+  .exhibitorlogin-text-container p {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ✅ 2. Image second */
+  .exhibitorlogin-image-container {
+    position: relative;
+    top: 0;
+    width: 100%;
+    height: 280px;
+    order: 2;
+  }
+
+  /* ✅ 3. Form third (neeche) */
+  .exhibitorlogin-container {
+    position: relative;
+    right: auto;
+    top: auto;
+    transform: none;
+    width: 92%;
+    max-width: 450px;
+    margin: 25px auto 35px auto;
+    padding: 25px;
+    order: 3;
+  }
+
+  .exhibitorlogin-form-heading {
+    font-size: 22px;
+    margin-bottom: 18px;
+  }
+
+  .exhibitorlogin-form label {
+    font-size: 13px;
+    margin-bottom: 5px;
+  }
+
+  .exhibitorlogin-form input {
+    padding: 12px 12px;
+    font-size: 14px;
+    margin-bottom: 14px;
+    min-height: 44px;
+  }
+
+  .password-toggle-icon {
+    font-size: 18px;
+  }
+
+  .exhibitorlogin-btn {
+    padding: 13px 18px;
+    font-size: 15px;
+    min-height: 48px;
+  }
+
+  .exhibitorlogin-register-text {
+    font-size: 13px;
+  }
+}
+
+/* ✅ MOBILE LARGE (376px - 480px) - ✅ CONTENT UPAR, FORM NEECHE */
+@media screen and (min-width: 376px) and (max-width: 480px) {
+  .exhibitorlogin-main-content-wrapper {
+    margin-top: 90px;
+    padding: 20px 12px;
+  }
+
+  .exhibitorlogin-bottom-container {
+    max-width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    margin: 20px 0 12px 0;
+    border-radius: 6px;
+  }
+
+  /* ✅ 1. Gradient first */
+  .exhibitorlogin-gradient-section {
+    position: relative;
+    height: auto;
+    min-height: 160px;
+    padding: 20px 20px;
+    order: 1;
+  }
+
+  .exhibitorlogin-text-container {
+    max-width: 100%;
+    font-size: 13px;
+  }
+
+  .exhibitorlogin-text-container p {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  /* ✅ 2. Image second */
+  .exhibitorlogin-image-container {
+    position: relative;
+    top: 0;
+    width: 100%;
+    height: 220px;
+    order: 2;
+  }
+
+  /* ✅ 3. Form third (neeche) */
+  .exhibitorlogin-container {
+    position: relative;
+    right: auto;
+    top: auto;
+    transform: none;
+    width: 94%;
+    margin: 20px auto 30px auto;
+    padding: 20px;
+    order: 3;
+  }
+
+  .exhibitorlogin-form-heading {
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
+
+  .exhibitorlogin-form label {
+    font-size: 13px;
+    margin-bottom: 5px;
+  }
+
+  .exhibitorlogin-form input {
+    padding: 12px 12px;
+    margin-bottom: 14px;
+    font-size: 14px;
+    min-height: 44px;
+  }
+
+  .password-field input {
+    padding-right: 42px;
+  }
+
+  .password-toggle-icon {
+    font-size: 18px;
+    padding: 12px;
+    margin: -12px;
+  }
+
+  .exhibitorlogin-btn {
+    padding: 14px 18px;
+    font-size: 15px;
+    min-height: 48px;
+  }
+
+  .error-text {
+    font-size: 12px;
+    padding: 7px 10px;
+  }
+
+  .exhibitorlogin-register-text {
+    font-size: 12px;
+    margin-top: 14px;
+  }
+}
+
+/* ✅ MOBILE STANDARD (321px - 375px) - ✅ CONTENT UPAR, FORM NEECHE */
+@media screen and (min-width: 321px) and (max-width: 375px) {
+  .exhibitorlogin-main-content-wrapper {
+    margin-top: 85px;
+    padding: 18px 10px;
+  }
+
+  .exhibitorlogin-bottom-container {
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    margin: 18px 0 10px 0;
+  }
+
+  /* ✅ 1. Gradient first */
+  .exhibitorlogin-gradient-section {
+    position: relative;
+    min-height: 150px;
+    padding: 18px 18px;
+    order: 1;
+  }
+
+  .exhibitorlogin-text-container,
+  .exhibitorlogin-text-container p {
+    font-size: 12px;
+  }
+
+  /* ✅ 2. Image second */
+  .exhibitorlogin-image-container {
+    position: relative;
+    top: 0;
+    height: 200px;
+    order: 2;
+  }
+
+  /* ✅ 3. Form third */
+  .exhibitorlogin-container {
+    position: relative;
+    right: auto;
+    top: auto;
+    transform: none;
+    width: 95%;
+    padding: 18px;
+    margin: 18px auto 28px auto;
+    order: 3;
+  }
+
+  .exhibitorlogin-form-heading {
+    font-size: 19px;
+  }
+
+  .exhibitorlogin-form input {
+    padding: 11px 10px;
+    font-size: 13px;
+    min-height: 44px;
+  }
+
+  .exhibitorlogin-btn {
+    padding: 13px 16px;
+    font-size: 14px;
+    min-height: 48px;
+  }
+}
+
+/* ✅ MOBILE SMALL (280px - 320px) - ✅ CONTENT UPAR, FORM NEECHE */
+@media screen and (max-width: 320px) {
+  .exhibitorlogin-main-content-wrapper {
+    margin-top: 80px;
+    padding: 15px 8px;
+  }
+
+  .exhibitorlogin-bottom-container {
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    margin: 15px 0 8px 0;
+    border-radius: 5px;
+  }
+
+  /* ✅ 1. Gradient first */
+  .exhibitorlogin-gradient-section {
+    position: relative;
+    min-height: 140px;
+    padding: 15px 15px;
+    order: 1;
+  }
+
+  .exhibitorlogin-text-container,
+  .exhibitorlogin-text-container p {
+    font-size: 11px;
+    line-height: 1.4;
+  }
+
+  /* ✅ 2. Image second */
+  .exhibitorlogin-image-container {
+    position: relative;
+    top: 0;
+    height: 180px;
+    order: 2;
+  }
+
+  /* ✅ 3. Form third */
+  .exhibitorlogin-container {
+    position: relative;
+    right: auto;
+    top: auto;
+    transform: none;
+    width: 96%;
+    padding: 16px;
+    margin: 16px auto 25px auto;
+    order: 3;
+  }
+
+  .exhibitorlogin-form-heading {
+    font-size: 18px;
+    margin-bottom: 14px;
+  }
+
+  .exhibitorlogin-form label {
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+
+  .exhibitorlogin-form input {
+    padding: 11px 10px;
+    font-size: 13px;
+    margin-bottom: 12px;
+    min-height: 44px;
+  }
+
+  .password-field input {
+    padding-right: 40px;
+  }
+
+  .password-toggle-icon {
+    font-size: 16px;
+    right: 10px;
+    padding: 10px;
+    margin: -10px;
+  }
+
+  .exhibitorlogin-btn {
+    padding: 13px 14px;
+    font-size: 14px;
+    min-height: 48px;
+  }
+
+  .error-text {
+    font-size: 11px;
+    padding: 6px 8px;
+  }
+
+  .exhibitorlogin-register-text {
+    font-size: 11px;
+    margin-top: 12px;
+  }
+}
+
+/* ✅ LANDSCAPE MODE */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+  .exhibitorlogin-main-content-wrapper {
+    margin-top: 70px;
+    padding: 15px 12px;
+  }
+
+  .exhibitorlogin-bottom-container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .exhibitorlogin-gradient-section {
+    min-height: 120px;
+    padding: 15px 25px;
+    order: 1;
+  }
+
+  .exhibitorlogin-image-container {
+    height: 180px;
+    order: 2;
+  }
+
+  .exhibitorlogin-container {
+    margin: 15px auto 20px auto;
+    padding: 18px;
+    order: 3;
+  }
+}
+
+/* ✅ PRINT STYLES */
+@media print {
+  .exhibitorlogin-main-content-wrapper {
+    background: #fff;
+  }
+
+  .exhibitorlogin-gradient-section {
+    background: #e0e0e0;
+    color: #000;
+  }
+
+  .exhibitorlogin-text-container p {
+    color: #000;
+  }
+
+  .exhibitorlogin-image-container {
+    display: none;
+  }
+
+  .exhibitorlogin-btn {
+    display: none;
+  }
 }

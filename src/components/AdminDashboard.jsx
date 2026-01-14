@@ -23,10 +23,11 @@ import {
   faFileAlt,
   faEye,
 } from "@fortawesome/free-solid-svg-icons";
+import { MdDelete } from "react-icons/md";
+import { FiEdit } from "react-icons/fi";
 
 import { FaCircleCheck } from "react-icons/fa6";
 import { IoMdCloseCircle } from "react-icons/io";
-
 
 // React Icons package
 import {
@@ -107,6 +108,9 @@ const AdminDashboard = () => {
 
   const [showPaymentOverlay, setShowPaymentOverlay] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState(null);
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [showPaymentEditor, setShowPaymentEditor] = useState(false);
+  const [selectedPaymentType, setSelectedPaymentType] = useState(""); // stall | power | badge
 
   const [activePaymentDetailsOverlay, setActiveOverlay] = useState(null);
   const [selectedStallIndex, setSelectedStallIndex] = useState(null);
@@ -1833,7 +1837,7 @@ const AdminDashboard = () => {
   const [instructionModalOpen, setInstructionModalOpen] = useState(false);
   const [instructionEditorData, setInstructionEditorData] = useState("");
   const [instructionsList, setInstructionsList] = useState([]);
-  const [editingIndex, setEditingIndex] = useState(null);
+
   const [rulesList, setRulesList] = useState([]);
   const [rulesModalOpen, setRulesModalOpen] = useState(false);
   const [rulesEditorData, setRulesEditorData] = useState("");
@@ -12344,79 +12348,153 @@ const AdminDashboard = () => {
     setProcessing(null);
   };
 
- const fetchUploadedForms = async () => {
-  try {
-    const res = await fetch("https://inoptics.in/api/get_all_uploaded_exhibitor_forms.php");
-    const json = await res.json();
+  const fetchUploadedForms = async () => {
+    try {
+      const res = await fetch(
+        "https://inoptics.in/api/get_all_uploaded_exhibitor_forms.php"
+      );
+      const json = await res.json();
 
-    console.log("Forms API raw:", json);
+      console.log("Forms API raw:", json);
 
-    if (!json.success || !Array.isArray(json.data)) {
-      console.warn("No forms data");
-      return;
-    }
-
-    // 🔥 Convert array → company based map
-    const map = {};
-
-    json.data.forEach((row) => {
-      const company = row.exhibitor_company_name;
-
-      if (!map[company]) {
-        map[company] = [];
+      if (!json.success || !Array.isArray(json.data)) {
+        console.warn("No forms data");
+        return;
       }
 
-      map[company].push({
-        file_name: row.file_name,
-        file_path: row.file_path,
+      // 🔥 Convert array → company based map
+      const map = {};
+
+      json.data.forEach((row) => {
+        const company = row.exhibitor_company_name;
+
+        if (!map[company]) {
+          map[company] = [];
+        }
+
+        map[company].push({
+          file_name: row.file_name,
+          file_path: row.file_path,
+        });
       });
-    });
 
-    console.log("Forms Map:", map); // 👈 must show company name as key
+      console.log("Forms Map:", map); // 👈 must show company name as key
 
-    setFormsMap(map);
-  } catch (error) {
-    console.error("Forms fetch failed", error);
-  }
-};
+      setFormsMap(map);
+    } catch (error) {
+      console.error("Forms fetch failed", error);
+    }
+  };
 
-
-useEffect(() => {
-  fetchUploadedForms();
-}, []);
-
+  useEffect(() => {
+    fetchUploadedForms();
+  }, []);
 
   useEffect(() => {
     fetchAllFinalSelections();
     fetchUploadedForms();
   }, []);
 
+  const approveBooth = (company) => {
+    console.log("APPROVE CLICKED FOR:", company);
+
+    fetch("https://inoptics.in/api/approve_booth_design.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ company }),
+    })
+      .then((r) => r.text()) // 👈 read raw
+      .then((t) => {
+        console.log("RAW RESPONSE:", t);
+        const d = JSON.parse(t);
+
+        if (d.success) {
+          alert("Booth Design Approved");
+        } else {
+          alert("Not updated: " + (d.message || "No row matched"));
+        }
+      });
+  };
+
+  const rejectBooth = (company) => {
+    console.log("REJECT CLICKED FOR:", company);
+
+    fetch("https://inoptics.in/api/reject_booth_design.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ company }),
+    })
+      .then((res) => res.text())
+      .then((text) => {
+        console.log("RAW RESPONSE:", text);
+        try {
+          const d = JSON.parse(text);
+          if (d.success) alert("Booth Design Rejected");
+          else alert("Failed: " + (d.message || text));
+        } catch (e) {
+          alert("Server returned invalid JSON:\n" + text);
+        }
+      });
+  };
+
+  const buildCompanyRows = (data) => {
+    const map = {};
+
+    data.forEach((row) => {
+      const name = row.company_name;
+
+      if (!map[name]) {
+        map[name] = {
+          ...row,
+          stall: Number(row.stall || 0),
+          power: Number(row.power || 0),
+          exhibitorBadgesTotal: Number(row.exhibitorBadgesTotal || 0),
+          stallPaid: 0,
+          powerPaid: 0,
+          badgePaid: 0,
+          paid_total: 0,
+          stallPaymentsSeen: false,
+          powerPaymentsSeen: false,
+          badgePaymentsSeen: false,
+        };
+      }
+
+      // ✅ Add each payment type only once
+      if (row.stall_payments && !map[name].stallPaymentsSeen) {
+        row.stall_payments.split(",").forEach((v) => {
+          map[name].stallPaid += Number(v || 0);
+        });
+        map[name].stallPaymentsSeen = true;
+      }
+
+      if (row.power_payments && !map[name].powerPaymentsSeen) {
+        row.power_payments.split(",").forEach((v) => {
+          map[name].powerPaid += Number(v || 0);
+        });
+        map[name].powerPaymentsSeen = true;
+      }
+
+      if (row.badge_payments && !map[name].badgePaymentsSeen) {
+        row.badge_payments.split(",").forEach((v) => {
+          map[name].badgePaid += Number(v || 0);
+        });
+        map[name].badgePaymentsSeen = true;
+      }
+
+      map[name].paid_total += Number(row.paid_total || 0);
+    });
+
+    return Object.values(map);
+  };
+
+  // 👇👇 YAHAN PASTE KARO
+  const displayData = buildCompanyRows(
+    filteredPaymentsData.length > 0 ? filteredPaymentsData : paymentsData
+  );
 
 
-  const approveBooth = (id) => {
-  fetch("https://inoptics.in/api/approve_booth_design.php", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id })
-  })
-  .then(r => r.json())
-  .then(d => {
-    if (d.success) alert("Booth Design Approved");
-  });
-};
 
-const rejectBooth = (id) => {
-  fetch("https://inoptics.in/api/reject_booth_design.php", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id })
-  })
-  .then(r => r.json())
-  .then(d => {
-    if (d.success) alert("Booth Design Rejected");
-  });
-};
-
+  
 
   return (
     <div className="dashboard-container">
@@ -18282,7 +18360,7 @@ const rejectBooth = (id) => {
                                           setActiveOverlay("stall");
                                         }}
                                       >
-                                        View Details
+                                        Add Payment
                                       </button>
                                     </div>
                                   </div>
@@ -18362,7 +18440,7 @@ const rejectBooth = (id) => {
                                           setActiveOverlay("power")
                                         }
                                       >
-                                        View Details
+                                        Add Payment
                                       </button>
                                     </div>
                                   </div>
@@ -18440,7 +18518,7 @@ const rejectBooth = (id) => {
                                               setActiveOverlay("badges")
                                             }
                                           >
-                                            View Details
+                                            Add Payment
                                           </button>
                                         </div>
                                       </div>
@@ -23557,16 +23635,9 @@ const rejectBooth = (id) => {
                       : paymentsData
                     ).length > 0 ? (
                       <>
-                        {(filteredPaymentsData.length > 0
-                          ? filteredPaymentsData
-                          : paymentsData
-                        ).map((item, index) => {
+                        {displayData.map((item, index) => {
                           // ✅ Find the original index from the full data array
-                          const originalIndex =
-                            paymentsData.findIndex(
-                              (dataItem) =>
-                                dataItem.company_name === item.company_name
-                            ) + 1;
+                          const originalIndex = index + 1;
 
                           const stall = item.stall ?? 0;
                           const power = item.power ?? 0;
@@ -23577,17 +23648,17 @@ const rejectBooth = (id) => {
                           const pending = total - paid;
 
                           // Format multiline payments
-                          const formatPayments = (payments) => {
-                            if (!payments) return "-";
-                            const arr = payments.split(",");
-                            let result = "";
-                            arr.forEach((val, i) => {
-                              result += val.trim();
-                              if ((i + 1) % 2 === 0) result += ",\n";
-                              else if (i < arr.length - 1) result += ",";
-                            });
-                            return result;
-                          };
+                          // const formatPayments = (payments) => {
+                          //   if (!payments) return "-";
+                          //   const arr = payments.split(",");
+                          //   let result = "";
+                          //   arr.forEach((val, i) => {
+                          //     result += val.trim();
+                          //     if ((i + 1) % 2 === 0) result += ",\n";
+                          //     else if (i < arr.length - 1) result += ",";
+                          //   });
+                          //   return result;
+                          // };
 
                           return (
                             <tr key={item.company_name}>
@@ -23600,13 +23671,13 @@ const rejectBooth = (id) => {
                               <td>{Math.round(item.power)}</td>
                               <td>{Math.round(item.exhibitorBadgesTotal)}</td>
                               <td className="overlay-multiline">
-                                {formatPayments(item.stall_payments)}
+                                {Math.round(item.stallPaid || 0)}
                               </td>
                               <td className="overlay-multiline">
-                                {formatPayments(item.power_payments)}
+                                {Math.round(item.powerPaid || 0)}
                               </td>
                               <td className="overlay-multiline">
-                                {formatPayments(item.badge_payments)}
+                                {Math.round(item.badgePaid || 0)}
                               </td>
                               <td>{Math.round(total)}</td>
                               <td>{Math.round(paid)}</td>
@@ -23618,6 +23689,12 @@ const rejectBooth = (id) => {
                                 >
                                   View
                                 </button>
+
+                                
+
+                                
+
+                                
                               </td>
                             </tr>
                           );
@@ -24153,6 +24230,7 @@ const rejectBooth = (id) => {
                             <th>Exhibitor Bank</th>
                             <th>Receiver Bank</th>
                             <th>Payment Type</th>
+                            <th>Action</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -24566,50 +24644,68 @@ const rejectBooth = (id) => {
                         </thead>
                         <tbody>
                           {finalListData.map((item, index) => {
-  const forms = formsMap[item.exhibitor_company_name] || {};
+                            const forms =
+                              formsMap[item.exhibitor_company_name] || {};
 
-  return (
-    <tr key={index}>
-      <td>{index + 1}</td>
-      <td>{item.exhibitor_company_name}</td>
-      <td>{item.contractor_name}</td>
-      <td>{item.contractor_company_name}</td>
+                            return (
+                              <tr key={index}>
+                                <td>{index + 1}</td>
+                                <td>{item.exhibitor_company_name}</td>
+                                <td>{item.contractor_name}</td>
+                                <td>{item.contractor_company_name}</td>
 
-      {/* FORMS COLUMN */}
-      <td>
-  <div className="forms-icons-row">
-    {formsMap[item.exhibitor_company_name]?.length > 0 ? (
-      formsMap[item.exhibitor_company_name].map((f, i) => (
-        <a
-          key={i}
-          href={`https://inoptics.in/api/${f.file_path}`}
-          target="_blank"
-          rel="noreferrer"
-          title={f.file_name}
-          className="form-view-icon"
-        >
-          <FaEye />
-        </a>
-      ))
-    ) : (
-      <span style={{ color: "#999" }}>—</span>
-    )}
-  </div>
-</td>
+                                {/* FORMS COLUMN */}
+                                <td>
+                                  <div className="forms-icons-row">
+                                    {formsMap[item.exhibitor_company_name]
+                                      ?.length > 0 ? (
+                                      formsMap[item.exhibitor_company_name].map(
+                                        (f, i) => (
+                                          <a
+                                            key={i}
+                                            href={`https://inoptics.in/api/${f.file_path}`}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            title={f.file_name}
+                                            className="form-view-icon"
+                                          >
+                                            <FaEye />
+                                          </a>
+                                        )
+                                      )
+                                    ) : (
+                                      <span style={{ color: "#999" }}>—</span>
+                                    )}
+                                  </div>
+                                </td>
 
-
-      <td></td>
-      <td></td>
-      <td>
-        <div className="contractor-final-list-btn">
-          <button onClick={()=>rejectBooth(item.id)} className="contractor-final-list-btn-reject"><IoMdCloseCircle /></button>
-          <button  onClick={()=>approveBooth(item.id)} className="contractor-final-list-btn-approve"><FaCircleCheck /></button>
-        </div>
-      </td>
-    </tr>
-  );
-})}
-
+                                <td></td>
+                                <td></td>
+                                <td>
+                                  <div className="contractor-final-list-btn">
+                                    <button
+                                      onClick={() =>
+                                        rejectBooth(item.exhibitor_company_name)
+                                      }
+                                      className="contractor-final-list-btn-reject"
+                                    >
+                                      <IoMdCloseCircle />
+                                    </button>
+                                    <button
+                                      onClick={() =>
+                                        approveBooth(
+                                          item.exhibitor_company_name
+                                        )
+                                      }
+                                      className="contractor-final-list-btn-approve"
+                                    >
+                                      <FaCircleCheck />
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })}
                         </tbody>
                       </table>
                     </div>
@@ -26875,6 +26971,9 @@ const rejectBooth = (id) => {
                         <option value="">Select Type</option>
                         <option value="Platinum">Platinum</option>
                         <option value="Gold">Gold</option>
+                        <option value="Footer-hoya">Footer-hoya</option>
+                        <option value="Footer-fastrack">Footer-fastrack</option>
+                        <option value="Footer-feather">Footer-feather</option>
                         <option value="Silver">Silver</option>
                         <option value="Media">Media</option>
                         <option value="Foreign">Foreign</option>

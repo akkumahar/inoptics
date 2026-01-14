@@ -1,3 +1,4 @@
+/* Base Container Styles */
 .visitor-guide-container {
   display: flex;
   flex-direction: column;
@@ -9,82 +10,111 @@
   max-width: 1000px;
   margin: 40px auto 0px auto;
   margin-bottom: 200px;
-  
+  padding: 0 20px; /* Add padding for mobile */
 }
 
-/* ✅ Cards Layout */
+/* Header Styles */
+.visitor-guide-header {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #02062c;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.visitor-guide-text {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #333;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+/* Cards Layout */
 .visitor-cards {
   display: flex;
   justify-content: space-between;
   gap: 20px;
   height: auto !important;
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
 }
 
 .visitor-card {
   flex: 1;
-  /* background: #f8f8f8; */
-  padding: 10px;
+  padding: 20px;
   text-align: center;
   transition: transform 0.3s ease;
   height: auto !important;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-    border: 1px solid;
-    position: relative;   /* 👈 this anchors the button */
-  /* overflow: hidden; */
+  border: 1px solid #ddd;
+  position: relative;
   min-height: fit-content;
+  min-width: 280px; /* Minimum width for cards */
 }
 
-/* .visitor-card:hover {
-  transform: translateY(-5px);
-  border-bottom: 4px solid #02062c; 
-} */
+.visitor-card h2 {
+  font-size: 1.5rem;
+  color: #02062c;
+  margin-bottom: 15px;
+}
 
+.visitor-exhibition-text {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #555;
+  margin-bottom: 20px;
+  flex-grow: 1; /* Push button to bottom */
+}
 
-/* ✅ Venue Card Styles */
+/* Get Badge Button */
+.get-badge-btn {
+  margin-top: auto;
+  display: inline-block;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 12px 24px;
+  background: transparent;
+  border: 2px solid #000;
+  color: #000;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  width: auto;
+  white-space: nowrap;
+  border-radius: 4px;
+}
+
+.get-badge-btn:hover {
+  background-color: #031438;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Venue Address Section */
 .visitor-guide-venue-address {
   text-align: center;
   margin-top: 60px;
 }
 
 .venue-title {
-  font-size: 25px;
+  font-size: 1.8rem;
   font-weight: bold;
   margin: 0;
   color: #02062c;
 }
 
 .venue-subtext {
-  font-size: 18px;
+  font-size: 1.1rem;
   margin-top: 8px;
   color: #333;
   font-family: "Quicksand", sans-serif;
 }
 
-.get-badge-btn {
-  margin-top: auto;             
-  display: inline-block;         
-  margin-left: auto;             
-  margin-right: auto;            
-  padding: 10px 20px;            
-  background: transparent;       
-  border: 1px solid #000;        
-  color: #000;                   
-  font-weight: bold;
-  text-align: center;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  
-  width: auto;                   
-  white-space: nowrap;          
-}
-
-.get-badge-btn:hover {
-  background-color: #031438;    
-  color: #fff;                  
-}
-
+/* Extra Container */
 .visitor-extra-container {
   margin-top: 40px;
   height: auto;
@@ -92,6 +122,9 @@
 
 .visitor-extra-title {
   margin-bottom: 20px;
+  font-size: 1.8rem;
+  color: #02062c;
+  text-align: center;
 }
 
 .visitor-extra-content {
@@ -106,16 +139,411 @@
 .visitor-extra-text {
   flex: 1;
   padding: 10px;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #555;
 }
 
 .visitor-extra-image-wrapper {
   flex: 1;
   display: flex;
   justify-content: flex-end;
-  
 }
 
 .visitor-extra-image {
-  max-width: 400px;
-  height: auto; 
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+/* ============================================ */
+/* RESPONSIVE MEDIA QUERIES */
+/* ============================================ */
+
+/* Extra Large Desktop (1201px and above) */
+@media screen and (min-width: 1201px) {
+  .visitor-guide-container {
+    padding: 0 40px;
+  }
+
+  .visitor-cards {
+    flex-wrap: nowrap;
+  }
+
+  .visitor-card {
+    min-width: auto;
+  }
+}
+
+/* Desktop (1025px - 1200px) */
+@media screen and (min-width: 1025px) and (max-width: 1200px) {
+  .visitor-guide-container {
+    max-width: 960px;
+    padding: 0 30px;
+  }
+
+  .visitor-guide-header {
+    font-size: 2.2rem;
+  }
+
+  .visitor-cards {
+    flex-wrap: nowrap;
+  }
+
+  .visitor-card {
+    padding: 18px;
+    min-width: auto;
+  }
+
+  .visitor-card h2 {
+    font-size: 1.4rem;
+  }
+
+  .visitor-exhibition-text {
+    font-size: 0.95rem;
+  }
+}
+
+/* Tablet Landscape (769px - 1024px) */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .visitor-guide-container {
+    max-width: 720px;
+    padding: 0 25px;
+    margin-bottom: 150px;
+  }
+
+  .visitor-guide-header {
+    font-size: 2rem;
+  }
+
+  .visitor-guide-text {
+    font-size: 1rem;
+  }
+
+  .visitor-cards {
+    flex-wrap: wrap;
+    gap: 18px;
+  }
+
+  .visitor-card {
+    flex: 1 1 calc(50% - 10px); /* 2 cards per row */
+    min-width: 300px;
+    padding: 16px;
+  }
+
+  .visitor-card h2 {
+    font-size: 1.3rem;
+  }
+
+  .visitor-exhibition-text {
+    font-size: 0.9rem;
+  }
+
+  .get-badge-btn {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+
+  .visitor-extra-content {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .visitor-extra-image-wrapper {
+    justify-content: center;
+  }
+
+  .visitor-extra-image {
+    max-width: 500px;
+  }
+
+  .venue-title {
+    font-size: 1.6rem;
+  }
+
+  .venue-subtext {
+    font-size: 1rem;
+  }
+}
+
+/* Tablet Portrait (481px - 768px) */
+@media screen and (min-width: 481px) and (max-width: 768px) {
+  .visitor-guide-container {
+    max-width: 100%;
+    padding: 0 20px;
+    margin: 30px auto 0 auto;
+    margin-bottom: 120px;
+  }
+
+  .visitor-guide-header {
+    font-size: 1.8rem;
+  }
+
+  .visitor-guide-text {
+    font-size: 0.95rem;
+    margin-bottom: 25px;
+  }
+
+  .visitor-cards {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .visitor-card {
+    flex: 1 1 100%; /* Full width */
+    min-width: auto;
+    padding: 15px;
+  }
+
+  .visitor-card h2 {
+    font-size: 1.25rem;
+  }
+
+  .visitor-exhibition-text {
+    font-size: 0.9rem;
+  }
+
+  .get-badge-btn {
+    padding: 10px 18px;
+    font-size: 0.85rem;
+  }
+
+  .visitor-guide-venue-address {
+    margin-top: 40px;
+  }
+
+  .venue-title {
+    font-size: 1.5rem;
+  }
+
+  .venue-subtext {
+    font-size: 0.95rem;
+  }
+
+  .visitor-extra-container {
+    margin-top: 30px;
+  }
+
+  .visitor-extra-title {
+    font-size: 1.5rem;
+  }
+
+  .visitor-extra-content {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .visitor-extra-image-wrapper {
+    justify-content: center;
+  }
+
+  .visitor-extra-image {
+    max-width: 100%;
+  }
+}
+
+/* Mobile (321px - 480px) */
+@media screen and (min-width: 321px) and (max-width: 480px) {
+  .visitor-guide-container {
+    padding: 0 15px;
+    margin: 20px auto 0 auto;
+    margin-bottom: 100px;
+  }
+
+  .visitor-guide-header {
+    font-size: 1.5rem;
+    margin-bottom: 12px;
+  }
+
+  .visitor-guide-text {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+
+  .visitor-cards {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .visitor-card {
+    flex: 1 1 100%;
+    min-width: auto;
+    padding: 12px;
+  }
+
+  .visitor-card h2 {
+    font-size: 1.15rem;
+    margin-bottom: 10px;
+  }
+
+  .visitor-exhibition-text {
+    font-size: 0.85rem;
+    margin-bottom: 15px;
+  }
+
+  .get-badge-btn {
+    padding: 8px 16px;
+    font-size: 0.8rem;
+  }
+
+  .visitor-guide-venue-address {
+    margin-top: 30px;
+  }
+
+  .venue-title {
+    font-size: 1.3rem;
+  }
+
+  .venue-subtext {
+    font-size: 0.9rem;
+  }
+
+  .visitor-extra-container {
+    margin-top: 25px;
+  }
+
+  .visitor-extra-title {
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+  }
+
+  .visitor-extra-content {
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .visitor-extra-text {
+    font-size: 0.9rem;
+    padding: 5px;
+  }
+
+  .visitor-extra-image-wrapper {
+    justify-content: center;
+  }
+
+  .visitor-extra-image {
+    max-width: 100%;
+  }
+}
+
+/* Small Mobile (280px - 320px) */
+@media screen and (max-width: 320px) {
+  .visitor-guide-container {
+    padding: 0 12px;
+    margin: 15px auto 0 auto;
+    margin-bottom: 90px;
+    gap: 15px;
+  }
+
+  .visitor-guide-header {
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+  }
+
+  .visitor-guide-text {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    margin-bottom: 18px;
+  }
+
+  .visitor-cards {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .visitor-card {
+    flex: 1 1 100%;
+    min-width: auto;
+    padding: 10px;
+  }
+
+  .visitor-card h2 {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+  }
+
+  .visitor-exhibition-text {
+    font-size: 0.8rem;
+    margin-bottom: 12px;
+  }
+
+  .get-badge-btn {
+    padding: 7px 14px;
+    font-size: 0.75rem;
+  }
+
+  .visitor-guide-venue-address {
+    margin-top: 25px;
+  }
+
+  .venue-title {
+    font-size: 1.2rem;
+  }
+
+  .venue-subtext {
+    font-size: 0.85rem;
+  }
+
+  .visitor-extra-container {
+    margin-top: 20px;
+  }
+
+  .visitor-extra-title {
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+  }
+
+  .visitor-extra-content {
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+  }
+
+  .visitor-extra-text {
+    font-size: 0.85rem;
+    padding: 5px;
+  }
+
+  .visitor-extra-image {
+    max-width: 100%;
+  }
+}
+
+/* Landscape Mode for Mobile Devices */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+  .visitor-guide-container {
+    margin-bottom: 100px;
+  }
+
+  .visitor-cards {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .visitor-card {
+    flex: 1 1 calc(50% - 10px);
+    min-width: 250px;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .visitor-guide-container {
+    max-width: 100%;
+    margin-bottom: 0;
+  }
+
+  .visitor-cards {
+    page-break-inside: avoid;
+  }
+
+  .visitor-card {
+    page-break-inside: avoid;
+  }
+
+  .get-badge-btn {
+    display: none;
+  }
 }
