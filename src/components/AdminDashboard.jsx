@@ -55,6 +55,7 @@ import TemplateLogo from "../assets/RSD_invoice_logo.png";
 import html2pdf from "html2pdf.js";
 import jsPDF from "jspdf";
 import { toast } from "react-toastify";
+import AdminBadges from "./List/AdminBadges";
 // import { useMemo } from 'react';
 
 const AdminDashboard = () => {
@@ -1779,6 +1780,7 @@ const AdminDashboard = () => {
   const registrationFeesEditableBodyRef = useRef(null);
 
   const [showFormsMenu, setShowFormsMenu] = useState(false);
+  const [showListMenu, setShowListMenu] = useState(false);
 
   const [showBrandsEditForm, setShowBrandsEditForm] = useState(false);
 
@@ -6312,76 +6314,91 @@ const AdminDashboard = () => {
     return match ? parseFloat(match[0]) : 0;
   };
   const handleExhibitorStallsSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const stallData = {
-      company_name: formData.company_name || "",
-      stall_number: formData.stall_number || "",
-      hall_number: formData.hall_number || "",
-      stall_category: formData.stall_category || "",
-      stall_price: parseFloat(customRound(formData.stall_price)) || 0,
-      currency: formData.currency || "",
-      stall_area: extractNumber(formData.stall_area),
-      total: parseFloat(customRound(formData.total)) || 0,
-      discount: parseFloat(formData.discount) || 0, // discount % stays as-is
-      discounted_amount:
-        parseFloat(customRound(formData.discounted_amount)) || 0,
-      total_after_discount:
-        parseFloat(customRound(formData.total_after_discount)) || 0,
-      sgst9: parseFloat(customRound(formData.sgst9)) || 0,
-      cgst9: parseFloat(customRound(formData.cgst9)) || 0,
-      igst18: parseFloat(customRound(formData.igst18)) || 0,
-      grand_total: parseFloat(customRound(formData.grand_total)) || 0,
-    };
-
-    try {
-      const response = await fetch(
-        "https://inoptics.in/api/submit_stalls.php",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(stallData),
-        }
-      );
-
-      if (response.ok) {
-        const result = await response.json();
-        alert("Stall data submitted successfully!");
-        // console.log(result);
-
-        fetchExhibitorData();
-
-        // ✅ Immediately fetch updated stalls
-        fetchStallsByCompany(formData.company_name);
-
-        setStallCategory("");
-        setFormData((prev) => ({
-          ...prev,
-          stall_number: "",
-          hall_number: "",
-          stall_category: "",
-          stall_price: "",
-          currency: "",
-          stall_area: "",
-          total: "",
-          discount: "",
-          discounted_amount: "",
-          total_after_discount: "",
-          sgst9: "",
-          cgst9: "",
-          igst18: "",
-          grand_total: "",
-        }));
-      } else {
-        alert("Failed to submit stall data");
-      }
-    } catch (error) {
-      console.error("Submission error:", error);
-      alert("An error occurred while submitting stall data.");
-    }
+  const stallData = {
+    company_name: formData.company_name || "",
+    stall_number: formData.stall_number || "",
+    hall_number: formData.hall_number || "",
+    stall_category: formData.stall_category || "",
+    stall_price: parseFloat(customRound(formData.stall_price)) || 0,
+    currency: formData.currency || "",
+    stall_area: extractNumber(formData.stall_area),
+    total: parseFloat(customRound(formData.total)) || 0,
+    discount: parseFloat(formData.discount) || 0,
+    discounted_amount: parseFloat(customRound(formData.discounted_amount)) || 0,
+    total_after_discount: parseFloat(customRound(formData.total_after_discount)) || 0,
+    sgst9: parseFloat(customRound(formData.sgst9)) || 0,
+    cgst9: parseFloat(customRound(formData.cgst9)) || 0,
+    igst18: parseFloat(customRound(formData.igst18)) || 0,
+    grand_total: parseFloat(customRound(formData.grand_total)) || 0,
   };
+
+  try {
+    const response = await fetch(
+      "https://inoptics.in/api/submit_stalls.php",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(stallData),
+      }
+    );
+
+    if (!response.ok) {
+      alert("Failed to submit stall data");
+      return;
+    }
+
+    const result = await response.json();
+    alert("Stall data submitted successfully!");
+
+    // 🔥 STEP 2 — Recalculate FREE badges after stall add
+    const badgeRes = await fetch("https://inoptics.in/api/update_free_badges.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        company_name: formData.company_name,
+      }),
+    });
+
+    const badgeData = await badgeRes.json();
+
+    if (!badgeData.success) {
+      console.warn("Free badge update failed:", badgeData.error);
+    } else {
+      console.log("✅ Free badges recalculated:", badgeData.free_badges);
+    }
+
+    // 🔄 Refresh exhibitor + stalls UI
+    fetchExhibitorData();                 // updates free_badges & free_remaining
+    fetchStallsByCompany(formData.company_name);
+
+    // 🧹 Reset form
+    setStallCategory("");
+    setFormData((prev) => ({
+      ...prev,
+      stall_number: "",
+      hall_number: "",
+      stall_category: "",
+      stall_price: "",
+      currency: "",
+      stall_area: "",
+      total: "",
+      discount: "",
+      discounted_amount: "",
+      total_after_discount: "",
+      sgst9: "",
+      cgst9: "",
+      igst18: "",
+      grand_total: "",
+    }));
+
+  } catch (error) {
+    console.error("Submission error:", error);
+    alert("An error occurred while submitting stall data.");
+  }
+};
+
 
   const handleEditExhibitorStall = (index) => {
     const stallToEdit = stallList[index];
@@ -12531,6 +12548,17 @@ const AdminDashboard = () => {
               <li onClick={() => openOverlay("Additional Requirement")}>
                 › Additional Requirement
               </li>
+              <li onClick={() => setShowListMenu(!showListMenu)}>
+                › List
+              </li>
+              {!collapsed && showListMenu && (
+            <ul className="submenu">
+              <li onClick={() => openOverlay("Exhibitor Badges")}>
+                › Exhibitor Badges
+              </li>
+              
+            </ul>
+          )}
             </ul>
           )}
           <li onClick={() => openOverlay("Payments")}>
@@ -23251,6 +23279,7 @@ const AdminDashboard = () => {
                   >
                     Badges Limit
                   </li>
+                  
                 </ul>
               </div>
 
@@ -23607,6 +23636,60 @@ const AdminDashboard = () => {
               )}
             </>
           )}
+
+
+          {/* testing */}
+
+           {overlayContent === "Exhibitor Badges" && (
+            <>
+            <div className="admin-sub-navbar">
+                <ul className="admin-sub-navbar-list">
+                  <li
+                    onClick={() => setActiveNavbarItem("EXHIBITOR BADGES")}
+                    className={
+                      activeNavbarItem === "Exhibitor Badges"
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    Exhibitor Badges
+                  </li>
+                  <li
+                    onClick={() => setActiveNavbarItem("POWER LIST")}
+                    className={
+                      activeNavbarItem === "Power List"
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    Power List
+                  </li>
+                  <li
+                    onClick={() => setActiveNavbarItem("CONTRACTOR LIST")}
+                    className={
+                      activeNavbarItem === "Contractor List"
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    Contractor List
+                  </li>
+                  
+                  
+                </ul>
+              </div>
+
+
+
+             {/* ✅ BADGES LIMIT */}
+{activeNavbarItem === "EXHIBITOR BADGES" && (
+  <div style={{ padding: "10px" }}>
+    <AdminBadges />
+  </div>
+)}
+            </>
+          )}
+          {/* testing */}
 
           {overlayContent === "Payments" && (
             <div className="overlay-table-container">

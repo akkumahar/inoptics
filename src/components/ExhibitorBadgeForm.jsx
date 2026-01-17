@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from "react";
 import QRCode from "qrcode"; // Install: npm install qrcode
 import "./ExhibitorBadgeForm.css";
+import { FaCirclePlus } from "react-icons/fa6";
+import { IoClose } from "react-icons/io5";
+import { FaPrint } from "react-icons/fa";
 
 const ExhibitorBadgeForm = () => {
   const [exhibitors, setExhibitors] = useState([]);
   const [stallList, setStallList] = useState([]);
   const [generatedBadges, setGeneratedBadges] = useState([]);
+  const [showBadgeForm, setShowBadgeForm] = useState(false);
+  const [printStatus, setPrintStatus] = useState({});
 
   const [formData, setFormData] = useState({
     name: "",
@@ -24,11 +29,16 @@ const ExhibitorBadgeForm = () => {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState({ type: "", text: "" });
   const [freeBadges, setFreeBadges] = useState(0);
-  const [remainingBadges, setRemainingBadges] = useState(0); // ✅ YE ADD KARO
   const [usedBadges, setUsedBadges] = useState(0); // optional, agar dikhana ho
 
   const [extraBadges, setExtraBadges] = useState(0);
+  const [freeRemaining, setFreeRemaining] = useState(0);
+  const [extraRemaining, setExtraRemaining] = useState(0); // 👈 THIS
+
   const [isLocked, setIsLocked] = useState(false);
+  const [showBadgePopup, setShowBadgePopup] = useState(false);
+  const [companyBadges, setCompanyBadges] = useState([]);
+  const [loadingCompanyBadges, setLoadingCompanyBadges] = useState(false);
 
   useEffect(() => {
     checkLoginAndFetchData();
@@ -39,26 +49,92 @@ const ExhibitorBadgeForm = () => {
 
   useEffect(() => {
     if (!formData.exhibitor_company_name) return;
-    const company = formData.exhibitor_company_name;
 
     fetch(
       `https://inoptics.in/api/get_Exhibitor_badges.php?company_name=${encodeURIComponent(
-        company
+        formData.exhibitor_company_name
       )}`
     )
       .then((res) => res.json())
       .then((data) => {
-        if (!data) return;
+        const freeRem = Number(data.free_remaining) || 0;
+        const extraRem = Number(data.extra_remaining) || 0;
 
-        setFreeBadges(parseInt(data.free_badges, 10) || 0);
-        setExtraBadges(parseInt(data.extra_badges, 10) || 0);
-        setUsedBadges(parseInt(data.used_badges, 10) || 0);
-        setRemainingBadges(parseInt(data.remaining_badges, 10) || 0);
-        setIsLocked(data.is_locked == 1);
+        setFreeBadges(Number(data.free_badges) || 0);
+        setExtraBadges(Number(data.extra_badges) || 0);
+        setUsedBadges(Number(data.used_badges) || 0);
+
+        setFreeRemaining(freeRem);
+        setExtraRemaining(extraRem);
+
+        checkLockStatus(freeRem, extraRem);
+        console.log(data);
       });
   }, [formData.exhibitor_company_name]);
 
- 
+  useEffect(() => {
+    if (!formData.exhibitor_company_name) return;
+
+    setLoadingCompanyBadges(true);
+
+    fetch(
+      `https://inoptics.in/api/get_exhibitor_badges_by_company.php?company_name=${encodeURIComponent(
+        formData.exhibitor_company_name
+      )}`
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        // API se expected: { success: true, badges: [] }
+        setCompanyBadges(Array.isArray(data.badges) ? data.badges : []);
+        console.log("COMPANY BADGES:", data.badges);
+        console.log(companyBadges);
+        
+      })
+      .catch((err) => {
+        console.error("Badge fetch error:", err);
+        setCompanyBadges([]);
+      })
+      .finally(() => {
+        setLoadingCompanyBadges(false);
+      });
+  }, [formData.exhibitor_company_name]);
+
+
+
+  useEffect(() => {
+  if (!formData.exhibitor_company_name) return;
+
+  setLoadingCompanyBadges(true);
+
+  fetch(
+    `https://inoptics.in/api/get_exhibitor_badges_by_company.php?company_name=${encodeURIComponent(
+      formData.exhibitor_company_name
+    )}`
+  )
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.success) {
+        setCompanyBadges(data.badges || []);
+
+        // 🔥 AUTO SET BUTTON STATUS
+        const statusMap = {};
+        (data.badges || []).forEach((badge) => {
+          statusMap[badge.id] = badge.print_status; 
+          // ready | done | disabled
+        });
+
+        setPrintStatus(statusMap);
+      }
+    })
+    .catch((err) => console.error("Badge fetch error", err))
+    .finally(() => setLoadingCompanyBadges(false));
+
+}, [formData.exhibitor_company_name]);
+
+
+
+
+
   const checkLoginAndFetchData = () => {
     const isLoggedIn = localStorage.getItem("isExhibitorLoggedIn");
     const exhibitorInfo = localStorage.getItem("exhibitorInfo");
@@ -255,20 +331,28 @@ const ExhibitorBadgeForm = () => {
     return new Blob([u8arr], { type: mime });
   };
 
+  const checkLockStatus = (freeRem, extraRem) => {
+    if (freeRem === 0 && extraRem === 0) {
+      setIsLocked(true);
+    } else {
+      setIsLocked(false);
+    }
+  };
+
   // ✅ Tumhara handleSubmit QR ke saath
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Free badge limit check
-    if (remainingBadges <= 0) {
+    // 🔒 HARD LOCK CHECK (free + extra dono khatam)
+    if (freeRemaining === 0 && extraRemaining === 0) {
       setMessage({
         type: "error",
-        text: "You have used all your free badges. Please contact admin for extra badges.",
+        text: "No badges remaining. Please contact admin.",
       });
       return;
     }
 
-    // Client-side validation
+    // ---------------- VALIDATIONS ----------------
     if (!formData.name.trim()) {
       setMessage({ type: "error", text: "Please enter candidate name" });
       return;
@@ -287,77 +371,32 @@ const ExhibitorBadgeForm = () => {
     setLoading(true);
     setMessage({ type: "", text: "" });
 
-    console.log("📤 Starting badge submission...");
-
     try {
-      // Step 1: Generate QR Code in frontend
-      console.log("🎨 Step 1: Generating QR code...");
-      const qrCodeDataUrl = await generateQRCode({
-        name: formData.name.trim(),
-        company: formData.exhibitor_company_name,
-        stall: formData.stall_no,
-        city: formData.city,
-        state: formData.state,
-        exhibitor_id: formData.exhibitor_id,
-      });
-
-      // Step 2: Convert QR to Blob → File
-      console.log("🔄 Step 2: Converting QR to file...");
-      const qrBlob = dataURLtoBlob(qrCodeDataUrl);
-      const qrFile = new File([qrBlob], `qr_${Date.now()}.png`, {
-        type: "image/png",
-      });
-
-      // Step 3: Prepare FormData
-      console.log("📦 Step 3: Preparing form data...");
+      // ---------------- SEND BADGE ----------------
       const formDataToSend = new FormData();
       formDataToSend.append("name", formData.name.trim());
       formDataToSend.append("candidate_photo", formData.candidate_photo);
-      formDataToSend.append("company_name", formData.exhibitor_company_name); // 👈 important
+      formDataToSend.append("company_name", formData.exhibitor_company_name);
       formDataToSend.append("stall_no", formData.stall_no);
       formDataToSend.append("state", formData.state || "");
       formDataToSend.append("city", formData.city || "");
       formDataToSend.append("exhibitor_id", formData.exhibitor_id || "");
 
-      // Debug: log FormData
-      console.log("📋 FormData contents:");
-      for (let pair of formDataToSend.entries()) {
-        if (pair[0] === "candidate_photo" || pair[0] === "qr_code") {
-          console.log(`${pair[0]}:`, pair[1].name, pair[1].size, "bytes");
-        } else {
-          console.log(`${pair[0]}: ${pair[1]}`);
-        }
-      }
-
-      // Step 4: Send to backend
-      console.log("🌐 Step 4: Sending to backend...");
       const response = await fetch("https://inoptics.in/api/submit-badge.php", {
         method: "POST",
         body: formDataToSend,
       });
 
-      console.log("📊 Response status:", response.status);
+      const data = await response.json();
 
-      const responseText = await response.text();
-      console.log("📄 Raw response:", responseText);
-
-      let data;
-      try {
-        data = JSON.parse(responseText);
-        console.log("✅ Parsed response:", data);
-      } catch (parseError) {
-        console.error("💥 JSON Parse Error:", parseError);
-        throw new Error("Invalid server response");
-      }
-
+      // ---------------- SUCCESS ----------------
       if (data.success) {
         setMessage({
           type: "success",
-          text: data.message || "Badge created successfully!",
+          text: "Badge created successfully!",
         });
 
-       
-        // 🔄 Step 2 — Fresh count DB se reload karo
+        // 🔄 REFRESH BADGE COUNTS (MOST IMPORTANT PART)
         const badgeRes = await fetch(
           `https://inoptics.in/api/get_Exhibitor_badges.php?company_name=${encodeURIComponent(
             formData.exhibitor_company_name
@@ -366,58 +405,51 @@ const ExhibitorBadgeForm = () => {
 
         const badgeData = await badgeRes.json();
 
+        const freeRem = parseInt(badgeData.free_remaining, 10) || 0;
+        const extraRem = parseInt(badgeData.extra_remaining, 10) || 0;
+
         setFreeBadges(parseInt(badgeData.free_badges, 10) || 0);
         setExtraBadges(parseInt(badgeData.extra_badges, 10) || 0);
         setUsedBadges(parseInt(badgeData.used_badges, 10) || 0);
-        setRemainingBadges(parseInt(badgeData.remaining_badges, 10) || 0);
-        setIsLocked(badgeData.is_locked == 1);
 
-        // 🧾 Step 3 — Add badge to UI list
-        const newBadge = {
-          badge_id: data.badge_id,
-          name: formData.name.trim(),
-          company: formData.exhibitor_company_name,
-          stall: formData.stall_no,
-          state: formData.state,
-          city: formData.city,
-          exhibitor_id: formData.exhibitor_id,
-          qr_code: data.qr_code,
-          photo: data.photo,
-          qr_preview: `https://inoptics.in/${data.qr_code}`,
-          created_at: new Date().toLocaleString(),
-        };
+        setFreeRemaining(freeRem);
+        setExtraRemaining(extraRem);
 
-        setGeneratedBadges((prev) => [newBadge, ...prev]);
+        // 🔒 LOCK / UNLOCK FINAL DECISION
+        checkLockStatus(freeRem, extraRem);
 
-        // 🧹 Reset form
+        // ---------------- UI UPDATE ----------------
+        setGeneratedBadges((prev) => [
+          {
+            badge_id: data.badge_id,
+            name: formData.name.trim(),
+            company: formData.exhibitor_company_name,
+            stall: formData.stall_no,
+            qr_code: data.qr_code,
+            photo: data.photo,
+            created_at: new Date().toLocaleString(),
+          },
+          ...prev,
+        ]);
+
         setFormData((prev) => ({
           ...prev,
           name: "",
           candidate_photo: null,
         }));
         setPhotoPreview(null);
-
-        // 📜 Scroll
-        setTimeout(() => {
-          const badgesSection = document.querySelector(".badges-list");
-          if (badgesSection) {
-            badgesSection.scrollIntoView({
-              behavior: "smooth",
-              block: "start",
-            });
-          }
-        }, 100);
-      } else {
+      }
+      // ---------------- FAILURE ----------------
+      else {
         setMessage({
           type: "error",
           text: data.message || "Failed to create badge",
         });
       }
     } catch (err) {
-      console.error("💥 Submit error:", err);
       setMessage({
         type: "error",
-        text: err.message || "Error generating badge",
+        text: err.message || "Server error",
       });
     } finally {
       setLoading(false);
@@ -438,6 +470,58 @@ const ExhibitorBadgeForm = () => {
     link.click();
   };
 
+  const handlePrint = (badge) => {
+    if (printStatus[badge.id] !== "ready") return;
+
+    // 🖨 actual print
+    downloadQRCode(badge.qr_code, badge.name);
+
+    // ✅ mark as done (disable again)
+    setPrintStatus((prev) => ({
+      ...prev,
+      [badge.id]: "done",
+    }));
+  };
+
+
+
+
+  const handleDownloadAndUpdate = async (badge) => {
+  // ⬇️ DIRECT DOWNLOAD
+  const link = document.createElement("a");
+  link.href = badge.qr_code; // qr_code full URL hona chahiye
+  link.download = `badge-${badge.name}.png`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  // 🔁 STATUS = DONE (backend)
+  const res = await fetch(
+    "https://inoptics.in/api/update_badge_print_status.php",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        badge_id: badge.id,
+        status: "done",
+      }),
+    }
+  );
+
+  const data = await res.json();
+
+  if (data.success) {
+    // 🔒 Disable button instantly
+    setPrintStatus(prev => ({
+      ...prev,
+      [badge.id]: "done",
+    }));
+  }
+};
+
+
+
+
   if (loading && exhibitors.length === 0) {
     return (
       <div className="exhibitor-form-container">
@@ -453,127 +537,219 @@ const ExhibitorBadgeForm = () => {
   }
 
   return (
-    <div className="exhibitor-form-container">
-      <div className="form-wrapper">
-        <div className="badge-info-bar">
-          <div className="badge-counter">
-            <span>Free Badges Allotted:</span>
-            <strong>{freeBadges}</strong>
-          </div>
-          <div className="badge-counter">
-            <span>Free Badges Remaining:</span>
-            <strong>{remainingBadges}</strong>
-          </div>
-          <div className="badge-counter">
-            <span>Extra Badges Allotted:</span>
-            <strong>{extraBadges}</strong>
-          </div>
+    <>
+      <div className="exhibitordashboard-declaration-content">
+        <div className="exhibitor-heading">
+          <h3>Exhibitor Badges List </h3>
+          <button onClick={() => setShowBadgePopup(true)}>
+            <FaCirclePlus />
+            Generate Badge
+          </button>
         </div>
 
-        <h2>🎫 Exhibitor Badge Registration</h2>
+        {loadingCompanyBadges ? (
+          <p className="loading-text">Loading badges...</p>
+        ) : (
+          <div className="badge-table-wrapper">
+            {companyBadges.length === 0 ? (
+              <p className="no-data">No badges found</p>
+            ) : (
+              <table className="badge-table">
+                <thead>
+                  <tr>
+                    <th>Candidate Photo</th>
+                    <th>Name</th>
+                    <th>Stall</th>
+                    <th>State</th>
+                    <th>City</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
 
-        {message.text && (
-          <div className={`message ${message.type}`}>{message.text}</div>
+                <tbody>
+                  {companyBadges.map((badge) => (
+                    <tr key={badge.id}>
+                      <td>
+                        <img
+                          src={`https://inoptics.in/${badge.photo}`}
+                          alt={badge.name}
+                          className="badge-photo"
+                        />
+                      </td>
+
+                      <td className="badge-name">{badge.name}</td>
+                      <td>{badge.stall_no}</td>
+                      <td>{badge.state}</td>
+                      <td>{badge.city}</td>
+
+                      <td>
+                       <button
+                          className={`print-toggle 
+                            ${printStatus[badge.id] === "ready" ? "ready" : ""}
+                            ${printStatus[badge.id] === "done" ? "done" : ""}
+                          `}
+                          disabled={printStatus[badge.id] !== "ready"}
+                          onClick={() => handleDownloadAndUpdate(badge)}
+                        >
+                          <FaPrint />
+                          {printStatus[badge.id] === "done" ? "disable" : "enable"}
+                        </button>
+
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
         )}
 
-        {exhibitors.length > 0 ? (
-          <>
-            <form onSubmit={handleSubmit} className="badge-form">
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Company Name</label>
-                  <input
-                    type="text"
-                    value={formData.exhibitor_company_name}
-                    disabled
-                    className="disabled-input"
-                  />
-                </div>
+        {showBadgePopup && (
+          <div className="modal-overlay">
+            <div className=" ">
+              <div className="exhibitor-form-container">
+                <div className="form-wrapper">
+                  <button
+                    className="exhibitor-modal-close"
+                    onClick={() => setShowBadgePopup(false)}
+                  >
+                    <IoClose />
+                  </button>
+                  <h2>Exhibitor Badge Registration</h2>
 
-                <div className="form-group">
-                  <label>Stall No</label>
-                  <input
-                    type="text"
-                    value={formData.stall_no}
-                    disabled
-                    className="disabled-input"
-                  />
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label>State</label>
-                  <input
-                    type="text"
-                    value={formData.state}
-                    disabled
-                    className="disabled-input"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>City</label>
-                  <input
-                    type="text"
-                    value={formData.city}
-                    disabled
-                    className="disabled-input"
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label>Candidate Name *</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="Enter candidate name"
-                  className="input-field"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Candidate Photo * (Max 2MB)</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handlePhotoChange}
-                  required={!photoPreview}
-                  className="file-input"
-                />
-                {photoPreview && (
-                  <div className="photo-preview">
-                    <img src={photoPreview} alt="Preview" />
+                  <div className="badge-info-bar">
+                    <div className="badge-counter">
+                      <span>Free Badges Allotted:</span>
+                      <strong>{freeBadges}</strong>
+                    </div>
+                    <div className="badge-counter">
+                      <span>Free Badges Remaining:</span>
+                      <strong>{freeRemaining}</strong>
+                    </div>
+                    <div className="badge-counter">
+                      <span>Extra Badges Allotted:</span>
+                      <strong>{extraBadges}</strong>
+                    </div>
+                    <div className="badge-counter">
+                      <span>Extra Badges Remaining:</span>
+                      <strong>{extraRemaining}</strong>
+                    </div>
                   </div>
-                )}
+
+                  {message.text && (
+                    <div className={`message ${message.type}`}>
+                      {message.text}
+                    </div>
+                  )}
+
+                  {exhibitors && exhibitors.length > 0 ? (
+                    <form onSubmit={handleSubmit} className="badge-form">
+                      {/* COMPANY & STALL */}
+                      <div className="form-row">
+                        <div className="form-group">
+                          <label>Company Name</label>
+                          <input
+                            type="text"
+                            value={formData.exhibitor_company_name}
+                            disabled
+                            className="disabled-input"
+                          />
+                        </div>
+
+                        <div className="form-group">
+                          <label>Stall No</label>
+                          <input
+                            type="text"
+                            value={formData.stall_no}
+                            disabled
+                            className="disabled-input"
+                          />
+                        </div>
+                      </div>
+
+                      {/* STATE & CITY */}
+                      <div className="form-row">
+                        <div className="form-group">
+                          <label>State</label>
+                          <input
+                            type="text"
+                            value={formData.state}
+                            disabled
+                            className="disabled-input"
+                          />
+                        </div>
+
+                        <div className="form-group">
+                          <label>City</label>
+                          <input
+                            type="text"
+                            value={formData.city}
+                            disabled
+                            className="disabled-input"
+                          />
+                        </div>
+                      </div>
+
+                      {/* CANDIDATE NAME */}
+                      <div className="form-group">
+                        <label>Candidate Name *</label>
+                        <input
+                          type="text"
+                          name="name"
+                          value={formData.name}
+                          onChange={handleInputChange}
+                          placeholder="Enter candidate name"
+                          className="input-field"
+                          required
+                          disabled={isLocked}
+                        />
+                      </div>
+
+                      {/* PHOTO */}
+                      <div className=" candicate-preview">
+                        <div className="form-group ">
+                          <label>Candidate Photo * (Max 2MB)</label>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handlePhotoChange}
+                            className="file-input  candicate-preview-input "
+                            required={!photoPreview}
+                            disabled={isLocked}
+                          />
+                        </div>
+
+                        {photoPreview && (
+                          <div className="photo-preview">
+                            <img src={photoPreview} alt="Preview" />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* SUBMIT */}
+                      <button
+                        type="submit"
+                        disabled={loading || isLocked}
+                        className="submit-btn"
+                      >
+                        {isLocked
+                          ? "🔒 Badge Limit Reached"
+                          : "✨ Generate Badge"}
+                      </button>
+                    </form>
+                  ) : (
+                    <div className="no-access">
+                      <h3>⚠️ Access Denied</h3>
+                      <p>Please login to access the badge registration form.</p>
+                    </div>
+                  )}
+                </div>
               </div>
-
-              <button type="submit" disabled={loading} className="submit-btn">
-                {loading ? "Generating Badge..." : "✨ Generate Badge"}
-              </button>
-            </form>
-
-            
-            
-          </>
-        ) : (
-          <div className="no-access">
-            <h3>⚠️ Access Denied</h3>
-            <p>Please login to access the badge registration form.</p>
-            <button
-              className="login-redirect-btn"
-              onClick={() => (window.location.href = "/exhibitor-login")}
-            >
-              Go to Login
-            </button>
+            </div>
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 };
 

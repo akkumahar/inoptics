@@ -1,6 +1,5 @@
 .exhibitor-form-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 40px 20px;
 }
 
@@ -48,7 +47,6 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
-  margin-bottom: 20px;
 }
 
 .form-group {
@@ -351,3 +349,412 @@
   color: #111827;
 }
 
+/* ===== POPUP FORM WRAPPER ===== */
+.form-wrapper {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 28px 32px 30px;
+  max-width: 820px;
+  margin: auto;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+  position: relative;
+}
+
+/* ===== TITLE ===== */
+.form-wrapper h2 {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 600;
+  color: #111;
+  margin-bottom: 24px;
+}
+
+/* ===== FORM GRID ===== */
+.badge-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* two column rows */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+/* ===== INPUT GROUP ===== */
+.form-group label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 6px;
+}
+
+.form-group input {
+  width: 100%;
+  height: 44px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #cfcfcf;
+  background: #f7f7f7;
+  font-size: 14px;
+  color: #111;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #111;
+  background: #fff;
+}
+
+/* disabled fields */
+.disabled-input {
+  background: #eeeeee;
+  color: #666;
+}
+
+/* ===== CANDIDATE NAME FULL WIDTH ===== */
+.input-field {
+  height: 46px;
+}
+
+/* ===== PHOTO + PREVIEW ROW ===== */
+.candicate-preview {
+  display: flex;
+  gap: 18px;
+  align-items: flex-end;
+}
+
+.candicate-preview-input {
+  height: auto;
+  background: #f7f7f7;
+}
+
+/* ===== PHOTO PREVIEW ===== */
+.photo-preview {
+  width: 110px;
+  height: 110px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background: #f3f3f3;
+}
+
+.photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ===== SUBMIT BUTTON ===== */
+.submit-btn {
+  margin-top: 22px;
+  height: 50px;
+  width: 100%;
+  border-radius: 10px;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  background: linear-gradient(to right, #111, #2b2b2b);
+  color: #fff;
+  cursor: pointer;
+}
+
+.submit-btn:hover {
+  background: linear-gradient(to right, #000, #1a1a1a);
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ===== CLOSE ICON (TOP RIGHT) ===== */
+.form-wrapper > button {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  font-size: 26px;
+  color: #666;
+  cursor: pointer;
+}
+
+.form-wrapper > button:hover {
+  color: #000;
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .candicate-preview {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+
+
+/* table css style start */
+
+/* ===============================
+   BADGE TABLE CONTAINER
+================================ */
+.badge-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.08);
+  font-size: 14px;
+}
+
+/* ===============================
+   TABLE HEADER
+================================ */
+.badge-table thead {
+  background: linear-gradient(to bottom, #f5f5f5, #eeeeee);
+}
+
+.badge-table th {
+  padding: 14px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 1px solid #ddd;
+  white-space: nowrap;
+}
+
+/* ===============================
+   TABLE BODY
+================================ */
+.badge-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #eee;
+  color: #222;
+  vertical-align: middle;
+}
+
+/* hover row */
+.badge-table tbody tr:hover {
+  background: #fafafa;
+}
+
+/* ===============================
+   CANDIDATE PHOTO
+================================ */
+.badge-photo {
+  width: 42px;
+  height: 42px;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 1px solid #d1d5db;
+  background: #f3f4f6;
+}
+
+/* ===============================
+   NAME
+================================ */
+.badge-name {
+  font-weight: 600;
+  color: #111;
+}
+
+/* Base button */
+.print-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px 14px;
+  border-radius: 8px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  border: 1px solid transparent;
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+}
+
+/* ===============================
+   ENABLED (READY)
+================================ */
+.print-toggle.ready {
+  background: #dcfce7;       /* light green */
+  color: #166534;            /* solid green */
+  border-color: #86efac;
+}
+
+.print-toggle.ready:hover {
+  background: #bbf7d0;
+}
+
+/* ===============================
+   DISABLED / DONE
+================================ */
+.print-toggle.done,
+.print-toggle:disabled {
+  background: #fecaca;       /* light red */
+  color: #e92525;            /* solid red */
+  border-color: #f77f7f;
+  cursor: not-allowed;
+}
+
+/* optional hover (still disabled feel) */
+.print-toggle.done:hover,
+.print-toggle:disabled:hover {
+  background: #f89494;
+}
+
+/* ===============================
+   ICON STYLE
+================================ */
+.print-toggle svg {
+  font-size: 16px;
+}
+
+/* ===============================
+   OPTIONAL: pressed effect
+================================ */
+.print-toggle.ready:active {
+  transform: scale(0.97);
+}
+
+
+/* ===============================
+   PRINT BUTTON
+================================ */
+.print-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: #f1f1f1;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #111;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.print-btn:hover {
+  background: #e5e5e5;
+  border-color: #bfbfbf;
+}
+
+/* ===============================
+   EMPTY / LOADING STATES
+================================ */
+.no-data,
+.loading-text {
+  text-align: center;
+  padding: 18px;
+  color: #777;
+  font-size: 14px;
+}
+
+/* ===============================
+   RESPONSIVE
+================================ */
+@media (max-width: 768px) {
+  .badge-table th,
+  .badge-table td {
+    padding: 12px 10px;
+    font-size: 13px;
+  }
+
+  .print-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+}
+
+/* table css style end */
+
+
+
+
+/* ===============================
+   HEADING + ACTION BAR
+================================ */
+.exhibitor-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 0 12px 0;   /* heading se gap */
+  padding: 0 4px;
+}
+
+.exhibitordashboard-declaration-content{
+   padding: 5px;
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 20px;
+}
+
+/* ===============================
+   HEADING
+================================ */
+.exhibitor-heading h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111;
+  margin: 0;
+}
+
+/* ===============================
+   GENERATE BUTTON
+================================ */
+.exhibitor-heading button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: #111;            /* black */
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+/* icon size */
+.exhibitor-heading button svg {
+  font-size: 18px;
+}
+
+/* hover */
+.exhibitor-heading button:hover {
+  background: #000;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+}
+
+/* ===============================
+   RESPONSIVE
+================================ */
+@media (max-width: 640px) {
+  .exhibitor-heading {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .exhibitor-heading button {
+    width: 100%;
+    justify-content: center;
+  }
+}

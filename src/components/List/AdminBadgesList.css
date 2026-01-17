@@ -1,0 +1,243 @@
+/* ===============================
+   BADGE DASHBOARD
+================================ */
+.badge-dashboard {
+  max-width: 1000px;
+  margin: auto;
+  padding: 30px;
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+/* ===============================
+   COMPANY CARD
+================================ */
+.company-card {
+  background: #ffffff;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.company-card:hover {
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+}
+
+/* ===============================
+   COMPANY HEADER
+================================ */
+.company-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  cursor: pointer;
+  background: #f6f9fc;
+  transition: background 0.2s ease;
+}
+
+.company-header:hover {
+  background: #eef3f8;
+}
+
+.company-header strong {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111;
+}
+
+.badge-count {
+  margin-left: 12px;
+  font-size: 13px;
+  color: #666;
+}
+
+/* ===============================
+   BADGE LIST
+================================ */
+.badge-list {
+  padding: 16px 20px;
+}
+
+.badge-list table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.badge-list th {
+  text-align: left;
+  padding: 10px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #777;
+}
+
+.badge-list td {
+  padding: 12px 0;
+  border-top: 1px solid #eee;
+  font-size: 14px;
+  color: #222;
+}
+
+/* ===============================
+   ACTION BUTTONS
+================================ */
+.actions {
+  display: flex;
+  gap: 6px;
+}
+
+.actions button {
+  border: none;
+  background: #eef3f8;
+  padding: 0px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #333;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.actions button:hover {
+  background: #dbe7f3;
+  transform: translateY(-1px);
+}
+
+.actions .danger {
+  background: #ffe5e5;
+  color: #b10000;
+}
+
+.actions .danger:hover {
+  background: #ffcccc;
+}
+
+/* ===============================
+   MODAL OVERLAY
+================================ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* ===============================
+   MODAL BOX
+================================ */
+.modal-box {
+  background: #ffffff;
+  width: 420px;
+  max-width: 92%;
+  border-radius: 10px;
+  padding: 22px 24px 26px;
+  position: relative;
+  display: flex;
+  height: min(50vh, 800px);
+  flex-direction: column;
+  animation: scaleIn 0.25s ease;
+}
+
+/* ===============================
+   MODAL ANIMATION
+================================ */
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ===============================
+   MODAL CLOSE BUTTON
+================================ */
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  font-size: 26px;
+  color: #666;
+  cursor: pointer;
+  line-height: 1;
+  box-shadow: none
+}
+
+.modal-close:hover {
+  color: #000;
+}
+
+/* ===============================
+   MODAL TITLE
+================================ */
+.modal-box h3 {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 600;
+  color: #111;
+  margin-bottom: 18px;
+}
+
+/* ===============================
+   MODAL INPUTS
+================================ */
+.modal-box input {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  border: 1px solid #cfcfcf;
+  background: #f8f8f8;
+  font-size: 15px;
+  color: #222;
+  outline: none;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.modal-box input::placeholder {
+  color: #999;
+}
+
+.modal-box input:focus {
+  border-color: #111;
+  background: #ffffff;
+}
+
+/* ===============================
+   UPDATE BUTTON
+================================ */
+.update-btn {
+  width: 100%;
+  padding: 14px;
+  margin-top: 14px;
+  background: #1f1f1f;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.15s ease;
+}
+
+.update-btn:hover {
+  background: #000;
+  transform: translateY(-1px);
+}
+
+.update-btn:active {
+  transform: translateY(0);
+}

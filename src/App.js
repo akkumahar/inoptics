@@ -46,12 +46,12 @@ import TravelInfo from "./components/TravelInfo";
 import ExhibitorExhibitionMap from "./components/ExhibitorExhibitionMap";
 import UnSubscribe from "./components/UnSubscribe";
 import Benefactors from "./components/Benefactors";
-import ExhibitorBadgeForm from "./components/ExhibitorBadgeForm";
-import AdminBadges from "./components/AdminBadges";
+import AdminBadges from "./components/List/AdminBadges";
+
+
 
 const AnimatedRoutes = () => {
   const location = useLocation();
-  const userEmail = "TIODEL@GMAIL.COM"; 
 
   return (
     <AnimatePresence mode="wait">
@@ -99,8 +99,7 @@ const AnimatedRoutes = () => {
         />
         <Route path="/unsubscribe" element={<UnSubscribe />} />
         <Route path="/benefactors" element={<Benefactors />} />
-        <Route path="/exhibitor-badge" element={<ExhibitorBadgeForm  userEmail={userEmail}/>} />
-        <Route path="/admin-badges" element={<AdminBadges />} />
+        <Route path="/exhibit-badges" element={<AdminBadges />} />
       </Routes>
     </AnimatePresence>
   );
