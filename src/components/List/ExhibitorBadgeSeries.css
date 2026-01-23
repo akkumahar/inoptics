@@ -1,0 +1,173 @@
+/* ===============================
+   LAYOUT
+================================ */
+.badge-series-layout {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap; /* responsive */
+}
+
+/* ===============================
+   CARD
+================================ */
+.badge-series-wrapper {
+  width: 100%;
+  max-width: 420px;
+  padding: 24px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+.badge-series-wrapper.right {
+  background: #fafafa;
+}
+
+/* ===============================
+   HEADINGS
+================================ */
+.badge-series-wrapper h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 22px;
+  font-weight: 600;
+  color: #111;
+}
+
+/* ===============================
+   FORM
+================================ */
+.badge-series-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-size: 14px;
+  margin-bottom: 6px;
+  color: #444;
+  font-weight: 500;
+}
+
+.form-group input {
+  padding: 12px 14px;
+  font-size: 15px;
+  border-radius: 8px;
+  border: 1px solid #d0d0d0;
+  outline: none;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group input:focus {
+  border-color: #111;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08);
+}
+
+/* ===============================
+   PRIMARY SUBMIT BUTTON
+================================ */
+.badge-series-form > button {
+  margin-top: 10px;
+  padding: 14px;
+  border-radius: 8px;
+  border: none;
+  background: #111;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.badge-series-form > button:hover {
+  background: #000;
+  transform: translateY(-1px);
+}
+
+.badge-series-form > button:disabled {
+  background: #777;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ===============================
+   MESSAGE
+================================ */
+.form-message {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: #16a34a;
+}
+
+/* ===============================
+   UPDATE / DELETE BUTTONS
+================================ */
+.btn-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.btn-row button {
+  flex: 1;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+/* UPDATE – BLACK */
+.btn-row button:first-child {
+  background: #111;
+  color: #fff;
+  border: 1px solid #111;
+}
+
+.btn-row button:first-child:hover {
+  background: #000;
+  transform: translateY(-1px);
+}
+
+/* DELETE – WHITE */
+.delete-btn {
+  background: #fff;
+  color: #111;
+  border: 1.5px solid #111;
+}
+
+.delete-btn:hover {
+  background: #111;
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+/* Disabled */
+.btn-row button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ===============================
+   RESPONSIVE
+================================ */
+@media (max-width: 768px) {
+  .badge-series-layout {
+    flex-direction: column;
+    align-items: center;
+  }
+}

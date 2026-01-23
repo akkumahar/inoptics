@@ -14,6 +14,7 @@ import paymentsImg from "../assets/Admin_payments.jpg";
 import remaindersImg from "../assets/Admin_Remainder.jpg";
 import inquery from "../assets/feedbacks.jpg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import ExhibitorBadgeSeries from "./List/ExhibitorBadgeSeries";
 import {
   faPlus,
   faEdit,
@@ -267,7 +268,7 @@ const AdminDashboard = () => {
   const [editingId, setEditingId] = useState(null);
 
   const [contractorRequirementData, setContractorRequirementData] = useState(
-    []
+    [],
   );
   const [searchContractorQuery, setSearchContractorQuery] = useState("");
   const [
@@ -1246,19 +1247,19 @@ const AdminDashboard = () => {
       formData.append("pdf", pdfFile);
       formData.append(
         "to_email",
-        formTemplateData.receiverEmail || "default@inoptics.in"
+        formTemplateData.receiverEmail || "default@inoptics.in",
       );
       formData.append(
         "subject",
         activePaymentDetailsOverlay === "stall"
           ? `Proforma Invoice of STALLS - ${companyName}`
-          : `Proforma Invoice of POWER - ${companyName}`
+          : `Proforma Invoice of POWER - ${companyName}`,
       );
       formData.append(
         "body",
         activePaymentDetailsOverlay === "stall"
           ? `Dear ${companyName},\n\nPlease find your Proforma Invoice for Stalls attached.\n\nRegards,\nInOptics Accounts`
-          : `Dear ${companyName},\n\nPlease find your Proforma Invoice for Power attached.\n\nRegards,\nInOptics Accounts`
+          : `Dear ${companyName},\n\nPlease find your Proforma Invoice for Power attached.\n\nRegards,\nInOptics Accounts`,
       );
 
       const apiEndpoint =
@@ -1358,7 +1359,7 @@ const AdminDashboard = () => {
     const updated = services.map((srv) =>
       srv.name === name
         ? { ...srv, isActive: true }
-        : { ...srv, isActive: false }
+        : { ...srv, isActive: false },
     );
 
     setServices(updated);
@@ -1437,11 +1438,11 @@ const AdminDashboard = () => {
         // ✅ Generate proforma number for each service
         if (service.name === "EXHIBITION SERVICES - STALLS") {
           setProformaNumber(
-            `INOPD-2026|${code}|${formattedSerial}| ${yearRange}`
+            `INOPD-2026|${code}|${formattedSerial}| ${yearRange}`,
           );
         } else if (service.name === "EXHIBITION SERVICES - POWER") {
           setProformaNumber(
-            `INOPD-2026|${code}|${formattedSerial}| ${yearRange}`
+            `INOPD-2026|${code}|${formattedSerial}| ${yearRange}`,
           );
         }
 
@@ -1459,7 +1460,7 @@ const AdminDashboard = () => {
     // --- Handle Single Service ---
     else {
       const selectedService = services.find(
-        (service) => service.name === selected
+        (service) => service.name === selected,
       );
       if (!selectedService) return;
 
@@ -1492,7 +1493,7 @@ const AdminDashboard = () => {
 
   // Find the Stall service only once when rendering the invoice overlay
   const stallService = services.find(
-    (service) => service.name === "EXHIBITION SERVICES - STALLS"
+    (service) => service.name === "EXHIBITION SERVICES - STALLS",
   );
 
   let stallProformaNumber = "";
@@ -1505,7 +1506,7 @@ const AdminDashboard = () => {
     const code = serviceCodes[stallService.name] || "S";
     stallProformaNumber = `INOPD-2026|${code}|${String(currentSerial).padStart(
       4,
-      "0"
+      "0",
     )}| ${yearRange}`;
 
     // Generate table rows with Particulars + Description
@@ -1521,7 +1522,7 @@ const AdminDashboard = () => {
 
   // ✅ For POWER Service
   const powerService = services.find(
-    (service) => service.name === "EXHIBITION SERVICES - POWER"
+    (service) => service.name === "EXHIBITION SERVICES - POWER",
   );
 
   let powerProformaNumber = "";
@@ -1534,7 +1535,7 @@ const AdminDashboard = () => {
 
     powerProformaNumber = `INOPD-2026|${code}|${String(currentSerial).padStart(
       4,
-      "0"
+      "0",
     )}| ${yearRange}`;
 
     powerServiceRows = [
@@ -1613,24 +1614,31 @@ const AdminDashboard = () => {
 
   const stallSummary = stallList?.reduce(
     (summary, stall) => {
-      summary.total += parseFloat(stall.total || 0);
-      summary.discounted_amount += parseFloat(stall.discounted_amount || 0);
+      const total = parseFloat(stall.total || 0);
+      const discount = parseFloat(stall.discounted_amount || 0);
+
+      summary.total += total;
+      summary.discounted_amount += discount;
+      summary.total_after_discount += total - discount;
       summary.sgst += parseFloat(stall.sgst_9_percent || 0);
       summary.cgst += parseFloat(stall.cgst_9_percent || 0);
       summary.igst += parseFloat(stall.igst_18_percent || 0);
       summary.grand_total += parseFloat(stall.grand_total || 0);
+
       if (!summary.currency) summary.currency = stall.currency || "";
+
       return summary;
     },
     {
       total: 0,
       discounted_amount: 0,
+      total_after_discount: 0, // 👈 NEW FIELD
       sgst: 0,
       cgst: 0,
       igst: 0,
       grand_total: 0,
       currency: "",
-    }
+    },
   );
 
   const [activeCommunicationTab, setActiveCommunicationTab] =
@@ -1653,7 +1661,7 @@ const AdminDashboard = () => {
     setAppliedPlace((prev) =>
       prev.includes(label)
         ? prev.filter((item) => item !== label)
-        : [...prev, label]
+        : [...prev, label],
     );
   };
 
@@ -1676,7 +1684,7 @@ const AdminDashboard = () => {
   const [powerTotalsByCompany, setPowerTotalsByCompany] = useState({});
 
   const [activeContractorTab, setActiveContractorTab] = useState(
-    "Contractors Requirement"
+    "Contractors Requirement",
   );
 
   const [finalListData, setFinalListData] = useState([]);
@@ -1743,7 +1751,7 @@ const AdminDashboard = () => {
   // const [position, setPosition] = useState("");
   const [declarationText, setDeclarationText] = useState("");
   const [contractorUndertakingData, setContractorUndertakingData] = useState(
-    []
+    [],
   );
   const [uploadedLogo, setUploadedLogo] = useState(null);
   const [undertakingDate, setUndertakingDate] = useState("");
@@ -1802,7 +1810,7 @@ const AdminDashboard = () => {
 
   const [heading, setHeading] = useState("Exhibitor Declaration & Undertaking");
   const [declarationUndertakingData, setDeclarationUndertakingData] = useState(
-    []
+    [],
   );
   const [formPoints, setFormPoints] = useState([{ title: "", text: "" }]);
   const [formHeading, setFormHeading] = useState("");
@@ -1819,7 +1827,7 @@ const AdminDashboard = () => {
 
   const [isEditingSchedule, setIsEditingSchedule] = useState(false);
   const [exhibitorDashboardSchedule, setExhibitorDashboardSchedule] = useState(
-    []
+    [],
   );
   const [showExhibitorDashboardModal, setShowExhibitorDashboardModal] =
     useState(false);
@@ -2038,7 +2046,7 @@ const AdminDashboard = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ id }),
-        }
+        },
       );
 
       const data = await response.json();
@@ -2047,7 +2055,7 @@ const AdminDashboard = () => {
         alert("Exhibitor deleted successfully!");
         // Remove from state without refetching
         setNewExhibitors((prev) =>
-          prev.filter((exhibitor) => exhibitor.id !== id)
+          prev.filter((exhibitor) => exhibitor.id !== id),
         );
       } else {
         alert("Failed to delete exhibitor: " + data.message);
@@ -2068,7 +2076,7 @@ const AdminDashboard = () => {
     try {
       setLoadingContactSupport(true);
       const res = await fetch(
-        "https://inoptics.in/api/get_contact_support.php"
+        "https://inoptics.in/api/get_contact_support.php",
       );
       const data = await res.json();
 
@@ -2095,7 +2103,7 @@ const AdminDashboard = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id }),
-        }
+        },
       );
 
       const data = await response.json();
@@ -2312,18 +2320,18 @@ const AdminDashboard = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
   const filteredStalls = stallData.filter((item) =>
-    item.stall_number.toLowerCase().includes(searchStallQuery.toLowerCase())
+    item.stall_number.toLowerCase().includes(searchStallQuery.toLowerCase()),
   );
 
   const totalPages = Math.ceil(filteredStalls.length / rowsPerPage);
   const startIndex = (currentPage - 1) * rowsPerPage;
   const currentStalls = filteredStalls.slice(
     startIndex,
-    startIndex + rowsPerPage
+    startIndex + rowsPerPage,
   );
 
   const [videoWallInstructionsList, setVideoWallInstructionsList] = useState(
-    []
+    [],
   );
   const [videoWallEditorData, setVideoWallEditorData] = useState("");
   const [videoWallEditingIndex, setVideoWallEditingIndex] = useState(null);
@@ -2336,7 +2344,7 @@ const AdminDashboard = () => {
   const fetchVideoWallInstructions = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_video_wall_instruction.php"
+        "https://inoptics.in/api/get_video_wall_instruction.php",
       );
       const data = await res.json();
       setVideoWallInstructionsList(data || []);
@@ -2374,7 +2382,7 @@ const AdminDashboard = () => {
 
   const deleteVideoWallInstruction = async () => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this instruction?"
+      "Are you sure you want to delete this instruction?",
     );
     if (!confirmDelete) return;
 
@@ -2564,7 +2572,7 @@ const AdminDashboard = () => {
       {
         method: "POST",
         body: formData,
-      }
+      },
     );
     const data = await res.json();
     alert(data.message);
@@ -2584,7 +2592,7 @@ const AdminDashboard = () => {
       {
         method: "POST",
         body: formData,
-      }
+      },
     );
     const data = await res.json();
     alert(data.message);
@@ -2599,7 +2607,7 @@ const AdminDashboard = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
-      }
+      },
     );
     const data = await res.json();
     alert(data.message);
@@ -2613,7 +2621,7 @@ const AdminDashboard = () => {
   const fetchContractorBoothData = async () => {
     try {
       const response = await fetch(
-        "https://inoptics.in/api/get_contractor_booth.php"
+        "https://inoptics.in/api/get_contractor_booth.php",
       );
       const data = await response.json();
       setContractorBoothData(data); // store in state
@@ -2637,7 +2645,7 @@ const AdminDashboard = () => {
       // Ensure this URL is correct for your deployed PHP file
       // This is the line that initiates the network request to your PHP script
       const res = await fetch(
-        "https://inoptics.in/api/get_contractor_undertaking.php"
+        "https://inoptics.in/api/get_contractor_undertaking.php",
       );
 
       // --- CRITICAL ERROR HANDLING ---
@@ -2647,7 +2655,7 @@ const AdminDashboard = () => {
         const errorBody = await res.text(); // Read as text in case it's not JSON (e.g., an HTML error page)
         console.error("HTTP error during fetch:", res.status, errorBody);
         throw new Error(
-          `HTTP error! Status: ${res.status}, Message: ${errorBody}`
+          `HTTP error! Status: ${res.status}, Message: ${errorBody}`,
         );
       }
       // --- END CRITICAL ERROR HANDLING ---
@@ -2661,7 +2669,7 @@ const AdminDashboard = () => {
       // Catch any network errors or errors thrown from the 'if (!res.ok)' block
       console.error("Error fetching contractor undertakings:", error); // Log the full error for debugging
       alert(
-        "Error fetching contractor undertakings. Check console for details."
+        "Error fetching contractor undertakings. Check console for details.",
       ); // User-friendly alert
     }
   };
@@ -2695,7 +2703,7 @@ const AdminDashboard = () => {
             date: undertakingDate,
             // Optionally: Handle uploadedLogo separately if needed
           }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -2716,7 +2724,7 @@ const AdminDashboard = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -2750,7 +2758,7 @@ const AdminDashboard = () => {
             declaration_text: declarationText,
             date: undertakingDate,
           }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -2780,7 +2788,7 @@ const AdminDashboard = () => {
         ${
           uploadedLogo
             ? `<img src="${URL.createObjectURL(
-                uploadedLogo
+                uploadedLogo,
               )}" class="uploaded-logo-preview" />`
             : ""
         }
@@ -2832,7 +2840,7 @@ const AdminDashboard = () => {
         ${
           registrationFeesLogo
             ? `<img src="${URL.createObjectURL(
-                registrationFeesLogo
+                registrationFeesLogo,
               )}" class="uploaded-logo-preview" />`
             : ""
         }
@@ -2860,7 +2868,7 @@ const AdminDashboard = () => {
   const fetchRegistrationFees = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_registration_fees.php"
+        "https://inoptics.in/api/get_registration_fees.php",
       );
       if (!res.ok) {
         const err = await res.text();
@@ -2901,7 +2909,7 @@ const AdminDashboard = () => {
           body: JSON.stringify({
             declaration_text: registrationFeesText,
           }),
-        }
+        },
       );
       const data = await res.json();
       alert(data.message);
@@ -2921,7 +2929,7 @@ const AdminDashboard = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id }),
-        }
+        },
       );
       const data = await res.json();
       alert(data.message);
@@ -2952,7 +2960,7 @@ const AdminDashboard = () => {
             declaration_text: registrationFeesText,
             date: registrationFeesDate,
           }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -2969,7 +2977,7 @@ const AdminDashboard = () => {
     setIsSendingMail(true);
 
     const emailTemplate = emailMasterData.find(
-      (template) => template.email_name === emailTemplateName
+      (template) => template.email_name === emailTemplateName,
     );
 
     if (!emailTemplate) {
@@ -3063,8 +3071,8 @@ const AdminDashboard = () => {
       try {
         const res = await fetch(
           `https://inoptics.in/api/get_exhibitor_power_payment.php?company_name=${encodeURIComponent(
-            formData.company_name
-          )}`
+            formData.company_name,
+          )}`,
         );
         const data = await res.json();
 
@@ -3089,10 +3097,10 @@ const AdminDashboard = () => {
 
       // Prepare power requirement details
       const setup = exhibitorPreviewList.find((r) =>
-        (r.day || "").toLowerCase().includes("setup")
+        (r.day || "").toLowerCase().includes("setup"),
       );
       const exhibition = exhibitorPreviewList.find((r) =>
-        (r.day || "").toLowerCase().includes("exhibition")
+        (r.day || "").toLowerCase().includes("exhibition"),
       );
 
       const setupText = setup
@@ -3101,7 +3109,7 @@ const AdminDashboard = () => {
           }<br>Power Required: ${setup.powerRequired || "-"} unit<br>Phase: ${
             setup.phase || "-"
           }<br>Total Amount: ${parseFloat(setup.totalAmount || 0).toFixed(
-            2
+            2,
           )} INR`
         : "";
 
@@ -3113,14 +3121,14 @@ const AdminDashboard = () => {
           } unit<br>Phase: ${
             exhibition.phase || "-"
           }<br>Total Amount: ${parseFloat(exhibition.totalAmount || 0).toFixed(
-            2
+            2,
           )} INR`
         : "";
 
       // Calculate totals and taxes (aligned with UI logic)
       const totalPrice = exhibitorPreviewList.reduce(
         (sum, r) => sum + (parseFloat(r.totalAmount) || 0),
-        0
+        0,
       );
       const sgst =
         formData.state?.toLowerCase() === "delhi" ? totalPrice * 0.09 : 0;
@@ -3140,30 +3148,30 @@ const AdminDashboard = () => {
         /POWER REQUIREMENT DETAILS[\s\S]*?---------------------------------------------------------[\s\S]*?---------------------------------------------------------/i,
         `POWER REQUIREMENT DETAILS<br>---------------------------------------------------------<br>${setupText}${
           setupText && exhibitionText ? "<br><br>" : ""
-        }${exhibitionText}<br>---------------------------------------------------------`
+        }${exhibitionText}<br>---------------------------------------------------------`,
       );
 
       // Replace totals and taxes
       parsedContent = parsedContent
         .replace(
           /Total Price\s*:?\s*[^\n<br>]*/i,
-          `Total Price: ${totalPrice.toFixed(2)} INR`
+          `Total Price: ${totalPrice.toFixed(2)} INR`,
         )
         .replace(
           /SGST\s*\(9%\)\s*:?\s*[^\n<br>]*/i,
-          `SGST(9%): ${sgst.toFixed(2)} INR`
+          `SGST(9%): ${sgst.toFixed(2)} INR`,
         )
         .replace(
           /CGST\s*\(9%\)\s*:?\s*[^\n<br>]*/i,
-          `CGST(9%): ${cgst.toFixed(2)} INR`
+          `CGST(9%): ${cgst.toFixed(2)} INR`,
         )
         .replace(
           /IGST\s*\(18%\)\s*:?\s*[^\n<br>]*/i,
-          `IGST(18%): ${igst.toFixed(2)} INR`
+          `IGST(18%): ${igst.toFixed(2)} INR`,
         )
         .replace(
           /GRAND TOTAL\s*:?\s*[^\n<br>]*/i,
-          `GRAND TOTAL: ${grandTotal.toFixed(2)} INR`
+          `GRAND TOTAL: ${grandTotal.toFixed(2)} INR`,
         );
 
       // Add payment table and pending status
@@ -3178,7 +3186,7 @@ const AdminDashboard = () => {
             <td>${p.receiverBank || "-"}</td>
             <td>${parseFloat(p.amount || 0).toFixed(2)} INR</td>
             <td>${parseFloat(p.tds || 0).toFixed(2)} INR</td>
-          </tr>`
+          </tr>`,
           )
           .join("");
 
@@ -3239,8 +3247,8 @@ const AdminDashboard = () => {
       try {
         const res = await fetch(
           `https://inoptics.in/api/get_exhibitor_badge_payment.php?company_name=${encodeURIComponent(
-            formData.company_name
-          )}`
+            formData.company_name,
+          )}`,
         );
         const data = await res.json();
 
@@ -3275,31 +3283,31 @@ const AdminDashboard = () => {
       parsedContent = parsedContent
         .replace(
           /Additional Badges\s*:?\s*([^\n<br>]*)?/i,
-          `Additional Badges: ${count}`
+          `Additional Badges: ${count}`,
         )
         .replace(
           /Rate per Badge\s*:?\s*([^\n<br>]*)?/i,
-          `Rate per Badge: ${rate.toFixed(2)}`
+          `Rate per Badge: ${rate.toFixed(2)}`,
         )
         .replace(
           /Total Price\s*:?\s*([^\n<br>]*)?/i,
-          `Total Price: ${total.toFixed(2)}`
+          `Total Price: ${total.toFixed(2)}`,
         )
         .replace(
           /SGST\s*\(9%\)\s*:?\s*([^\n<br>]*)?/i,
-          `SGST(9%): ${sgst.toFixed(2)}`
+          `SGST(9%): ${sgst.toFixed(2)}`,
         )
         .replace(
           /CGST\s*\(9%\)\s*:?\s*([^\n<br>]*)?/i,
-          `CGST(9%): ${cgst.toFixed(2)}`
+          `CGST(9%): ${cgst.toFixed(2)}`,
         )
         .replace(
           /IGST\s*\(18%\)\s*:?\s*([^\n<br>]*)?/i,
-          `IGST(18%): ${igst.toFixed(2)}`
+          `IGST(18%): ${igst.toFixed(2)}`,
         )
         .replace(
           /GRAND TOTAL\s*:?\s*([^\n<br>]*)?/i,
-          `GRAND TOTAL: ${grandTotal.toFixed(2)}`
+          `GRAND TOTAL: ${grandTotal.toFixed(2)}`,
         );
 
       // Add payment table and pending status
@@ -3314,7 +3322,7 @@ const AdminDashboard = () => {
             <td>${p.receiverBank || "-"}</td>
             <td>${parseFloat(p.amount || 0).toFixed(2)}</td>
             <td>${parseFloat(p.tds || 0).toFixed(2)}</td>
-          </tr>`
+          </tr>`,
           )
           .join("");
 
@@ -3432,7 +3440,7 @@ const AdminDashboard = () => {
     try {
       // 1️⃣ Find Vendor Template
       const vendorTemplate = emailMasterData.find(
-        (template) => template.email_name === emailTemplateName
+        (template) => template.email_name === emailTemplateName,
       );
 
       if (!vendorTemplate) {
@@ -3445,7 +3453,7 @@ const AdminDashboard = () => {
       const exhibitorTemplate = emailMasterData.find(
         (template) =>
           template.email_name ===
-          "InOptics 2026 @ Extra Furniture Request Confirmation Exhibitor"
+          "InOptics 2026 @ Extra Furniture Request Confirmation Exhibitor",
       );
 
       if (!exhibitorTemplate) {
@@ -3514,7 +3522,7 @@ const AdminDashboard = () => {
                   <td>${item.quantity}</td>
                   <td>${parseFloat(item.price).toFixed(2)}</td>
                   <td>${(item.quantity * item.price).toFixed(2)}</td>
-                </tr>`
+                </tr>`,
             )
             .join("")}
         </tbody>
@@ -3550,7 +3558,7 @@ const AdminDashboard = () => {
             to: vendorEmail,
             html: vendorMailHTML,
           }),
-        }
+        },
       );
 
       const vendorResult = await vendorResponse.json();
@@ -3582,7 +3590,7 @@ const AdminDashboard = () => {
               to: email,
               html: exhibitorMailHTML,
             }),
-          }
+          },
         );
 
         const exhibitorResult = await exhibitorResponse.json();
@@ -3630,14 +3638,14 @@ const AdminDashboard = () => {
         const item = contractorUndertakingData[index];
         if (item) {
           setViewedUndertaking(
-            item.declaration_text || "<p>No content available</p>"
+            item.declaration_text || "<p>No content available</p>",
           );
         }
       } else if (targetType === "registration") {
         const item = registrationFeesData[index];
         if (item) {
           setViewedRegistrationFees(
-            item.declaration_text || "<p>No content available</p>"
+            item.declaration_text || "<p>No content available</p>",
           );
         }
       }
@@ -3763,7 +3771,7 @@ const AdminDashboard = () => {
 
   const deleteCoreForm = async (category) => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this form?"
+      "Are you sure you want to delete this form?",
     );
     if (!confirmDelete) return;
 
@@ -3799,7 +3807,7 @@ const AdminDashboard = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ company_name: payment.company_name }),
-        }
+        },
       );
       const data = await res.json();
       if (data.success) {
@@ -3870,7 +3878,7 @@ const AdminDashboard = () => {
             Company_name: formData.company_name,
             Facia_text: faciaText,
           }),
-        }
+        },
       );
 
       const data = await response.json();
@@ -3902,7 +3910,7 @@ const AdminDashboard = () => {
             Company_name: formData.company_name,
             Facia_text: faciaText,
           }),
-        }
+        },
       );
 
       const data = await response.json();
@@ -3927,8 +3935,8 @@ const AdminDashboard = () => {
     try {
       const response = await fetch(
         `https://inoptics.in/api/get_exhibitor_facia.php?Company_name=${encodeURIComponent(
-          formData.company_name
-        )}`
+          formData.company_name,
+        )}`,
       );
       const data = await response.json();
 
@@ -3958,7 +3966,7 @@ const AdminDashboard = () => {
             Company_name: formData.company_name,
             ...brandsData,
           }),
-        }
+        },
       );
 
       const data = await response.json();
@@ -3990,7 +3998,7 @@ const AdminDashboard = () => {
             Company_name: formData.company_name,
             ...brandsData,
           }),
-        }
+        },
       );
 
       const data = await response.json();
@@ -4015,8 +4023,8 @@ const AdminDashboard = () => {
     try {
       const response = await fetch(
         `https://inoptics.in/api/get_exhibitor_brands.php?Company_name=${encodeURIComponent(
-          formData.company_name
-        )}`
+          formData.company_name,
+        )}`,
       );
       const data = await response.json();
 
@@ -4057,7 +4065,7 @@ const AdminDashboard = () => {
     // Calculate subtotal (Area × Price)
     const subTotal = selectedBranding.reduce(
       (acc, item) => acc + (item.area || 0) * (item.price || 0),
-      0
+      0,
     );
 
     const amount = Math.round(subTotal);
@@ -4084,7 +4092,7 @@ const AdminDashboard = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
-        }
+        },
       );
 
       const text = await res.text();
@@ -4113,8 +4121,8 @@ const AdminDashboard = () => {
     try {
       const response = await fetch(
         `https://inoptics.in/api/get_selected_branding.php?company_name=${encodeURIComponent(
-          companyName
-        )}`
+          companyName,
+        )}`,
       );
       const data = await response.json();
 
@@ -4164,7 +4172,7 @@ const AdminDashboard = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(payload),
-        }
+        },
       );
 
       const data = await response.json();
@@ -4173,7 +4181,7 @@ const AdminDashboard = () => {
         alert("Branding updated successfully!");
       } else {
         alert(
-          "Failed to update branding: " + (data.message || "Unknown error")
+          "Failed to update branding: " + (data.message || "Unknown error"),
         );
       }
     } catch (error) {
@@ -4183,28 +4191,47 @@ const AdminDashboard = () => {
   };
 
   // Fetch payments from DB on load
-  useEffect(() => {
-    if (formData.company_name) {
-      fetch(
-        `https://inoptics.in/api/get_exhibitor_payment.php?company_name=${formData.company_name}`
-      )
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success) {
-            const normalized = data.records.map((pay) => ({
-              type: pay.type || pay.payment_type || "",
-              date: pay.date || pay.payment_date || "",
-              receiverBank: pay.receiverBank || pay.name_of_receiver_bank || "",
-              exhibitorBank:
-                pay.exhibitorBank || pay.name_of_exhibitor_bank || "",
-              amount: parseFloat(pay.amount || pay.amount_paid || 0),
-              tds: parseFloat(pay.tds || 0),
-            }));
-            setPayments(normalized);
-          }
-        });
-    }
-  }, [formData.company_name]);
+ useEffect(() => {
+  if (!formData.company_name) return;
+
+  // ✅ CLEAN company name before sending to API
+  const cleanCompanyName = formData.company_name
+    .replace(/\u00A0/g, " ")   // remove non-breaking spaces
+    .replace(/\s+/g, " ")     // normalize multiple spaces
+    .trim();                  // trim edges
+
+  console.log("Company name sending:", cleanCompanyName);
+
+  fetch(
+    `https://inoptics.in/api/get_exhibitor_payment.php?company_name=${encodeURIComponent(
+      cleanCompanyName
+    )}`
+  )
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.success) {
+        const normalized = data.records.map((pay) => ({
+          type: pay.payment_type || pay.type || "",
+          date: pay.payment_date || pay.date || "",
+          receiverBank:
+            pay.name_of_receiver_bank || pay.receiverBank || "",
+          exhibitorBank:
+            pay.name_of_exhibitor_bank || pay.exhibitorBank || "",
+          amount: parseFloat(pay.amount_paid || pay.amount || 0),
+          tds: parseFloat(pay.tds || 0),
+        }));
+
+        setPayments(normalized);
+      } else {
+        setPayments([]);
+      }
+    })
+    .catch((err) => {
+      console.error("Payment fetch error:", err);
+      setPayments([]);
+    });
+}, [formData.company_name]);
+
 
   // Add payment to DB and re-fetch
   const handleAddPayment = async () => {
@@ -4232,14 +4259,15 @@ const AdminDashboard = () => {
             company_name: formData.company_name,
             payments: [newPayment],
           }),
-        }
+        },
       );
 
       const result = await response.json();
 
       if (result.success) {
         alert("Payment added successfully");
-        fetchPayments(); // Refresh list
+        // ✅ FORCE refresh for SAME company
+      fetchPayments(formData.company_name);
         setPaymentType("");
         setPaymentDate("");
         setReceiverBankName("");
@@ -4269,14 +4297,15 @@ const AdminDashboard = () => {
             company_name: formData.company_name,
             payment: paymentToDelete,
           }),
-        }
+        },
       );
 
       const result = await response.json();
 
       if (result.success) {
         alert("Payment deleted successfully");
-        fetchPayments(); // Refresh list
+        // ✅ FORCE refresh for SAME company
+      fetchPayments(formData.company_name);
       } else {
         alert(result.message || "Failed to delete payment");
       }
@@ -4287,27 +4316,38 @@ const AdminDashboard = () => {
   };
 
   // Helper to refetch payments from backend
-  const fetchPayments = async () => {
-    try {
-      const res = await fetch(
-        `https://inoptics.in/api/get_exhibitor_payment.php?company_name=${formData.company_name}`
-      );
-      const data = await res.json();
-      if (data.success) {
-        const normalized = data.records.map((pay) => ({
-          type: pay.type || pay.payment_type || "",
-          date: pay.date || pay.payment_date || "",
-          receiverBank: pay.receiverBank || pay.name_of_receiver_bank || "",
-          exhibitorBank: pay.exhibitorBank || pay.name_of_exhibitor_bank || "",
-          amount: parseFloat(pay.amount || pay.amount_paid || 0),
-          tds: parseFloat(pay.tds || 0),
-        }));
-        setPayments(normalized);
-      }
-    } catch (error) {
-      console.error("Error fetching payments:", error);
-    }
-  };
+  const fetchPayments = async (companyName) => {
+  if (!companyName) return;
+
+  const cleanCompanyName = companyName
+    .replace(/\u00A0/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const res = await fetch(
+    `https://inoptics.in/api/get_exhibitor_payment.php?company_name=${encodeURIComponent(
+      cleanCompanyName
+    )}`
+  );
+
+  const data = await res.json();
+
+  if (data.success) {
+    const normalized = data.records.map((pay) => ({
+      type: pay.payment_type || "",
+      date: pay.payment_date || "",
+      receiverBank: pay.name_of_receiver_bank || "",
+      exhibitorBank: pay.name_of_exhibitor_bank || "",
+      amount: parseFloat(pay.amount_paid || 0),
+      tds: parseFloat(pay.tds || 0),
+    }));
+
+    setPayments(normalized);
+  } else {
+    setPayments([]);
+  }
+};
+
 
   // Handle edit click
   const handleEditPayment = (index) => {
@@ -4323,68 +4363,77 @@ const AdminDashboard = () => {
 
   // Handle update payment
   const handleUpdatePayment = async () => {
-    if (editingIndex === null) return;
-    if (!formData.company_name) {
-      alert("Company name is required.");
-      return;
-    }
+  if (editingIndex === null) return;
 
-    const updatedPayment = {
-      original: payments[editingIndex], // 🟢 old record (to identify)
-      updated: {
-        type: paymentType,
-        date: paymentDate,
-        receiverBank: receiverBankName,
-        exhibitorBank: exhibitorBankName,
-        amount: parseFloat(amount) || 0,
-        tds: parseFloat(tds) || 0,
-      },
-    };
+  if (!formData.company_name) {
+    alert("Company name is required.");
+    return;
+  }
 
-    try {
-      const response = await fetch(
-        "https://inoptics.in/api/update_exhibitor_payment.php",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            company_name: formData.company_name,
-            payment: updatedPayment,
-          }),
-        }
-      );
+  const cleanCompanyName = formData.company_name
+    .replace(/\u00A0/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 
-      const result = await response.json();
-
-      if (result.success) {
-        alert("Payment updated successfully");
-        fetchPayments();
-        // reset form
-        setPaymentType("");
-        setPaymentDate("");
-        setReceiverBankName("");
-        setExhibitorBankName("");
-        setAmount("");
-        setTds("");
-        setEditingIndex(null);
-      } else {
-        alert(result.message || "Failed to update payment");
-      }
-    } catch (error) {
-      console.error("Update payment error:", error);
-      alert("An error occurred while updating payment");
-    }
+  const updatedPayment = {
+    original: payments[editingIndex],
+    updated: {
+      type: paymentType,
+      date: paymentDate,
+      receiverBank: receiverBankName,
+      exhibitorBank: exhibitorBankName,
+      amount: parseFloat(amount) || 0,
+      tds: parseFloat(tds) || 0,
+    },
   };
+
+  try {
+    const response = await fetch(
+      "https://inoptics.in/api/update_exhibitor_payment.php",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          company_name: cleanCompanyName,
+          payment: updatedPayment,
+        }),
+      }
+    );
+
+    const result = await response.json();
+
+    if (result.success) {
+      alert("Payment updated successfully");
+
+      // ✅ FORCE refetch for SAME company
+      fetchPayments(formData.company_name); // refetch fresh data
+
+      setPaymentType("");
+      setPaymentDate("");
+      setReceiverBankName("");
+      setExhibitorBankName("");
+      setAmount("");
+      setTds("");
+      setEditingIndex(null);
+    } else {
+      alert(result.message || "Failed to update payment");
+    }
+  } catch (error) {
+    console.error("Update payment error:", error);
+    alert("An error occurred while updating payment");
+  }
+};
+
 
   // Recalculate totals when payments change
   useEffect(() => {
     const totalPaid = payments.reduce(
       (sum, p) => sum + (parseFloat(p.amount) || 0),
-      0
+      0,
     );
     const totalTds = payments.reduce(
       (sum, p) => sum + (parseFloat(p.tds) || 0),
-      0
+      0,
     );
     const totalReceived = totalPaid + totalTds;
 
@@ -4413,7 +4462,7 @@ const AdminDashboard = () => {
   const fetchPowerPayments = async () => {
     try {
       const res = await fetch(
-        `https://inoptics.in/api/get_exhibitor_power_payment.php?company_name=${formData.company_name}`
+        `https://inoptics.in/api/get_exhibitor_power_payment.php?company_name=${formData.company_name}`,
       );
       const data = await res.json();
 
@@ -4458,7 +4507,7 @@ const AdminDashboard = () => {
             company_name: formData.company_name,
             payments: [newPayment],
           }),
-        }
+        },
       );
 
       const result = await response.json();
@@ -4495,7 +4544,7 @@ const AdminDashboard = () => {
             company_name: formData.company_name,
             payment: paymentToDelete,
           }),
-        }
+        },
       );
 
       const result = await response.json();
@@ -4516,11 +4565,11 @@ const AdminDashboard = () => {
   useEffect(() => {
     const totalPaid = powerPayments.reduce(
       (sum, p) => sum + (parseFloat(p.amount) || 0),
-      0
+      0,
     );
     const totalTds = powerPayments.reduce(
       (sum, p) => sum + (parseFloat(p.tds) || 0),
-      0
+      0,
     );
     const totalReceived = totalPaid + totalTds;
 
@@ -4567,7 +4616,7 @@ const AdminDashboard = () => {
             oldPayment: powerPayments[editingPowerIndex], // existing payment
             newPayment: updatedPayment, // updated payment
           }),
-        }
+        },
       );
 
       const result = await response.json();
@@ -4614,7 +4663,7 @@ const AdminDashboard = () => {
   const fetchBadgePayments = async () => {
     try {
       const res = await fetch(
-        `https://inoptics.in/api/get_exhibitor_badge_payment.php?company_name=${formData.company_name}`
+        `https://inoptics.in/api/get_exhibitor_badge_payment.php?company_name=${formData.company_name}`,
       );
       const data = await res.json();
 
@@ -4660,7 +4709,7 @@ const AdminDashboard = () => {
             company_name: formData.company_name,
             payments: [newPayment],
           }),
-        }
+        },
       );
 
       const result = await response.json();
@@ -4697,7 +4746,7 @@ const AdminDashboard = () => {
             company_name: formData.company_name,
             payment: paymentToDelete,
           }),
-        }
+        },
       );
 
       const result = await response.json();
@@ -4707,7 +4756,7 @@ const AdminDashboard = () => {
 
         // ✅ Instantly update the UI (remove from local state)
         setBadgePayments((prevPayments) =>
-          prevPayments.filter((_, i) => i !== index)
+          prevPayments.filter((_, i) => i !== index),
         );
       } else {
         alert(result.message || "Failed to delete badge payment");
@@ -4754,7 +4803,7 @@ const AdminDashboard = () => {
             oldPayment: badgePayments[editingBadgeIndex], // existing payment
             newPayment: updatedPayment, // updated payment
           }),
-        }
+        },
       );
 
       const result = await response.json();
@@ -4782,11 +4831,11 @@ const AdminDashboard = () => {
   useEffect(() => {
     const totalPaid = badgePayments.reduce(
       (sum, p) => sum + (parseFloat(p.amount) || 0),
-      0
+      0,
     );
     const totalTds = badgePayments.reduce(
       (sum, p) => sum + (parseFloat(p.tds) || 0),
-      0
+      0,
     );
     const totalReceived = totalPaid + totalTds;
 
@@ -4805,7 +4854,7 @@ const AdminDashboard = () => {
 
     const totalPrice = exhibitorPreviewList.reduce(
       (acc, item) => acc + Number(item.totalAmount || 0),
-      0
+      0,
     );
 
     const calcCgst = isDelhi ? (totalPrice * 9) / 100 : 0;
@@ -4824,7 +4873,7 @@ const AdminDashboard = () => {
     if (formData.company_name) {
       localStorage.setItem(
         `grandTotal_power_${formData.company_name}`,
-        grandTotal.toFixed(2)
+        grandTotal.toFixed(2),
       );
     }
   }, [exhibitorPreviewList, formData.state]);
@@ -4854,7 +4903,7 @@ const AdminDashboard = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ entries: payload }),
-        }
+        },
       );
 
       const result = await response.json();
@@ -4884,8 +4933,8 @@ const AdminDashboard = () => {
     try {
       const response = await fetch(
         `https://inoptics.in/api/get_Exhibitor_power_requirement.php?company_name=${encodeURIComponent(
-          companyName
-        )}`
+          companyName,
+        )}`,
       );
       const result = await response.json();
 
@@ -4952,7 +5001,7 @@ const AdminDashboard = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ company_name: companyName }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -5009,7 +5058,7 @@ const AdminDashboard = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
-        }
+        },
       );
 
       const result = await response.json();
@@ -5017,7 +5066,7 @@ const AdminDashboard = () => {
       if (response.ok) {
         alert(result.message || "Row deleted successfully!");
         setExhibitorPreviewList((prev) =>
-          prev.filter((entry) => entry !== item)
+          prev.filter((entry) => entry !== item),
         );
       } else {
         alert("Delete failed: " + (result.error || "Unknown error"));
@@ -5034,7 +5083,7 @@ const AdminDashboard = () => {
 
     // Find the price for the selected power_type
     const selectedItem = powerData.find(
-      (item) => item.power_type === selectedDay
+      (item) => item.power_type === selectedDay,
     );
     if (selectedItem) {
       setExhibitorPricePerKw(selectedItem.price);
@@ -5131,7 +5180,7 @@ const AdminDashboard = () => {
       setExhibitorSelectedDay(selectedType);
 
       const matchedItem = powerData.find(
-        (item) => item.power_type.trim() === selectedType
+        (item) => item.power_type.trim() === selectedType,
       );
 
       if (matchedItem) {
@@ -5148,7 +5197,7 @@ const AdminDashboard = () => {
     // Calculate subtotal from selectedFurniture items
     const subTotal = selectedFurniture.reduce(
       (acc, item) => acc + (item.quantity || 0) * item.price,
-      0
+      0,
     );
 
     const discountPercent = furnitureBilling.discountPercent || 0;
@@ -5178,7 +5227,7 @@ const AdminDashboard = () => {
     if (pendingAmount !== null && formData?.company_name) {
       localStorage.setItem(
         `pending_stall_${formData.company_name}`,
-        pendingAmount.toFixed(2)
+        pendingAmount.toFixed(2),
       );
     }
   }, [pendingAmount, formData?.company_name]);
@@ -5188,7 +5237,7 @@ const AdminDashboard = () => {
     if (powerPendingAmount !== null && formData?.company_name) {
       localStorage.setItem(
         `pending_power_${formData.company_name}`,
-        powerPendingAmount.toFixed(2)
+        powerPendingAmount.toFixed(2),
       );
     }
   }, [powerPendingAmount, formData?.company_name]);
@@ -5199,7 +5248,7 @@ const AdminDashboard = () => {
     if (formData?.company_name && grandTotal !== undefined) {
       localStorage.setItem(
         `pending_badge_${formData.company_name}`,
-        grandTotal.toFixed(2)
+        grandTotal.toFixed(2),
       );
     }
   }, [formData?.company_name]);
@@ -5215,7 +5264,7 @@ const AdminDashboard = () => {
     if (!query) return; // if empty, do nothing or reset list
 
     const filteredExhibitors = allExhibitors.filter((exhibitor) =>
-      exhibitor.company_name.toLowerCase().includes(query.toLowerCase())
+      exhibitor.company_name.toLowerCase().includes(query.toLowerCase()),
     );
 
     // Update your state to show the filtered list
@@ -5285,7 +5334,7 @@ const AdminDashboard = () => {
     }
 
     const filtered = paymentsData.filter((item) =>
-      item.company_name.toLowerCase().includes(query.toLowerCase())
+      item.company_name.toLowerCase().includes(query.toLowerCase()),
     );
     setFilteredPaymentsData(filtered);
   };
@@ -5310,7 +5359,7 @@ const AdminDashboard = () => {
   const fetchContractorRequirements = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_contractor_requirement.php"
+        "https://inoptics.in/api/get_contractor_requirement.php",
       );
       const data = await res.json();
       setContractorRequirementData(data);
@@ -5342,7 +5391,7 @@ const AdminDashboard = () => {
             phone_numbers: phoneNumber,
             mobile_numbers: mobileNumber,
           }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -5362,7 +5411,7 @@ const AdminDashboard = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -5406,7 +5455,7 @@ const AdminDashboard = () => {
             phoneNumber,
             mobileNumber,
           }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -5448,7 +5497,7 @@ const AdminDashboard = () => {
 
   const handleAddExhibitorStall = () => {
     const missingFields = requiredStallFields.filter(
-      (field) => !formData[field]
+      (field) => !formData[field],
     );
     if (missingFields.length > 0) {
       const newErrors = {};
@@ -5474,7 +5523,7 @@ const AdminDashboard = () => {
       // ✅ Auto-set stall_price if stall_category changes
       if (name === "stall_category") {
         const selectedCategory = stallCategories.find(
-          (cat) => cat.category === value
+          (cat) => cat.category === value,
         );
         if (selectedCategory) {
           updated.stall_price = selectedCategory.price;
@@ -5537,7 +5586,7 @@ const AdminDashboard = () => {
   const fetchAvailableStalls = async () => {
     try {
       const response = await fetch(
-        `https://inoptics.in/api/get_available_stalls.php?ts=${Date.now()}`
+        `https://inoptics.in/api/get_available_stalls.php?ts=${Date.now()}`,
       ); // timestamp to avoid caching
       const data = await response.json();
       setStallData(data); // set state for dropdown
@@ -5702,11 +5751,11 @@ const AdminDashboard = () => {
     const otherDigits = "0123456789";
 
     let password = firstDigit.charAt(
-      Math.floor(Math.random() * firstDigit.length)
+      Math.floor(Math.random() * firstDigit.length),
     );
     for (let i = 0; i < 3; i++) {
       password += otherDigits.charAt(
-        Math.floor(Math.random() * otherDigits.length)
+        Math.floor(Math.random() * otherDigits.length),
       );
     }
 
@@ -5769,7 +5818,7 @@ const AdminDashboard = () => {
             company_name: formData.company_name,
             rows: exhibitorPreviewList,
           }),
-        }
+        },
       );
 
       const result = await response.json();
@@ -5811,7 +5860,7 @@ const AdminDashboard = () => {
       if (item.stall_area)
         acc[item.company_name].stall_area.push(item.stall_area); // ✅ add this
       return acc;
-    }, {})
+    }, {}),
   );
 
   const addExhibitor = async (newExhibitor) => {
@@ -5870,7 +5919,7 @@ const AdminDashboard = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
-        }
+        },
       );
 
       const text = await res.text(); // get raw response body
@@ -5905,8 +5954,8 @@ const AdminDashboard = () => {
     try {
       const response = await fetch(
         `https://inoptics.in/api/get_selected_furniture.php?company_name=${encodeURIComponent(
-          companyName
-        )}`
+          companyName,
+        )}`,
       );
       const data = await response.json();
 
@@ -5944,7 +5993,7 @@ const AdminDashboard = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ company_name: companyName }),
-        }
+        },
       );
 
       const result = await response.json();
@@ -5954,7 +6003,7 @@ const AdminDashboard = () => {
 
         // 🟢 Trigger the unlock email
         await handleSendMail(
-          "InOptics 2026 @ Extra Furniture Section Unlocked"
+          "InOptics 2026 @ Extra Furniture Section Unlocked",
         );
       } else {
         alert(result.message || "Unlock failed");
@@ -5986,7 +6035,7 @@ const AdminDashboard = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(payload),
-        }
+        },
       );
 
       const data = await response.json();
@@ -5996,7 +6045,7 @@ const AdminDashboard = () => {
         // optionally refetch the data or update state here
       } else {
         alert(
-          "Failed to update furniture: " + (data.message || "Unknown error")
+          "Failed to update furniture: " + (data.message || "Unknown error"),
         );
       }
     } catch (error) {
@@ -6009,7 +6058,7 @@ const AdminDashboard = () => {
   const fetchExhibitorContractors = async () => {
     try {
       const response = await fetch(
-        "https://inoptics.in/api/get_exhibitor_contractors_requirements.php"
+        "https://inoptics.in/api/get_exhibitor_contractors_requirements.php",
       );
       const data = await response.json();
       setContractorData(data);
@@ -6022,13 +6071,13 @@ const AdminDashboard = () => {
   const fetchSelectedContractor = async (companyName) => {
     try {
       const response = await fetch(
-        `https://inoptics.in/api/get_selected_exhibitors_contractors.php?exhibitor_company_name=${companyName}`
+        `https://inoptics.in/api/get_selected_exhibitors_contractors.php?exhibitor_company_name=${companyName}`,
       );
       const data = await response.json();
 
       if (data && data.contractor_company_name) {
         const selectedContractor = contractorData.find(
-          (c) => c.company_name === data.contractor_company_name
+          (c) => c.company_name === data.contractor_company_name,
         );
         if (selectedContractor) {
           setSelectedContractorId(selectedContractor.id);
@@ -6072,7 +6121,7 @@ const AdminDashboard = () => {
             contact_numbers: contactNumbers,
             email: contractor.email,
           }),
-        }
+        },
       );
 
       const result = await response.json();
@@ -6101,7 +6150,7 @@ const AdminDashboard = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ exhibitor_company_name: exhibitorCompany }),
-        }
+        },
       );
 
       const result = await response.json();
@@ -6147,7 +6196,7 @@ const AdminDashboard = () => {
   const fetchAllFinalSelections = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_all_selected_exhibitors_contractors.php"
+        "https://inoptics.in/api/get_all_selected_exhibitors_contractors.php",
       );
       if (!res.ok) throw new Error("Failed to fetch final list");
       const data = await res.json();
@@ -6180,7 +6229,7 @@ const AdminDashboard = () => {
         designation: userDesignation,
         checked: isUndertakingRead,
         company: formData.company_name, // optional if needed
-      })
+      }),
     );
 
     setIsSaved(true);
@@ -6262,7 +6311,7 @@ const AdminDashboard = () => {
 
     if (
       !window.confirm(
-        `Are you sure you want to delete stall number ${stallToDelete.stall_number}?`
+        `Are you sure you want to delete stall number ${stallToDelete.stall_number}?`,
       )
     ) {
       return;
@@ -6280,7 +6329,7 @@ const AdminDashboard = () => {
             stall_number: stallToDelete.stall_number,
             company_name: formData.company_name, // ✅ include company name
           }),
-        }
+        },
       );
 
       if (response.ok) {
@@ -6314,91 +6363,94 @@ const AdminDashboard = () => {
     return match ? parseFloat(match[0]) : 0;
   };
   const handleExhibitorStallsSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const stallData = {
-    company_name: formData.company_name || "",
-    stall_number: formData.stall_number || "",
-    hall_number: formData.hall_number || "",
-    stall_category: formData.stall_category || "",
-    stall_price: parseFloat(customRound(formData.stall_price)) || 0,
-    currency: formData.currency || "",
-    stall_area: extractNumber(formData.stall_area),
-    total: parseFloat(customRound(formData.total)) || 0,
-    discount: parseFloat(formData.discount) || 0,
-    discounted_amount: parseFloat(customRound(formData.discounted_amount)) || 0,
-    total_after_discount: parseFloat(customRound(formData.total_after_discount)) || 0,
-    sgst9: parseFloat(customRound(formData.sgst9)) || 0,
-    cgst9: parseFloat(customRound(formData.cgst9)) || 0,
-    igst18: parseFloat(customRound(formData.igst18)) || 0,
-    grand_total: parseFloat(customRound(formData.grand_total)) || 0,
-  };
+    const stallData = {
+      company_name: formData.company_name || "",
+      stall_number: formData.stall_number || "",
+      hall_number: formData.hall_number || "",
+      stall_category: formData.stall_category || "",
+      stall_price: parseFloat(customRound(formData.stall_price)) || 0,
+      currency: formData.currency || "",
+      stall_area: extractNumber(formData.stall_area),
+      total: parseFloat(customRound(formData.total)) || 0,
+      discount: parseFloat(formData.discount) || 0,
+      discounted_amount:
+        parseFloat(customRound(formData.discounted_amount)) || 0,
+      total_after_discount:
+        parseFloat(customRound(formData.total_after_discount)) || 0,
+      sgst9: parseFloat(customRound(formData.sgst9)) || 0,
+      cgst9: parseFloat(customRound(formData.cgst9)) || 0,
+      igst18: parseFloat(customRound(formData.igst18)) || 0,
+      grand_total: parseFloat(customRound(formData.grand_total)) || 0,
+    };
 
-  try {
-    const response = await fetch(
-      "https://inoptics.in/api/submit_stalls.php",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(stallData),
+    try {
+      const response = await fetch(
+        "https://inoptics.in/api/submit_stalls.php",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(stallData),
+        },
+      );
+
+      if (!response.ok) {
+        alert("Failed to submit stall data");
+        return;
       }
-    );
 
-    if (!response.ok) {
-      alert("Failed to submit stall data");
-      return;
+      const result = await response.json();
+      alert("Stall data submitted successfully!");
+
+      // 🔥 STEP 2 — Recalculate FREE badges after stall add
+      const badgeRes = await fetch(
+        "https://inoptics.in/api/update_free_badges.php",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            company_name: formData.company_name,
+          }),
+        },
+      );
+
+      const badgeData = await badgeRes.json();
+
+      if (!badgeData.success) {
+        console.warn("Free badge update failed:", badgeData.error);
+      } else {
+        console.log("✅ Free badges recalculated:", badgeData.free_badges);
+      }
+
+      // 🔄 Refresh exhibitor + stalls UI
+      fetchExhibitorData(); // updates free_badges & free_remaining
+      fetchStallsByCompany(formData.company_name);
+
+      // 🧹 Reset form
+      setStallCategory("");
+      setFormData((prev) => ({
+        ...prev,
+        stall_number: "",
+        hall_number: "",
+        stall_category: "",
+        stall_price: "",
+        currency: "",
+        stall_area: "",
+        total: "",
+        discount: "",
+        discounted_amount: "",
+        total_after_discount: "",
+        sgst9: "",
+        cgst9: "",
+        igst18: "",
+        grand_total: "",
+      }));
+    } catch (error) {
+      console.error("Submission error:", error);
+      alert("An error occurred while submitting stall data.");
     }
-
-    const result = await response.json();
-    alert("Stall data submitted successfully!");
-
-    // 🔥 STEP 2 — Recalculate FREE badges after stall add
-    const badgeRes = await fetch("https://inoptics.in/api/update_free_badges.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        company_name: formData.company_name,
-      }),
-    });
-
-    const badgeData = await badgeRes.json();
-
-    if (!badgeData.success) {
-      console.warn("Free badge update failed:", badgeData.error);
-    } else {
-      console.log("✅ Free badges recalculated:", badgeData.free_badges);
-    }
-
-    // 🔄 Refresh exhibitor + stalls UI
-    fetchExhibitorData();                 // updates free_badges & free_remaining
-    fetchStallsByCompany(formData.company_name);
-
-    // 🧹 Reset form
-    setStallCategory("");
-    setFormData((prev) => ({
-      ...prev,
-      stall_number: "",
-      hall_number: "",
-      stall_category: "",
-      stall_price: "",
-      currency: "",
-      stall_area: "",
-      total: "",
-      discount: "",
-      discounted_amount: "",
-      total_after_discount: "",
-      sgst9: "",
-      cgst9: "",
-      igst18: "",
-      grand_total: "",
-    }));
-
-  } catch (error) {
-    console.error("Submission error:", error);
-    alert("An error occurred while submitting stall data.");
-  }
-};
-
+  };
 
   const handleEditExhibitorStall = (index) => {
     const stallToEdit = stallList[index];
@@ -6456,7 +6508,7 @@ const AdminDashboard = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(stallData),
-        }
+        },
       );
 
       const result = await response.json();
@@ -6516,7 +6568,7 @@ const AdminDashboard = () => {
     const key = labelToBackendKey[label];
     return stallList.some(
       (stall) =>
-        stall[key] !== null && stall[key] !== undefined && stall[key] !== ""
+        stall[key] !== null && stall[key] !== undefined && stall[key] !== "",
     );
   });
 
@@ -6541,7 +6593,7 @@ const AdminDashboard = () => {
     ) {
       // Check localStorage first to avoid unnecessary API calls
       const cachedData = localStorage.getItem(
-        `badges_${formData.company_name}`
+        `badges_${formData.company_name}`,
       );
       if (cachedData) {
         const { free_badges, extra_badges } = JSON.parse(cachedData);
@@ -6555,8 +6607,8 @@ const AdminDashboard = () => {
       // Fetch badges info from API
       fetch(
         `https://inoptics.in/api/get_Exhibitor_badges.php?company_name=${encodeURIComponent(
-          formData.company_name
-        )}`
+          formData.company_name,
+        )}`,
       )
         .then((res) => res.json())
         .then((data) => {
@@ -6576,7 +6628,7 @@ const AdminDashboard = () => {
               JSON.stringify({
                 free_badges: parseInt(data.free_badges, 10) || 0,
                 extra_badges: parseInt(data.extra_badges, 10) || 0,
-              })
+              }),
             );
             setIsLocked(data.is_locked === "1" || data.is_locked === 1);
           }
@@ -6593,7 +6645,7 @@ const AdminDashboard = () => {
 
     if (
       !window.confirm(
-        `Are you sure you want to unlock badges for ${formData.company_name}?`
+        `Are you sure you want to unlock badges for ${formData.company_name}?`,
       )
     ) {
       return;
@@ -6623,7 +6675,7 @@ const AdminDashboard = () => {
                 template_name:
                   "InOptics 2026 @ Successfully Unlocked Badges Requirement",
               }),
-            }
+            },
           );
         } else {
           throw new Error(data.message || "Failed to unlock badges.");
@@ -6806,7 +6858,7 @@ const AdminDashboard = () => {
             gst: modalForm.gst || "",
             is_active: currentAddress.isActive ? 1 : 0, // include if needed
           }),
-        }
+        },
       );
 
       const result = await res.json();
@@ -6844,7 +6896,7 @@ const AdminDashboard = () => {
     const updated = addresses.map((addr) =>
       addr.id === id
         ? { ...addr, isActive: true }
-        : { ...addr, isActive: false }
+        : { ...addr, isActive: false },
     );
 
     setAddresses(updated);
@@ -6858,7 +6910,7 @@ const AdminDashboard = () => {
   };
   const handleFetchAddress = async () => {
     const res = await fetch(
-      "https://inoptics.in/api/get_invoice_addresses.php"
+      "https://inoptics.in/api/get_invoice_addresses.php",
     );
     const data = await res.json();
 
@@ -6896,7 +6948,7 @@ const AdminDashboard = () => {
   const fetchBadgeLimits = async () => {
     try {
       const response = await fetch(
-        "https://inoptics.in/api/get_badge_limit.php"
+        "https://inoptics.in/api/get_badge_limit.php",
       );
       const data = await response.json();
       setBadgeLimitsData(data);
@@ -6942,7 +6994,7 @@ const AdminDashboard = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -7034,7 +7086,7 @@ const AdminDashboard = () => {
         {
           id: editProductId,
           name: editProductName.trim(),
-        }
+        },
       );
       alert(res.data.message);
       setShowEditProductForm(false);
@@ -7050,7 +7102,7 @@ const AdminDashboard = () => {
     try {
       const res = await axios.post(
         "https://inoptics.in/api/delete_product.php",
-        { id }
+        { id },
       );
       alert(res.data.message);
       fetchProducts();
@@ -7188,7 +7240,7 @@ const AdminDashboard = () => {
   const fetchStallAreas = async () => {
     try {
       const response = await fetch(
-        "https://inoptics.in/api/get_stall_areas.php"
+        "https://inoptics.in/api/get_stall_areas.php",
       );
       const text = await response.text();
       try {
@@ -7293,7 +7345,7 @@ const AdminDashboard = () => {
             dollar: parseFloat(stallCategoryDollar),
             euro: parseFloat(stallCategoryEuro),
           }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -7318,7 +7370,7 @@ const AdminDashboard = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id }),
-        }
+        },
       );
       const data = await res.json();
       alert(data.message);
@@ -7362,7 +7414,7 @@ const AdminDashboard = () => {
             dollar: parseFloat(editStallCategoryDollar),
             euro: parseFloat(editStallCategoryEuro),
           }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -7377,7 +7429,7 @@ const AdminDashboard = () => {
   const fetchHallsData = async () => {
     try {
       const response = await fetch(
-        "https://inoptics.in/api/get_hall_numbers.php"
+        "https://inoptics.in/api/get_hall_numbers.php",
       );
       const data = await response.json();
       setHallsData(data);
@@ -7411,7 +7463,7 @@ const AdminDashboard = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id }),
-        }
+        },
       );
       const data = await res.json();
       alert(data.message);
@@ -7438,7 +7490,7 @@ const AdminDashboard = () => {
             id: editHallsId,
             hall_number: editHallsNumber,
           }),
-        }
+        },
       );
       const data = await res.json();
       alert(data.message);
@@ -7462,31 +7514,31 @@ const AdminDashboard = () => {
   }, [showStallAddForm, showStallEditForm]);
 
   const filteredPowerData = powerData.filter((item) =>
-    item.power_type.toLowerCase().includes(searchQuery.toLowerCase())
+    item.power_type.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const filteredBusinessData = businessData.filter((item) =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase())
+    item.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const filteredFurnitureData = furnitureData.filter((item) =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase())
+    item.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const filteredHalls = hallsData.filter((item) =>
-    item.hall_number.toLowerCase().includes(searchHallsQuery.toLowerCase())
+    item.hall_number.toLowerCase().includes(searchHallsQuery.toLowerCase()),
   );
 
   const filteredStallAreas = stallAreas.filter((item) =>
-    item.area.toLowerCase().includes(searchQueryStallAreas.toLowerCase())
+    item.area.toLowerCase().includes(searchQueryStallAreas.toLowerCase()),
   );
 
   const filteredTaxesData = taxesData.filter((item) =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase())
+    item.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase())
+    product.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const addFurnitureRequirement = async () => {
@@ -7506,7 +7558,7 @@ const AdminDashboard = () => {
         {
           method: "POST",
           body: formData,
-        }
+        },
       );
 
       const data = await res.json();
@@ -7523,7 +7575,7 @@ const AdminDashboard = () => {
   const fetchFurnitureData = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_furniture_requirement.php"
+        "https://inoptics.in/api/get_furniture_requirement.php",
       );
       const data = await res.json();
       setFurnitureData(data);
@@ -7548,7 +7600,7 @@ const AdminDashboard = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -7585,7 +7637,7 @@ const AdminDashboard = () => {
         {
           method: "POST",
           body: formData,
-        }
+        },
       );
 
       const data = await res.json();
@@ -7601,7 +7653,7 @@ const AdminDashboard = () => {
   const fetchBrandingData = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_branding_requirement.php"
+        "https://inoptics.in/api/get_branding_requirement.php",
       );
       const data = await res.json();
       setBrandingData(data);
@@ -7632,7 +7684,7 @@ const AdminDashboard = () => {
       {
         method: "POST",
         body: formData,
-      }
+      },
     );
 
     const data = await res.json();
@@ -7681,7 +7733,7 @@ const AdminDashboard = () => {
       {
         method: "POST",
         body: formData,
-      }
+      },
     );
 
     const data = await res.json();
@@ -7697,7 +7749,7 @@ const AdminDashboard = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
-      }
+      },
     );
     const data = await res.json();
     alert(data.message);
@@ -7707,7 +7759,7 @@ const AdminDashboard = () => {
   const fetchBusinessData = async () => {
     try {
       const response = await fetch(
-        "https://inoptics.in/api/get_business_requirement.php"
+        "https://inoptics.in/api/get_business_requirement.php",
       );
       const text = await response.text();
       const data = JSON.parse(text);
@@ -7730,7 +7782,7 @@ const AdminDashboard = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name: businessName }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -7751,7 +7803,7 @@ const AdminDashboard = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -7776,7 +7828,7 @@ const AdminDashboard = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id: editBusinessId, name: editBusinessName }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -7791,7 +7843,7 @@ const AdminDashboard = () => {
   const fetchExhibitionData = async () => {
     try {
       const response = await fetch(
-        "https://inoptics.in/api/get_exhibition_map.php"
+        "https://inoptics.in/api/get_exhibition_map.php",
       );
       const text = await response.text();
       const data = JSON.parse(text);
@@ -7820,7 +7872,7 @@ const AdminDashboard = () => {
         {
           method: "POST",
           body: formData,
-        }
+        },
       );
 
       const data = await res.json();
@@ -7842,7 +7894,7 @@ const AdminDashboard = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -7875,7 +7927,7 @@ const AdminDashboard = () => {
         {
           method: "POST",
           body: formData,
-        }
+        },
       );
 
       const data = await res.json();
@@ -7892,7 +7944,7 @@ const AdminDashboard = () => {
   const fetchInstructions = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_exhibitor_dashboard_instructions.php"
+        "https://inoptics.in/api/get_exhibitor_dashboard_instructions.php",
       );
 
       if (!res.ok) {
@@ -7921,7 +7973,7 @@ const AdminDashboard = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content: formattedContent }),
-      }
+      },
     );
 
     fetchInstructions();
@@ -7942,7 +7994,7 @@ const AdminDashboard = () => {
           id: editInstructionId,
           content: formattedContent,
         }),
-      }
+      },
     );
 
     fetchInstructions();
@@ -7957,7 +8009,7 @@ const AdminDashboard = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
-      }
+      },
     );
     fetchInstructions();
   };
@@ -7974,7 +8026,7 @@ const AdminDashboard = () => {
   // 🚀 Fetch declaration data
   const fetchExhibitorDeclaration = async () => {
     const res = await fetch(
-      "https://inoptics.in/api/get_exhibitor_declaration_undertaking.php"
+      "https://inoptics.in/api/get_exhibitor_declaration_undertaking.php",
     );
     const data = await res.json();
     setDeclarationUndertakingData(data);
@@ -7987,7 +8039,7 @@ const AdminDashboard = () => {
   // 🟢 Add or update declaration
   const saveExhibitorDeclaration = async () => {
     const cleanedPoints = formPoints.filter(
-      (item) => item.title.trim() && item.text.trim()
+      (item) => item.title.trim() && item.text.trim(),
     );
 
     const endpoint = isEditing
@@ -8007,7 +8059,7 @@ const AdminDashboard = () => {
   // 🟥 Delete declaration
   const deleteExhibitorDeclaration = async () => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete the declaration?"
+      "Are you sure you want to delete the declaration?",
     );
     if (!confirmDelete) return;
 
@@ -8016,7 +8068,7 @@ const AdminDashboard = () => {
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-      }
+      },
     );
 
     setDeclarationUndertakingData([]);
@@ -8029,7 +8081,7 @@ const AdminDashboard = () => {
   const fetchEventSchedule = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_exhibitor_event_schedule.php"
+        "https://inoptics.in/api/get_exhibitor_event_schedule.php",
       );
       const data = await res.json();
 
@@ -8068,7 +8120,7 @@ const AdminDashboard = () => {
 
   const deleteEventSchedule = async () => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete the Event Schedule?"
+      "Are you sure you want to delete the Event Schedule?",
     );
     if (!confirmDelete) return;
 
@@ -8078,7 +8130,7 @@ const AdminDashboard = () => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-        }
+        },
       );
 
       setEventScheduleData([]);
@@ -8094,7 +8146,7 @@ const AdminDashboard = () => {
   const fetchExhibitorDashboardSchedule = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_exhibitor_dashboard_schedule.php"
+        "https://inoptics.in/api/get_exhibitor_dashboard_schedule.php",
       );
       const data = await res.json();
       setExhibitorDashboardSchedule(data);
@@ -8104,7 +8156,7 @@ const AdminDashboard = () => {
   };
   const saveExhibitorDashboardSchedule = async () => {
     const cleanedPoints = exhibitorDashboardFormPoints.filter(
-      (item) => item.title.trim() && item.text.trim()
+      (item) => item.title.trim() && item.text.trim(),
     );
 
     const endpoint = isEditingExhibitorDashboard
@@ -8126,7 +8178,7 @@ const AdminDashboard = () => {
   };
   const deleteExhibitorDashboardSchedule = async () => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete the Exhibitor Dashboard Schedule?"
+      "Are you sure you want to delete the Exhibitor Dashboard Schedule?",
     );
     if (!confirmDelete) return;
 
@@ -8136,7 +8188,7 @@ const AdminDashboard = () => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-        }
+        },
       );
 
       setExhibitorDashboardSchedule([]);
@@ -8209,7 +8261,7 @@ const AdminDashboard = () => {
 
   const deleteLatestNews = async () => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete all latest news?"
+      "Are you sure you want to delete all latest news?",
     );
     if (!confirmDelete) return;
 
@@ -8247,7 +8299,7 @@ const AdminDashboard = () => {
   const fetchExhibitorInstructions = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_exhibitor_instructions.php"
+        "https://inoptics.in/api/get_exhibitor_instructions.php",
       );
       const data = await res.json();
 
@@ -8291,7 +8343,7 @@ const AdminDashboard = () => {
 
   const deleteExhibitorInstruction = async (id) => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this instruction?"
+      "Are you sure you want to delete this instruction?",
     );
     if (!confirmDelete) return;
 
@@ -8314,7 +8366,7 @@ const AdminDashboard = () => {
   const fetchExhibitorRules = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_exhibitor_rules.php"
+        "https://inoptics.in/api/get_exhibitor_rules.php",
       );
       const data = await res.json();
       setRulesList(data || []);
@@ -8352,7 +8404,7 @@ const AdminDashboard = () => {
 
   const deleteExhibitorRule = async () => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this rule?"
+      "Are you sure you want to delete this rule?",
     );
     if (!confirmDelete) return;
 
@@ -8376,7 +8428,7 @@ const AdminDashboard = () => {
   const fetchExhibitorGuidelines = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_exhibitor_guidelines.php"
+        "https://inoptics.in/api/get_exhibitor_guidelines.php",
       );
       const data = await res.json();
       setGuidelinesList(data || []);
@@ -8413,7 +8465,7 @@ const AdminDashboard = () => {
 
   const deleteExhibitorGuideline = async () => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this guideline?"
+      "Are you sure you want to delete this guideline?",
     );
     if (!confirmDelete) return;
 
@@ -8433,7 +8485,7 @@ const AdminDashboard = () => {
   // Fetch Declarations
   const fetchDeclarations = async () => {
     const res = await fetch(
-      "https://inoptics.in/api/get_exhibitor_declaration.php"
+      "https://inoptics.in/api/get_exhibitor_declaration.php",
     );
     const data = await res.json();
     setDeclarationData(data);
@@ -8491,7 +8543,7 @@ const AdminDashboard = () => {
 
   const fetchSchedules = async () => {
     const res = await fetch(
-      "https://inoptics.in/api/get_exhibitor_schedule.php"
+      "https://inoptics.in/api/get_exhibitor_schedule.php",
     );
     const data = await res.json();
     setExhibitorScheduleData(data);
@@ -8523,7 +8575,7 @@ const AdminDashboard = () => {
 
     const formattedContent = editExhibitorScheduleContent.replace(
       /\n/g,
-      "<br>"
+      "<br>",
     );
 
     await fetch("https://inoptics.in/api/update_exhibitor_schedule.php", {
@@ -8549,7 +8601,7 @@ const AdminDashboard = () => {
 
   const fetchGuidelines = async () => {
     const res = await fetch(
-      "https://inoptics.in/api/get_guidelines_for_construction.php"
+      "https://inoptics.in/api/get_guidelines_for_construction.php",
     );
     const data = await res.json();
     setGuidelineData(data);
@@ -8583,7 +8635,7 @@ const AdminDashboard = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: editGuidelineId, content: formatted }),
-      }
+      },
     );
     fetchGuidelines();
     setShowEditGuidelineForm(false);
@@ -8596,7 +8648,7 @@ const AdminDashboard = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
-      }
+      },
     );
     fetchGuidelines();
   };
@@ -8626,7 +8678,7 @@ const AdminDashboard = () => {
             power_type: powerType,
             price: parseFloat(price),
           }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -8643,7 +8695,7 @@ const AdminDashboard = () => {
   const fetchPowerData = async () => {
     try {
       const response = await fetch(
-        "https://www.inoptics.in/api/get_power_requirement.php"
+        "https://www.inoptics.in/api/get_power_requirement.php",
       );
       const text = await response.text();
       // console.log("Raw response text:", text);
@@ -8682,7 +8734,7 @@ const AdminDashboard = () => {
   const fetchSMSInstructions = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_sms_instruction.php"
+        "https://inoptics.in/api/get_sms_instruction.php",
       );
       const data = await res.json();
       setSmsMessageList(data || []);
@@ -8720,7 +8772,7 @@ const AdminDashboard = () => {
 
   const deleteSMSInstructions = async () => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete the SMS message?"
+      "Are you sure you want to delete the SMS message?",
     );
     if (!confirmDelete) return;
 
@@ -8891,7 +8943,7 @@ const AdminDashboard = () => {
   const fetchWhatsAppInstructions = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_whatsapp_instruction.php"
+        "https://inoptics.in/api/get_whatsapp_instruction.php",
       );
       const data = await res.json();
       if (data.success) {
@@ -8929,7 +8981,7 @@ const AdminDashboard = () => {
   };
   const deleteWhatsAppInstructions = async () => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete the WhatsApp message?"
+      "Are you sure you want to delete the WhatsApp message?",
     );
     if (!confirmDelete) return;
 
@@ -9077,7 +9129,7 @@ const AdminDashboard = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -9106,7 +9158,7 @@ const AdminDashboard = () => {
             power_type: editPowerType,
             price: parseFloat(editPrice),
           }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -9121,7 +9173,7 @@ const AdminDashboard = () => {
   const fetchStallData = async () => {
     try {
       const response = await fetch(
-        `https://inoptics.in/api/get_stall_data.php?ts=${Date.now()}`
+        `https://inoptics.in/api/get_stall_data.php?ts=${Date.now()}`,
       ); // always unique
       const data = await response.json();
       setStallData(data);
@@ -9214,7 +9266,7 @@ const AdminDashboard = () => {
 
   const fetchSponsorImages = async () => {
     const res = await fetch(
-      "https://inoptics.in/api/get_sponsor_images_list.php"
+      "https://inoptics.in/api/get_sponsor_images_list.php",
     );
     const data = await res.json();
     setSponsorImages(data);
@@ -9231,7 +9283,7 @@ const AdminDashboard = () => {
       {
         method: "POST",
         body: formData,
-      }
+      },
     );
     const result = await res.json();
     alert(result.message || result.error);
@@ -9251,7 +9303,7 @@ const AdminDashboard = () => {
       {
         method: "POST",
         body: formData,
-      }
+      },
     );
     const result = await res.json();
     alert(result.message || result.error);
@@ -9269,7 +9321,7 @@ const AdminDashboard = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
-      }
+      },
     );
     const result = await res.json();
     alert(result.message || result.error);
@@ -9371,7 +9423,7 @@ const AdminDashboard = () => {
   const fetchPeopleComments = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_people_comments.php"
+        "https://inoptics.in/api/get_people_comments.php",
       );
       const data = await res.json();
       setPeopleComments(data);
@@ -9392,7 +9444,7 @@ const AdminDashboard = () => {
       {
         method: "POST",
         body: formData,
-      }
+      },
     );
 
     const result = await res.json();
@@ -9414,7 +9466,7 @@ const AdminDashboard = () => {
       {
         method: "POST",
         body: formData,
-      }
+      },
     );
 
     const result = await res.json();
@@ -9433,7 +9485,7 @@ const AdminDashboard = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
-      }
+      },
     );
 
     const result = await res.json();
@@ -9610,7 +9662,7 @@ const AdminDashboard = () => {
 
   const deleteEmailMaster = async (id) => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this email template?"
+      "Are you sure you want to delete this email template?",
     );
     if (!confirmDelete) return;
 
@@ -9735,7 +9787,7 @@ const AdminDashboard = () => {
   // Subtotal & Discount
   const subTotal2 = invoiceRows.reduce(
     (sum, row) => sum + Number(row.total || 0),
-    0
+    0,
   );
   const discount2 = Number(formTemplateData.discount || 0);
   const discountPercent2 =
@@ -9780,7 +9832,7 @@ const AdminDashboard = () => {
   const fetchVisitorGuideMain = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_visitor_guide_main.php"
+        "https://inoptics.in/api/get_visitor_guide_main.php",
       );
       const data = await res.json();
       setVisitorMain(data || {});
@@ -9793,7 +9845,7 @@ const AdminDashboard = () => {
   const fetchVisitorGuideCards = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_visitor_guide_cards.php"
+        "https://inoptics.in/api/get_visitor_guide_cards.php",
       );
       const data = await res.json();
       setVisitorCards(data || []);
@@ -9830,7 +9882,7 @@ const AdminDashboard = () => {
   // --- Delete Main ---
   const deleteVisitorGuideMain = async (id) => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete Visitor Guide Main?"
+      "Are you sure you want to delete Visitor Guide Main?",
     );
     if (!confirmDelete) return;
 
@@ -9877,7 +9929,7 @@ const AdminDashboard = () => {
   // --- Delete Card ---
   const deleteVisitorGuideCard = async (id) => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this card?"
+      "Are you sure you want to delete this card?",
     );
     if (!confirmDelete) return;
 
@@ -9963,7 +10015,7 @@ const AdminDashboard = () => {
   // --- Delete Reach Main ---
   const deleteReachMain = async (id) => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete Reach Main?"
+      "Are you sure you want to delete Reach Main?",
     );
     if (!confirmDelete) return;
 
@@ -10019,7 +10071,7 @@ const AdminDashboard = () => {
   // --- Delete Reach Card ---
   const deleteReachCard = async (id) => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this Reach Card?"
+      "Are you sure you want to delete this Reach Card?",
     );
     if (!confirmDelete) return;
 
@@ -10059,7 +10111,7 @@ const AdminDashboard = () => {
   const fetchMetroMaps = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_visitor_metro_map.php"
+        "https://inoptics.in/api/get_visitor_metro_map.php",
       );
       const data = await res.json();
       setMetroMaps(data || []);
@@ -10138,7 +10190,7 @@ const AdminDashboard = () => {
   const fetchExhibitorsMain = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_exhibitors_main.php"
+        "https://inoptics.in/api/get_exhibitors_main.php",
       );
       const data = await res.json();
       setExhibitorsMain(data || {});
@@ -10151,7 +10203,7 @@ const AdminDashboard = () => {
   const fetchExhibitorsCards = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_exhibitors_cards.php"
+        "https://inoptics.in/api/get_exhibitors_cards.php",
       );
       const data = await res.json();
       setExhibitorsCards(data || []);
@@ -10188,7 +10240,7 @@ const AdminDashboard = () => {
   // --- Delete Main ---
   const deleteExhibitorsMain = async (id) => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete Exhibitors Main?"
+      "Are you sure you want to delete Exhibitors Main?",
     );
     if (!confirmDelete) return;
 
@@ -10235,7 +10287,7 @@ const AdminDashboard = () => {
   // --- Delete Card ---
   const deleteExhibitorsCard = async (id) => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this Exhibitors card?"
+      "Are you sure you want to delete this Exhibitors card?",
     );
     if (!confirmDelete) return;
 
@@ -10310,8 +10362,8 @@ const AdminDashboard = () => {
         ? "https://inoptics.in/api/update_about_us.php"
         : "https://inoptics.in/api/update_our_vision.php"
       : type === "about"
-      ? "https://inoptics.in/api/add_about_us.php"
-      : "https://inoptics.in/api/add_our_vision.php";
+        ? "https://inoptics.in/api/add_about_us.php"
+        : "https://inoptics.in/api/add_our_vision.php";
 
     await fetch(endpoint, {
       method: "POST",
@@ -10360,7 +10412,7 @@ const AdminDashboard = () => {
   const fetchPoweringFutureBecomeAnExhibitor = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_powering_future_become_an_exhibitor.php"
+        "https://inoptics.in/api/get_powering_future_become_an_exhibitor.php",
       );
       const data = await res.json();
       setPoweringFutureBecomeAnExhibitor(data || []);
@@ -10373,7 +10425,7 @@ const AdminDashboard = () => {
   const fetchWhyExhibitBecomeAnExhibitor = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_why_exhibit_become_an_exhibitor.php"
+        "https://inoptics.in/api/get_why_exhibit_become_an_exhibitor.php",
       );
       const data = await res.json();
       setWhyExhibitBecomeAnExhibitor(data || []);
@@ -10401,8 +10453,8 @@ const AdminDashboard = () => {
         ? "https://inoptics.in/api/update_powering_future_become_an_exhibitor.php"
         : "https://inoptics.in/api/update_why_exhibit_become_an_exhibitor.php"
       : type === "poweringFuture"
-      ? "https://inoptics.in/api/add_powering_future_become_an_exhibitor.php"
-      : "https://inoptics.in/api/add_why_exhibit_become_an_exhibitor.php";
+        ? "https://inoptics.in/api/add_powering_future_become_an_exhibitor.php"
+        : "https://inoptics.in/api/add_why_exhibit_become_an_exhibitor.php";
 
     await fetch(endpoint, {
       method: "POST",
@@ -10438,10 +10490,10 @@ const AdminDashboard = () => {
 
     type === "poweringFuture"
       ? setPoweringFutureBecomeAnExhibitor(
-          PoweringFutureBecomeAnExhibitor.filter((i) => i.id !== id)
+          PoweringFutureBecomeAnExhibitor.filter((i) => i.id !== id),
         )
       : setWhyExhibitBecomeAnExhibitor(
-          WhyExhibitBecomeAnExhibitor.filter((i) => i.id !== id)
+          WhyExhibitBecomeAnExhibitor.filter((i) => i.id !== id),
         );
   };
 
@@ -10453,7 +10505,7 @@ const AdminDashboard = () => {
   const fetchExhibitorLoginDetails = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_exhibitor_login.php"
+        "https://inoptics.in/api/get_exhibitor_login.php",
       );
       const data = await res.json();
       setExhibitorLoginDetails(data || []);
@@ -10533,7 +10585,7 @@ const AdminDashboard = () => {
   const fetchFurnitureVendorDetails = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_furniture_vendor.php"
+        "https://inoptics.in/api/get_furniture_vendor.php",
       );
       const data = await res.json();
       setFurnitureVendorDetails(data || []);
@@ -10575,7 +10627,7 @@ const AdminDashboard = () => {
     });
 
     setFurnitureVendorDetails(
-      furnitureVendorDetails.filter((i) => i.id !== id)
+      furnitureVendorDetails.filter((i) => i.id !== id),
     );
   };
 
@@ -10630,7 +10682,7 @@ const AdminDashboard = () => {
   const fetchWhyExhibitImageData = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_why_exhibit_image.php"
+        "https://inoptics.in/api/get_why_exhibit_image.php",
       );
       const data = await res.json();
       setWhyExhibitImageData(data || []);
@@ -10734,7 +10786,7 @@ const AdminDashboard = () => {
       {
         method: "POST",
         body: formData,
-      }
+      },
     );
 
     setShowWhyExhibitPdfModal(false);
@@ -10762,7 +10814,7 @@ const AdminDashboard = () => {
   const fetchFounderSectionData = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_founder_section.php"
+        "https://inoptics.in/api/get_founder_section.php",
       );
       const data = await res.json();
       setFounderSectionData(data || []);
@@ -10895,7 +10947,7 @@ const AdminDashboard = () => {
   const fetchFooterDetails1 = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_footer_details1.php"
+        "https://inoptics.in/api/get_footer_details1.php",
       );
       const data = await res.json();
       setFooterDetails1(data || []);
@@ -10982,7 +11034,7 @@ const AdminDashboard = () => {
   const fetchFooterDetails2 = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_footer_details2.php"
+        "https://inoptics.in/api/get_footer_details2.php",
       );
       const data = await res.json();
       setFooterDetails2(data || []);
@@ -11065,7 +11117,7 @@ const AdminDashboard = () => {
   const fetchFooterDetails3 = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_footer_details3.php"
+        "https://inoptics.in/api/get_footer_details3.php",
       );
       const data = await res.json();
       setFooterDetails3(data || []);
@@ -11078,7 +11130,7 @@ const AdminDashboard = () => {
   const fetchFooterDetails4 = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_footer_details4.php"
+        "https://inoptics.in/api/get_footer_details4.php",
       );
       const data = await res.json();
       setFooterDetails4(data || []);
@@ -11219,7 +11271,7 @@ const AdminDashboard = () => {
   const fetchPrivacyDetails = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_privacy_details.php"
+        "https://inoptics.in/api/get_privacy_details.php",
       );
       const data = await res.json();
       setPrivacyDetails(data || []);
@@ -11453,7 +11505,7 @@ const AdminDashboard = () => {
   const fetchPressReleaseDetails = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_pressrelease_details.php"
+        "https://inoptics.in/api/get_pressrelease_details.php",
       );
       const data = await res.json();
       setPressReleaseDetails(data || []);
@@ -11535,7 +11587,7 @@ const AdminDashboard = () => {
   const fetchMediaGalleryDetails = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_mediagallery_details.php"
+        "https://inoptics.in/api/get_mediagallery_details.php",
       );
       const data = await res.json();
       setMediaGalleryDetails(data || []);
@@ -11659,7 +11711,7 @@ const AdminDashboard = () => {
         file: coreFormData.find((form) =>
           form.category
             ?.toLowerCase()
-            .includes("contractor undertaking-declaration & registration")
+            .includes("contractor undertaking-declaration & registration"),
         )?.filename,
       }),
     })
@@ -11681,7 +11733,7 @@ const AdminDashboard = () => {
   const fetchFloatingCards = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_floatingcard_details.php"
+        "https://inoptics.in/api/get_floatingcard_details.php",
       );
       const data = await res.json();
       setFloatingCards(data || []);
@@ -11772,7 +11824,7 @@ const AdminDashboard = () => {
   const fetchUnsubscribeImages = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_unsubscribe_images.php"
+        "https://inoptics.in/api/get_unsubscribe_images.php",
       );
       const data = await res.json();
       setUnsubscribeImages(data || []);
@@ -11934,7 +11986,7 @@ const AdminDashboard = () => {
   // --- HANDLE FIELD SELECT ---
   const handleFieldSelect = (field) => {
     setSelectedFields((prev) =>
-      prev.includes(field) ? prev.filter((f) => f !== field) : [...prev, field]
+      prev.includes(field) ? prev.filter((f) => f !== field) : [...prev, field],
     );
   };
 
@@ -11962,7 +12014,7 @@ const AdminDashboard = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ fields: selectedFields }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -11997,7 +12049,7 @@ const AdminDashboard = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ fields: selectedFields }),
-        }
+        },
       );
       const data = await res.json();
       const ws = XLSX.utils.json_to_sheet(data);
@@ -12006,7 +12058,7 @@ const AdminDashboard = () => {
       const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
       saveAs(
         new Blob([wbout], { type: "application/octet-stream" }),
-        "Exhibitors_Stall_Details.xlsx"
+        "Exhibitors_Stall_Details.xlsx",
       );
     } catch (err) {
       console.error(err);
@@ -12022,7 +12074,7 @@ const AdminDashboard = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ fields: selectedFields }),
-        }
+        },
       );
       const data = await res.json();
       const ws = XLSX.utils.json_to_sheet(data);
@@ -12031,7 +12083,7 @@ const AdminDashboard = () => {
       const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
       saveAs(
         new Blob([wbout], { type: "application/octet-stream" }),
-        "Exhibitors_All_Details.xlsx"
+        "Exhibitors_All_Details.xlsx",
       );
     } catch (err) {
       console.error(err);
@@ -12048,7 +12100,7 @@ const AdminDashboard = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ fields: selectedFields }),
-        }
+        },
       );
       const data = await res.json();
       const ws = XLSX.utils.json_to_sheet(data);
@@ -12057,7 +12109,7 @@ const AdminDashboard = () => {
       const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
       saveAs(
         new Blob([wbout], { type: "application/octet-stream" }),
-        "Exhibitors_Stall_Payment.xlsx"
+        "Exhibitors_Stall_Payment.xlsx",
       );
     } catch (err) {
       console.error("Export failed:", err);
@@ -12074,7 +12126,7 @@ const AdminDashboard = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ fields: selectedFields }),
-        }
+        },
       );
       const data = await res.json();
       const ws = XLSX.utils.json_to_sheet(data);
@@ -12083,7 +12135,7 @@ const AdminDashboard = () => {
       const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
       saveAs(
         new Blob([wbout], { type: "application/octet-stream" }),
-        "Exhibitors_Power_Payment.xlsx"
+        "Exhibitors_Power_Payment.xlsx",
       );
     } catch (err) {
       console.error("Export failed:", err);
@@ -12101,7 +12153,9 @@ const AdminDashboard = () => {
       }
 
       const sortedData = [...data].sort((a, b) =>
-        a.company_name.toLowerCase().localeCompare(b.company_name.toLowerCase())
+        a.company_name
+          .toLowerCase()
+          .localeCompare(b.company_name.toLowerCase()),
       );
 
       const printWindow = window.open("", "_blank");
@@ -12202,7 +12256,7 @@ const AdminDashboard = () => {
           ${Array.from(
             { length: Math.ceil(sortedData.length / 16) },
             (_, pageIndex) =>
-              sortedData.slice(pageIndex * 16, (pageIndex + 1) * 16)
+              sortedData.slice(pageIndex * 16, (pageIndex + 1) * 16),
           )
             .map(
               (pageData, pageIndex) => `
@@ -12237,7 +12291,7 @@ const AdminDashboard = () => {
                     })
                     .join("")}
                 </div>
-              `
+              `,
             )
             .join("")}
         </body>
@@ -12262,7 +12316,7 @@ const AdminDashboard = () => {
           if (Array.isArray(data)) {
             // ✅ Sort alphabetically by company_name (A → Z)
             const sortedData = data.sort((a, b) =>
-              a.company_name.localeCompare(b.company_name)
+              a.company_name.localeCompare(b.company_name),
             );
             setLabelData(sortedData);
           } else {
@@ -12275,7 +12329,7 @@ const AdminDashboard = () => {
 
   const handleNextLabel = () => {
     setCurrentLabelIndex((prev) =>
-      prev < labelData.length - 1 ? prev + 1 : prev
+      prev < labelData.length - 1 ? prev + 1 : prev,
     );
   };
 
@@ -12312,7 +12366,7 @@ const AdminDashboard = () => {
     setLoading(true);
     try {
       const res = await fetch(
-        "https://inoptics.in/api/admin_unlock_requests.php"
+        "https://inoptics.in/api/admin_unlock_requests.php",
       );
       const data = await res.json();
 
@@ -12341,7 +12395,7 @@ const AdminDashboard = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ exhibitor_company: company }),
-        }
+        },
       );
 
       const text = await res.text();
@@ -12352,7 +12406,7 @@ const AdminDashboard = () => {
 
         // 🔥 Remove request from admin list immediately
         setUnlockRequests((prev) =>
-          prev.filter((item) => item.exhibitor_company !== company)
+          prev.filter((item) => item.exhibitor_company !== company),
         );
       } else {
         toast.error("Unlock failed");
@@ -12368,7 +12422,7 @@ const AdminDashboard = () => {
   const fetchUploadedForms = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_all_uploaded_exhibitor_forms.php"
+        "https://inoptics.in/api/get_all_uploaded_exhibitor_forms.php",
       );
       const json = await res.json();
 
@@ -12506,12 +12560,54 @@ const AdminDashboard = () => {
 
   // 👇👇 YAHAN PASTE KARO
   const displayData = buildCompanyRows(
-    filteredPaymentsData.length > 0 ? filteredPaymentsData : paymentsData
+    filteredPaymentsData.length > 0 ? filteredPaymentsData : paymentsData,
   );
 
+  const paymentSummary = stallPayments?.reduce(
+    (sum, p) => {
+      sum.totalPayment += parseFloat(p.amount_paid || 0);
+      sum.totalTDS += parseFloat(p.tds || 0);
+      return sum;
+    },
+    {
+      totalPayment: 0,
+      totalTDS: 0,
+    },
+  );
+
+  const paymentAfterTDS =
+    (paymentSummary?.totalPayment || 0) + (paymentSummary?.totalTDS || 0);
+
+  const totalPaidAmount =
+    (paymentSummary?.totalPayment || 0) + (paymentSummary?.totalTDS || 0);
+
+  const calculatedPendingAmount = Math.max(
+    0,
+    Math.round(selectedStallCalculation?.grand_total || 0) -
+      Math.round(totalPaidAmount),
+  );
+
+  const paymentTotals = payments.reduce(
+    (sum, pay) => {
+      const amount = parseFloat(pay.amount || pay.amount_paid || 0);
+      const tds = parseFloat(pay.tds || 0);
+
+      sum.totalPayment += amount;
+      sum.totalTDS += tds;
+
+      return sum;
+    },
+    {
+      totalPayment: 0,
+      totalTDS: 0,
+    },
+  );
+
+  const totalPaymentWithTDS =
+    paymentTotals.totalPayment + paymentTotals.totalTDS;
 
 
-  
+
 
   return (
     <div className="dashboard-container">
@@ -12548,17 +12644,14 @@ const AdminDashboard = () => {
               <li onClick={() => openOverlay("Additional Requirement")}>
                 › Additional Requirement
               </li>
-              <li onClick={() => setShowListMenu(!showListMenu)}>
-                › List
-              </li>
+              <li onClick={() => setShowListMenu(!showListMenu)}>› List</li>
               {!collapsed && showListMenu && (
-            <ul className="submenu">
-              <li onClick={() => openOverlay("Exhibitor Badges")}>
-                › Exhibitor Badges
-              </li>
-              
-            </ul>
-          )}
+                <ul className="submenu">
+                  <li onClick={() => openOverlay("Exhibitor Badges")}>
+                    › Exhibitor Badges
+                  </li>
+                </ul>
+              )}
             </ul>
           )}
           <li onClick={() => openOverlay("Payments")}>
@@ -13182,7 +13275,7 @@ const AdminDashboard = () => {
 
                         if (formData.company_name) {
                           localStorage.removeItem(
-                            `grandTotal_badges_${formData.company_name}`
+                            `grandTotal_badges_${formData.company_name}`,
                           );
                         }
 
@@ -13196,7 +13289,7 @@ const AdminDashboard = () => {
                           (item) => ({
                             ...item,
                             contractor_email: "",
-                          })
+                          }),
                         );
                         setRegistrationFeesData(resetRegistrationFees);
 
@@ -13720,7 +13813,7 @@ const AdminDashboard = () => {
                         .filter((item) =>
                           item.name
                             .toLowerCase()
-                            .includes(searchCurrencyQuery.toLowerCase())
+                            .includes(searchCurrencyQuery.toLowerCase()),
                         )
                         .map((item, index) => (
                           <tr key={item.id}>
@@ -14192,7 +14285,7 @@ const AdminDashboard = () => {
                                 updatedOptions.push(option);
                               } else {
                                 updatedOptions = updatedOptions.filter(
-                                  (item) => item !== option
+                                  (item) => item !== option,
                                 );
                               }
                               setServiceForm({
@@ -14319,7 +14412,7 @@ const AdminDashboard = () => {
                                 </strong>
                               ) : (
                                 <div key={i}>{line}</div>
-                              )
+                              ),
                             )}
                         </td>
 
@@ -14399,7 +14492,7 @@ const AdminDashboard = () => {
                       <td
                         colSpan={Math.floor(
                           ((activeService?.selectedOptions?.length || 0) + 4) /
-                            2
+                            2,
                         )}
                         style={{ textAlign: "left", fontWeight: "bold" }}
                       >
@@ -14408,7 +14501,7 @@ const AdminDashboard = () => {
                       <td
                         colSpan={Math.ceil(
                           ((activeService?.selectedOptions?.length || 0) + 4) /
-                            2
+                            2,
                         )}
                         style={{ textAlign: "right" }}
                       >
@@ -14892,7 +14985,7 @@ const AdminDashboard = () => {
                         .filter((item) =>
                           item.category
                             .toLowerCase()
-                            .includes(searchStallCategoriesQuery.toLowerCase())
+                            .includes(searchStallCategoriesQuery.toLowerCase()),
                         )
                         .sort((a, b) => a.category.localeCompare(b.category)) // 👈 Alphabetical sorting
                         .map((item, index) => (
@@ -15125,8 +15218,8 @@ const AdminDashboard = () => {
                           a.company_name.localeCompare(
                             b.company_name,
                             undefined,
-                            { sensitivity: "base" }
-                          )
+                            { sensitivity: "base" },
+                          ),
                         )
                         // ✅ Then, assign a fixed row number to each item
                         .map((item, index) => ({
@@ -15137,7 +15230,7 @@ const AdminDashboard = () => {
                         .filter((item) =>
                           item.company_name
                             .toLowerCase()
-                            .includes(exhibitorSearchQuery.toLowerCase())
+                            .includes(exhibitorSearchQuery.toLowerCase()),
                         )
                         .map((item) => {
                           const stallWithCat = item.stall_no.map((stall, i) => {
@@ -15169,9 +15262,9 @@ const AdminDashboard = () => {
                                 cat.startsWith("Bare Space")
                                   ? "B"
                                   : cat.startsWith("Shell Scheme")
-                                  ? "S"
-                                  : ""
-                              )
+                                    ? "S"
+                                    : "",
+                              ),
                             ),
                           ];
 
@@ -15255,7 +15348,7 @@ const AdminDashboard = () => {
                                       // stall fields
                                     });
                                     fetchSelectedFurniture(
-                                      item.company_name || ""
+                                      item.company_name || "",
                                     );
                                     setActiveNavbarItem("BASIC DETAILS");
                                     setShowExhibitorEditForm(true);
@@ -15338,10 +15431,10 @@ const AdminDashboard = () => {
                               formData.state ? `, ${formData.state}` : ""
                             }`
                           : showExhibitorEditForm
-                          ? `${formData.company_name}${
-                              formData.state ? `, ${formData.state}` : ""
-                            }`
-                          : "New Exhibitor Request"}
+                            ? `${formData.company_name}${
+                                formData.state ? `, ${formData.state}` : ""
+                              }`
+                            : "New Exhibitor Request"}
                       </span>
                       <button
                         className="cancel-button-top"
@@ -15486,7 +15579,7 @@ const AdminDashboard = () => {
                                     </span>
                                     <strong>
                                       {stallSummary.discounted_amount.toFixed(
-                                        2
+                                        2,
                                       )}{" "}
                                       {stallSummary.currency}
                                     </strong>
@@ -15744,7 +15837,7 @@ const AdminDashboard = () => {
                                         onChange={(e) =>
                                           handleQuantityChange(
                                             index,
-                                            e.target.value
+                                            e.target.value,
                                           )
                                         }
                                         style={{ width: "60px" }}
@@ -15754,7 +15847,7 @@ const AdminDashboard = () => {
                                       ₹
                                       {item.quantity
                                         ? (item.quantity * item.price).toFixed(
-                                            2
+                                            2,
                                           )
                                         : "0.00"}
                                     </td>
@@ -15763,8 +15856,8 @@ const AdminDashboard = () => {
                                         onClick={() =>
                                           setSelectedFurniture(
                                             selectedFurniture.filter(
-                                              (_, i) => i !== index
-                                            )
+                                              (_, i) => i !== index,
+                                            ),
                                           )
                                         }
                                       >
@@ -16134,7 +16227,7 @@ const AdminDashboard = () => {
                                         className="send-mail-btn"
                                         onClick={() =>
                                           handleSendMail(
-                                            "Exhibitor Login & Password"
+                                            "Exhibitor Login & Password",
                                           )
                                         }
                                       >
@@ -16220,7 +16313,7 @@ const AdminDashboard = () => {
 
                                               if (
                                                 selected.startsWith(
-                                                  "Shell Scheme"
+                                                  "Shell Scheme",
                                                 )
                                               ) {
                                                 setShowFaciaBoardTab(true);
@@ -16238,7 +16331,7 @@ const AdminDashboard = () => {
                                               const matchedCategory =
                                                 stallCategories.find(
                                                   (cat) =>
-                                                    cat.category === selected
+                                                    cat.category === selected,
                                                 );
                                               if (
                                                 matchedCategory &&
@@ -16315,7 +16408,7 @@ const AdminDashboard = () => {
                                                 stallCategories.find(
                                                   (cat) =>
                                                     cat.category ===
-                                                    stallCategory
+                                                    stallCategory,
                                                 );
                                               if (matchedCategory) {
                                                 let price = 0;
@@ -16374,18 +16467,18 @@ const AdminDashboard = () => {
                                               try {
                                                 setIsSendingMail(true);
                                                 await handleSendMail(
-                                                  "InOptics 2026 @ Stall Booking Confirmation"
+                                                  "InOptics 2026 @ Stall Booking Confirmation",
                                                 );
                                                 alert(
-                                                  "Mail sent successfully!"
+                                                  "Mail sent successfully!",
                                                 );
                                               } catch (error) {
                                                 console.error(
                                                   "Error sending mail:",
-                                                  error
+                                                  error,
                                                 );
                                                 alert(
-                                                  "Something went wrong while sending the mail."
+                                                  "Something went wrong while sending the mail.",
                                                 );
                                               } finally {
                                                 setIsSendingMail(false);
@@ -16471,7 +16564,7 @@ const AdminDashboard = () => {
                                           </span>
                                           <strong>
                                             {customRound(
-                                              formData.discounted_amount
+                                              formData.discounted_amount,
                                             )}{" "}
                                             {formData.currency}
                                           </strong>
@@ -16481,7 +16574,7 @@ const AdminDashboard = () => {
                                           <span>Amount After Discount:</span>
                                           <strong>
                                             {customRound(
-                                              formData.total_after_discount
+                                              formData.total_after_discount,
                                             )}{" "}
                                             {formData.currency}
                                           </strong>
@@ -16556,7 +16649,7 @@ const AdminDashboard = () => {
                                               (stall) =>
                                                 stall[key] !== null &&
                                                 stall[key] !== undefined &&
-                                                stall[key] !== ""
+                                                stall[key] !== "",
                                             );
                                           })
                                           .map((label, index) => (
@@ -16569,14 +16662,14 @@ const AdminDashboard = () => {
                                     <tbody>
                                       {stallList.map((stall, rowIndex) => {
                                         const visibleColumns = Object.keys(
-                                          labelToBackendKey
+                                          labelToBackendKey,
                                         ).filter((label) => {
                                           const key = labelToBackendKey[label];
                                           return stallList.some(
                                             (s) =>
                                               s[key] !== null &&
                                               s[key] !== undefined &&
-                                              s[key] !== ""
+                                              s[key] !== "",
                                           );
                                         });
 
@@ -16612,14 +16705,14 @@ const AdminDashboard = () => {
                                                     {cellValue}
                                                   </td>
                                                 );
-                                              }
+                                              },
                                             )}
                                             <td className="stall-action-buttons">
                                               <button
                                                 className="edit-btn"
                                                 onClick={() =>
                                                   handleEditExhibitorStall(
-                                                    rowIndex
+                                                    rowIndex,
                                                   )
                                                 }
                                               >
@@ -16631,7 +16724,7 @@ const AdminDashboard = () => {
                                                 className="power-reset-btn"
                                                 onClick={() =>
                                                   handleDeleteExhibitorStall(
-                                                    rowIndex
+                                                    rowIndex,
                                                   )
                                                 }
                                               >
@@ -16663,7 +16756,7 @@ const AdminDashboard = () => {
                                                   <td key={key}>
                                                     {stallList
                                                       .map(
-                                                        (s) => s.stall_number
+                                                        (s) => s.stall_number,
                                                       )
                                                       .join(", ")}
                                                   </td>
@@ -16676,10 +16769,10 @@ const AdminDashboard = () => {
                                                         (sum, s) =>
                                                           sum +
                                                           (parseFloat(
-                                                            s.total
+                                                            s.total,
                                                           ) || 0),
-                                                        0
-                                                      )
+                                                        0,
+                                                      ),
                                                     )}
                                                   </td>
                                                 );
@@ -16698,10 +16791,10 @@ const AdminDashboard = () => {
                                                         (sum, s) =>
                                                           sum +
                                                           (parseFloat(
-                                                            s.discounted_amount
+                                                            s.discounted_amount,
                                                           ) || 0),
-                                                        0
-                                                      )
+                                                        0,
+                                                      ),
                                                     )}
                                                   </td>
                                                 );
@@ -16713,10 +16806,10 @@ const AdminDashboard = () => {
                                                         (sum, s) =>
                                                           sum +
                                                           (parseFloat(
-                                                            s.total_after_discount
+                                                            s.total_after_discount,
                                                           ) || 0),
-                                                        0
-                                                      )
+                                                        0,
+                                                      ),
                                                     )}
                                                   </td>
                                                 );
@@ -16728,10 +16821,10 @@ const AdminDashboard = () => {
                                                         (sum, s) =>
                                                           sum +
                                                           (parseFloat(
-                                                            s.sgst_9_percent
+                                                            s.sgst_9_percent,
                                                           ) || 0),
-                                                        0
-                                                      )
+                                                        0,
+                                                      ),
                                                     )}
                                                   </td>
                                                 );
@@ -16743,10 +16836,10 @@ const AdminDashboard = () => {
                                                         (sum, s) =>
                                                           sum +
                                                           (parseFloat(
-                                                            s.cgst_9_percent
+                                                            s.cgst_9_percent,
                                                           ) || 0),
-                                                        0
-                                                      )
+                                                        0,
+                                                      ),
                                                     )}
                                                   </td>
                                                 );
@@ -16758,10 +16851,10 @@ const AdminDashboard = () => {
                                                         (sum, s) =>
                                                           sum +
                                                           (parseFloat(
-                                                            s.igst_18_percent
+                                                            s.igst_18_percent,
                                                           ) || 0),
-                                                        0
-                                                      )
+                                                        0,
+                                                      ),
                                                     )}
                                                   </td>
                                                 );
@@ -16773,10 +16866,10 @@ const AdminDashboard = () => {
                                                         (sum, s) =>
                                                           sum +
                                                           (parseFloat(
-                                                            s.grand_total
+                                                            s.grand_total,
                                                           ) || 0),
-                                                        0
-                                                      )
+                                                        0,
+                                                      ),
                                                     )}
                                                   </td>
                                                 );
@@ -16829,8 +16922,8 @@ const AdminDashboard = () => {
                                           index === currentStep
                                             ? "slide-active"
                                             : index < currentStep
-                                            ? "slide-left"
-                                            : "slide-right"
+                                              ? "slide-left"
+                                              : "slide-right"
                                         }`}
                                       >
                                         {/* Row 1 */}
@@ -16986,7 +17079,7 @@ const AdminDashboard = () => {
                                       className="power-btn send-mail-btn"
                                       onClick={() =>
                                         handleSendMail(
-                                          "InOptics 2026 @ Power Requirement Confirmation"
+                                          "InOptics 2026 @ Power Requirement Confirmation",
                                         )
                                       }
                                     >
@@ -17019,7 +17112,7 @@ const AdminDashboard = () => {
                                             disabled={unlockRequested}
                                             onClick={() =>
                                               handleUnlockPowerRequirement(
-                                                formData.company_name
+                                                formData.company_name,
                                               )
                                             }
                                           >
@@ -17077,7 +17170,7 @@ const AdminDashboard = () => {
                                                 onClick={() =>
                                                   handleResetRow(
                                                     item,
-                                                    formData.company_name
+                                                    formData.company_name,
                                                   )
                                                 }
                                               >
@@ -17233,7 +17326,7 @@ const AdminDashboard = () => {
                                   (() => {
                                     const count = parseInt(
                                       formData.extra_badges,
-                                      10
+                                      10,
                                     );
                                     const rate =
                                       new Date() > new Date("2026-02-28")
@@ -17320,7 +17413,7 @@ const AdminDashboard = () => {
                                               className="send-mail-btn"
                                               onClick={() =>
                                                 handleSendMail(
-                                                  "InOptics 2026 @ Badge Request Confirmation"
+                                                  "InOptics 2026 @ Badge Request Confirmation",
                                                 )
                                               }
                                               disabled={isSendingMail}
@@ -17417,10 +17510,10 @@ const AdminDashboard = () => {
                                                       className="select-btn"
                                                       onClick={() => {
                                                         selectContractor(
-                                                          contractor.id
+                                                          contractor.id,
                                                         );
                                                         setShowContractorOverlay(
-                                                          true
+                                                          true,
                                                         );
                                                       }}
                                                       disabled={
@@ -17432,7 +17525,7 @@ const AdminDashboard = () => {
                                                   )}
                                                 </td>
                                               </tr>
-                                            )
+                                            ),
                                           )}
                                         </tbody>
                                       </table>
@@ -17556,9 +17649,9 @@ const AdminDashboard = () => {
                                                 form.category
                                                   ?.toLowerCase()
                                                   .includes(
-                                                    "contractor undertaking-declaration & registration"
-                                                  )
-                                              )?.filename || ""
+                                                    "contractor undertaking-declaration & registration",
+                                                  ),
+                                              )?.filename || "",
                                             )}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
@@ -17572,7 +17665,7 @@ const AdminDashboard = () => {
                                           className="appointedcontractor-send-btn"
                                           onClick={() =>
                                             handleSendRegistrationMail(
-                                              contractorEmail
+                                              contractorEmail,
                                             )
                                           }
                                         >
@@ -17703,9 +17796,9 @@ const AdminDashboard = () => {
                                                 form.category
                                                   ?.toLowerCase()
                                                   .includes(
-                                                    "contractor undertaking-declaration & registration"
-                                                  )
-                                              )?.filename || ""
+                                                    "contractor undertaking-declaration & registration",
+                                                  ),
+                                              )?.filename || "",
                                             )}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
@@ -17719,7 +17812,7 @@ const AdminDashboard = () => {
                                           className="appointedcontractor-send-btn"
                                           onClick={() =>
                                             handleSendRegistrationMail(
-                                              contractorEmail
+                                              contractorEmail,
                                             )
                                           }
                                         >
@@ -17773,7 +17866,7 @@ const AdminDashboard = () => {
                                               ₹{item.price}
                                             </div>
                                             {selectedFurniture.find(
-                                              (f) => f.id === item.id
+                                              (f) => f.id === item.id,
                                             ) ? (
                                               <button
                                                 style={{
@@ -17860,7 +17953,7 @@ const AdminDashboard = () => {
                                                 onChange={(e) =>
                                                   handleQuantityChange(
                                                     index,
-                                                    e.target.value
+                                                    e.target.value,
                                                   )
                                                 }
                                                 style={{ width: "60px" }}
@@ -17879,8 +17972,8 @@ const AdminDashboard = () => {
                                                 onClick={() =>
                                                   setSelectedFurniture(
                                                     selectedFurniture.filter(
-                                                      (_, i) => i !== index
-                                                    )
+                                                      (_, i) => i !== index,
+                                                    ),
                                                   )
                                                 }
                                               >
@@ -17915,7 +18008,7 @@ const AdminDashboard = () => {
                                       <button
                                         onClick={() =>
                                           setShowFurnitureList(
-                                            !showFurnitureList
+                                            !showFurnitureList,
                                           )
                                         }
                                       >
@@ -17930,7 +18023,7 @@ const AdminDashboard = () => {
                                         onClick={() => {
                                           if (selectedFurniture.length === 0) {
                                             alert(
-                                              "Please select at least one furniture item."
+                                              "Please select at least one furniture item.",
                                             );
                                             return;
                                           }
@@ -17949,16 +18042,16 @@ const AdminDashboard = () => {
                                                 quantity: item.quantity,
                                                 total:
                                                   item.quantity * item.price,
-                                              })
+                                              }),
                                             ),
                                           };
 
                                           addExhibitorSelectedFurniture(
-                                            payload
+                                            payload,
                                           );
                                           updateSelectedFurniture(
                                             companyName,
-                                            selectedFurniture
+                                            selectedFurniture,
                                           )
                                             .then(() => {
                                               setSelectedFurniture([]);
@@ -17966,7 +18059,7 @@ const AdminDashboard = () => {
                                             .catch((err) => {
                                               console.error(
                                                 "Update failed:",
-                                                err
+                                                err,
                                               );
                                             });
                                         }}
@@ -17985,7 +18078,7 @@ const AdminDashboard = () => {
                                           }}
                                           onClick={() =>
                                             handleAdminUnlock(
-                                              formData.company_name
+                                              formData.company_name,
                                             )
                                           }
                                         >
@@ -18032,7 +18125,7 @@ const AdminDashboard = () => {
                                           <span>
                                             ₹
                                             {furnitureBilling.cgst?.toFixed(
-                                              2
+                                              2,
                                             ) || "0.00"}
                                           </span>
                                         </div>
@@ -18046,7 +18139,7 @@ const AdminDashboard = () => {
                                           <span>
                                             ₹
                                             {furnitureBilling.sgst?.toFixed(
-                                              2
+                                              2,
                                             ) || "0.00"}
                                           </span>
                                         </div>
@@ -18080,7 +18173,7 @@ const AdminDashboard = () => {
                                       <span>
                                         ₹
                                         {furnitureBilling.grandTotal?.toFixed(
-                                          2
+                                          2,
                                         ) || "0.00"}
                                       </span>
                                     </div>
@@ -18121,7 +18214,7 @@ const AdminDashboard = () => {
                                         className="send-mail-btn"
                                         onClick={() =>
                                           handleSendFurnitureMail(
-                                            "InOptics 2026 @ Extra Furniture Request Confirmation"
+                                            "InOptics 2026 @ Extra Furniture Request Confirmation",
                                           )
                                         }
                                         disabled={isSendingMail}
@@ -18306,7 +18399,7 @@ const AdminDashboard = () => {
                                           </span>
                                           <strong>
                                             {stallSummary.discounted_amount.toFixed(
-                                              2
+                                              2,
                                             )}{" "}
                                             {stallSummary.currency}
                                           </strong>
@@ -18571,9 +18664,9 @@ const AdminDashboard = () => {
                                         {activePaymentDetailsOverlay === "stall"
                                           ? "Stall Payment"
                                           : activePaymentDetailsOverlay ===
-                                            "power"
-                                          ? "Power Payment"
-                                          : "Exhibitor Badges Payment"}
+                                              "power"
+                                            ? "Power Payment"
+                                            : "Exhibitor Badges Payment"}
                                       </h3>
                                       <div className="payment-header-actions">
                                         <button
@@ -18648,10 +18741,12 @@ const AdminDashboard = () => {
                                         const totalPaidWithTDS =
                                           payments.reduce((sum, pay) => {
                                             const amount = parseFloat(
-                                              pay.amount || pay.amount_paid || 0
+                                              pay.amount ||
+                                                pay.amount_paid ||
+                                                0,
                                             );
                                             const tds = parseFloat(
-                                              pay.tds || 0
+                                              pay.tds || 0,
                                             );
                                             return sum + amount + tds;
                                           }, 0);
@@ -18659,10 +18754,10 @@ const AdminDashboard = () => {
                                         const grandTotal =
                                           stallList.length > 1
                                             ? parseFloat(
-                                                stallSummary.grand_total || 0
+                                                stallSummary.grand_total || 0,
                                               )
                                             : parseFloat(
-                                                stall.grand_total || 0
+                                                stall.grand_total || 0,
                                               );
 
                                         const pendingAmount =
@@ -18703,9 +18798,9 @@ const AdminDashboard = () => {
                                                             <td>
                                                               {s.stall_area
                                                                 ? `${parseFloat(
-                                                                    s.stall_area
+                                                                    s.stall_area,
                                                                   ).toFixed(
-                                                                    0
+                                                                    0,
                                                                   )} sq mtr`
                                                                 : "-"}
                                                             </td>
@@ -18717,15 +18812,15 @@ const AdminDashboard = () => {
                                                             <td>
                                                               {(
                                                                 (parseFloat(
-                                                                  s.stall_area
+                                                                  s.stall_area,
                                                                 ) || 0) *
                                                                 (parseFloat(
-                                                                  s.stall_price
+                                                                  s.stall_price,
                                                                 ) || 0)
                                                               ).toFixed(2)}
                                                             </td>
                                                           </tr>
-                                                        )
+                                                        ),
                                                       )}
 
                                                       <tr
@@ -18750,13 +18845,13 @@ const AdminDashboard = () => {
                                                                 sum +
                                                                 parseFloat(
                                                                   s.stall_area ||
-                                                                    0
+                                                                    0,
                                                                 ) *
                                                                   parseFloat(
                                                                     s.stall_price ||
-                                                                      0
+                                                                      0,
                                                                   ),
-                                                              0
+                                                              0,
                                                             )
                                                             .toFixed(2)}
                                                         </td>
@@ -18793,9 +18888,9 @@ const AdminDashboard = () => {
                                                       <strong>
                                                         {stall.stall_area
                                                           ? `${parseFloat(
-                                                              stall.stall_area
+                                                              stall.stall_area,
                                                             ).toFixed(
-                                                              0
+                                                              0,
                                                             )} sq mtr`
                                                           : "-"}
                                                       </strong>
@@ -18817,11 +18912,11 @@ const AdminDashboard = () => {
                                                         {(
                                                           parseFloat(
                                                             stall.stall_area ||
-                                                              0
+                                                              0,
                                                           ) *
                                                             parseFloat(
                                                               stall.stall_price ||
-                                                                0
+                                                                0,
                                                             ) || 0
                                                         ).toFixed(2)}{" "}
                                                         {stall.currency}
@@ -18838,7 +18933,7 @@ const AdminDashboard = () => {
                                                       <span>Total:</span>
                                                       <strong>
                                                         {stallSummary.total.toFixed(
-                                                          2
+                                                          2,
                                                         )}{" "}
                                                         {stallSummary.currency}
                                                       </strong>
@@ -18850,13 +18945,13 @@ const AdminDashboard = () => {
                                                         <span>
                                                           Discount (
                                                           {getDiscountPercent(
-                                                            stallSummary
+                                                            stallSummary,
                                                           )}
                                                           %):
                                                         </span>
                                                         <strong>
                                                           {stallSummary.discounted_amount.toFixed(
-                                                            2
+                                                            2,
                                                           )}{" "}
                                                           {
                                                             stallSummary.currency
@@ -18864,6 +18959,22 @@ const AdminDashboard = () => {
                                                         </strong>
                                                       </div>
                                                     )}
+
+
+                                                    {/* ✅ TOTAL AFTER DISCOUNT */}
+{stallSummary.discounted_amount > 0 && (
+  <div className="billing-row">
+    <span>Total After Discount:</span>
+    <strong>
+      {(
+        stallSummary.total - stallSummary.discounted_amount
+      ).toFixed(2)}{" "}
+      {stallSummary.currency}
+    </strong>
+  </div>
+)}
+
+
 
                                                     {formData.state?.toLowerCase() ===
                                                     "delhi" ? (
@@ -18874,7 +18985,7 @@ const AdminDashboard = () => {
                                                           </span>
                                                           <strong>
                                                             {stallSummary.sgst.toFixed(
-                                                              2
+                                                              2,
                                                             )}{" "}
                                                             {
                                                               stallSummary.currency
@@ -18887,7 +18998,7 @@ const AdminDashboard = () => {
                                                           </span>
                                                           <strong>
                                                             {stallSummary.cgst.toFixed(
-                                                              2
+                                                              2,
                                                             )}{" "}
                                                             {
                                                               stallSummary.currency
@@ -18900,7 +19011,7 @@ const AdminDashboard = () => {
                                                         <span>IGST (18%):</span>
                                                         <strong>
                                                           {stallSummary.igst.toFixed(
-                                                            2
+                                                            2,
                                                           )}{" "}
                                                           {
                                                             stallSummary.currency
@@ -18913,7 +19024,7 @@ const AdminDashboard = () => {
                                                       <span>Grand Total:</span>
                                                       <strong>
                                                         {stallSummary.grand_total.toFixed(
-                                                          2
+                                                          2,
                                                         )}{" "}
                                                         {stallSummary.currency}
                                                       </strong>
@@ -18931,7 +19042,7 @@ const AdminDashboard = () => {
 
                                                     {stall.discount_percent &&
                                                       parseFloat(
-                                                        stall.discount_percent
+                                                        stall.discount_percent,
                                                       ) > 0 && (
                                                         <div className="billing-row">
                                                           <span>
@@ -18945,6 +19056,35 @@ const AdminDashboard = () => {
                                                             {
                                                               stall.discounted_amount
                                                             }{" "}
+                                                            {stall.currency}
+                                                          </strong>
+                                                        </div>
+                                                      )}
+
+                                                    {stall.discount_percent &&
+                                                      parseFloat(
+                                                        stall.discount_percent,
+                                                      ) > 0 && (
+                                                        <div className="billing-row">
+                                                          <span>
+                                                            Total After Discount
+                                                            (
+                                                            {
+                                                              stall.discount_percent
+                                                            }
+                                                            %):
+                                                          </span>
+                                                          <strong>
+                                                            {(
+                                                              parseFloat(
+                                                                stall.total ||
+                                                                  0,
+                                                              ) -
+                                                              parseFloat(
+                                                                stall.discounted_amount ||
+                                                                  0,
+                                                              )
+                                                            ).toFixed(2)}{" "}
                                                             {stall.currency}
                                                           </strong>
                                                         </div>
@@ -19008,51 +19148,71 @@ const AdminDashboard = () => {
                                                           parseFloat(
                                                             pay.amount ||
                                                               pay.amount_paid ||
-                                                              0
+                                                              0,
                                                           );
                                                         const tds = parseFloat(
-                                                          pay.tds || 0
+                                                          pay.tds || 0,
                                                         );
-                                                        const combined =
-                                                          amount + tds;
+
                                                         return (
                                                           <div
-                                                            className="billing-row"
                                                             key={index}
+                                                            style={{
+                                                              marginBottom:
+                                                                "8px",
+                                                            }}
                                                           >
-                                                            <span>
-                                                              Payment{" "}
-                                                              {index + 1}:{" "}
-                                                              {tds > 0
-                                                                ? "Amount Paid + TDS"
-                                                                : "Amount Paid"}
-                                                            </span>
-                                                            <strong>
-                                                              {tds > 0
-                                                                ? combined.toFixed(
-                                                                    2
-                                                                  )
-                                                                : amount.toFixed(
-                                                                    2
-                                                                  )}{" "}
-                                                              {stallSummary.currency ||
-                                                                stall.currency}
-                                                            </strong>
+                                                            <div className="billing-row">
+                                                              <span>
+                                                                Payment{" "}
+                                                                {index + 1}:
+                                                              </span>
+                                                              <strong>
+                                                                {amount.toFixed(
+                                                                  2,
+                                                                )}{" "}
+                                                                {stall.currency}
+                                                              </strong>
+                                                            </div>
+
+                                                            <div className="billing-row">
+                                                              <span>
+                                                                TDS {index + 1}:
+                                                              </span>
+                                                              <strong>
+                                                                {tds.toFixed(2)}{" "}
+                                                                {stall.currency}
+                                                              </strong>
+                                                            </div>
                                                           </div>
                                                         );
-                                                      }
+                                                      },
                                                     )}
 
                                                     <hr
                                                       style={{
                                                         borderTop:
                                                           "1px dashed #999",
-                                                        margin: "10px 0",
+                                                        margin: "12px 0",
                                                       }}
                                                     />
 
+                                                    {/* ✅ TOTAL PAYMENT AFTER TDS */}
+                                                    <div className="billing-row total">
+                                                      <span>
+                                                        Total Payment After TDS:
+                                                      </span>
+                                                      <strong>
+                                                        {totalPaymentWithTDS.toFixed(
+                                                          2,
+                                                        )}{" "}
+                                                        {stall.currency}
+                                                      </strong>
+                                                    </div>
+
+                                                    {/* ✅ PENDING / CLEARED */}
                                                     <div
-                                                      className="billing-row"
+                                                      className="billing-row total"
                                                       style={{
                                                         color:
                                                           pendingAmount <= 0
@@ -19068,16 +19228,8 @@ const AdminDashboard = () => {
                                                       </span>
                                                       <strong>
                                                         {pendingAmount > 0
-                                                          ? `${pendingAmount.toFixed(
-                                                              2
-                                                            )} ${
-                                                              stallSummary.currency ||
-                                                              stall.currency
-                                                            }`
-                                                          : `0.00 ${
-                                                              stallSummary.currency ||
-                                                              stall.currency
-                                                            }`}
+                                                          ? `${pendingAmount.toFixed(2)} ${stall.currency}`
+                                                          : `0.00 ${stall.currency}`}
                                                       </strong>
                                                     </div>
                                                   </div>
@@ -19102,7 +19254,7 @@ const AdminDashboard = () => {
                                                         value={paymentType}
                                                         onChange={(e) =>
                                                           setPaymentType(
-                                                            e.target.value
+                                                            e.target.value,
                                                           )
                                                         }
                                                       />
@@ -19117,7 +19269,7 @@ const AdminDashboard = () => {
                                                         value={paymentDate}
                                                         onChange={(e) =>
                                                           setPaymentDate(
-                                                            e.target.value
+                                                            e.target.value,
                                                           )
                                                         }
                                                       />
@@ -19139,7 +19291,7 @@ const AdminDashboard = () => {
                                                         }
                                                         onChange={(e) =>
                                                           setExhibitorBankName(
-                                                            e.target.value
+                                                            e.target.value,
                                                           )
                                                         }
                                                       />
@@ -19156,7 +19308,7 @@ const AdminDashboard = () => {
                                                         value={receiverBankName}
                                                         onChange={(e) =>
                                                           setReceiverBankName(
-                                                            e.target.value
+                                                            e.target.value,
                                                           )
                                                         }
                                                       />
@@ -19176,7 +19328,7 @@ const AdminDashboard = () => {
                                                         value={amount}
                                                         onChange={(e) =>
                                                           setAmount(
-                                                            e.target.value
+                                                            e.target.value,
                                                           )
                                                         }
                                                       />
@@ -19290,7 +19442,7 @@ const AdminDashboard = () => {
                                                                 <button
                                                                   onClick={() =>
                                                                     handleEditPayment(
-                                                                      index
+                                                                      index,
                                                                     )
                                                                   }
                                                                   className="payment-edit-btn-table"
@@ -19300,7 +19452,7 @@ const AdminDashboard = () => {
                                                                 <button
                                                                   onClick={() =>
                                                                     handleDeletePayment(
-                                                                      index
+                                                                      index,
                                                                     )
                                                                   }
                                                                   className="payment-delete-btn-table"
@@ -19309,7 +19461,7 @@ const AdminDashboard = () => {
                                                                 </button>
                                                               </td>
                                                             </tr>
-                                                          )
+                                                          ),
                                                         )}
                                                       </tbody>
                                                     </table>
@@ -19356,7 +19508,7 @@ const AdminDashboard = () => {
                                                     </strong>
                                                   </div>
                                                 </div>
-                                              )
+                                              ),
                                             )}
 
                                             <hr />
@@ -19404,10 +19556,10 @@ const AdminDashboard = () => {
                                                 {powerPayments.map(
                                                   (pay, index) => {
                                                     const amount = parseFloat(
-                                                      pay.amount || 0
+                                                      pay.amount || 0,
                                                     );
                                                     const tds = parseFloat(
-                                                      pay.tds || 0
+                                                      pay.tds || 0,
                                                     );
                                                     const combined =
                                                       amount + tds;
@@ -19428,7 +19580,7 @@ const AdminDashboard = () => {
                                                         </strong>
                                                       </div>
                                                     );
-                                                  }
+                                                  },
                                                 )}
 
                                                 <hr
@@ -19456,7 +19608,7 @@ const AdminDashboard = () => {
                                                   <strong>
                                                     {powerPendingAmount > 0
                                                       ? `${powerPendingAmount.toFixed(
-                                                          2
+                                                          2,
                                                         )} ₹`
                                                       : "0.00 ₹"}
                                                   </strong>
@@ -19484,7 +19636,7 @@ const AdminDashboard = () => {
                                                     value={powerPaymentType}
                                                     onChange={(e) =>
                                                       setPowerPaymentType(
-                                                        e.target.value
+                                                        e.target.value,
                                                       )
                                                     }
                                                   />
@@ -19500,7 +19652,7 @@ const AdminDashboard = () => {
                                                     value={powerPaymentDate}
                                                     onChange={(e) =>
                                                       setPowerPaymentDate(
-                                                        e.target.value
+                                                        e.target.value,
                                                       )
                                                     }
                                                   />
@@ -19522,7 +19674,7 @@ const AdminDashboard = () => {
                                                     }
                                                     onChange={(e) =>
                                                       setPowerExhibitorBankName(
-                                                        e.target.value
+                                                        e.target.value,
                                                       )
                                                     }
                                                   />
@@ -19541,7 +19693,7 @@ const AdminDashboard = () => {
                                                     }
                                                     onChange={(e) =>
                                                       setPowerReceiverBankName(
-                                                        e.target.value
+                                                        e.target.value,
                                                       )
                                                     }
                                                   />
@@ -19561,7 +19713,7 @@ const AdminDashboard = () => {
                                                     value={powerAmount}
                                                     onChange={(e) =>
                                                       setPowerAmount(
-                                                        e.target.value
+                                                        e.target.value,
                                                       )
                                                     }
                                                   />
@@ -19578,7 +19730,7 @@ const AdminDashboard = () => {
                                                     value={powerTds}
                                                     onChange={(e) =>
                                                       setPowerTds(
-                                                        e.target.value
+                                                        e.target.value,
                                                       )
                                                     }
                                                   />
@@ -19656,7 +19808,7 @@ const AdminDashboard = () => {
                                                             <button
                                                               onClick={() =>
                                                                 handleEditPowerPayment(
-                                                                  index
+                                                                  index,
                                                                 )
                                                               }
                                                               className="payment-edit-btn-table"
@@ -19666,7 +19818,7 @@ const AdminDashboard = () => {
                                                             <button
                                                               onClick={() =>
                                                                 handleDeletePowerPayment(
-                                                                  index
+                                                                  index,
                                                                 )
                                                               }
                                                               className="payment-delete-btn-table"
@@ -19675,7 +19827,7 @@ const AdminDashboard = () => {
                                                             </button>
                                                           </td>
                                                         </tr>
-                                                      )
+                                                      ),
                                                     )}
                                                   </tbody>
                                                 </table>
@@ -19716,7 +19868,7 @@ const AdminDashboard = () => {
                                               </h3>
                                               {parseInt(
                                                 formData.extra_badges,
-                                                10
+                                                10,
                                               ) > 0 ? (
                                                 (() => {
                                                   const {
@@ -19735,16 +19887,16 @@ const AdminDashboard = () => {
                                                       (sum, pay) => {
                                                         const amount =
                                                           parseFloat(
-                                                            pay.amount || 0
+                                                            pay.amount || 0,
                                                           );
                                                         const tds = parseFloat(
-                                                          pay.tds || 0
+                                                          pay.tds || 0,
                                                         );
                                                         return (
                                                           sum + amount + tds
                                                         );
                                                       },
-                                                      0
+                                                      0,
                                                     );
 
                                                   // Calculate pending amount
@@ -19779,7 +19931,7 @@ const AdminDashboard = () => {
                                                               <span>
                                                                 ₹
                                                                 {cgst.toFixed(
-                                                                  2
+                                                                  2,
                                                                 )}
                                                               </span>
                                                             </div>
@@ -19790,7 +19942,7 @@ const AdminDashboard = () => {
                                                               <span>
                                                                 ₹
                                                                 {sgst.toFixed(
-                                                                  2
+                                                                  2,
                                                                 )}
                                                               </span>
                                                             </div>
@@ -19812,7 +19964,7 @@ const AdminDashboard = () => {
                                                           <span>
                                                             ₹
                                                             {grandTotal.toFixed(
-                                                              2
+                                                              2,
                                                             )}
                                                           </span>
                                                         </div>
@@ -19829,11 +19981,12 @@ const AdminDashboard = () => {
                                                                 const amount =
                                                                   parseFloat(
                                                                     pay.amount ||
-                                                                      0
+                                                                      0,
                                                                   );
                                                                 const tds =
                                                                   parseFloat(
-                                                                    pay.tds || 0
+                                                                    pay.tds ||
+                                                                      0,
                                                                   );
                                                                 const combined =
                                                                   amount + tds;
@@ -19854,12 +20007,12 @@ const AdminDashboard = () => {
                                                                     <strong>
                                                                       ₹
                                                                       {combined.toFixed(
-                                                                        2
+                                                                        2,
                                                                       )}
                                                                     </strong>
                                                                   </div>
                                                                 );
-                                                              }
+                                                              },
                                                             )}
 
                                                             <hr
@@ -19892,7 +20045,7 @@ const AdminDashboard = () => {
                                                                 {badgePendingAmount >
                                                                 0
                                                                   ? `₹${badgePendingAmount.toFixed(
-                                                                      2
+                                                                      2,
                                                                     )}`
                                                                   : "₹0.00"}
                                                               </strong>
@@ -19930,7 +20083,7 @@ const AdminDashboard = () => {
                                                     value={badgePaymentType}
                                                     onChange={(e) =>
                                                       setBadgePaymentType(
-                                                        e.target.value
+                                                        e.target.value,
                                                       )
                                                     }
                                                   />
@@ -19945,7 +20098,7 @@ const AdminDashboard = () => {
                                                     value={badgePaymentDate}
                                                     onChange={(e) =>
                                                       setBadgePaymentDate(
-                                                        e.target.value
+                                                        e.target.value,
                                                       )
                                                     }
                                                   />
@@ -19967,7 +20120,7 @@ const AdminDashboard = () => {
                                                     }
                                                     onChange={(e) =>
                                                       setBadgeExhibitorBankName(
-                                                        e.target.value
+                                                        e.target.value,
                                                       )
                                                     }
                                                   />
@@ -19985,7 +20138,7 @@ const AdminDashboard = () => {
                                                     }
                                                     onChange={(e) =>
                                                       setBadgeReceiverBankName(
-                                                        e.target.value
+                                                        e.target.value,
                                                       )
                                                     }
                                                   />
@@ -20005,7 +20158,7 @@ const AdminDashboard = () => {
                                                     value={badgeAmount}
                                                     onChange={(e) =>
                                                       setBadgeAmount(
-                                                        e.target.value
+                                                        e.target.value,
                                                       )
                                                     }
                                                   />
@@ -20021,7 +20174,7 @@ const AdminDashboard = () => {
                                                     value={badgeTds}
                                                     onChange={(e) =>
                                                       setBadgeTds(
-                                                        e.target.value
+                                                        e.target.value,
                                                       )
                                                     }
                                                   />
@@ -20102,20 +20255,20 @@ const AdminDashboard = () => {
                                                           <td>
                                                             ₹
                                                             {parseFloat(
-                                                              pay.amount || 0
+                                                              pay.amount || 0,
                                                             ).toFixed(2)}
                                                           </td>
                                                           <td>
                                                             ₹
                                                             {parseFloat(
-                                                              pay.tds || 0
+                                                              pay.tds || 0,
                                                             ).toFixed(2)}
                                                           </td>
                                                           <td>
                                                             <button
                                                               onClick={() =>
                                                                 handleEditBadgePayment(
-                                                                  index
+                                                                  index,
                                                                 )
                                                               }
                                                               className="payment-edit-btn-table"
@@ -20125,7 +20278,7 @@ const AdminDashboard = () => {
                                                             <button
                                                               onClick={() =>
                                                                 handleDeleteBadgePayment(
-                                                                  index
+                                                                  index,
                                                                 )
                                                               }
                                                               className="payment-delete-btn-table"
@@ -20134,7 +20287,7 @@ const AdminDashboard = () => {
                                                             </button>
                                                           </td>
                                                         </tr>
-                                                      )
+                                                      ),
                                                     )}
                                                   </tbody>
                                                 </table>
@@ -20239,7 +20392,7 @@ const AdminDashboard = () => {
                                                   <p>
                                                     {
                                                       formTemplateData.stateCity?.split(
-                                                        ","
+                                                        ",",
                                                       )[0]
                                                     }{" "}
                                                     - {formTemplateData.pincode}
@@ -20311,7 +20464,7 @@ const AdminDashboard = () => {
                                                         >
                                                           {opt}
                                                         </th>
-                                                      )
+                                                      ),
                                                     )}
 
                                                   {/* Power dynamic columns */}
@@ -20328,7 +20481,7 @@ const AdminDashboard = () => {
                                                         >
                                                           {opt}
                                                         </th>
-                                                      )
+                                                      ),
                                                     )}
 
                                                   {/* Only show PRICE column for stall */}
@@ -20378,22 +20531,22 @@ const AdminDashboard = () => {
                                                             .split("\n")
                                                             .map((line, i) =>
                                                               line.startsWith(
-                                                                "**"
+                                                                "**",
                                                               ) &&
                                                               line.endsWith(
-                                                                "**"
+                                                                "**",
                                                               ) ? (
                                                                 <strong key={i}>
                                                                   {line.replace(
                                                                     /\*\*/g,
-                                                                    ""
+                                                                    "",
                                                                   )}
                                                                 </strong>
                                                               ) : (
                                                                 <div key={i}>
                                                                   {line}
                                                                 </div>
-                                                              )
+                                                              ),
                                                             )}
                                                           {stallList[
                                                             rowIndex
@@ -20420,14 +20573,14 @@ const AdminDashboard = () => {
                                                               opt
                                                                 .toLowerCase()
                                                                 .includes(
-                                                                  "stall no"
+                                                                  "stall no",
                                                                 )
                                                             ) {
                                                               values =
                                                                 stallList.map(
                                                                   (st) =>
                                                                     st.stall_number ||
-                                                                    "-"
+                                                                    "-",
                                                                 );
                                                             } else if (
                                                               opt
@@ -20445,23 +20598,23 @@ const AdminDashboard = () => {
                                                                       st.stall_category
                                                                         .trim()
                                                                         .split(
-                                                                          " "
+                                                                          " ",
                                                                         );
                                                                     return parts.pop();
-                                                                  }
+                                                                  },
                                                                 );
                                                             } else if (
                                                               opt
                                                                 .toLowerCase()
                                                                 .includes(
-                                                                  "stall size"
+                                                                  "stall size",
                                                                 )
                                                             ) {
                                                               values =
                                                                 stallList.map(
                                                                   (st) =>
                                                                     st.stall_area ||
-                                                                    "-"
+                                                                    "-",
                                                                 );
                                                             }
                                                             return (
@@ -20475,18 +20628,18 @@ const AdminDashboard = () => {
                                                                 {values.map(
                                                                   (
                                                                     val,
-                                                                    idx
+                                                                    idx,
                                                                   ) => (
                                                                     <div
                                                                       key={idx}
                                                                     >
                                                                       {val}
                                                                     </div>
-                                                                  )
+                                                                  ),
                                                                 )}
                                                               </td>
                                                             );
-                                                          }
+                                                          },
                                                         )}
 
                                                         {/* Price Column */}
@@ -20501,7 +20654,7 @@ const AdminDashboard = () => {
                                                                 {st.stall_price ||
                                                                   "-"}
                                                               </div>
-                                                            )
+                                                            ),
                                                           )}
                                                         </td>
 
@@ -20517,19 +20670,19 @@ const AdminDashboard = () => {
                                                                 {(
                                                                   parseFloat(
                                                                     st.stall_price ||
-                                                                      0
+                                                                      0,
                                                                   ) *
                                                                   parseFloat(
                                                                     st.stall_area ||
-                                                                      0
+                                                                      0,
                                                                   )
                                                                 ).toFixed(2)}
                                                               </div>
-                                                            )
+                                                            ),
                                                           )}
                                                         </td>
                                                       </tr>
-                                                    )
+                                                    ),
                                                   )}
 
                                                 {/* --- Power Rows --- */}
@@ -20551,7 +20704,7 @@ const AdminDashboard = () => {
                                                                     .trim() ===
                                                                   dayType
                                                                     .toUpperCase()
-                                                                    .trim()
+                                                                    .trim(),
                                                               );
                                                             if (!item)
                                                               return null;
@@ -20559,12 +20712,12 @@ const AdminDashboard = () => {
                                                             const pricePerKw =
                                                               parseFloat(
                                                                 item.pricePerKw ||
-                                                                  0
+                                                                  0,
                                                               ).toFixed(2);
                                                             const powerRequired =
                                                               parseFloat(
                                                                 item.powerRequired ||
-                                                                  0
+                                                                  0,
                                                               );
                                                             const phase =
                                                               item.phase || "-";
@@ -20591,7 +20744,7 @@ const AdminDashboard = () => {
                                                                     ?.stall_area ||
                                                                     "N/A"}{" "}
                                                                   sq mtr
-                                                                </span>
+                                                                </span>,
                                                               );
                                                             } else if (
                                                               stallList.length >
@@ -20601,7 +20754,7 @@ const AdminDashboard = () => {
                                                                 stallList.map(
                                                                   (
                                                                     stall,
-                                                                    idx
+                                                                    idx,
                                                                   ) => (
                                                                     <span
                                                                       key={`multi-stall-${idx}`}
@@ -20621,7 +20774,7 @@ const AdminDashboard = () => {
                                                                         <br />
                                                                       )}
                                                                     </span>
-                                                                  )
+                                                                  ),
                                                                 );
                                                             }
 
@@ -20643,18 +20796,18 @@ const AdminDashboard = () => {
                                                                   >
                                                                     {row.particular
                                                                       .split(
-                                                                        "\n"
+                                                                        "\n",
                                                                       )
                                                                       .map(
                                                                         (
                                                                           line,
-                                                                          i
+                                                                          i,
                                                                         ) =>
                                                                           line.startsWith(
-                                                                            "**"
+                                                                            "**",
                                                                           ) &&
                                                                           line.endsWith(
-                                                                            "**"
+                                                                            "**",
                                                                           ) ? (
                                                                             <strong
                                                                               key={
@@ -20663,7 +20816,7 @@ const AdminDashboard = () => {
                                                                             >
                                                                               {line.replace(
                                                                                 /\*\*/g,
-                                                                                ""
+                                                                                "",
                                                                               )}
                                                                             </strong>
                                                                           ) : (
@@ -20676,13 +20829,13 @@ const AdminDashboard = () => {
                                                                                 line
                                                                               }
                                                                             </span>
-                                                                          )
+                                                                          ),
                                                                       )
                                                                       .reduce(
                                                                         (
                                                                           prev,
                                                                           curr,
-                                                                          i
+                                                                          i,
                                                                         ) => [
                                                                           prev,
                                                                           i >
@@ -20693,7 +20846,7 @@ const AdminDashboard = () => {
                                                                           ),
                                                                           curr,
                                                                         ],
-                                                                        []
+                                                                        [],
                                                                       )}
                                                                     {stallDetails.length >
                                                                       0 && (
@@ -20756,10 +20909,10 @@ const AdminDashboard = () => {
                                                                 </td>
                                                               </tr>
                                                             );
-                                                          }
+                                                          },
                                                         )}
                                                       </>
-                                                    )
+                                                    ),
                                                   )}
 
                                                 {/* --- Power Summary --- */}
@@ -20772,13 +20925,14 @@ const AdminDashboard = () => {
                                                         (sum, item) =>
                                                           sum +
                                                           parseFloat(
-                                                            item.pricePerKw || 0
+                                                            item.pricePerKw ||
+                                                              0,
                                                           ) *
                                                             parseFloat(
                                                               item.powerRequired ||
-                                                                0
+                                                                0,
                                                             ),
-                                                        0
+                                                        0,
                                                       );
                                                     const grandTotal =
                                                       formData.state?.toLowerCase() ===
@@ -20800,7 +20954,7 @@ const AdminDashboard = () => {
                                                           </td>
                                                           <td>
                                                             {totalAmount.toFixed(
-                                                              2
+                                                              2,
                                                             )}
                                                           </td>
                                                         </tr>
@@ -20884,7 +21038,7 @@ const AdminDashboard = () => {
                                                           <td>
                                                             <strong>
                                                               {grandTotal.toFixed(
-                                                                2
+                                                                2,
                                                               )}
                                                             </strong>
                                                           </td>
@@ -20910,7 +21064,7 @@ const AdminDashboard = () => {
                                                         </td>
                                                         <td>
                                                           {stallSummary?.total?.toFixed(
-                                                            2
+                                                            2,
                                                           ) || "0.00"}
                                                         </td>
                                                       </tr>
@@ -20928,13 +21082,13 @@ const AdminDashboard = () => {
                                                           >
                                                             Discount (
                                                             {getDiscountPercent(
-                                                              stallSummary
+                                                              stallSummary,
                                                             )}
                                                             %)
                                                           </td>
                                                           <td>
                                                             {stallSummary?.discounted_amount?.toFixed(
-                                                              2
+                                                              2,
                                                             )}
                                                           </td>
                                                         </tr>
@@ -20956,7 +21110,7 @@ const AdminDashboard = () => {
                                                             </td>
                                                             <td>
                                                               {stallSummary?.sgst?.toFixed(
-                                                                2
+                                                                2,
                                                               ) || "0.00"}
                                                             </td>
                                                           </tr>
@@ -20973,7 +21127,7 @@ const AdminDashboard = () => {
                                                             </td>
                                                             <td>
                                                               {stallSummary?.cgst?.toFixed(
-                                                                2
+                                                                2,
                                                               ) || "0.00"}
                                                             </td>
                                                           </tr>
@@ -20992,7 +21146,7 @@ const AdminDashboard = () => {
                                                           </td>
                                                           <td>
                                                             {stallSummary?.igst?.toFixed(
-                                                              2
+                                                              2,
                                                             ) || "0.00"}
                                                           </td>
                                                         </tr>
@@ -21014,7 +21168,7 @@ const AdminDashboard = () => {
                                                         <td>
                                                           <strong>
                                                             {stallSummary?.grand_total?.toFixed(
-                                                              2
+                                                              2,
                                                             ) || "0.00"}{" "}
                                                             {stallSummary?.currency ||
                                                               "INR"}
@@ -21055,7 +21209,7 @@ const AdminDashboard = () => {
                                                         </tr>
                                                         {singleStall?.discount_percent &&
                                                           parseFloat(
-                                                            singleStall.discount_percent
+                                                            singleStall.discount_percent,
                                                           ) > 0 && (
                                                             <tr>
                                                               <td
@@ -21168,10 +21322,10 @@ const AdminDashboard = () => {
                                                           <td>
                                                             <strong>
                                                               {stallSummary?.grand_total?.toFixed(
-                                                                2
+                                                                2,
                                                               ) ||
                                                                 singleStall?.grand_total?.toFixed(
-                                                                  2
+                                                                  2,
                                                                 ) ||
                                                                 "0.00"}
                                                             </strong>
@@ -21189,7 +21343,7 @@ const AdminDashboard = () => {
                                                         ?.selectedOptions
                                                         ?.length || 0) +
                                                         4) /
-                                                        2
+                                                        2,
                                                     )}
                                                     style={{
                                                       textAlign: "left",
@@ -21204,7 +21358,7 @@ const AdminDashboard = () => {
                                                         ?.selectedOptions
                                                         ?.length || 0) +
                                                         4) /
-                                                        2
+                                                        2,
                                                     )}
                                                     style={{
                                                       textAlign: "right",
@@ -21218,14 +21372,14 @@ const AdminDashboard = () => {
                                                             stallSummary?.grand_total ||
                                                               stallList?.[0]
                                                                 ?.grand_total ||
-                                                              0
+                                                              0,
                                                           )
                                                         : activePaymentDetailsOverlay ===
-                                                          "power"
-                                                        ? numberToWords(
-                                                            grandTotal
-                                                          )
-                                                        : ""}
+                                                            "power"
+                                                          ? numberToWords(
+                                                              grandTotal,
+                                                            )
+                                                          : ""}
                                                     </em>
                                                   </td>
                                                 </tr>
@@ -21476,7 +21630,7 @@ const AdminDashboard = () => {
                                                   ...prev,
                                                   products:
                                                     prev.products.filter(
-                                                      (p) => p !== product
+                                                      (p) => p !== product,
                                                     ),
                                                 }))
                                               }
@@ -21484,7 +21638,7 @@ const AdminDashboard = () => {
                                               ✖
                                             </span>
                                           </div>
-                                        )
+                                        ),
                                       )}
                                   </div>
 
@@ -21726,7 +21880,7 @@ const AdminDashboard = () => {
                                 className="btn-edit"
                                 onClick={() => {
                                   setVideoWallEditorData(
-                                    videoWallInstructionsList[0]
+                                    videoWallInstructionsList[0],
                                   );
                                   setVideoWallEditingIndex(0);
                                   setVideoWallModalOpen(true);
@@ -22112,7 +22266,7 @@ const AdminDashboard = () => {
                                 className="btn-edit"
                                 onClick={() => {
                                   setSMSinstructionEditorData(
-                                    smsMessageList[0]
+                                    smsMessageList[0],
                                   );
                                   setEditingIndex(0);
                                   setInstructionModalOpen(true);
@@ -22232,7 +22386,7 @@ const AdminDashboard = () => {
                                           updateSMSTableCell(
                                             row.id,
                                             col,
-                                            smsTableData[rowIndex][col]
+                                            smsTableData[rowIndex][col],
                                           );
                                           setEditingCell({
                                             rowIndex: null,
@@ -22289,7 +22443,7 @@ const AdminDashboard = () => {
                                               await updateSMSTableCell(
                                                 row.id,
                                                 key,
-                                                editedRowData[key]
+                                                editedRowData[key],
                                               );
                                             }
                                           }
@@ -22377,7 +22531,7 @@ const AdminDashboard = () => {
                           <div className="sms-slide-plan">
                             {(() => {
                               const selectedRow = smsTableData.find(
-                                (r) => r.id === selectedRowId
+                                (r) => r.id === selectedRowId,
                               );
                               if (!selectedRow) return null;
                               return (
@@ -22702,7 +22856,7 @@ const AdminDashboard = () => {
                                 className="btn-edit"
                                 onClick={() => {
                                   setWhatsappInstructionEditorData(
-                                    whatsappInstruction
+                                    whatsappInstruction,
                                   );
                                   setWhatsappEditingIndex(0);
                                   setInstructionModalOpen(true);
@@ -22828,7 +22982,7 @@ const AdminDashboard = () => {
                                           updateWhatsAppTableCell(
                                             row.id,
                                             col,
-                                            whatsappTableData[rowIndex][col]
+                                            whatsappTableData[rowIndex][col],
                                           );
                                           setEditingCell({
                                             rowIndex: null,
@@ -22889,7 +23043,7 @@ const AdminDashboard = () => {
                                               await updateWhatsAppTableCell(
                                                 row.id,
                                                 key,
-                                                editedRowData[key]
+                                                editedRowData[key],
                                               );
                                             }
                                           }
@@ -22977,7 +23131,7 @@ const AdminDashboard = () => {
                               <div className="sms-slide-plan">
                                 {(() => {
                                   const selectedRow = whatsappTableData.find(
-                                    (r) => r.id === selectedRowId
+                                    (r) => r.id === selectedRowId,
                                   );
                                   if (!selectedRow) return null;
                                   return (
@@ -23073,11 +23227,11 @@ const AdminDashboard = () => {
                                     const cleanedPrice = parseFloat(
                                       (selectedWhatsAppPlan.price || "")
                                         .toString()
-                                        .replace(/[^\d.]/g, "")
+                                        .replace(/[^\d.]/g, ""),
                                     );
 
                                     const gst = (cleanedPrice * 0.18).toFixed(
-                                      2
+                                      2,
                                     );
                                     const grandTotal = (
                                       cleanedPrice * 1.18
@@ -23279,7 +23433,6 @@ const AdminDashboard = () => {
                   >
                     Badges Limit
                   </li>
-                  
                 </ul>
               </div>
 
@@ -23291,10 +23444,10 @@ const AdminDashboard = () => {
                         {[...filteredFurnitureData]
                           .sort((a, b) => {
                             const piA = parseInt(
-                              a.name.match(/PI-(\d+)/)?.[1] || 0
+                              a.name.match(/PI-(\d+)/)?.[1] || 0,
                             );
                             const piB = parseInt(
-                              b.name.match(/PI-(\d+)/)?.[1] || 0
+                              b.name.match(/PI-(\d+)/)?.[1] || 0,
                             );
                             return piA - piB;
                           })
@@ -23435,7 +23588,7 @@ const AdminDashboard = () => {
                             filteredPowerData
                               .slice()
                               .sort((a, b) =>
-                                a.power_type.localeCompare(b.power_type)
+                                a.power_type.localeCompare(b.power_type),
                               )
                               .map((item, index) => (
                                 <tr key={item.id}>
@@ -23537,11 +23690,11 @@ const AdminDashboard = () => {
                               .filter(
                                 (item) =>
                                   (item.min_sq_ft?.toString() || "").includes(
-                                    searchBadgeQuery
+                                    searchBadgeQuery,
                                   ) ||
                                   (item.max_sq_ft?.toString() || "").includes(
-                                    searchBadgeQuery
-                                  )
+                                    searchBadgeQuery,
+                                  ),
                               )
                               .map((item, index) => (
                                 <tr key={item.id || index}>
@@ -23637,19 +23790,16 @@ const AdminDashboard = () => {
             </>
           )}
 
-
           {/* testing */}
 
-           {overlayContent === "Exhibitor Badges" && (
+          {overlayContent === "Exhibitor Badges" && (
             <>
-            <div className="admin-sub-navbar">
+              <div className="admin-sub-navbar">
                 <ul className="admin-sub-navbar-list">
                   <li
                     onClick={() => setActiveNavbarItem("EXHIBITOR BADGES")}
                     className={
-                      activeNavbarItem === "Exhibitor Badges"
-                        ? "active"
-                        : ""
+                      activeNavbarItem === "Exhibitor Badges" ? "active" : ""
                     }
                   >
                     Exhibitor Badges
@@ -23657,9 +23807,7 @@ const AdminDashboard = () => {
                   <li
                     onClick={() => setActiveNavbarItem("POWER LIST")}
                     className={
-                      activeNavbarItem === "Power List"
-                        ? "active"
-                        : ""
+                      activeNavbarItem === "Power List" ? "active" : ""
                     }
                   >
                     Power List
@@ -23667,26 +23815,35 @@ const AdminDashboard = () => {
                   <li
                     onClick={() => setActiveNavbarItem("CONTRACTOR LIST")}
                     className={
-                      activeNavbarItem === "Contractor List"
-                        ? "active"
-                        : ""
+                      activeNavbarItem === "Contractor List" ? "active" : ""
                     }
                   >
                     Contractor List
                   </li>
-                  
-                  
+                  <li
+                    onClick={() =>
+                      setActiveNavbarItem("EXHIBITOR BADGES SERIES")
+                    }
+                    className={
+                      activeNavbarItem === "Exhibitor Series" ? "active" : ""
+                    }
+                  >
+                    Exhibitor Series Edit
+                  </li>
                 </ul>
               </div>
 
-
-
-             {/* ✅ BADGES LIMIT */}
-{activeNavbarItem === "EXHIBITOR BADGES" && (
-  <div style={{ padding: "10px" }}>
-    <AdminBadges />
-  </div>
-)}
+              {/* ✅ BADGES LIMIT */}
+              {activeNavbarItem === "EXHIBITOR BADGES" && (
+                <div style={{ padding: "10px" }}>
+                  <AdminBadges />
+                </div>
+              )}
+              {activeNavbarItem === "EXHIBITOR BADGES SERIES" && (
+                <div style={{ padding: "10px" }}>
+                  <ExhibitorBadgeSeries />
+                </div>
+              )}
             </>
           )}
           {/* testing */}
@@ -23772,12 +23929,6 @@ const AdminDashboard = () => {
                                 >
                                   View
                                 </button>
-
-                                
-
-                                
-
-                                
                               </td>
                             </tr>
                           );
@@ -23792,7 +23943,7 @@ const AdminDashboard = () => {
                         </tr>
 
                         {/* Totals Row */}
-                        <tr className="grand-total-row">
+                        <tr className="grand-total-row sticky-row">
                           <td colSpan="8" style={{ textAlign: "right" }}>
                             Grand Total
                           </td>
@@ -23805,8 +23956,8 @@ const AdminDashboard = () => {
                                     ((item.stall ?? 0) +
                                       (item.power ?? 0) +
                                       (item.exhibitorBadgesTotal ?? 0)),
-                                  0
-                                )
+                                  0,
+                                ),
                               )}
                             </strong>
                           </td>
@@ -23815,8 +23966,8 @@ const AdminDashboard = () => {
                               {Math.round(
                                 paymentsData.reduce(
                                   (sum, item) => sum + (item.paid_total ?? 0),
-                                  0
-                                )
+                                  0,
+                                ),
                               )}
                             </strong>
                           </td>
@@ -23830,7 +23981,7 @@ const AdminDashboard = () => {
                                     (item.exhibitorBadgesTotal ?? 0);
                                   const paid = item.paid_total ?? 0;
                                   return sum + (total - paid);
-                                }, 0)
+                                }, 0),
                               )}
                             </strong>
                           </td>
@@ -23838,7 +23989,7 @@ const AdminDashboard = () => {
                         </tr>
 
                         {/* Labels Row */}
-                        <tr className="grand-total-labels">
+                        {/* <tr className="grand-total-labels">
                           <td colSpan="8"></td>
                           <td>
                             <em>Total</em>
@@ -23850,7 +24001,7 @@ const AdminDashboard = () => {
                             <em>Pending</em>
                           </td>
                           <td></td>
-                        </tr>
+                        </tr> */}
                       </>
                     ) : (
                       <tr>
@@ -23929,11 +24080,11 @@ const AdminDashboard = () => {
                               stallPayments?.reduce(
                                 (sum, p) =>
                                   sum + parseFloat(p.amount_paid || 0),
-                                0
+                                0,
                               ) || 0;
                             const pending = Math.round(
                               (selectedStallCalculation.grand_total || 0) -
-                                totalPaid
+                                totalPaid,
                             );
                             return (
                               <div className="stall-charges-detailed">
@@ -23944,7 +24095,7 @@ const AdminDashboard = () => {
                                   </strong>
                                 </div>
                                 {parseFloat(
-                                  selectedStallCalculation.discounted_amount
+                                  selectedStallCalculation.discounted_amount,
                                 ) > 0 && (
                                   <div className="billing-row">
                                     <span>
@@ -23956,22 +24107,48 @@ const AdminDashboard = () => {
                                     </span>
                                     <strong>
                                       {Math.round(
-                                        selectedStallCalculation.discounted_amount
+                                        selectedStallCalculation.discounted_amount,
+                                      )}
+                                    </strong>
+                                  </div>
+                                )}
+
+                                {parseFloat(
+                                  selectedStallCalculation.discounted_amount,
+                                ) > 0 && (
+                                  <div className="billing-row">
+                                    <span>
+                                      Total After Discount (
+                                      {
+                                        selectedStallCalculation.discount_percent
+                                      }
+                                      %):
+                                    </span>
+
+                                    <strong>
+                                      {Math.round(
+                                        parseFloat(
+                                          selectedStallCalculation.total || 0,
+                                        ) -
+                                          parseFloat(
+                                            selectedStallCalculation.discounted_amount ||
+                                              0,
+                                          ),
                                       )}
                                     </strong>
                                   </div>
                                 )}
                                 {parseFloat(
-                                  selectedStallCalculation.sgst_9_percent
+                                  selectedStallCalculation.sgst_9_percent,
                                 ) === 0 &&
                                 parseFloat(
-                                  selectedStallCalculation.cgst_9_percent
+                                  selectedStallCalculation.cgst_9_percent,
                                 ) === 0 ? (
                                   <div className="billing-row">
                                     <span>IGST(18%):</span>
                                     <strong>
                                       {Math.round(
-                                        selectedStallCalculation.igst_18_percent
+                                        selectedStallCalculation.igst_18_percent,
                                       )}
                                     </strong>
                                   </div>
@@ -23981,7 +24158,7 @@ const AdminDashboard = () => {
                                       <span>SGST(9%):</span>
                                       <strong>
                                         {Math.round(
-                                          selectedStallCalculation.sgst_9_percent
+                                          selectedStallCalculation.sgst_9_percent,
                                         )}
                                       </strong>
                                     </div>
@@ -23989,7 +24166,7 @@ const AdminDashboard = () => {
                                       <span>CGST(9%):</span>
                                       <strong>
                                         {Math.round(
-                                          selectedStallCalculation.cgst_9_percent
+                                          selectedStallCalculation.cgst_9_percent,
                                         )}
                                       </strong>
                                     </div>
@@ -24000,7 +24177,7 @@ const AdminDashboard = () => {
                                   <span>Grand Total:</span>
                                   <strong>
                                     {Math.round(
-                                      selectedStallCalculation.grand_total
+                                      selectedStallCalculation.grand_total,
                                     )}
                                   </strong>
                                 </div>
@@ -24009,22 +24186,39 @@ const AdminDashboard = () => {
                                 {stallPayments &&
                                   stallPayments.length > 0 &&
                                   stallPayments.map((p, idx) => (
-                                    <div className="billing-row" key={idx}>
-                                      <span>Payment {idx + 1}:</span>
-                                      <strong>
-                                        {parseFloat(p.amount_paid || 0)}
-                                      </strong>
+                                    <div key={idx} className="payment-block">
+                                      <div className="billing-row">
+                                        <span>Payment {idx + 1}:</span>
+                                        <strong>
+                                          {parseFloat(
+                                            p.amount_paid || 0,
+                                          ).toFixed(2)}
+                                        </strong>
+                                      </div>
+
+                                      <div className="billing-row">
+                                        <span>TDS {idx + 1}:</span>
+                                        <strong>
+                                          {parseFloat(p.tds || 0).toFixed(2)}
+                                        </strong>
+                                      </div>
                                     </div>
                                   ))}
 
                                 <hr />
                                 <div className="billing-row total">
+                                  <span>Total Payment After TDS:</span>
+                                  <strong>{paymentAfterTDS.toFixed(2)}</strong>
+                                </div>
+                                <hr />
+
+                                <div className="billing-row total">
                                   <span>
-                                    {pending > 0
+                                    {calculatedPendingAmount > 0
                                       ? "Pending Amount:"
                                       : "Payment Cleared:"}
                                   </span>
-                                  <strong>{pending > 0 ? pending : 0}</strong>
+                                  <strong>{calculatedPendingAmount}</strong>
                                 </div>
                                 <div
                                   className="billing-button-container"
@@ -24041,16 +24235,16 @@ const AdminDashboard = () => {
                                       try {
                                         setIsSendingMail(true);
                                         await handleSendMail(
-                                          "InOptics 2026 @ Stall Booking Confirmation"
+                                          "InOptics 2026 @ Stall Booking Confirmation",
                                         );
                                         alert("Mail sent successfully!");
                                       } catch (error) {
                                         console.error(
                                           "Error sending mail:",
-                                          error
+                                          error,
                                         );
                                         alert(
-                                          "Something went wrong while sending the mail."
+                                          "Something went wrong while sending the mail.",
                                         );
                                       } finally {
                                         setIsSendingMail(false);
@@ -24082,7 +24276,7 @@ const AdminDashboard = () => {
 
                             const isIGST =
                               parseFloat(
-                                selectedStallCalculation?.igst_18_percent || 0
+                                selectedStallCalculation?.igst_18_percent || 0,
                               ) > 0;
                             const sgst = isIGST ? 0 : (total * 9) / 100;
                             const cgst = isIGST ? 0 : (total * 9) / 100;
@@ -24093,7 +24287,7 @@ const AdminDashboard = () => {
                               powerDetails?.power_payments?.reduce(
                                 (sum, p) =>
                                   sum + parseFloat(p.amount_paid || 0),
-                                0
+                                0,
                               ) || 0;
                             const pending = Math.round(grandTotal - totalPaid);
 
@@ -24170,7 +24364,7 @@ const AdminDashboard = () => {
                                     disabled={isSendingMail}
                                     onClick={() =>
                                       handleSendMail(
-                                        "InOptics 2026 @ Power Requirement Confirmation"
+                                        "InOptics 2026 @ Power Requirement Confirmation",
                                       )
                                     }
                                   >
@@ -24196,7 +24390,7 @@ const AdminDashboard = () => {
 
                             const isIGST =
                               parseFloat(
-                                selectedStallCalculation?.igst_18_percent || 0
+                                selectedStallCalculation?.igst_18_percent || 0,
                               ) > 0;
                             const sgst = isIGST ? 0 : (total * 9) / 100;
                             const cgst = isIGST ? 0 : (total * 9) / 100;
@@ -24207,7 +24401,7 @@ const AdminDashboard = () => {
                               badgePayments?.reduce(
                                 (sum, p) =>
                                   sum + parseFloat(p.amount_paid || 0),
-                                0
+                                0,
                               ) || 0;
                             const pending = Math.round(grandTotal - totalPaid);
 
@@ -24283,7 +24477,7 @@ const AdminDashboard = () => {
                                     className="send-mail-btn"
                                     onClick={() =>
                                       handleSendMail(
-                                        "InOptics 2026 @ Exhibitor Badge Request Confirmation"
+                                        "InOptics 2026 @ Exhibitor Badge Request Confirmation",
                                       )
                                     }
                                     disabled={isSendingMail}
@@ -24313,7 +24507,6 @@ const AdminDashboard = () => {
                             <th>Exhibitor Bank</th>
                             <th>Receiver Bank</th>
                             <th>Payment Type</th>
-                            <th>Action</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -24322,7 +24515,7 @@ const AdminDashboard = () => {
                             stallPayments.map((p, idx) => (
                               <tr key={`stall-${idx}`}>
                                 <td>
-                                  <strong>Stall Payment</strong>
+                                  <strong>Stall Payment {idx + 1}</strong>
                                 </td>
                                 <td>
                                   {parseFloat(p.amount_paid || 0).toFixed(2)}
@@ -24516,13 +24709,13 @@ const AdminDashboard = () => {
                                   item.name
                                     .toLowerCase()
                                     .includes(
-                                      searchContractorQuery.toLowerCase()
+                                      searchContractorQuery.toLowerCase(),
                                     ) ||
                                   item.company_name
                                     .toLowerCase()
                                     .includes(
-                                      searchContractorQuery.toLowerCase()
-                                    )
+                                      searchContractorQuery.toLowerCase(),
+                                    ),
                               )
                               .map((item, index) => (
                                 <tr key={item.id}>
@@ -24754,7 +24947,7 @@ const AdminDashboard = () => {
                                           >
                                             <FaEye />
                                           </a>
-                                        )
+                                        ),
                                       )
                                     ) : (
                                       <span style={{ color: "#999" }}>—</span>
@@ -24777,7 +24970,7 @@ const AdminDashboard = () => {
                                     <button
                                       onClick={() =>
                                         approveBooth(
-                                          item.exhibitor_company_name
+                                          item.exhibitor_company_name,
                                         )
                                       }
                                       className="contractor-final-list-btn-approve"
@@ -24832,7 +25025,7 @@ const AdminDashboard = () => {
                                             className="action-btn view-btn"
                                             onClick={() =>
                                               setViewedUndertaking(
-                                                undertakingItem.declaration_text
+                                                undertakingItem.declaration_text,
                                               )
                                             }
                                           >
@@ -24843,7 +25036,7 @@ const AdminDashboard = () => {
                                             onClick={() => {
                                               setSelectedItemIndex(index);
                                               setShowContractorUndertakingEditForm(
-                                                true
+                                                true,
                                               );
                                             }}
                                           >
@@ -24854,7 +25047,7 @@ const AdminDashboard = () => {
                                             onClick={() =>
                                               handleContraDelete(
                                                 "undertaking",
-                                                undertakingItem
+                                                undertakingItem,
                                               )
                                             }
                                           >
@@ -24880,7 +25073,7 @@ const AdminDashboard = () => {
                                             className="action-btn view-btn"
                                             onClick={() =>
                                               setViewedRegistrationFees(
-                                                registrationItem.declaration_text
+                                                registrationItem.declaration_text,
                                               )
                                             }
                                           >
@@ -24891,7 +25084,7 @@ const AdminDashboard = () => {
                                             onClick={() => {
                                               setSelectedItemIndex(index);
                                               setShowRegistrationFeesEditForm(
-                                                true
+                                                true,
                                               );
                                             }}
                                           >
@@ -24902,7 +25095,7 @@ const AdminDashboard = () => {
                                             onClick={() =>
                                               handleContraDelete(
                                                 "registration",
-                                                registrationItem
+                                                registrationItem,
                                               )
                                             }
                                           >
@@ -24975,11 +25168,11 @@ const AdminDashboard = () => {
                             onInput={() => {
                               const textPart =
                                 editableRef.current.querySelector(
-                                  ".editable-body"
+                                  ".editable-body",
                                 )?.innerHTML || "";
 
                               setRegistrationFeesText(
-                                `<div class="editable-body">${textPart}</div>`
+                                `<div class="editable-body">${textPart}</div>`,
                               );
                             }}
                           ></div>
@@ -25019,7 +25212,7 @@ const AdminDashboard = () => {
                                 registrationFeesEditableRef.current.innerHTML ||
                                 "";
                               setRegistrationFeesText(
-                                `<div class="editable-body">${textPart}</div>`
+                                `<div class="editable-body">${textPart}</div>`,
                               );
                             }}
                           ></div>
@@ -25350,11 +25543,11 @@ const AdminDashboard = () => {
                                       className="btn-edit"
                                       onClick={() => {
                                         setInstructionEditorData(
-                                          instructionsList[0].content
+                                          instructionsList[0].content,
                                         );
                                         setEditingIndex(0);
                                         setEditInstructionId(
-                                          instructionsList[0].id
+                                          instructionsList[0].id,
                                         );
                                         setInstructionModalOpen(true);
                                       }}
@@ -25366,7 +25559,7 @@ const AdminDashboard = () => {
                                       className="btn-delete"
                                       onClick={() =>
                                         deleteExhibitorInstruction(
-                                          instructionsList[0].id
+                                          instructionsList[0].id,
                                         )
                                       }
                                       title="Delete"
@@ -25533,7 +25726,7 @@ const AdminDashboard = () => {
                                       className="btn-edit"
                                       onClick={() => {
                                         setGuidelinesEditorData(
-                                          guidelinesList[0]
+                                          guidelinesList[0],
                                         );
                                         setGuidelinesEditingIndex(0);
                                         setGuidelinesModalOpen(true);
@@ -25658,7 +25851,7 @@ const AdminDashboard = () => {
                                       </h4>
                                       <small>
                                         {new Date(
-                                          mail.sent_at
+                                          mail.sent_at,
                                         ).toLocaleString()}
                                       </small>
                                       <p
@@ -25695,7 +25888,7 @@ const AdminDashboard = () => {
                                     </h2>
                                     <small>
                                       {new Date(
-                                        selectedMail.sent_at
+                                        selectedMail.sent_at,
                                       ).toLocaleString()}
                                     </small>
                                     <div
@@ -25747,7 +25940,7 @@ const AdminDashboard = () => {
                                       className="btn-edit"
                                       onClick={() =>
                                         setZoomLevel((prev) =>
-                                          Math.min(prev + 0.2, 3)
+                                          Math.min(prev + 0.2, 3),
                                         )
                                       }
                                       title="Zoom In"
@@ -25759,7 +25952,7 @@ const AdminDashboard = () => {
                                       className="btn-edit"
                                       onClick={() =>
                                         setZoomLevel((prev) =>
-                                          Math.max(prev - 0.2, 1)
+                                          Math.max(prev - 0.2, 1),
                                         )
                                       }
                                       title="Zoom Out"
@@ -25783,7 +25976,7 @@ const AdminDashboard = () => {
                                       className="btn-delete"
                                       onClick={() =>
                                         deleteExhibitionMap(
-                                          exhibitionData[0].id
+                                          exhibitionData[0].id,
                                         )
                                       }
                                       title="Delete"
@@ -25987,7 +26180,7 @@ const AdminDashboard = () => {
                                     onClick={() => {
                                       setIsEditingSchedule(true);
                                       setScheduleDescription(
-                                        eventScheduleData[0].description
+                                        eventScheduleData[0].description,
                                       ); // load existing description
                                       setShowScheduleModal(true);
                                     }}
@@ -26145,7 +26338,7 @@ const AdminDashboard = () => {
                                         ];
                                         updated[idx].title = e.target.value;
                                         setExhibitorDashboardFormPoints(
-                                          updated
+                                          updated,
                                         );
                                       }}
                                       placeholder="Enter heading"
@@ -26160,7 +26353,7 @@ const AdminDashboard = () => {
                                         ];
                                         updated[idx].text = e.target.value;
                                         setExhibitorDashboardFormPoints(
-                                          updated
+                                          updated,
                                         );
                                       }}
                                       placeholder="Enter detail text"
@@ -26174,7 +26367,7 @@ const AdminDashboard = () => {
                                         ];
                                         updated.splice(idx, 1);
                                         setExhibitorDashboardFormPoints(
-                                          updated
+                                          updated,
                                         );
                                       }}
                                       disabled={
@@ -26229,12 +26422,12 @@ const AdminDashboard = () => {
                               <button
                                 onClick={() => {
                                   setIsEditingLatestNews(
-                                    latestNewsData.length !== 0
+                                    latestNewsData.length !== 0,
                                   );
                                   setLatestNewsForm(
                                     latestNewsData.length === 0
                                       ? [{ title: "", text: "", news_link: "" }]
-                                      : [...latestNewsData]
+                                      : [...latestNewsData],
                                   );
                                   setShowLatestNewsModal(true);
                                 }}
@@ -26590,7 +26783,7 @@ const AdminDashboard = () => {
                               emailMasterData
                                 .filter((item) => {
                                   const appliedPlaceString = Array.isArray(
-                                    item.applied_place
+                                    item.applied_place,
                                   )
                                     ? item.applied_place.join(", ")
                                     : item.applied_place || "";
@@ -26599,7 +26792,7 @@ const AdminDashboard = () => {
                                     item.email_name
                                       ?.toLowerCase()
                                       .includes(
-                                        searchEmailQuery.toLowerCase()
+                                        searchEmailQuery.toLowerCase(),
                                       ) ||
                                     appliedPlaceString
                                       .toLowerCase()
@@ -26638,12 +26831,12 @@ const AdminDashboard = () => {
                                               ? item.applied_place
                                               : item.applied_place
                                                   ?.split(",")
-                                                  .map((e) => e.trim()) || []
+                                                  .map((e) => e.trim()) || [],
                                           );
                                           setFromEmail(item.set_from_email);
                                           setAttachPdf(item.attach_pdf);
                                           setAdminCopyEmail(
-                                            item.admin_copy_email
+                                            item.admin_copy_email,
                                           );
                                           setShowEmailMasterEditForm(true);
                                           setShowEmailMasterAddForm(false);
@@ -27112,7 +27305,7 @@ const AdminDashboard = () => {
                               const cleanDescription = decodeEntities(
                                 (item.description || "")
                                   .replace(/<[^>]+>/g, "")
-                                  .trim()
+                                  .trim(),
                               );
 
                               return (
@@ -27414,14 +27607,14 @@ const AdminDashboard = () => {
                                           {decodeEntities(
                                             item.heading
                                               .replace(/<[^>]+>/g, "")
-                                              .trim()
+                                              .trim(),
                                           )}
                                         </td>
                                         <td className="founder-description-cell">
                                           {decodeEntities(
                                             item.description
                                               .replace(/<[^>]+>/g, "")
-                                              .trim()
+                                              .trim(),
                                           )}
                                         </td>
                                         <td>
@@ -27702,14 +27895,14 @@ const AdminDashboard = () => {
                                           {decodeEntities(
                                             item.title
                                               .replace(/<[^>]+>/g, "")
-                                              .trim()
+                                              .trim(),
                                           )}
                                         </td>
                                         <td className="aboutus-description-cell">
                                           {decodeEntities(
                                             item.description
                                               .replace(/<[^>]+>/g, "")
-                                              .trim()
+                                              .trim(),
                                           )}
                                         </td>
                                         <td className="aboutus-action-cell">
@@ -27822,7 +28015,7 @@ const AdminDashboard = () => {
                                             {decodeEntities(
                                               item.description
                                                 .replace(/<[^>]+>/g, "")
-                                                .trim()
+                                                .trim(),
                                             )}
                                           </td>
                                           <td className="aboutus-action-cell">
@@ -27877,14 +28070,14 @@ const AdminDashboard = () => {
                                             {decodeEntities(
                                               item.title
                                                 .replace(/<[^>]+>/g, "")
-                                                .trim()
+                                                .trim(),
                                             )}
                                           </td>
                                           <td>
                                             {decodeEntities(
                                               item.description
                                                 .replace(/<[^>]+>/g, "")
-                                                .trim()
+                                                .trim(),
                                             )}
                                           </td>
                                           <td className="aboutus-action-cell">
@@ -27940,7 +28133,7 @@ const AdminDashboard = () => {
                                             {decodeEntities(
                                               item.description
                                                 .replace(/<[^>]+>/g, "")
-                                                .trim()
+                                                .trim(),
                                             )}
                                           </td>
                                           <td className="aboutus-action-cell">
@@ -27995,7 +28188,7 @@ const AdminDashboard = () => {
                                             {decodeEntities(
                                               item.title
                                                 .replace(/<[^>]+>/g, "")
-                                                .trim()
+                                                .trim(),
                                             )}
                                           </td>
                                           <td>
@@ -28408,7 +28601,7 @@ const AdminDashboard = () => {
                                             {decodeEntities(
                                               item.description
                                                 .replace(/<[^>]+>/g, "")
-                                                .trim()
+                                                .trim(),
                                             )}
                                           </td>
                                           <td className="aboutus-action-cell">
@@ -28462,7 +28655,7 @@ const AdminDashboard = () => {
                                             {decodeEntities(
                                               item.description
                                                 .replace(/<[^>]+>/g, "")
-                                                .trim()
+                                                .trim(),
                                             )}
                                           </td>
                                           <td className="aboutus-action-cell">
@@ -28649,7 +28842,7 @@ const AdminDashboard = () => {
                                             {decodeEntities(
                                               (item.description || "")
                                                 .replace(/<[^>]+>/g, "")
-                                                .trim()
+                                                .trim(),
                                             )}
                                           </td>
                                           <td className="aboutus-action-cell">
@@ -28761,7 +28954,7 @@ const AdminDashboard = () => {
                                             {decodeEntities(
                                               (item.description || "")
                                                 .replace(/<[^>]+>/g, "")
-                                                .trim()
+                                                .trim(),
                                             )}
                                           </td>
                                           <td className="aboutus-action-cell">
@@ -28777,7 +28970,7 @@ const AdminDashboard = () => {
                                               className="action-btn delete-btn"
                                               onClick={() =>
                                                 deletePressReleaseDetail(
-                                                  item.id
+                                                  item.id,
                                                 )
                                               }
                                             >
@@ -29162,7 +29355,7 @@ const AdminDashboard = () => {
                                 )}
 
                                 {visibleLabels.includes(
-                                  "DISTRIBUTORS OF BRANDS"
+                                  "DISTRIBUTORS OF BRANDS",
                                 ) && (
                                   <div style={{ flex: 1 }}>
                                     <strong
@@ -29188,7 +29381,7 @@ const AdminDashboard = () => {
                                 )}
 
                                 {visibleLabels.includes(
-                                  "INTERNATIONAL BRANDS"
+                                  "INTERNATIONAL BRANDS",
                                 ) && (
                                   <div style={{ flex: 1 }}>
                                     <strong
@@ -29272,14 +29465,14 @@ const AdminDashboard = () => {
                                         {decodeEntities(
                                           visitorMain.header
                                             .replace(/<[^>]+>/g, "")
-                                            .trim()
+                                            .trim(),
                                         )}
                                       </td>
                                       <td>
                                         {decodeEntities(
                                           visitorMain.text
                                             .replace(/<[^>]+>/g, "")
-                                            .trim()
+                                            .trim(),
                                         )}
                                       </td>
                                       <td className="visitor-action-cell">
@@ -29295,7 +29488,7 @@ const AdminDashboard = () => {
                                           className="action-btn delete-btn"
                                           onClick={() =>
                                             deleteVisitorGuideMain(
-                                              visitorMain.id
+                                              visitorMain.id,
                                             )
                                           }
                                         >
@@ -29340,14 +29533,14 @@ const AdminDashboard = () => {
                                           {decodeEntities(
                                             card.title
                                               .replace(/<[^>]+>/g, "")
-                                              .trim()
+                                              .trim(),
                                           )}
                                         </td>
                                         <td>
                                           {decodeEntities(
                                             card.description
                                               .replace(/<[^>]+>/g, "")
-                                              .trim()
+                                              .trim(),
                                           )}
                                         </td>
                                         <td className="visitor-action-cell">
@@ -29419,14 +29612,14 @@ const AdminDashboard = () => {
                                           {decodeEntities(
                                             reachMain.title
                                               .replace(/<[^>]+>/g, "")
-                                              .trim()
+                                              .trim(),
                                           )}
                                         </td>
                                         <td>
                                           {decodeEntities(
                                             reachMain.text
                                               .replace(/<[^>]+>/g, "")
-                                              .trim()
+                                              .trim(),
                                           )}
                                         </td>
                                         <td className="visitor-action-cell">
@@ -29482,7 +29675,7 @@ const AdminDashboard = () => {
                                             {decodeEntities(
                                               card.description
                                                 .replace(/<[^>]+>/g, "")
-                                                .trim()
+                                                .trim(),
                                             )}
                                           </td>
                                           <td>
@@ -29554,7 +29747,7 @@ const AdminDashboard = () => {
                                           {decodeEntities(
                                             map.description
                                               .replace(/<[^>]+>/g, "")
-                                              .trim()
+                                              .trim(),
                                           )}
                                         </td>
                                         <td>
@@ -30095,14 +30288,14 @@ const AdminDashboard = () => {
                                       {decodeEntities(
                                         card.title
                                           .replace(/<[^>]+>/g, "")
-                                          .trim()
+                                          .trim(),
                                       )}
                                     </td>
                                     <td>
                                       {decodeEntities(
                                         card.description
                                           .replace(/<[^>]+>/g, "")
-                                          .trim()
+                                          .trim(),
                                       )}
                                     </td>
                                     <td className="exhibitors-action-cell">
@@ -30306,14 +30499,14 @@ const AdminDashboard = () => {
                                         {decodeEntities(
                                           item.title
                                             .replace(/<[^>]+>/g, "")
-                                            .trim()
+                                            .trim(),
                                         )}
                                       </td>
                                       <td className="aboutus-description-cell">
                                         {decodeEntities(
                                           item.description
                                             .replace(/<[^>]+>/g, "")
-                                            .trim()
+                                            .trim(),
                                         )}
                                       </td>
                                       <td className="aboutus-action-cell">
@@ -30366,14 +30559,14 @@ const AdminDashboard = () => {
                                         {decodeEntities(
                                           item.title
                                             .replace(/<[^>]+>/g, "")
-                                            .trim()
+                                            .trim(),
                                         )}
                                       </td>
                                       <td className="ourvision-description-cell">
                                         {decodeEntities(
                                           item.description
                                             .replace(/<[^>]+>/g, "")
-                                            .trim()
+                                            .trim(),
                                         )}
                                       </td>
                                       <td className="ourvision-action-cell">
@@ -30562,14 +30755,14 @@ const AdminDashboard = () => {
                                           {decodeEntities(
                                             item.title
                                               .replace(/<[^>]+>/g, "")
-                                              .trim()
+                                              .trim(),
                                           )}
                                         </td>
                                         <td className="aboutus-description-cell">
                                           {decodeEntities(
                                             item.description
                                               .replace(/<[^>]+>/g, "")
-                                              .trim()
+                                              .trim(),
                                           )}
                                         </td>
                                         <td className="aboutus-action-cell">
@@ -30578,7 +30771,7 @@ const AdminDashboard = () => {
                                             onClick={() =>
                                               handleEditBecomeAnExhibitorItem(
                                                 item,
-                                                "poweringFuture"
+                                                "poweringFuture",
                                               )
                                             }
                                           >
@@ -30589,7 +30782,7 @@ const AdminDashboard = () => {
                                             onClick={() =>
                                               deleteBecomeAnExhibitorItem(
                                                 item.id,
-                                                "poweringFuture"
+                                                "poweringFuture",
                                               )
                                             }
                                           >
@@ -30597,7 +30790,7 @@ const AdminDashboard = () => {
                                           </button>
                                         </td>
                                       </tr>
-                                    )
+                                    ),
                                   )
                                 ) : (
                                   <tr>
@@ -30631,14 +30824,14 @@ const AdminDashboard = () => {
                                         {decodeEntities(
                                           item.title
                                             .replace(/<[^>]+>/g, "")
-                                            .trim()
+                                            .trim(),
                                         )}
                                       </td>
                                       <td className="ourvision-description-cell">
                                         {decodeEntities(
                                           item.description
                                             .replace(/<[^>]+>/g, "")
-                                            .trim()
+                                            .trim(),
                                         )}
                                       </td>
                                       <td className="ourvision-action-cell">
@@ -30647,7 +30840,7 @@ const AdminDashboard = () => {
                                           onClick={() =>
                                             handleEditBecomeAnExhibitorItem(
                                               item,
-                                              "whyExhibit"
+                                              "whyExhibit",
                                             )
                                           }
                                         >
@@ -30658,7 +30851,7 @@ const AdminDashboard = () => {
                                           onClick={() =>
                                             deleteBecomeAnExhibitorItem(
                                               item.id,
-                                              "whyExhibit"
+                                              "whyExhibit",
                                             )
                                           }
                                         >
@@ -30847,7 +31040,7 @@ const AdminDashboard = () => {
                                         {decodeEntities(
                                           (item.description || "")
                                             .replace(/<[^>]+>/g, "")
-                                            .trim()
+                                            .trim(),
                                         )}
                                       </td>
                                       <td className="aboutus-action-cell">
@@ -31760,35 +31953,8 @@ const AdminDashboard = () => {
                             "GST",
                           ]
                         : showStallExport
-                        ? [
-                            "Company Name",
-                            "Stall Number",
-                            "Stall Category",
-                            "Stall Price",
-                            "Stall Area",
-                            "Total",
-                            "Discount(%)",
-                            "Discount Amount",
-                            "Total After Discount",
-                            "SGST(9%)",
-                            "CGST(9%)",
-                            "IGST(18%)",
-                            "Grand Total",
-                          ]
-                        : showAllExport
-                        ? [
-                            ...new Set([
+                          ? [
                               "Company Name",
-                              "Name",
-                              "Address",
-                              "City",
-                              "State",
-                              "Pincode",
-                              "Mobile No",
-                              "Telephone",
-                              "Email",
-                              "Secondary Email",
-                              "GST",
                               "Stall Number",
                               "Stall Category",
                               "Stall Price",
@@ -31801,48 +31967,75 @@ const AdminDashboard = () => {
                               "CGST(9%)",
                               "IGST(18%)",
                               "Grand Total",
-                            ]),
-                          ]
-                        : showStallPaymentExport
-                        ? [
-                            "Company Name",
-                            "State",
-                            "City",
-                            "Stall Number",
-                            "Bare/Shell",
-                            "Stall Category",
-                            "Stall Price",
-                            "Stall Area",
-                            "Total",
-                            "Discount(%)",
-                            "Discount Amount",
-                            "Total After Discount",
-                            "SGST(9%)",
-                            "CGST(9%)",
-                            "IGST(18%)",
-                            "Grand Total",
-                            "Received Payment",
-                            "Pending Payment",
-                          ]
-                        : [
-                            "Company Name",
-                            "State",
-                            "City",
-                            "Stall Number",
-                            "Stall Category",
-                            "Stall Area",
-                            "Exhibition Days",
-                            "Setup Days",
-                            "Price per KW",
-                            "Total Power",
-                            "Total Price",
-                            "SGST(9%)",
-                            "CGST(9%)",
-                            "IGST(18%)",
-                            "Grand Total",
-                            "Received Payment",
-                            "Pending Payment",
-                          ];
+                            ]
+                          : showAllExport
+                            ? [
+                                ...new Set([
+                                  "Company Name",
+                                  "Name",
+                                  "Address",
+                                  "City",
+                                  "State",
+                                  "Pincode",
+                                  "Mobile No",
+                                  "Telephone",
+                                  "Email",
+                                  "Secondary Email",
+                                  "GST",
+                                  "Stall Number",
+                                  "Stall Category",
+                                  "Stall Price",
+                                  "Stall Area",
+                                  "Total",
+                                  "Discount(%)",
+                                  "Discount Amount",
+                                  "Total After Discount",
+                                  "SGST(9%)",
+                                  "CGST(9%)",
+                                  "IGST(18%)",
+                                  "Grand Total",
+                                ]),
+                              ]
+                            : showStallPaymentExport
+                              ? [
+                                  "Company Name",
+                                  "State",
+                                  "City",
+                                  "Stall Number",
+                                  "Bare/Shell",
+                                  "Stall Category",
+                                  "Stall Price",
+                                  "Stall Area",
+                                  "Total",
+                                  "Discount(%)",
+                                  "Discount Amount",
+                                  "Total After Discount",
+                                  "SGST(9%)",
+                                  "CGST(9%)",
+                                  "IGST(18%)",
+                                  "Grand Total",
+                                  "Received Payment",
+                                  "Pending Payment",
+                                ]
+                              : [
+                                  "Company Name",
+                                  "State",
+                                  "City",
+                                  "Stall Number",
+                                  "Stall Category",
+                                  "Stall Area",
+                                  "Exhibition Days",
+                                  "Setup Days",
+                                  "Price per KW",
+                                  "Total Power",
+                                  "Total Price",
+                                  "SGST(9%)",
+                                  "CGST(9%)",
+                                  "IGST(18%)",
+                                  "Grand Total",
+                                  "Received Payment",
+                                  "Pending Payment",
+                                ];
 
                       return (
                         <>
@@ -31898,12 +32091,12 @@ const AdminDashboard = () => {
                                   showBasicExport
                                     ? handleExportSelected()
                                     : showStallExport
-                                    ? handleExportStallSelected()
-                                    : showAllExport
-                                    ? handleExportAllSelected()
-                                    : showStallPaymentExport
-                                    ? handleExportStallPaymentSelected()
-                                    : handleExportPowerPaymentSelected()
+                                      ? handleExportStallSelected()
+                                      : showAllExport
+                                        ? handleExportAllSelected()
+                                        : showStallPaymentExport
+                                          ? handleExportStallPaymentSelected()
+                                          : handleExportPowerPaymentSelected()
                                 }
                               >
                                 Export
@@ -31922,7 +32115,7 @@ const AdminDashboard = () => {
                                 {Array.from(
                                   {
                                     length: Math.ceil(
-                                      selectedFields.length / 10
+                                      selectedFields.length / 10,
                                     ),
                                   },
                                   (_, colIndex) => (
@@ -31930,7 +32123,7 @@ const AdminDashboard = () => {
                                       {selectedFields
                                         .slice(
                                           colIndex * 10,
-                                          colIndex * 10 + 10
+                                          colIndex * 10 + 10,
                                         )
                                         .map((field, index) => (
                                           <li
@@ -31941,7 +32134,7 @@ const AdminDashboard = () => {
                                           </li>
                                         ))}
                                     </ol>
-                                  )
+                                  ),
                                 )}
                               </div>
                             </div>

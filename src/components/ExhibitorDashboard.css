@@ -145,7 +145,11 @@ img, iframe, video {
   background: #f7f9fc;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
+  overflow-y: hidden;
+}
+
+.exhibitordashboard-main-content::-webkit-scrollbar{
+  display: none;
 }
 
 .exhibitordashboard-navbar {
@@ -317,6 +321,10 @@ img, iframe, video {
   overflow-y: auto;
 }
 
+
+.exhibitordashboard-declaration-content::-webkit-scrollbar{
+  display: none;
+}
 /* Main container */
 .exhibitordashboard-content {
   flex: 1;
@@ -2067,29 +2075,20 @@ button[disabled] {
 
 /* EXTRA EXHIBITOR BADGES */
 
-.ExhibitorDashboard-badge-flex-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 150px;
-}
 
 .ExhibitorDashboard-badge-left {
-  flex: 0 0 450px;
-  max-width: 470px;  
-  margin-left: 40px;   
+
+  max-width: 470px;     
 }
 
 .ExhibitorDashboard-badge-right {
   flex: 0 0 450px;
   max-width: 470px;
-  margin-top: 20px; 
 }
 
 
 .ExhibitorDashboard-instruction-box {
   padding: 15px;
-  /* background-color: #f1f1f1; */
-  margin-bottom: 40px;
 }
 
 .ExhibitorDashboard-instruction-heading {
@@ -2127,13 +2126,6 @@ button[disabled] {
   margin-bottom: 20px;
 }
 
-.ExhibitorDashboard-badge-box {
-  flex: 1 1 48%;
-  min-width: 240px;
-  background: #e5e9ee;
-  padding: 15px;
-  box-sizing: border-box;
-}
 
 .ExhibitorDashboard-field-row {
   display: flex;
@@ -3886,3 +3878,6 @@ iframe img {
 
 
 /* only view upload contractor form end */
+
+
+

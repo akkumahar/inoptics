@@ -44,7 +44,7 @@ const ExhibitorDashboard = () => {
   const [exhibitorData, setExhibitorData] = useState(null);
   const [showDeclaration, setShowDeclaration] = useState(false);
   const [declarationUndertakingData, setDeclarationUndertakingData] = useState(
-    []
+    [],
   );
   const [contractorFormSubmitted, setContractorFormSubmitted] = useState(false);
 
@@ -128,7 +128,7 @@ const ExhibitorDashboard = () => {
 
     const amount = selectedFurniture.reduce(
       (sum, item) => sum + item.price * (item.quantity || 1),
-      0
+      0,
     );
 
     let cgst = 0,
@@ -158,8 +158,8 @@ const ExhibitorDashboard = () => {
     try {
       const response = await fetch(
         `https://inoptics.in/api/get_selected_furniture.php?company_name=${encodeURIComponent(
-          companyName
-        )}`
+          companyName,
+        )}`,
       );
       const data = await response.json();
 
@@ -212,7 +212,7 @@ const ExhibitorDashboard = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
-        }
+        },
       );
 
       const data = await response.json();
@@ -272,8 +272,8 @@ const ExhibitorDashboard = () => {
           // 🔹 Check undertaking status
           fetch(
             `https://inoptics.in/api/get_undertaking_status.php?company_name=${encodeURIComponent(
-              parsedData.company_name
-            )}`
+              parsedData.company_name,
+            )}`,
           )
             .then((res) => res.json())
             .then((statusData) => {
@@ -282,7 +282,7 @@ const ExhibitorDashboard = () => {
 
                 // 🔹 Fetch declaration + undertaking points from backend
                 fetch(
-                  "https://inoptics.in/api/get_exhibitor_declaration_undertaking.php"
+                  "https://inoptics.in/api/get_exhibitor_declaration_undertaking.php",
                 )
                   .then((res) => res.json())
                   .then((declData) => {
@@ -291,7 +291,7 @@ const ExhibitorDashboard = () => {
                     }
                   })
                   .catch((err) =>
-                    console.error("Error fetching declaration:", err)
+                    console.error("Error fetching declaration:", err),
                   );
               } else {
                 // ✅ Mark activity as done if already accepted
@@ -299,13 +299,13 @@ const ExhibitorDashboard = () => {
                   prev.map((act) =>
                     act.name === "UNDERTAKING AGREED"
                       ? { ...act, done: true }
-                      : act
-                  )
+                      : act,
+                  ),
                 );
               }
             })
             .catch((err) =>
-              console.error("Error fetching undertaking status:", err)
+              console.error("Error fetching undertaking status:", err),
             );
         } catch (err) {
           console.error("Invalid JSON in exhibitorInfo:", err);
@@ -325,7 +325,7 @@ const ExhibitorDashboard = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ company_name: exhibitorData.company_name }),
-        }
+        },
       );
 
       const result = await res.json();
@@ -335,8 +335,8 @@ const ExhibitorDashboard = () => {
         // ✅ Update activities instantly after agreement
         setActivities((prev) =>
           prev.map((act) =>
-            act.name === "UNDERTAKING AGREED" ? { ...act, done: true } : act
-          )
+            act.name === "UNDERTAKING AGREED" ? { ...act, done: true } : act,
+          ),
         );
       } else {
         console.error("Failed to accept undertaking:", result.message);
@@ -367,13 +367,13 @@ const ExhibitorDashboard = () => {
       try {
         const res = await fetch(
           `https://inoptics.in/api/get_exhibitor_mails.php?company_name=${encodeURIComponent(
-            currentExhibitor.company_name
-          )}`
+            currentExhibitor.company_name,
+          )}`,
         );
         const data = await res.json();
         if (!cancelled && data?.success && Array.isArray(data.mails)) {
           const unread = data.mails.filter(
-            (m) => Number(m.is_read) === 0
+            (m) => Number(m.is_read) === 0,
           ).length;
           setUnreadCount(unread);
         }
@@ -412,7 +412,7 @@ const ExhibitorDashboard = () => {
         if (result.success) {
           // update local list immediately
           setMailsList((prev) =>
-            prev.map((m) => (m.id === mail.id ? { ...m, is_read: 1 } : m))
+            prev.map((m) => (m.id === mail.id ? { ...m, is_read: 1 } : m)),
           );
 
           // decrement unread counter
@@ -438,7 +438,7 @@ const ExhibitorDashboard = () => {
   const fetchExhibitorInstructions = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_exhibitor_instructions.php"
+        "https://inoptics.in/api/get_exhibitor_instructions.php",
       );
       const data = await res.json();
       setInstructionsList(data || []);
@@ -454,7 +454,7 @@ const ExhibitorDashboard = () => {
   const fetchExhibitorRules = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_exhibitor_rules.php"
+        "https://inoptics.in/api/get_exhibitor_rules.php",
       );
       const data = await res.json();
       setRulesList(data || []);
@@ -466,7 +466,7 @@ const ExhibitorDashboard = () => {
   const fetchExhibitionData = async () => {
     try {
       const response = await fetch(
-        "https://inoptics.in/api/get_exhibition_map.php"
+        "https://inoptics.in/api/get_exhibition_map.php",
       );
       const text = await response.text();
       const data = JSON.parse(text);
@@ -487,7 +487,7 @@ const ExhibitorDashboard = () => {
   const fetchExhibitorGuidelines = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_exhibitor_guidelines.php"
+        "https://inoptics.in/api/get_exhibitor_guidelines.php",
       );
       const data = await res.json();
       setGuidelinesList(data || []);
@@ -558,8 +558,8 @@ const ExhibitorDashboard = () => {
       setLoadingMails(true);
       fetch(
         `https://inoptics.in/api/get_exhibitor_mails.php?company_name=${encodeURIComponent(
-          currentExhibitor.company_name
-        )}`
+          currentExhibitor.company_name,
+        )}`,
       )
         .then((res) => res.json())
         .then((data) => {
@@ -567,7 +567,7 @@ const ExhibitorDashboard = () => {
             setMailsList(data.mails);
             // keep unreadCount in sync
             const unread = data.mails.filter(
-              (m) => Number(m.is_read) === 0
+              (m) => Number(m.is_read) === 0,
             ).length;
             setUnreadCount(unread);
           } else {
@@ -591,7 +591,7 @@ const ExhibitorDashboard = () => {
   const fetchEventSchedule = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_exhibitor_event_schedule.php"
+        "https://inoptics.in/api/get_exhibitor_event_schedule.php",
       );
       const data = await res.json();
 
@@ -599,8 +599,8 @@ const ExhibitorDashboard = () => {
       const scheduleArray = Array.isArray(data)
         ? data
         : Array.isArray(data.data)
-        ? data.data
-        : [];
+          ? data.data
+          : [];
 
       if (scheduleArray.length > 0) {
         setEventScheduleData(scheduleArray);
@@ -693,7 +693,7 @@ const ExhibitorDashboard = () => {
         {
           method: "POST",
           body: formData,
-        }
+        },
       );
 
       const result = await res.json();
@@ -721,7 +721,7 @@ const ExhibitorDashboard = () => {
   const fetchFurnitureData = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_furniture_requirement.php"
+        "https://inoptics.in/api/get_furniture_requirement.php",
       );
       const data = await res.json();
       setFurnitureData(data);
@@ -737,7 +737,7 @@ const ExhibitorDashboard = () => {
   const fetchFurnitureVendorDetails = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_furniture_vendor.php"
+        "https://inoptics.in/api/get_furniture_vendor.php",
       );
       const data = await res.json();
       setFurnitureVendorDetails(data || []);
@@ -780,7 +780,7 @@ const ExhibitorDashboard = () => {
     try {
       // 1️⃣ Find Vendor Template
       const vendorTemplate = emailMasterData.find(
-        (template) => template.email_name === emailTemplateName
+        (template) => template.email_name === emailTemplateName,
       );
 
       if (!vendorTemplate) {
@@ -793,7 +793,7 @@ const ExhibitorDashboard = () => {
       const exhibitorTemplate = emailMasterData.find(
         (template) =>
           template.email_name ===
-          "InOptics 2026 @ Extra Furniture Request Confirmation Exhibitor"
+          "InOptics 2026 @ Extra Furniture Request Confirmation Exhibitor",
       );
 
       if (!exhibitorTemplate) {
@@ -862,7 +862,7 @@ const ExhibitorDashboard = () => {
                     <td>${item.quantity}</td>
                     <td>${parseFloat(item.price).toFixed(2)}</td>
                     <td>${(item.quantity * item.price).toFixed(2)}</td>
-                  </tr>`
+                  </tr>`,
               )
               .join("")}
           </tbody>
@@ -896,7 +896,7 @@ const ExhibitorDashboard = () => {
             to: vendorEmail,
             html: vendorMailHTML,
           }),
-        }
+        },
       );
 
       const vendorResult = await vendorResponse.json();
@@ -927,7 +927,7 @@ const ExhibitorDashboard = () => {
               to: email,
               html: exhibitorMailHTML,
             }),
-          }
+          },
         );
 
         const exhibitorResult = await exhibitorResponse.json();
@@ -960,7 +960,7 @@ const ExhibitorDashboard = () => {
           body: JSON.stringify({
             company_name: formData.company_name,
           }),
-        }
+        },
       );
 
       const updateResult = await updateResponse.json();
@@ -982,7 +982,7 @@ const ExhibitorDashboard = () => {
             phone: formData.mobile,
             stall_no: formData.stall_no,
           }),
-        }
+        },
       );
 
       const mailResult = await mailResponse.json();
@@ -1031,7 +1031,7 @@ const ExhibitorDashboard = () => {
     ...new Set(
       (masterPowerData || [])
         .map((item) => item.power_type?.trim?.())
-        .filter(Boolean)
+        .filter(Boolean),
     ),
   ];
 
@@ -1039,7 +1039,7 @@ const ExhibitorDashboard = () => {
   const fetchMasterPowerData = async () => {
     try {
       const response = await fetch(
-        "https://www.inoptics.in/api/get_power_requirement.php"
+        "https://www.inoptics.in/api/get_power_requirement.php",
       );
       const text = await response.text();
       // console.log("Raw master response text:", text);
@@ -1058,8 +1058,8 @@ const ExhibitorDashboard = () => {
     try {
       const res = await fetch(
         `https://inoptics.in/api/get_Exhibitor_power_requirement.php?company_name=${encodeURIComponent(
-          companyName
-        )}`
+          companyName,
+        )}`,
       );
       const data = await res.json();
 
@@ -1068,10 +1068,10 @@ const ExhibitorDashboard = () => {
 
         // 🔹 Detect lock/unlock properly
         const isLocked = data.entries.some(
-          (item) => Number(item.is_locked) === 1
+          (item) => Number(item.is_locked) === 1,
         );
         const unlockRequested = data.entries.some(
-          (item) => Number(item.unlock_requested) === 1
+          (item) => Number(item.unlock_requested) === 1,
         );
 
         // 🔹 Set states
@@ -1098,13 +1098,13 @@ const ExhibitorDashboard = () => {
         setPowerAmount(total);
 
         const hasSGST = data.entries.some(
-          (s) => parseFloat(s.sgst_9_percent) > 0
+          (s) => parseFloat(s.sgst_9_percent) > 0,
         );
         const hasCGST = data.entries.some(
-          (s) => parseFloat(s.cgst_9_percent) > 0
+          (s) => parseFloat(s.cgst_9_percent) > 0,
         );
         const hasIGST = data.entries.some(
-          (s) => parseFloat(s.igst_18_percent) > 0
+          (s) => parseFloat(s.igst_18_percent) > 0,
         );
 
         if (hasSGST || hasCGST) {
@@ -1128,8 +1128,8 @@ const ExhibitorDashboard = () => {
         }
         setActivities((prev) =>
           prev.map((act) =>
-            act.name === "POWER REQUIREMENT" ? { ...act, done: true } : act
-          )
+            act.name === "POWER REQUIREMENT" ? { ...act, done: true } : act,
+          ),
         );
       } else {
         setPowerData([]);
@@ -1162,7 +1162,7 @@ const ExhibitorDashboard = () => {
       const match = masterPowerData.find(
         (it) =>
           it.power_type?.trim?.() === firstType ||
-          it.type?.trim?.() === firstType
+          it.type?.trim?.() === firstType,
       );
       setExhibitorPricePerKw(match?.price ?? match?.price_per_kw ?? "");
     }
@@ -1176,10 +1176,10 @@ const ExhibitorDashboard = () => {
     const selectedItem = masterPowerData.find(
       (item) =>
         item.power_type?.trim?.() === selectedDay ||
-        item.type?.trim?.() === selectedDay
+        item.type?.trim?.() === selectedDay,
     );
     setExhibitorPricePerKw(
-      selectedItem?.price ?? selectedItem?.price_per_kw ?? ""
+      selectedItem?.price ?? selectedItem?.price_per_kw ?? "",
     );
   };
 
@@ -1271,7 +1271,7 @@ const ExhibitorDashboard = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ entries: payload }),
-        }
+        },
       );
 
       const result = await response.json();
@@ -1308,7 +1308,7 @@ const ExhibitorDashboard = () => {
               "InOptics 2026 @ Request to Unlock Power Requirement",
             company_name: currentExhibitor.company_name,
           }),
-        }
+        },
       );
 
       const result = await response.json();
@@ -1370,7 +1370,7 @@ const ExhibitorDashboard = () => {
 
     if (
       !window.confirm(
-        "Are you sure you want to remove all power data for this Exhibitor?"
+        "Are you sure you want to remove all power data for this Exhibitor?",
       )
     ) {
       return;
@@ -1386,7 +1386,7 @@ const ExhibitorDashboard = () => {
             company_name: currentExhibitor.company_name, // 👈 only company_name now
             delete_all: true, // tell backend to delete all records of this company
           }),
-        }
+        },
       );
 
       const result = await response.json();
@@ -1467,7 +1467,7 @@ const ExhibitorDashboard = () => {
 
     const total = exhibitorPreviewList.reduce(
       (sum, item) => sum + Number(item.totalAmount || 0),
-      0
+      0,
     );
 
     let newCgst = 0,
@@ -1509,8 +1509,8 @@ const ExhibitorDashboard = () => {
     setLoadingBadges(true);
     fetch(
       `https://inoptics.in/api/get_Exhibitor_badges.php?company_name=${encodeURIComponent(
-        company
-      )}`
+        company,
+      )}`,
     )
       .then((res) => res.json())
       .then((data) => {
@@ -1528,13 +1528,13 @@ const ExhibitorDashboard = () => {
             prev.map((act) =>
               act.name === "EXTRA EXHIBITOR BADGE"
                 ? { ...act, done: true }
-                : act
-            )
+                : act,
+            ),
           );
         }
       })
       .catch((err) =>
-        console.error("❌ Failed to fetch exhibitor badges:", err)
+        console.error("❌ Failed to fetch exhibitor badges:", err),
       )
       .finally(() => setLoadingBadges(false));
   }, [currentExhibitor?.company_name]);
@@ -1543,7 +1543,7 @@ const ExhibitorDashboard = () => {
   const fetchBadgeLimitsAndSetFreeBadges = async (exhibitor) => {
     try {
       const response = await fetch(
-        "https://inoptics.in/api/get_badge_limit.php"
+        "https://inoptics.in/api/get_badge_limit.php",
       );
       const badgeLimits = await response.json();
 
@@ -1556,7 +1556,7 @@ const ExhibitorDashboard = () => {
       const matchedRange = badgeLimits.find(
         (range) =>
           stallArea >= parseFloat(range.min_sq_ft) &&
-          stallArea <= parseFloat(range.max_sq_ft)
+          stallArea <= parseFloat(range.max_sq_ft),
       );
 
       const freeBadges = matchedRange
@@ -1601,7 +1601,7 @@ const ExhibitorDashboard = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
-        }
+        },
       );
 
       const data = await res.json();
@@ -1647,7 +1647,7 @@ const ExhibitorDashboard = () => {
             company_name: currentExhibitor.company_name,
             template_name: "InOptics 2026 @ Request to Unlock Extra Badges",
           }),
-        }
+        },
       );
 
       const data = await response.json();
@@ -1656,7 +1656,7 @@ const ExhibitorDashboard = () => {
       } else {
         alert(
           "⚠️ Failed to send unlock request: " +
-            (data.message || "Unknown error")
+            (data.message || "Unknown error"),
         );
       }
     } catch (error) {
@@ -1686,7 +1686,7 @@ const ExhibitorDashboard = () => {
   const fetchExhibitorContractors = async () => {
     try {
       const response = await fetch(
-        "https://inoptics.in/api/get_exhibitor_contractors_requirements.php"
+        "https://inoptics.in/api/get_exhibitor_contractors_requirements.php",
       );
       const data = await response.json();
       setContractorData(data);
@@ -1713,14 +1713,14 @@ const ExhibitorDashboard = () => {
   const fetchSelectedContractor = async (companyName) => {
     try {
       const response = await fetch(
-        `https://inoptics.in/api/get_selected_exhibitors_contractors.php?exhibitor_company_name=${companyName}`
+        `https://inoptics.in/api/get_selected_exhibitors_contractors.php?exhibitor_company_name=${companyName}`,
       );
 
       const data = await response.json();
 
       if (data && data.contractor_company_name) {
         const selected = contractorData.find(
-          (c) => c.company_name === data.contractor_company_name
+          (c) => c.company_name === data.contractor_company_name,
         );
 
         if (selected) {
@@ -1769,7 +1769,7 @@ const ExhibitorDashboard = () => {
             contact_numbers: contactNumbers,
             email: contractor.email,
           }),
-        }
+        },
       );
 
       const result = await response.json();
@@ -1798,7 +1798,7 @@ const ExhibitorDashboard = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ exhibitor_company_name: exhibitorCompany }),
-        }
+        },
       );
 
       const result = await response.json();
@@ -1851,7 +1851,7 @@ const ExhibitorDashboard = () => {
   const fetchAllFinalSelections = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_all_selected_exhibitors_contractors.php"
+        "https://inoptics.in/api/get_all_selected_exhibitors_contractors.php",
       );
       if (!res.ok) throw new Error("Failed to fetch final list");
       const data = await res.json();
@@ -1937,16 +1937,16 @@ const ExhibitorDashboard = () => {
     const pdfUrl = coreFormData.find((form) =>
       form.category
         ?.toLowerCase()
-        ?.includes("contractor registration form to be filled by contractor")
+        ?.includes("contractor registration form to be filled by contractor"),
     )?.filename
       ? `https://inoptics.in/api/uploads/${encodeURIComponent(
           coreFormData.find((form) =>
             form.category
               ?.toLowerCase()
               ?.includes(
-                "contractor registration form to be filled by contractor"
-              )
-          )?.filename
+                "contractor registration form to be filled by contractor",
+              ),
+          )?.filename,
         )}`
       : "";
 
@@ -1960,7 +1960,7 @@ const ExhibitorDashboard = () => {
           pdf_url: pdfUrl,
           company_name: formData.company_name,
         }),
-      }
+      },
     );
 
     const data = await res.json();
@@ -1994,7 +1994,7 @@ const ExhibitorDashboard = () => {
             request_type: "unlock_contractor_change",
             message: `${exhibitorCompany} has requested to change their selected contractor (${selectedContractorName}).`,
           }),
-        }
+        },
       );
 
       // 2️⃣ Save Unlock Request in DB
@@ -2007,14 +2007,14 @@ const ExhibitorDashboard = () => {
             exhibitor_company: exhibitorCompany,
             contractor_name: selectedContractorName,
           }),
-        }
+        },
       );
 
       const result = await res.json();
 
       if (result.success) {
         toast.success(
-          "Unlock request sent!\nAdmin has been notified and your request is in their dashboard."
+          "Unlock request sent!\nAdmin has been notified and your request is in their dashboard.",
         );
       } else {
         throw new Error("Failed to create unlock request");
@@ -2034,7 +2034,7 @@ const ExhibitorDashboard = () => {
   const checkUploadStatus = async (companyName) => {
     try {
       const res = await fetch(
-        `https://inoptics.in/api/get_exhibitor_form_status.php?exhibitor_company_name=${companyName}`
+        `https://inoptics.in/api/get_exhibitor_form_status.php?exhibitor_company_name=${companyName}`,
       );
 
       const data = await res.json();
@@ -2061,7 +2061,7 @@ const ExhibitorDashboard = () => {
         {
           method: "POST",
           body: formDataUpload,
-        }
+        },
       );
 
       const result = await response.json();
@@ -2110,20 +2110,20 @@ const ExhibitorDashboard = () => {
             form_url: coreFormData.find((form) =>
               form.category
                 ?.toLowerCase()
-                ?.includes("contractor undertaking-declaration & registration")
+                ?.includes("contractor undertaking-declaration & registration"),
             )?.filename
               ? `https://inoptics.in/api/uploads/${encodeURIComponent(
                   coreFormData.find((form) =>
                     form.category
                       ?.toLowerCase()
                       ?.includes(
-                        "contractor undertaking-declaration & registration"
-                      )
-                  )?.filename
+                        "contractor undertaking-declaration & registration",
+                      ),
+                  )?.filename,
                 )}`
               : "",
           }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -2214,7 +2214,7 @@ const ExhibitorDashboard = () => {
   const fetchPowerPayments = async () => {
     try {
       const res = await fetch(
-        `https://inoptics.in/api/get_exhibitor_power_payment.php?company_name=${formData.company_name}`
+        `https://inoptics.in/api/get_exhibitor_power_payment.php?company_name=${formData.company_name}`,
       );
       const data = await res.json();
 
@@ -2237,7 +2237,7 @@ const ExhibitorDashboard = () => {
   const fetchBadgePayments = async () => {
     try {
       const res = await fetch(
-        `https://inoptics.in/api/get_exhibitor_badge_payment.php?company_name=${formData.company_name}`
+        `https://inoptics.in/api/get_exhibitor_badge_payment.php?company_name=${formData.company_name}`,
       );
       const data = await res.json();
 
@@ -2296,7 +2296,7 @@ const ExhibitorDashboard = () => {
       igst: 0,
       grand_total: 0,
       currency: "",
-    }
+    },
   );
 
   // ✅ Save Badge pending (from getExhibitorBadgeBilling)
@@ -2305,7 +2305,7 @@ const ExhibitorDashboard = () => {
     if (formData?.company_name && grandTotal !== undefined) {
       localStorage.setItem(
         `pending_badge_${formData.company_name}`,
-        grandTotal.toFixed(2)
+        grandTotal.toFixed(2),
       );
     }
   }, [formData?.company_name]);
@@ -2314,11 +2314,11 @@ const ExhibitorDashboard = () => {
   useEffect(() => {
     const totalPaid = badgePayments.reduce(
       (sum, p) => sum + (parseFloat(p.amount) || 0),
-      0
+      0,
     );
     const totalTds = badgePayments.reduce(
       (sum, p) => sum + (parseFloat(p.tds) || 0),
-      0
+      0,
     );
     const totalReceived = totalPaid + totalTds;
 
@@ -2347,7 +2347,7 @@ const ExhibitorDashboard = () => {
     if (formData?.company_name && exhibitorPreviewList.length > 0) {
       const totalPower = exhibitorPreviewList.reduce(
         (sum, r) => sum + (parseFloat(r.totalAmount) || 0),
-        0
+        0,
       );
 
       const sgst = isDelhi ? totalPower * 0.09 : 0;
@@ -2370,7 +2370,7 @@ const ExhibitorDashboard = () => {
     // Calculate subtotal (Area × Price)
     const subTotal = selectedBranding.reduce(
       (acc, item) => acc + (item.area || 0) * (item.price || 0),
-      0
+      0,
     );
 
     const amount = Math.round(subTotal);
@@ -2410,7 +2410,7 @@ const ExhibitorDashboard = () => {
         {
           method: "POST",
           body: uploadData,
-        }
+        },
       );
 
       const data = await res.json();
@@ -2449,7 +2449,7 @@ const ExhibitorDashboard = () => {
   const forceDownload = async (filePath) => {
     try {
       const url = `https://inoptics.in/api/download_exhibitor_form.php?company=${encodeURIComponent(
-        formData.company_name
+        formData.company_name,
       )}`;
 
       const res = await fetch(url);
@@ -2528,8 +2528,8 @@ const ExhibitorDashboard = () => {
     try {
       const res = await fetch(
         `https://inoptics.in/api/get_booth_design_status.php?company=${encodeURIComponent(
-          formData.company_name
-        )}`
+          formData.company_name,
+        )}`,
       );
 
       const data = await res.json();
@@ -2629,7 +2629,7 @@ const ExhibitorDashboard = () => {
         {(activeMenu === "Dashboard" ||
           activeMenu === "Profile" ||
           ["Instructions", "Rules", "Exhibition Map", "Guidelines"].includes(
-            importantPage
+            importantPage,
           )) && (
           <div className="exhibitordashboard-dashboard-overlay-panel open">
             <header className="exhibitordashboard-undertaking-dashboard-header">
@@ -2729,7 +2729,6 @@ const ExhibitorDashboard = () => {
             </header>
           </div>
         )}
-
 
         {/* Dynamic content */}
         <div className="exhibitordashboard-declaration-content">
@@ -2882,13 +2881,13 @@ const ExhibitorDashboard = () => {
                             ) : (
                               (() => {
                                 const showSGST = stallList.some(
-                                  (s) => parseFloat(s.sgst_9_percent) > 0
+                                  (s) => parseFloat(s.sgst_9_percent) > 0,
                                 );
                                 const showCGST = stallList.some(
-                                  (s) => parseFloat(s.cgst_9_percent) > 0
+                                  (s) => parseFloat(s.cgst_9_percent) > 0,
                                 );
                                 const showIGST = stallList.some(
-                                  (s) => parseFloat(s.igst_18_percent) > 0
+                                  (s) => parseFloat(s.igst_18_percent) > 0,
                                 );
 
                                 return (
@@ -2936,7 +2935,7 @@ const ExhibitorDashboard = () => {
                                           {showSGST && (
                                             <td>
                                               {parseFloat(
-                                                stall.sgst_9_percent
+                                                stall.sgst_9_percent,
                                               ) > 0
                                                 ? `₹${stall.sgst_9_percent}`
                                                 : "-"}
@@ -2945,7 +2944,7 @@ const ExhibitorDashboard = () => {
                                           {showCGST && (
                                             <td>
                                               {parseFloat(
-                                                stall.cgst_9_percent
+                                                stall.cgst_9_percent,
                                               ) > 0
                                                 ? `₹${stall.cgst_9_percent}`
                                                 : "-"}
@@ -2954,7 +2953,7 @@ const ExhibitorDashboard = () => {
                                           {showIGST && (
                                             <td>
                                               {parseFloat(
-                                                stall.igst_18_percent
+                                                stall.igst_18_percent,
                                               ) > 0
                                                 ? `₹${stall.igst_18_percent}`
                                                 : "-"}
@@ -2973,27 +2972,27 @@ const ExhibitorDashboard = () => {
                                         (() => {
                                           const showSGST = stallList.some(
                                             (s) =>
-                                              parseFloat(s.sgst_9_percent) > 0
+                                              parseFloat(s.sgst_9_percent) > 0,
                                           );
                                           const showCGST = stallList.some(
                                             (s) =>
-                                              parseFloat(s.cgst_9_percent) > 0
+                                              parseFloat(s.cgst_9_percent) > 0,
                                           );
                                           const showIGST = stallList.some(
                                             (s) =>
-                                              parseFloat(s.igst_18_percent) > 0
+                                              parseFloat(s.igst_18_percent) > 0,
                                           );
 
                                           const setup = powerData.find((p) =>
                                             p.day
                                               ?.toLowerCase()
-                                              .includes("setup")
+                                              .includes("setup"),
                                           );
                                           const exhibition = powerData.find(
                                             (p) =>
                                               p.day
                                                 ?.toLowerCase()
-                                                .includes("exhibition")
+                                                .includes("exhibition"),
                                           );
 
                                           const calcTotals = (row) => {
@@ -3007,7 +3006,7 @@ const ExhibitorDashboard = () => {
                                               };
 
                                             const amount = parseFloat(
-                                              row.total_amount || 0
+                                              row.total_amount || 0,
                                             );
                                             let sgst = 0,
                                               cgst = 0,
@@ -3053,7 +3052,7 @@ const ExhibitorDashboard = () => {
                                                 <td>
                                                   {setupTotals.amount
                                                     ? `₹${setupTotals.amount.toFixed(
-                                                        2
+                                                        2,
                                                       )}`
                                                     : "-"}
                                                 </td>
@@ -3061,7 +3060,7 @@ const ExhibitorDashboard = () => {
                                                   <td>
                                                     {setupTotals.sgst
                                                       ? `₹${setupTotals.sgst.toFixed(
-                                                          2
+                                                          2,
                                                         )}`
                                                       : "-"}
                                                   </td>
@@ -3070,7 +3069,7 @@ const ExhibitorDashboard = () => {
                                                   <td>
                                                     {setupTotals.cgst
                                                       ? `₹${setupTotals.cgst.toFixed(
-                                                          2
+                                                          2,
                                                         )}`
                                                       : "-"}
                                                   </td>
@@ -3079,7 +3078,7 @@ const ExhibitorDashboard = () => {
                                                   <td>
                                                     {setupTotals.igst
                                                       ? `₹${setupTotals.igst.toFixed(
-                                                          2
+                                                          2,
                                                         )}`
                                                       : "-"}
                                                   </td>
@@ -3087,7 +3086,7 @@ const ExhibitorDashboard = () => {
                                                 <td className="grand-total-cell">
                                                   {setupTotals.grandTotal
                                                     ? `₹${setupTotals.grandTotal.toFixed(
-                                                        2
+                                                        2,
                                                       )}`
                                                     : "-"}
                                                 </td>
@@ -3111,7 +3110,7 @@ const ExhibitorDashboard = () => {
                                                 <td>
                                                   {exhibitionTotals.amount
                                                     ? `₹${exhibitionTotals.amount.toFixed(
-                                                        2
+                                                        2,
                                                       )}`
                                                     : "-"}
                                                 </td>
@@ -3119,7 +3118,7 @@ const ExhibitorDashboard = () => {
                                                   <td>
                                                     {exhibitionTotals.sgst
                                                       ? `₹${exhibitionTotals.sgst.toFixed(
-                                                          2
+                                                          2,
                                                         )}`
                                                       : "-"}
                                                   </td>
@@ -3128,7 +3127,7 @@ const ExhibitorDashboard = () => {
                                                   <td>
                                                     {exhibitionTotals.cgst
                                                       ? `₹${exhibitionTotals.cgst.toFixed(
-                                                          2
+                                                          2,
                                                         )}`
                                                       : "-"}
                                                   </td>
@@ -3137,7 +3136,7 @@ const ExhibitorDashboard = () => {
                                                   <td>
                                                     {exhibitionTotals.igst
                                                       ? `₹${exhibitionTotals.igst.toFixed(
-                                                          2
+                                                          2,
                                                         )}`
                                                       : "-"}
                                                   </td>
@@ -3145,7 +3144,7 @@ const ExhibitorDashboard = () => {
                                                 <td className="grand-total-cell">
                                                   {exhibitionTotals.grandTotal
                                                     ? `₹${exhibitionTotals.grandTotal.toFixed(
-                                                        2
+                                                        2,
                                                       )}`
                                                     : "-"}
                                                 </td>
@@ -3494,17 +3493,17 @@ const ExhibitorDashboard = () => {
                               furnitureData
                                 .sort((a, b) => {
                                   const piA = parseInt(
-                                    a.name.match(/PI-(\d+)/)?.[1] || 0
+                                    a.name.match(/PI-(\d+)/)?.[1] || 0,
                                   );
                                   const piB = parseInt(
-                                    b.name.match(/PI-(\d+)/)?.[1] || 0
+                                    b.name.match(/PI-(\d+)/)?.[1] || 0,
                                   );
                                   return piA - piB;
                                 })
                                 .map((item) => {
                                   const alreadySelected =
                                     selectedFurniture.some(
-                                      (f) => f.id === item.id
+                                      (f) => f.id === item.id,
                                     );
                                   return (
                                     <div
@@ -3590,7 +3589,7 @@ const ExhibitorDashboard = () => {
                                     onChange={(e) =>
                                       handleQuantityChange(
                                         index,
-                                        e.target.value
+                                        e.target.value,
                                       )
                                     }
                                     className="furniture-qty-input"
@@ -3610,8 +3609,8 @@ const ExhibitorDashboard = () => {
                                       onClick={() =>
                                         setSelectedFurniture(
                                           selectedFurniture.filter(
-                                            (_, i) => i !== index
-                                          )
+                                            (_, i) => i !== index,
+                                          ),
                                         )
                                       }
                                     >
@@ -3650,10 +3649,10 @@ const ExhibitorDashboard = () => {
                             onClick={async () => {
                               await updateSelectedFurniture(
                                 currentExhibitor?.company_name,
-                                selectedFurniture
+                                selectedFurniture,
                               );
                               await handleSendFurnitureMail(
-                                "InOptics 2026 @ Extra Furniture Request Confirmation"
+                                "InOptics 2026 @ Extra Furniture Request Confirmation",
                               );
                               setIsFurnitureSaved(true);
                             }}
@@ -3772,7 +3771,7 @@ const ExhibitorDashboard = () => {
                             >
                               {type}
                             </li>
-                          )
+                          ),
                         )}
                       </ul>
 
@@ -3786,8 +3785,8 @@ const ExhibitorDashboard = () => {
                                 index === currentStep
                                   ? "slide-active"
                                   : index < currentStep
-                                  ? "slide-left"
-                                  : "slide-right"
+                                    ? "slide-left"
+                                    : "slide-right"
                               }`}
                             >
                               {/* ROW 1: TYPE + PRICE (read-only) */}
@@ -3893,7 +3892,7 @@ const ExhibitorDashboard = () => {
                                 </div>
                               </div>
                             </div>
-                          )
+                          ),
                         )}
                       </form>
                     </div>
@@ -4184,7 +4183,7 @@ const ExhibitorDashboard = () => {
                         if (currentExhibitor.company_name) {
                           localStorage.setItem(
                             `grandTotal_badges_${currentExhibitor.company_name}`,
-                            grandTotal.toFixed(2)
+                            grandTotal.toFixed(2),
                           );
                         }
 
@@ -4344,7 +4343,7 @@ const ExhibitorDashboard = () => {
                                                   className="ExhibitorContractors-select-btn"
                                                   onClick={() => {
                                                     setSelectedContractorTemp(
-                                                      contractor
+                                                      contractor,
                                                     );
                                                     setShowPopup(true);
                                                   }}
@@ -4357,7 +4356,7 @@ const ExhibitorDashboard = () => {
                                               )}
                                             </td>
                                           </tr>
-                                        )
+                                        ),
                                       )}
                                     </tbody>
                                   </table>
@@ -4441,7 +4440,7 @@ const ExhibitorDashboard = () => {
                                       className="ExhibitorContractors-email-submit-btn"
                                       onClick={() =>
                                         handleSendRegistrationMail(
-                                          contractorEmail
+                                          contractorEmail,
                                         )
                                       }
                                     >
@@ -4487,12 +4486,12 @@ const ExhibitorDashboard = () => {
                                       const firstAvailable = uploadedFiles.step1
                                         ? "step1"
                                         : uploadedFiles.step2
-                                        ? "step2"
-                                        : "step3";
+                                          ? "step2"
+                                          : "step3";
 
                                       setSelectedPreviewStep(firstAvailable);
                                       setPdfUrl(
-                                        `https://inoptics.in/api/${uploadedFiles[firstAvailable]}`
+                                        `https://inoptics.in/api/${uploadedFiles[firstAvailable]}`,
                                       );
                                       setShowPdfPreview(true);
                                     }}
@@ -4531,7 +4530,7 @@ const ExhibitorDashboard = () => {
                                                 className="form-icon"
                                                 onClick={() =>
                                                   forceDownload(
-                                                    uploadedFiles.step1
+                                                    uploadedFiles.step1,
                                                   )
                                                 }
                                                 title="Download"
@@ -4553,7 +4552,7 @@ const ExhibitorDashboard = () => {
                                                 className="form-icon"
                                                 onClick={() =>
                                                   forceDownload(
-                                                    uploadedFiles.step2
+                                                    uploadedFiles.step2,
                                                   )
                                                 }
                                                 title="Download"
@@ -4575,7 +4574,7 @@ const ExhibitorDashboard = () => {
                                                 className="form-icon"
                                                 onClick={() =>
                                                   forceDownload(
-                                                    uploadedFiles.step3
+                                                    uploadedFiles.step3,
                                                   )
                                                 }
                                                 title="Download"
@@ -4766,7 +4765,7 @@ const ExhibitorDashboard = () => {
                                               className="ExhibitorContractors-select-btn"
                                               onClick={() => {
                                                 setSelectedContractorTemp(
-                                                  contractor
+                                                  contractor,
                                                 );
                                                 setShowPopup(true);
                                               }}
@@ -4881,7 +4880,7 @@ const ExhibitorDashboard = () => {
                                             className="doc-btn download-btn"
                                             onClick={() => {
                                               const url = `https://inoptics.in/api/download_exhibitor_form.php?company=${encodeURIComponent(
-                                                formData.company_name
+                                                formData.company_name,
                                               )}`;
 
                                               const link =
@@ -4910,7 +4909,7 @@ const ExhibitorDashboard = () => {
 
                                                 setSelectedFile(file);
                                                 setPreviewURL(
-                                                  URL.createObjectURL(file)
+                                                  URL.createObjectURL(file),
                                                 );
                                                 setShowPreview(true); // open preview
                                               }}
@@ -5019,7 +5018,7 @@ const ExhibitorDashboard = () => {
                                             className="doc-btn download-btn"
                                             onClick={() => {
                                               const url = `https://inoptics.in/api/download_exhibitor_form.php?company=${encodeURIComponent(
-                                                formData.company_name
+                                                formData.company_name,
                                               )}`;
 
                                               const link =
@@ -5048,7 +5047,7 @@ const ExhibitorDashboard = () => {
 
                                                 setSelectedFile(file);
                                                 setPreviewURL(
-                                                  URL.createObjectURL(file)
+                                                  URL.createObjectURL(file),
                                                 );
                                                 setShowPreview(true); // open preview
                                               }}
@@ -5158,7 +5157,7 @@ const ExhibitorDashboard = () => {
 
                                             setSelectedFile(file);
                                             setPreviewURL(
-                                              URL.createObjectURL(file)
+                                              URL.createObjectURL(file),
                                             );
                                             setShowPreview(true); // open preview
                                           }}
@@ -5251,14 +5250,8 @@ const ExhibitorDashboard = () => {
                 )}
               </div>
 
-
-
-
-
               {/* Overlay Panel for Additional Requirements */}
-        {(activeMenu === "Exhibitor Badges") && (
-          <ExhibitorBadgeForm />
-        )}
+              {activeMenu === "Exhibitor Badges" && <ExhibitorBadgeForm />}
 
               {!importantPage && activeMenu === "Payment" && (
                 <div className="exhibitordashboard-content">
