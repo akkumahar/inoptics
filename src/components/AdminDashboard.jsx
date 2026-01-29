@@ -125,6 +125,8 @@ const AdminDashboard = () => {
   const [showContractorsMenu, setShowContractorsMenu] = useState(false);
   const [showSearchBox, setShowSearchBox] = useState(false);
 
+  const [editId, setEditId] = useState(null);
+
   const [powerType, setPowerType] = useState("");
   const [price, setPrice] = useState("");
   const [powerData, setPowerData] = useState([]);
@@ -4191,47 +4193,45 @@ const AdminDashboard = () => {
   };
 
   // Fetch payments from DB on load
- useEffect(() => {
-  if (!formData.company_name) return;
+  useEffect(() => {
+    if (!formData.company_name) return;
 
-  // ✅ CLEAN company name before sending to API
-  const cleanCompanyName = formData.company_name
-    .replace(/\u00A0/g, " ")   // remove non-breaking spaces
-    .replace(/\s+/g, " ")     // normalize multiple spaces
-    .trim();                  // trim edges
+    // ✅ CLEAN company name before sending to API
+    const cleanCompanyName = formData.company_name
+      .replace(/\u00A0/g, " ") // remove non-breaking spaces
+      .replace(/\s+/g, " ") // normalize multiple spaces
+      .trim(); // trim edges
 
-  console.log("Company name sending:", cleanCompanyName);
+    console.log("Company name sending:", cleanCompanyName);
 
-  fetch(
-    `https://inoptics.in/api/get_exhibitor_payment.php?company_name=${encodeURIComponent(
-      cleanCompanyName
-    )}`
-  )
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.success) {
-        const normalized = data.records.map((pay) => ({
-          type: pay.payment_type || pay.type || "",
-          date: pay.payment_date || pay.date || "",
-          receiverBank:
-            pay.name_of_receiver_bank || pay.receiverBank || "",
-          exhibitorBank:
-            pay.name_of_exhibitor_bank || pay.exhibitorBank || "",
-          amount: parseFloat(pay.amount_paid || pay.amount || 0),
-          tds: parseFloat(pay.tds || 0),
-        }));
+    fetch(
+      `https://inoptics.in/api/get_exhibitor_payment.php?company_name=${encodeURIComponent(
+        cleanCompanyName,
+      )}`,
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          const normalized = data.records.map((pay) => ({
+            type: pay.payment_type || pay.type || "",
+            date: pay.payment_date || pay.date || "",
+            receiverBank: pay.name_of_receiver_bank || pay.receiverBank || "",
+            exhibitorBank:
+              pay.name_of_exhibitor_bank || pay.exhibitorBank || "",
+            amount: parseFloat(pay.amount_paid || pay.amount || 0),
+            tds: parseFloat(pay.tds || 0),
+          }));
 
-        setPayments(normalized);
-      } else {
+          setPayments(normalized);
+        } else {
+          setPayments([]);
+        }
+      })
+      .catch((err) => {
+        console.error("Payment fetch error:", err);
         setPayments([]);
-      }
-    })
-    .catch((err) => {
-      console.error("Payment fetch error:", err);
-      setPayments([]);
-    });
-}, [formData.company_name]);
-
+      });
+  }, [formData.company_name]);
 
   // Add payment to DB and re-fetch
   const handleAddPayment = async () => {
@@ -4267,7 +4267,7 @@ const AdminDashboard = () => {
       if (result.success) {
         alert("Payment added successfully");
         // ✅ FORCE refresh for SAME company
-      fetchPayments(formData.company_name);
+        fetchPayments(formData.company_name);
         setPaymentType("");
         setPaymentDate("");
         setReceiverBankName("");
@@ -4305,7 +4305,7 @@ const AdminDashboard = () => {
       if (result.success) {
         alert("Payment deleted successfully");
         // ✅ FORCE refresh for SAME company
-      fetchPayments(formData.company_name);
+        fetchPayments(formData.company_name);
       } else {
         alert(result.message || "Failed to delete payment");
       }
@@ -4317,37 +4317,36 @@ const AdminDashboard = () => {
 
   // Helper to refetch payments from backend
   const fetchPayments = async (companyName) => {
-  if (!companyName) return;
+    if (!companyName) return;
 
-  const cleanCompanyName = companyName
-    .replace(/\u00A0/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+    const cleanCompanyName = companyName
+      .replace(/\u00A0/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
 
-  const res = await fetch(
-    `https://inoptics.in/api/get_exhibitor_payment.php?company_name=${encodeURIComponent(
-      cleanCompanyName
-    )}`
-  );
+    const res = await fetch(
+      `https://inoptics.in/api/get_exhibitor_payment.php?company_name=${encodeURIComponent(
+        cleanCompanyName,
+      )}`,
+    );
 
-  const data = await res.json();
+    const data = await res.json();
 
-  if (data.success) {
-    const normalized = data.records.map((pay) => ({
-      type: pay.payment_type || "",
-      date: pay.payment_date || "",
-      receiverBank: pay.name_of_receiver_bank || "",
-      exhibitorBank: pay.name_of_exhibitor_bank || "",
-      amount: parseFloat(pay.amount_paid || 0),
-      tds: parseFloat(pay.tds || 0),
-    }));
+    if (data.success) {
+      const normalized = data.records.map((pay) => ({
+        type: pay.payment_type || "",
+        date: pay.payment_date || "",
+        receiverBank: pay.name_of_receiver_bank || "",
+        exhibitorBank: pay.name_of_exhibitor_bank || "",
+        amount: parseFloat(pay.amount_paid || 0),
+        tds: parseFloat(pay.tds || 0),
+      }));
 
-    setPayments(normalized);
-  } else {
-    setPayments([]);
-  }
-};
-
+      setPayments(normalized);
+    } else {
+      setPayments([]);
+    }
+  };
 
   // Handle edit click
   const handleEditPayment = (index) => {
@@ -4363,67 +4362,66 @@ const AdminDashboard = () => {
 
   // Handle update payment
   const handleUpdatePayment = async () => {
-  if (editingIndex === null) return;
+    if (editingIndex === null) return;
 
-  if (!formData.company_name) {
-    alert("Company name is required.");
-    return;
-  }
-
-  const cleanCompanyName = formData.company_name
-    .replace(/\u00A0/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-
-  const updatedPayment = {
-    original: payments[editingIndex],
-    updated: {
-      type: paymentType,
-      date: paymentDate,
-      receiverBank: receiverBankName,
-      exhibitorBank: exhibitorBankName,
-      amount: parseFloat(amount) || 0,
-      tds: parseFloat(tds) || 0,
-    },
-  };
-
-  try {
-    const response = await fetch(
-      "https://inoptics.in/api/update_exhibitor_payment.php",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          company_name: cleanCompanyName,
-          payment: updatedPayment,
-        }),
-      }
-    );
-
-    const result = await response.json();
-
-    if (result.success) {
-      alert("Payment updated successfully");
-
-      // ✅ FORCE refetch for SAME company
-      fetchPayments(formData.company_name); // refetch fresh data
-
-      setPaymentType("");
-      setPaymentDate("");
-      setReceiverBankName("");
-      setExhibitorBankName("");
-      setAmount("");
-      setTds("");
-      setEditingIndex(null);
-    } else {
-      alert(result.message || "Failed to update payment");
+    if (!formData.company_name) {
+      alert("Company name is required.");
+      return;
     }
-  } catch (error) {
-    console.error("Update payment error:", error);
-    alert("An error occurred while updating payment");
-  }
-};
 
+    const cleanCompanyName = formData.company_name
+      .replace(/\u00A0/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    const updatedPayment = {
+      original: payments[editingIndex],
+      updated: {
+        type: paymentType,
+        date: paymentDate,
+        receiverBank: receiverBankName,
+        exhibitorBank: exhibitorBankName,
+        amount: parseFloat(amount) || 0,
+        tds: parseFloat(tds) || 0,
+      },
+    };
+
+    try {
+      const response = await fetch(
+        "https://inoptics.in/api/update_exhibitor_payment.php",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            company_name: cleanCompanyName,
+            payment: updatedPayment,
+          }),
+        },
+      );
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert("Payment updated successfully");
+
+        // ✅ FORCE refetch for SAME company
+        fetchPayments(formData.company_name); // refetch fresh data
+
+        setPaymentType("");
+        setPaymentDate("");
+        setReceiverBankName("");
+        setExhibitorBankName("");
+        setAmount("");
+        setTds("");
+        setEditingIndex(null);
+      } else {
+        alert(result.message || "Failed to update payment");
+      }
+    } catch (error) {
+      console.error("Update payment error:", error);
+      alert("An error occurred while updating payment");
+    }
+  };
 
   // Recalculate totals when payments change
   useEffect(() => {
@@ -5343,15 +5341,18 @@ const AdminDashboard = () => {
     setFilteredPaymentsData(paymentsData);
   }, [paymentsData]);
 
+  // ===== RESET FORM =====
   const resetContractorForm = () => {
     setCompanyName("");
     setName("");
     setEmail("");
     setAddress("");
+    setCity("");
     setCountry("");
     setPincode("");
     setPhoneNumber("");
     setMobileNumber("");
+    setEditId(null); // ✅ RESET EDIT ID
     setShowContractorRequirementAddForm(false);
     setShowContractorRequirementEditForm(false);
   };
@@ -5364,10 +5365,16 @@ const AdminDashboard = () => {
       const data = await res.json();
       setContractorRequirementData(data);
     } catch (error) {
-      // alert("Error fetching contractor requirements");
+      console.error("Error fetching contractor requirements:", error);
     }
   };
 
+  // ===== useEffect - LOAD DATA =====
+  useEffect(() => {
+    fetchContractorRequirements();
+  }, []);
+
+  // ===== ADD CONTRACTOR =====
   const addContractorRequirement = async () => {
     if (!companyName || !name) {
       alert("Please enter all required fields.");
@@ -5399,11 +5406,17 @@ const AdminDashboard = () => {
       resetContractorForm();
       fetchContractorRequirements();
     } catch (error) {
+      console.error("Error adding contractor:", error);
       alert("Error adding contractor requirement");
     }
   };
 
+  // ===== DELETE CONTRACTOR =====
   const deleteContractor = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this contractor?")) {
+      return;
+    }
+
     try {
       const res = await fetch(
         "https://inoptics.in/api/delete_contractor_requirement.php",
@@ -5418,54 +5431,76 @@ const AdminDashboard = () => {
       alert(data.message);
       fetchContractorRequirements();
     } catch (error) {
+      console.error("Error deleting contractor:", error);
       alert("Error deleting contractor");
     }
   };
 
-  const handleContractorEdit = (item) => {
-    setCompanyName(item.company_name || "");
-    setName(item.name || "");
-    setEmail(item.email || "");
-    setAddress(item.address || "");
-    setCity(item.city || "");
-    setCountry(item.country || "");
-    setPincode(item.pincode || "");
-    setPhoneNumber(item.phone_numbers || "");
-    setMobileNumber(item.mobile_numbers || "");
-    // setEditId(item.id);
-    setShowContractorRequirementAddForm(true); // to show the form
-  };
 
-  const updateContractorRequirement = async () => {
-    try {
-      const res = await fetch(
-        "https://inoptics.in/api/update_contractor_requirement.php",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            id: contractorId,
-            companyName,
-            name,
-            email,
-            address,
-            city,
-            country,
-            pincode,
-            phoneNumber,
-            mobileNumber,
-          }),
-        },
-      );
 
-      const data = await res.json();
-      alert(data.message);
-      resetContractorForm();
-      fetchContractorRequirements();
-    } catch (error) {
-      alert("Error updating contractor requirement");
-    }
-  };
+
+// ===== HANDLE EDIT (Already Correct) =====
+const handleContractorEdit = (item) => {
+  console.log("🔍 Edit item:", item); // Debug
+  
+  setCompanyName(item.company_name || "");
+  setName(item.name || "");
+  setEmail(item.email || "");
+  setAddress(item.address || "");
+  setCity(item.city || "");
+  setCountry(item.country || "");
+  setPincode(item.pincode || "");
+  setPhoneNumber(item.phone_numbers || "");
+  setMobileNumber(item.mobile_numbers || "");
+  setEditId(item.id);
+  
+  setShowContractorRequirementEditForm(true);
+  setShowContractorRequirementAddForm(false);
+};
+
+  // ===== 🔥 UPDATE CONTRACTOR (FIXED) =====
+const updateContractorRequirement = async () => {
+  if (!editId) {
+    alert("No contractor selected for editing");
+    return;
+  }
+
+  if (!companyName || !name) {
+    alert("Please enter all required fields.");
+    return;
+  }
+
+  try {
+    const res = await fetch(
+      "https://inoptics.in/api/update_contractor_requirement.php",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: editId,
+          company_name: companyName,        // ✅ Match database column
+          name: name,
+          email: email,
+          address: address,
+          city: city,
+          country: country,
+          pincode: pincode,
+          phone_numbers: phoneNumber,       // ✅ Match database column
+          mobile_numbers: mobileNumber,     // ✅ Match database column
+        }),
+      }
+    );
+
+    const data = await res.json();
+    alert(data.message);
+    resetContractorForm();
+    fetchContractorRequirements();
+  } catch (error) {
+    console.error("Error updating contractor:", error);
+    alert("Error updating contractor requirement");
+  }
+};
+
 
   const requiredStallFields = [
     "stall_number",
@@ -12466,47 +12501,97 @@ const AdminDashboard = () => {
     fetchUploadedForms();
   }, []);
 
-  const approveBooth = (company) => {
-    console.log("APPROVE CLICKED FOR:", company);
+  const approveBooth = async (company) => {
+  if (!company) {
+    alert("Company name missing");
+    return;
+  }
 
-    fetch("https://inoptics.in/api/approve_booth_design.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ company }),
-    })
-      .then((r) => r.text()) // 👈 read raw
-      .then((t) => {
-        console.log("RAW RESPONSE:", t);
-        const d = JSON.parse(t);
+  console.log("APPROVE CLICKED FOR:", company);
 
-        if (d.success) {
-          alert("Booth Design Approved");
-        } else {
-          alert("Not updated: " + (d.message || "No row matched"));
-        }
-      });
-  };
+  try {
+    const res = await fetch(
+      "https://inoptics.in/api/approve_booth_design.php",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ company }),
+      }
+    );
 
-  const rejectBooth = (company) => {
-    console.log("REJECT CLICKED FOR:", company);
+    const text = await res.text();
+    console.log("RAW RESPONSE:", text);
 
-    fetch("https://inoptics.in/api/reject_booth_design.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ company }),
-    })
-      .then((res) => res.text())
-      .then((text) => {
-        console.log("RAW RESPONSE:", text);
-        try {
-          const d = JSON.parse(text);
-          if (d.success) alert("Booth Design Rejected");
-          else alert("Failed: " + (d.message || text));
-        } catch (e) {
-          alert("Server returned invalid JSON:\n" + text);
-        }
-      });
-  };
+    if (!text) {
+      alert("Empty response from server");
+      return;
+    }
+
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      alert("Invalid JSON from server:\n" + text);
+      return;
+    }
+
+    if (data.success) {
+      alert("✅ Booth Design Approved");
+    } else {
+      alert("❌ Not updated: " + (data.message || "No row matched"));
+    }
+  } catch (err) {
+    console.error("Approve error:", err);
+    alert("Network / server error");
+  }
+};
+
+
+  const rejectBooth = async (company) => {
+  if (!company) {
+    alert("Company name missing");
+    return;
+  }
+
+  console.log("REJECT CLICKED FOR:", company);
+
+  try {
+    const res = await fetch(
+      "https://inoptics.in/api/reject_booth_design.php",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ company }),
+      }
+    );
+
+    const text = await res.text();
+    console.log("RAW RESPONSE:", text);
+
+    if (!text) {
+      alert("Empty response from server");
+      return;
+    }
+
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      alert("Invalid JSON from server:\n" + text);
+      return;
+    }
+
+    if (data.success) {
+      alert("❌ Booth Design Rejected");
+    } else {
+      alert("Failed: " + (data.message || "No row matched"));
+    }
+  } catch (err) {
+    console.error("Reject error:", err);
+    alert("Network / server error");
+  }
+};
+
 
   const buildCompanyRows = (data) => {
     const map = {};
@@ -12605,9 +12690,6 @@ const AdminDashboard = () => {
 
   const totalPaymentWithTDS =
     paymentTotals.totalPayment + paymentTotals.totalTDS;
-
-
-
 
   return (
     <div className="dashboard-container">
@@ -18960,21 +19042,24 @@ const AdminDashboard = () => {
                                                       </div>
                                                     )}
 
-
                                                     {/* ✅ TOTAL AFTER DISCOUNT */}
-{stallSummary.discounted_amount > 0 && (
-  <div className="billing-row">
-    <span>Total After Discount:</span>
-    <strong>
-      {(
-        stallSummary.total - stallSummary.discounted_amount
-      ).toFixed(2)}{" "}
-      {stallSummary.currency}
-    </strong>
-  </div>
-)}
-
-
+                                                    {stallSummary.discounted_amount >
+                                                      0 && (
+                                                      <div className="billing-row">
+                                                        <span>
+                                                          Total After Discount:
+                                                        </span>
+                                                        <strong>
+                                                          {(
+                                                            stallSummary.total -
+                                                            stallSummary.discounted_amount
+                                                          ).toFixed(2)}{" "}
+                                                          {
+                                                            stallSummary.currency
+                                                          }
+                                                        </strong>
+                                                      </div>
+                                                    )}
 
                                                     {formData.state?.toLowerCase() ===
                                                     "delhi" ? (
@@ -23805,22 +23890,6 @@ const AdminDashboard = () => {
                     Exhibitor Badges
                   </li>
                   <li
-                    onClick={() => setActiveNavbarItem("POWER LIST")}
-                    className={
-                      activeNavbarItem === "Power List" ? "active" : ""
-                    }
-                  >
-                    Power List
-                  </li>
-                  <li
-                    onClick={() => setActiveNavbarItem("CONTRACTOR LIST")}
-                    className={
-                      activeNavbarItem === "Contractor List" ? "active" : ""
-                    }
-                  >
-                    Contractor List
-                  </li>
-                  <li
                     onClick={() =>
                       setActiveNavbarItem("EXHIBITOR BADGES SERIES")
                     }
@@ -24755,80 +24824,83 @@ const AdminDashboard = () => {
                     </div>
 
                     {/* === Add Contractor Form === */}
-                    {showContractorRequirementAddForm && (
-                      <div className="contractors-modal-form">
-                        <h3>Add Contractor Requirement</h3>
-                        <label>Company Name</label>
-                        <input
-                          type="text"
-                          value={companyName}
-                          onChange={(e) => setCompanyName(e.target.value)}
-                        />
+                    {showContractorRequirementAddForm &&
+                      !showContractorRequirementEditForm && (
+                        <div className="contractors-modal-form">
+                          <h3>Add Contractor Requirement</h3>
+                          <label>Company Name</label>
+                          <input
+                            type="text"
+                            value={companyName}
+                            onChange={(e) => setCompanyName(e.target.value)}
+                          />
 
-                        <label>Name</label>
-                        <input
-                          type="text"
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                        />
+                          <label>Name</label>
+                          <input
+                            type="text"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                          />
 
-                        <label>Email (comma-separated)</label>
-                        <input
-                          type="text"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                        />
+                          <label>Email (comma-separated)</label>
+                          <input
+                            type="text"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                          />
 
-                        <label>Address (City)</label>
-                        <input
-                          type="text"
-                          value={address}
-                          onChange={(e) => setAddress(e.target.value)}
-                        />
+                          <label>Address</label>
+                          <input
+                            type="text"
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
+                          />
 
-                        <label>Country</label>
-                        <input
-                          type="text"
-                          value={country}
-                          onChange={(e) => setCountry(e.target.value)}
-                        />
+                          <label>State</label>
+                          <input
+                            type="text"
+                            value={country}
+                            onChange={(e) => setCountry(e.target.value)}
+                          />
 
-                        <label>City</label>
-                        <input
-                          type="text"
-                          value={city}
-                          onChange={(e) => setCity(e.target.value)}
-                        />
+                          <label>City</label>
+                          <input
+                            type="text"
+                            value={city}
+                            onChange={(e) => setCity(e.target.value)}
+                          />
 
-                        <label>Pincode</label>
-                        <input
-                          type="text"
-                          value={pincode}
-                          onChange={(e) => setPincode(e.target.value)}
-                        />
+                          <label>Pincode</label>
+                          <input
+                            type="text"
+                            value={pincode}
+                            onChange={(e) => setPincode(e.target.value)}
+                          />
 
-                        <label>Phone Number (comma-separated)</label>
-                        <input
-                          type="text"
-                          value={phoneNumber}
-                          onChange={(e) => setPhoneNumber(e.target.value)}
-                        />
+                          <label>Phone Number (comma-separated)</label>
+                          <input
+                            type="text"
+                            value={phoneNumber}
+                            onChange={(e) => setPhoneNumber(e.target.value)}
+                          />
 
-                        <label>Mobile Number (comma-separated)</label>
-                        <input
-                          type="text"
-                          value={mobileNumber}
-                          onChange={(e) => setMobileNumber(e.target.value)}
-                        />
+                          <label>Mobile Number (comma-separated)</label>
+                          <input
+                            type="text"
+                            value={mobileNumber}
+                            onChange={(e) => setMobileNumber(e.target.value)}
+                          />
 
-                        <button onClick={addContractorRequirement}>Add</button>
-                        <button onClick={resetContractorForm}>Cancel</button>
-                      </div>
-                    )}
+                          <button onClick={addContractorRequirement}>
+                            Add
+                          </button>
+                          <button onClick={resetContractorForm}>Cancel</button>
+                        </div>
+                      )}
 
                     {/* === Edit Contractor Form === */}
                     {showContractorRequirementEditForm && (
-                      <div className="modal-form">
+                      <div className="contractors-modal-form">
                         <h3>Edit Contractor Requirement</h3>
                         <label>Company Name</label>
                         <input
@@ -24858,7 +24930,7 @@ const AdminDashboard = () => {
                           onChange={(e) => setAddress(e.target.value)}
                         />
 
-                        <label>Country</label>
+                        <label>State</label>
                         <input
                           type="text"
                           value={country}

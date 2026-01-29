@@ -316,7 +316,7 @@ img, iframe, video {
 }
 
 .exhibitordashboard-declaration-content{
-   padding: 5px;
+ 
   flex: 1;
   overflow-y: auto;
 }
@@ -329,7 +329,7 @@ img, iframe, video {
 .exhibitordashboard-content {
   flex: 1;
   overflow-y: auto;
-  padding: 10px;
+  padding: 0 10px;
 }
 
 /* Dashboard grid now full width */
@@ -347,7 +347,7 @@ img, iframe, video {
 
 .exhibitordashboard-row {
   display: grid;
-  grid-template-columns: 54% 44%;  
+  grid-template-columns: 70% 44%;  
   gap: 2%;                        
   margin-bottom: 20px;
 }
@@ -355,8 +355,7 @@ img, iframe, video {
 /* Left side container: middle + right */
 .exhibitordashboard-left-container {
   display: grid;
-  grid-template-columns: 50% 50%; 
-  /* gap: 4%;                          */
+  grid-template-columns: 100%; 
 }
 
 /* Bottom rows (Particular container full width) */
@@ -367,6 +366,8 @@ img, iframe, video {
 /* Card styling */
 .exhibitordashboard-card {
   height: fit-content;
+  width: 100%;
+
 }
 
 .exhibitordashboard-card h3 {
@@ -736,7 +737,6 @@ img, iframe, video {
   font-weight: 600;
   margin-bottom: 15px;
   color: #201d1d;
-  border-bottom: 2px solid #ddd;
   padding-bottom: 5px;
 }
 .particular-cell {
@@ -3601,13 +3601,15 @@ iframe img {
 /* payment card style section start */
 .payment-card-grid {
   display: grid;
+  width: 80%;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  gap: 10px;
   align-items: stretch;
 }
 
 .payment-card {
   height: 100%;
+
   display: flex;
   flex-direction: column;
 }
@@ -3620,24 +3622,26 @@ iframe img {
 }
 
 /* Billing Box */
-.billing-summary {
+/* .billing-summary {
    flex-grow: 1;
   background: #fafafa;
   border-radius: 14px;
   padding: 18px;
   margin-top: 12px;
   border: 1px solid #eee;
+} */
+.payment-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 10px;
 }
-
 /* Each Row */
 .billing-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 10px 0;
   font-size: 14.5px;
   color: #555;
-  border-bottom: 1px dashed #e6e6e6;
 }
 
 .billing-row:last-child {
@@ -3881,3 +3885,354 @@ iframe img {
 
 
 
+/* Base */
+.Exhibitor-power-requirement-stalls-form-grid {
+  width: 100%;
+  transition: all 0.45s ease;
+}
+
+/* ACTIVE SLIDE */
+.Exhibitor-power-requirement-stalls-form-grid.slide-active {
+  position: relative;     /* 🔥 KEY FIX */
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+  z-index: 2;
+}
+
+/* INACTIVE LEFT */
+.Exhibitor-power-requirement-stalls-form-grid.slide-left {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transform: translateX(-120%);
+  pointer-events: none;
+}
+
+/* INACTIVE RIGHT */
+.Exhibitor-power-requirement-stalls-form-grid.slide-right {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transform: translateX(120%);
+  pointer-events: none;
+}
+
+
+
+
+
+
+/* =========================================================
+   🔥 FINAL RESPONSIVE OVERRIDES (DO NOT EDIT ABOVE CSS)
+   ========================================================= */
+
+/* ---------- FIX: container overflow ---------- */
+.exhibitordashboard-container {
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* =========================================================
+   MOBILE / TABLET TOP BAR (MENU ICON ALWAYS VISIBLE)
+   ========================================================= */
+
+.mobile-topbar {
+  display: none;
+}
+
+/* =========================================================
+   SIDEBAR DEFAULT (DESKTOP)
+   ========================================================= */
+
+.exhibitordashboard-sidebar {
+  position: relative;
+  z-index: 100;
+}
+
+/* =========================================================
+   TABLET + MOBILE BEHAVIOUR
+   ========================================================= */
+
+@media (max-width: 1024px) {
+
+  /* ---------- TOP BAR ---------- */
+  .mobile-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    height: fit-content;
+    width: fit-content;
+    padding: 0 0px;
+    position: fixed;
+    top: 15px;
+    left: 0;
+    right: 0;
+    z-index: 2000;
+  }
+
+  .mobile-toggle-btn {
+    background: none;
+    border: none;
+    color: #000000;
+    font-size: 24px;
+    cursor: pointer;
+   
+  }
+
+  /* ---------- SIDEBAR SLIDE ---------- */
+  .exhibitordashboard-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 260px;
+    transform: translateX(-100%);
+    transition: transform 0.35s ease;
+    z-index: 2100;
+  }
+
+  .exhibitordashboard-sidebar:not(.collapsed) {
+    transform: translateX(0);
+  }
+
+  /* ---------- OVERLAY ---------- */
+  .sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 1900;
+  }
+
+  /* ---------- MAIN CONTENT SHIFT ---------- */
+  .exhibitordashboard-main-content {
+    padding: 14px;
+  }
+
+  /* ---------- MENU TEXT HIDE (ICONS ONLY) ---------- */
+  .exhibitordashboard-sidebar.collapsed .label {
+    display: none;
+  }
+
+  .exhibitordashboard-sidebar-menu li {
+    justify-content: flex-start;
+  }
+}
+
+/* =========================================================
+   SMALL MOBILE (EXTRA SAFETY)
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+  .mobile-toggle-btn {
+    font-size: 22px;
+  }
+
+  .exhibitordashboard-sidebar {
+    width: 240px;
+  }
+
+  .exhibitordashboard-main-content {
+    padding: 10px;
+  }
+}
+
+/* =========================================================
+   🔒 HARD FIX — ICON NEVER DISAPPEARS
+   ========================================================= */
+
+.mobile-topbar,
+.mobile-toggle-btn {
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+
+
+
+
+/* ===========================
+   DASHBOARD OVERVIEW – RESPONSIVE FIX
+   =========================== */
+
+/* Root container */
+.exhibitordashboard-content {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* Grid wrapper */
+.exhibitordashboard-dashboard-grid {
+  width: 100%;
+}
+
+/* Big container */
+.exhibitordashboard-big-container {
+  width: 100%;
+}
+
+/* ================= TOP ROW ================= */
+.exhibitordashboard-row {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+
+
+/* Middle / Right cards */
+.exhibitordashboard-middle,
+.exhibitordashboard-right {
+  width: 100%;
+}
+
+/* Card */
+.exhibitordashboard-card {
+  border-radius: 14px;
+  padding: 16px;
+  width: 100%;
+}
+
+/* Headings */
+.exhibitordashboard-card h2,
+.exhibitordashboard-card h3 {
+  margin-top: 0;
+}
+
+/* ================= PAYMENT REVIEW ================= */
+.particular-heading {
+  font-size: 22px;
+  margin-bottom: 14px;
+}
+
+/* Table wrapper */
+.stall-payment-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+.exhibitordashboard-bottom {
+  width: 100%;
+}
+
+/* Table scroll on small screens */
+.exhibitordashboard-bottom table {
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+/* ================= CHECKLIST ================= */
+.checklist-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.checklist-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+/* ================= EVENT + NEWS ================= */
+.event-schedule-description {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.news-item h4 {
+  font-size: 15px;
+}
+
+.news-item p {
+  font-size: 13px;
+}
+
+/* ===========================
+   TABLET (≤1024px)
+   =========================== */
+@media (max-width: 1024px) {
+
+  .exhibitordashboard-row {
+    grid-template-columns: 1fr;
+  }
+
+  .exhibitordashboard-left-container {
+    grid-template-columns: 1fr;
+  }
+
+  .exhibitordashboard-right {
+    order: 2;
+  }
+
+  .exhibitordashboard-middle {
+    order: 1;
+  }
+
+  .exhibitordashboard-bottom {
+    margin-top: 20px;
+  }
+}
+
+/* ===========================
+   MOBILE (≤600px)
+   =========================== */
+@media (max-width: 600px) {
+
+  /* Cards tighter */
+  .exhibitordashboard-card {
+    padding: 14px;
+  }
+
+  /* Headings smaller */
+  .exhibitordashboard-card h2 {
+    font-size: 18px;
+  }
+
+  .exhibitordashboard-card h3 {
+    font-size: 16px;
+  }
+
+  /* Checklist compact */
+  .checklist-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 13px;
+  }
+
+  .checklist-status {
+    align-self: flex-end;
+    font-size: 12px;
+  }
+
+  /* Payment table scroll hint */
+  .stall-payment-table {
+    font-size: 12px;
+  }
+
+  .stall-payment-table th,
+  .stall-payment-table td {
+    padding: 8px;
+  }
+
+  /* News spacing */
+  .news-item {
+    margin-bottom: 12px;
+  }
+
+  /* Avoid overflow */
+  .exhibitordashboard-content {
+    padding-bottom: 40px;
+  }
+}

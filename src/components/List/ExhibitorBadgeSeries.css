@@ -171,3 +171,71 @@
     align-items: center;
   }
 }
+
+
+
+.badge-series-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 30px;
+}
+
+.unlock-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.unlock-table th,
+.unlock-table td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+
+.eye-btn{
+  background: #eee;
+  border: none;
+  border-radius: 4px;
+}
+.eye-btn:hover{
+  background: #c7c7c7;
+}
+
+
+/* ===============================
+   ACTION BUTTONS
+================================ */
+.action {
+  display: flex;
+  gap: 6px;
+}
+
+.action button {
+  border: none;
+  background: #eef3f8;
+  padding: 10px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #333;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.action button:hover {
+  background: #dbe7f3;
+  transform: translateY(-1px);
+}
+
+.action .danger {
+  background: #ffe5e5;
+  color: #b10000;
+}
+
+.action .danger:hover {
+  background: #ffcccc;
+}
+
+

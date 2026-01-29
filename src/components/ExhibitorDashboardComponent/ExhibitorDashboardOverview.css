@@ -1,0 +1,186 @@
+/* ===========================
+   DASHBOARD OVERVIEW – RESPONSIVE FIX
+   =========================== */
+
+/* Root container */
+.exhibitordashboard-content {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* Grid wrapper */
+.exhibitordashboard-dashboard-grid {
+  width: 100%;
+}
+
+/* Big container */
+.exhibitordashboard-big-container {
+  width: 100%;
+}
+
+/* ================= TOP ROW ================= */
+.exhibitordashboard-row {
+  display: grid;
+  grid-template-columns: 1fr 500px;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+
+
+/* Middle / Right cards */
+.exhibitordashboard-middle,
+.exhibitordashboard-right {
+  width: 100%;
+}
+
+/* Card */
+.exhibitordashboard-card {
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  padding: 16px;
+  width: 100%;
+}
+
+/* Headings */
+.exhibitordashboard-card h2,
+.exhibitordashboard-card h3 {
+  margin-top: 0;
+}
+
+/* ================= PAYMENT REVIEW ================= */
+.particular-heading {
+  font-size: 22px;
+  margin-bottom: 14px;
+}
+
+/* Table wrapper */
+.stall-payment-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+.exhibitordashboard-bottom {
+  width: 100%;
+}
+
+/* Table scroll on small screens */
+.exhibitordashboard-bottom table {
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.exhibitordashboard-left-container-desktop{
+    display: flex !important;
+    justify-content: space-between !important;
+}
+/* ================= CHECKLIST ================= */
+.checklist-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.checklist-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+/* ================= EVENT + NEWS ================= */
+.event-schedule-description {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.news-item h4 {
+  font-size: 15px;
+}
+
+.news-item p {
+  font-size: 13px;
+}
+
+/* ===========================
+   TABLET (≤1024px)
+   =========================== */
+@media (max-width: 1024px) {
+
+  .exhibitordashboard-row {
+    grid-template-columns: 1fr;
+  }
+
+  .exhibitordashboard-left-container {
+    grid-template-columns: 1fr;
+  }
+
+  .exhibitordashboard-right {
+    order: 2;
+  }
+
+  .exhibitordashboard-middle {
+    order: 1;
+  }
+
+  .exhibitordashboard-bottom {
+    margin-top: 20px;
+  }
+}
+
+/* ===========================
+   MOBILE (≤600px)
+   =========================== */
+@media (max-width: 600px) {
+
+  /* Cards tighter */
+  .exhibitordashboard-card {
+    padding: 14px;
+  }
+
+  /* Headings smaller */
+  .exhibitordashboard-card h2 {
+    font-size: 18px;
+  }
+
+  .exhibitordashboard-card h3 {
+    font-size: 16px;
+  }
+
+  /* Checklist compact */
+  .checklist-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 13px;
+  }
+
+  .checklist-status {
+    align-self: flex-end;
+    font-size: 12px;
+  }
+
+  /* Payment table scroll hint */
+  .stall-payment-table {
+    font-size: 12px;
+  }
+
+  .stall-payment-table th,
+  .stall-payment-table td {
+    padding: 8px;
+  }
+
+  /* News spacing */
+  .news-item {
+    margin-bottom: 12px;
+  }
+
+  /* Avoid overflow */
+  .exhibitordashboard-content {
+    padding-bottom: 40px;
+  }
+}

@@ -20,6 +20,8 @@ import {
 } from "react-icons/fa";
 import "./ExhibitorDashboard.css";
 import ExhibitorBadgeForm from "./ExhibitorBadgeForm";
+import ExhibitorPowerForm from "./ExhibitorDashboardComponent/ExhibitorPowerForm";
+import ExhibitorDashboardOverview from "./ExhibitorDashboardComponent/ExhibitorDashboardOverview";
 
 const ExhibitorDashboard = () => {
   const navigate = useNavigate();
@@ -35,12 +37,15 @@ const ExhibitorDashboard = () => {
     step3: null,
   });
   const [boothDesignStatus, setBoothDesignStatus] = useState("pending");
+  const [boothDesignName, setBoothDesignName] = useState("");
 
   const [selectedPreviewStep, setSelectedPreviewStep] = useState("step1");
+  const [powerFormStep, setPowerFormStep] = useState(0);
 
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewURL, setPreviewURL] = useState(null);
   const [showPreview, setShowPreview] = useState(false);
+  const [showBoothDesignPreview, setShowBoothDesignPreview] = useState(false);
   const [exhibitorData, setExhibitorData] = useState(null);
   const [showDeclaration, setShowDeclaration] = useState(false);
   const [declarationUndertakingData, setDeclarationUndertakingData] = useState(
@@ -544,6 +549,21 @@ const ExhibitorDashboard = () => {
     }
   };
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 768) {
+        setCollapsed(true); // mobile → close
+      } else {
+        setCollapsed(false); // desktop → open
+      }
+    };
+
+    handleResize(); // page load par bhi run hoga
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const handleMenuClick = (menu) => {
     setActiveMenu(menu);
     setImportantPage(""); // close any important page
@@ -551,6 +571,11 @@ const ExhibitorDashboard = () => {
     if (menu === "Additional Requirements") {
       setImportantPage("Furniture Requirements");
       return;
+    }
+
+    // 👇 mobile me click ke baad menu band
+    if (window.innerWidth <= 768) {
+      setCollapsed(true);
     }
 
     if (menu === "Mails Inbox" && currentExhibitor) {
@@ -1326,7 +1351,7 @@ const ExhibitorDashboard = () => {
   };
 
   // ====== Handle NEXT (SETUP DAYS) ======
-  const handleNext = () => {
+  const handlePowerFormNext = () => {
     if (!exhibitorPowerRequired || !exhibitorPhase) {
       alert("Please fill all required fields before continuing.");
       return;
@@ -1345,20 +1370,64 @@ const ExhibitorDashboard = () => {
       totalAmount,
     };
 
-    // Add SETUP DAYS to table immediately
     setPreviewTableList([newRow]);
     setExhibitorPowerRequired("");
     setExhibitorPhase("");
     setExhibitorTotalAmount("");
-    setCurrentStep(1); // go to EXHIBITION DAYS
+
+    setPowerFormStep(1); // 👉 EXHIBITION DAYS
   };
 
   const handleRemoveRow = (index) => {
     setPreviewTableList((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handlePrevious = () => {
-    if (currentStep > 0) setCurrentStep((s) => s - 1);
+  const handlePowerFormPrevious = () => {
+    if (powerFormStep > 0) {
+      setPowerFormStep((prev) => prev - 1);
+    }
+  };
+
+  const handlePowerFormAdd = () => {
+    if (!exhibitorPowerRequired || !exhibitorPhase) {
+      alert("Please fill all required fields.");
+      return;
+    }
+
+    const totalAmount = (
+      parseFloat(exhibitorPowerRequired || 0) *
+      parseFloat(exhibitorPricePerKw || 0)
+    ).toFixed(2);
+
+    const newRow = {
+      day: "Exhibition Days",
+      pricePerKw: exhibitorPricePerKw,
+      powerRequired: exhibitorPowerRequired,
+      phase: exhibitorPhase,
+      totalAmount,
+    };
+
+    setPreviewTableList((prev) => [...prev, newRow]);
+    setExhibitorPowerRequired("");
+    setExhibitorPhase("");
+    setExhibitorTotalAmount("");
+  };
+
+  const handlePowerFormPowerChange = (e) => {
+    const power = e.target.value;
+    setExhibitorPowerRequired(power);
+
+    if (exhibitorPricePerKw && power) {
+      const total =
+        parseFloat(exhibitorPricePerKw || 0) * parseFloat(power || 0);
+      setExhibitorTotalAmount(isNaN(total) ? "" : total.toFixed(2));
+    } else {
+      setExhibitorTotalAmount("");
+    }
+  };
+
+  const handlePowerFormPhaseChange = (e) => {
+    setExhibitorPhase(e.target.value);
   };
 
   // ===== Handle Full Power Data Reset (Delete both Setup & Exhibition Days) =====
@@ -2444,6 +2513,66 @@ const ExhibitorDashboard = () => {
     }
   };
 
+  const handleFileSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setSelectedFile(file);
+    setPreviewURL(URL.createObjectURL(file));
+    setShowBoothDesignPreview(true);
+
+    e.target.value = null;
+  };
+
+  // booth design upload handler
+  const handleBoothDesignUpload = async () => {
+    if (!selectedFile) {
+      toast.error("No file selected");
+      return;
+    }
+
+    console.log("Uploading file for company:", formData.company_name);
+
+    if (!formData.company_name) {
+      toast.error("Company name missing");
+      return;
+    }
+
+    const uploadData = new FormData();
+    uploadData.append("file", selectedFile);
+    uploadData.append("company_name", formData.company_name);
+
+    try {
+      const res = await fetch(
+        "https://inoptics.in/api/upload_booth_design_file.php",
+        { method: "POST", body: uploadData },
+      );
+
+      const text = await res.text();
+      console.log("RAW RESPONSE:", text);
+
+      const data = JSON.parse(text);
+
+      if (!data.success) {
+        toast.error(data.message);
+        return;
+      }
+
+      toast.success("Booth design uploaded successfully!");
+
+      setShowBoothDesignPreview(false);
+      setSelectedFile(null);
+      setPreviewURL(null);
+      setUploadedSteps((prev) => ({
+          ...prev,
+          [`step${currentStep}`]: true,
+        }));
+    } catch (err) {
+      console.error(err);
+      toast.error("Upload failed");
+    }
+  };
+
   // upload form file download handler
 
   const forceDownload = async (filePath) => {
@@ -2550,9 +2679,26 @@ const ExhibitorDashboard = () => {
     }
   };
 
+  const handleExhibitorFormDownload = (url, fileName) => {
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", fileName);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="exhibitordashboard-container">
       {/* Sidebar */}
+      <div className="mobile-topbar">
+        <button
+          className="mobile-toggle-btn"
+          onClick={() => setCollapsed(!collapsed)}
+        >
+          <FaBars />
+        </button>
+      </div>
       <aside
         className={`exhibitordashboard-sidebar ${collapsed ? "collapsed" : ""}`}
       >
@@ -2571,7 +2717,12 @@ const ExhibitorDashboard = () => {
             <li
               key={menu.name}
               className={activeMenu === menu.name ? "active" : ""}
-              onClick={() => handleMenuClick(menu.name)}
+              onClick={() => {
+                handleMenuClick(menu.name);
+                if (window.innerWidth <= 1024) {
+                  setCollapsed(true); // 👈 mobile / tablet me auto close
+                }
+              }}
               style={{ position: "relative" }}
             >
               <span className="icon">{menu.icon}</span>
@@ -2583,7 +2734,15 @@ const ExhibitorDashboard = () => {
             </li>
           ))}
 
-          <li onClick={handleLogout} className="logout-btn">
+          <li
+            className="logout-btn"
+            onClick={() => {
+              handleLogout();
+              if (window.innerWidth <= 1024) {
+                setCollapsed(true);
+              }
+            }}
+          >
             <span className="icon">
               <FaSignOutAlt />
             </span>
@@ -2592,9 +2751,13 @@ const ExhibitorDashboard = () => {
         </ul>
       </aside>
 
+      {!collapsed && window.innerWidth <= 1024 && (
+        <div className="sidebar-overlay" onClick={() => setCollapsed(true)} />
+      )}
+
       <div className="exhibitordashboard-main-content">
         <header className="exhibitordashboard-navbar">
-          <h1>Welcome, {exhibitorData?.company_name || "Exhibitor"}</h1>
+          <h1>{activeMenu}</h1>
 
           {/* Profile dropdown now inside navbar */}
           <div className="exhibitordashboard-profile-menu-wrapper">
@@ -2679,11 +2842,9 @@ const ExhibitorDashboard = () => {
 
         {/* Overlay Panel for Additional Requirements */}
         {(activeMenu === "Additional Requirements" ||
-          [
-            "Furniture Requirements",
-            "Power Requirement",
-            "Extra Exhibitor Badges",
-          ].includes(importantPage)) && (
+          ["Furniture Requirements", "Power Requirement"].includes(
+            importantPage,
+          )) && (
           <div className="exhibitordashboard-dashboard-overlay-panel open">
             <header className="exhibitordashboard-undertaking-dashboard-header">
               <ul className="exhibitordashboard-header-menu horizontal-list">
@@ -2709,20 +2870,6 @@ const ExhibitorDashboard = () => {
                     onClick={() => handleImportantClick("Power Requirement")}
                   >
                     Power Requirement
-                  </button>
-                </li>
-                <li>
-                  <button
-                    className={`exhibitordashboard-header-menu-tab ${
-                      importantPage === "Extra Exhibitor Badges"
-                        ? "active-tab"
-                        : ""
-                    }`}
-                    onClick={() =>
-                      handleImportantClick("Extra Exhibitor Badges")
-                    }
-                  >
-                    Extra Exhibitor Badges
                   </button>
                 </li>
               </ul>
@@ -2776,392 +2923,403 @@ const ExhibitorDashboard = () => {
               {!importantPage &&
                 activeMenu === "Dashboard" &&
                 exhibitorData && (
-                  <div className="exhibitordashboard-content">
-                    <div className="exhibitordashboard-dashboard-grid">
-                      <div className="exhibitordashboard-big-container">
-                        <div className="exhibitordashboard-row">
-                          <div className="exhibitordashboard-left-container">
-                            <div className="exhibitordashboard-middle">
-                              <div className="exhibitordashboard-card">
-                                <div className="exhibitordashboard-section">
-                                  <h3>Event Schedule</h3>
-                                  {eventScheduleData.length === 0 ? (
-                                    <p>No event schedule found.</p>
-                                  ) : (
-                                    <div className="event-schedule-description">
-                                      <div
-                                        dangerouslySetInnerHTML={{
-                                          __html:
-                                            eventScheduleData[0].description,
-                                        }}
-                                      />
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
+                  // <div className="exhibitordashboard-content">
+                  //   <div className="exhibitordashboard-dashboard-grid">
+                  //     <div className="exhibitordashboard-big-container">
+                  //       <div className="exhibitordashboard-row">
+                  //         <div className="exhibitordashboard-left-container">
+                  //           <div className="exhibitordashboard-middle">
+                  //             <div className="exhibitordashboard-card">
+                  //               <div className="exhibitordashboard-section">
+                  //                 <h3>Event Schedule</h3>
+                  //                 {eventScheduleData.length === 0 ? (
+                  //                   <p>No event schedule found.</p>
+                  //                 ) : (
+                  //                   <div className="event-schedule-description">
+                  //                     <div
+                  //                       dangerouslySetInnerHTML={{
+                  //                         __html:
+                  //                           eventScheduleData[0].description,
+                  //                       }}
+                  //                     />
+                  //                   </div>
+                  //                 )}
+                  //               </div>
+                  //             </div>
+                  //           </div>
 
-                            {/* Right container (Latest News) */}
-                            <div className="exhibitordashboard-right">
-                              <div className="exhibitordashboard-card">
-                                <div className="exhibitordashboard-section">
-                                  <h3>Latest News</h3>
-                                  {latestNewsData.length === 0 ? (
-                                    <p>No latest news available.</p>
-                                  ) : (
-                                    latestNewsData.map((item, index) => (
-                                      <div key={index} className="news-item">
-                                        <h4>{item.title}</h4>
-                                        <p>{item.text}</p>
-                                        {item.news_link && (
-                                          <a
-                                            href={item.news_link}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="news-link"
-                                          >
-                                            Read more →
-                                          </a>
-                                        )}
-                                      </div>
-                                    ))
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+                  //           {/* Right container (Latest News) */}
+                  //           <div className="exhibitordashboard-right">
+                  //             <div className="exhibitordashboard-card">
+                  //               <div className="exhibitordashboard-section">
+                  //                 <h3>Latest News</h3>
+                  //                 {latestNewsData.length === 0 ? (
+                  //                   <p>No latest news available.</p>
+                  //                 ) : (
+                  //                   latestNewsData.map((item, index) => (
+                  //                     <div key={index} className="news-item">
+                  //                       <h4>{item.title}</h4>
+                  //                       <p>{item.text}</p>
+                  //                       {item.news_link && (
+                  //                         <a
+                  //                           href={item.news_link}
+                  //                           target="_blank"
+                  //                           rel="noopener noreferrer"
+                  //                           className="news-link"
+                  //                         >
+                  //                           Read more →
+                  //                         </a>
+                  //                       )}
+                  //                     </div>
+                  //                   ))
+                  //                 )}
+                  //               </div>
+                  //             </div>
+                  //           </div>
+                  //         </div>
 
-                          {/* Right side: Exhibitor Checklist */}
-                          <div className="exhibitordashboard-bottom">
-                            <div className="exhibitordashboard-card">
-                              <h3>Exhibitor Checklist</h3>
+                  //         {/* Right side: Exhibitor Checklist */}
+                  //         <div className="exhibitordashboard-bottom">
+                  //           <div className="exhibitordashboard-card">
+                  //             <h3>Exhibitor Checklist</h3>
 
-                              <div className="checklist-list">
-                                {activities.map((item) => {
-                                  const isDone = item.done;
+                  //             <div className="checklist-list">
+                  //               {activities.map((item) => {
+                  //                 const isDone = item.done;
 
-                                  return (
-                                    <div
-                                      key={item.id}
-                                      className={`checklist-row ${
-                                        isDone ? "completed" : "pending"
-                                      }`}
-                                    >
-                                      <div className="checklist-left">
-                                        <span className="checklist-icon">
-                                          {isDone ? "✓" : "!"}
-                                        </span>
+                  //                 return (
+                  //                   <div
+                  //                     key={item.id}
+                  //                     className={`checklist-row ${
+                  //                       isDone ? "completed" : "pending"
+                  //                     }`}
+                  //                   >
+                  //                     <div className="checklist-left">
+                  //                       <span className="checklist-icon">
+                  //                         {isDone ? "✓" : "!"}
+                  //                       </span>
 
-                                        <span className="checklist-name">
-                                          {item.name}
-                                        </span>
-                                      </div>
+                  //                       <span className="checklist-name">
+                  //                         {item.name}
+                  //                       </span>
+                  //                     </div>
 
-                                      <span className="checklist-status">
-                                        {isDone ? "Completed" : "Pending"}
-                                      </span>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+                  //                     <span className="checklist-status">
+                  //                       {isDone ? "Completed" : "Pending"}
+                  //                     </span>
+                  //                   </div>
+                  //                 );
+                  //               })}
+                  //             </div>
+                  //           </div>
+                  //         </div>
+                  //       </div>
 
-                        <div className="exhibitordashboard-bottom">
-                          <div className="exhibitordashboard-card">
-                            <h2 className="particular-heading">
-                              Exhibitor Payments Review
-                            </h2>
+                  //       <div className="exhibitordashboard-bottom">
+                  //         <div className="exhibitordashboard-card">
+                  //           <h2 className="particular-heading">
+                  //             Exhibitor Payments Review
+                  //           </h2>
 
-                            {stallList.length === 0 ? (
-                              <p className="profile-empty">
-                                No stall details found.
-                              </p>
-                            ) : (
-                              (() => {
-                                const showSGST = stallList.some(
-                                  (s) => parseFloat(s.sgst_9_percent) > 0,
-                                );
-                                const showCGST = stallList.some(
-                                  (s) => parseFloat(s.cgst_9_percent) > 0,
-                                );
-                                const showIGST = stallList.some(
-                                  (s) => parseFloat(s.igst_18_percent) > 0,
-                                );
+                  //           {stallList.length === 0 ? (
+                  //             <p className="profile-empty">
+                  //               No stall details found.
+                  //             </p>
+                  //           ) : (
+                  //             (() => {
+                  //               const showSGST = stallList.some(
+                  //                 (s) => parseFloat(s.sgst_9_percent) > 0,
+                  //               );
+                  //               const showCGST = stallList.some(
+                  //                 (s) => parseFloat(s.cgst_9_percent) > 0,
+                  //               );
+                  //               const showIGST = stallList.some(
+                  //                 (s) => parseFloat(s.igst_18_percent) > 0,
+                  //               );
 
-                                return (
-                                  <table className="stall-payment-table">
-                                    <thead>
-                                      <tr>
-                                        <th className="particular-col">
-                                          Particular
-                                        </th>
-                                        <th>Price/sq mtr</th>
-                                        <th>Amount</th>
-                                        {showSGST && <th>SGST (9%)</th>}
-                                        {showCGST && <th>CGST (9%)</th>}
-                                        {showIGST && <th>IGST (18%)</th>}
-                                        <th>Grand Total</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      {stallList.map((stall, idx) => (
-                                        <tr key={idx}>
-                                          <td className="particular-cell">
-                                            {`This is for the Stall Booking: Stall No: ${
-                                              stall.stall_number || "N/A"
-                                            }, Category: ${
-                                              stall.stall_category || "N/A"
-                                            }, Area: ${
-                                              stall.stall_area
-                                                ? `${stall.stall_area} sq. mtr`
-                                                : "N/A"
-                                            }`}
-                                          </td>
+                  //               return (
+                  //                 <table className="stall-payment-table">
+                  //                   <thead>
+                  //                     <tr>
+                  //                       <th className="particular-col">
+                  //                         Particular
+                  //                       </th>
+                  //                       <th>Price/sq mtr</th>
+                  //                       <th>Amount</th>
+                  //                       {showSGST && <th>SGST (9%)</th>}
+                  //                       {showCGST && <th>CGST (9%)</th>}
+                  //                       {showIGST && <th>IGST (18%)</th>}
+                  //                       <th>Grand Total</th>
+                  //                     </tr>
+                  //                   </thead>
+                  //                   <tbody>
+                  //                     {stallList.map((stall, idx) => (
+                  //                       <tr key={idx}>
+                  //                         <td className="particular-cell">
+                  //                           {`This is for the Stall Booking: Stall No: ${
+                  //                             stall.stall_number || "N/A"
+                  //                           }, Category: ${
+                  //                             stall.stall_category || "N/A"
+                  //                           }, Area: ${
+                  //                             stall.stall_area
+                  //                               ? `${stall.stall_area} sq. mtr`
+                  //                               : "N/A"
+                  //                           }`}
+                  //                         </td>
 
-                                          <td>
-                                            {stall.stall_price
-                                              ? `₹${stall.stall_price}`
-                                              : "-"}
-                                          </td>
+                  //                         <td>
+                  //                           {stall.stall_price
+                  //                             ? `₹${stall.stall_price}`
+                  //                             : "-"}
+                  //                         </td>
 
-                                          <td>
-                                            {stall.total
-                                              ? `₹${stall.total}`
-                                              : "-"}
-                                          </td>
+                  //                         <td>
+                  //                           {stall.total
+                  //                             ? `₹${stall.total}`
+                  //                             : "-"}
+                  //                         </td>
 
-                                          {showSGST && (
-                                            <td>
-                                              {parseFloat(
-                                                stall.sgst_9_percent,
-                                              ) > 0
-                                                ? `₹${stall.sgst_9_percent}`
-                                                : "-"}
-                                            </td>
-                                          )}
-                                          {showCGST && (
-                                            <td>
-                                              {parseFloat(
-                                                stall.cgst_9_percent,
-                                              ) > 0
-                                                ? `₹${stall.cgst_9_percent}`
-                                                : "-"}
-                                            </td>
-                                          )}
-                                          {showIGST && (
-                                            <td>
-                                              {parseFloat(
-                                                stall.igst_18_percent,
-                                              ) > 0
-                                                ? `₹${stall.igst_18_percent}`
-                                                : "-"}
-                                            </td>
-                                          )}
+                  //                         {showSGST && (
+                  //                           <td>
+                  //                             {parseFloat(
+                  //                               stall.sgst_9_percent,
+                  //                             ) > 0
+                  //                               ? `₹${stall.sgst_9_percent}`
+                  //                               : "-"}
+                  //                           </td>
+                  //                         )}
+                  //                         {showCGST && (
+                  //                           <td>
+                  //                             {parseFloat(
+                  //                               stall.cgst_9_percent,
+                  //                             ) > 0
+                  //                               ? `₹${stall.cgst_9_percent}`
+                  //                               : "-"}
+                  //                           </td>
+                  //                         )}
+                  //                         {showIGST && (
+                  //                           <td>
+                  //                             {parseFloat(
+                  //                               stall.igst_18_percent,
+                  //                             ) > 0
+                  //                               ? `₹${stall.igst_18_percent}`
+                  //                               : "-"}
+                  //                           </td>
+                  //                         )}
 
-                                          <td className="grand-total-cell">
-                                            {stall.grand_total
-                                              ? `₹${stall.grand_total}`
-                                              : "-"}
-                                          </td>
-                                        </tr>
-                                      ))}
+                  //                         <td className="grand-total-cell">
+                  //                           {stall.grand_total
+                  //                             ? `₹${stall.grand_total}`
+                  //                             : "-"}
+                  //                         </td>
+                  //                       </tr>
+                  //                     ))}
 
-                                      {powerData.length > 0 &&
-                                        (() => {
-                                          const showSGST = stallList.some(
-                                            (s) =>
-                                              parseFloat(s.sgst_9_percent) > 0,
-                                          );
-                                          const showCGST = stallList.some(
-                                            (s) =>
-                                              parseFloat(s.cgst_9_percent) > 0,
-                                          );
-                                          const showIGST = stallList.some(
-                                            (s) =>
-                                              parseFloat(s.igst_18_percent) > 0,
-                                          );
+                  //                     {powerData.length > 0 &&
+                  //                       (() => {
+                  //                         const showSGST = stallList.some(
+                  //                           (s) =>
+                  //                             parseFloat(s.sgst_9_percent) > 0,
+                  //                         );
+                  //                         const showCGST = stallList.some(
+                  //                           (s) =>
+                  //                             parseFloat(s.cgst_9_percent) > 0,
+                  //                         );
+                  //                         const showIGST = stallList.some(
+                  //                           (s) =>
+                  //                             parseFloat(s.igst_18_percent) > 0,
+                  //                         );
 
-                                          const setup = powerData.find((p) =>
-                                            p.day
-                                              ?.toLowerCase()
-                                              .includes("setup"),
-                                          );
-                                          const exhibition = powerData.find(
-                                            (p) =>
-                                              p.day
-                                                ?.toLowerCase()
-                                                .includes("exhibition"),
-                                          );
+                  //                         const setup = powerData.find((p) =>
+                  //                           p.day
+                  //                             ?.toLowerCase()
+                  //                             .includes("setup"),
+                  //                         );
+                  //                         const exhibition = powerData.find(
+                  //                           (p) =>
+                  //                             p.day
+                  //                               ?.toLowerCase()
+                  //                               .includes("exhibition"),
+                  //                         );
 
-                                          const calcTotals = (row) => {
-                                            if (!row)
-                                              return {
-                                                amount: 0,
-                                                sgst: 0,
-                                                cgst: 0,
-                                                igst: 0,
-                                                grandTotal: 0,
-                                              };
+                  //                         const calcTotals = (row) => {
+                  //                           if (!row)
+                  //                             return {
+                  //                               amount: 0,
+                  //                               sgst: 0,
+                  //                               cgst: 0,
+                  //                               igst: 0,
+                  //                               grandTotal: 0,
+                  //                             };
 
-                                            const amount = parseFloat(
-                                              row.total_amount || 0,
-                                            );
-                                            let sgst = 0,
-                                              cgst = 0,
-                                              igst = 0,
-                                              grandTotal = amount;
+                  //                           const amount = parseFloat(
+                  //                             row.total_amount || 0,
+                  //                           );
+                  //                           let sgst = 0,
+                  //                             cgst = 0,
+                  //                             igst = 0,
+                  //                             grandTotal = amount;
 
-                                            if (showSGST || showCGST) {
-                                              sgst = amount * 0.09;
-                                              cgst = amount * 0.09;
-                                              grandTotal = amount + sgst + cgst;
-                                            } else if (showIGST) {
-                                              igst = amount * 0.18;
-                                              grandTotal = amount + igst;
-                                            }
+                  //                           if (showSGST || showCGST) {
+                  //                             sgst = amount * 0.09;
+                  //                             cgst = amount * 0.09;
+                  //                             grandTotal = amount + sgst + cgst;
+                  //                           } else if (showIGST) {
+                  //                             igst = amount * 0.18;
+                  //                             grandTotal = amount + igst;
+                  //                           }
 
-                                            return {
-                                              amount,
-                                              sgst,
-                                              cgst,
-                                              igst,
-                                              grandTotal,
-                                            };
-                                          };
+                  //                           return {
+                  //                             amount,
+                  //                             sgst,
+                  //                             cgst,
+                  //                             igst,
+                  //                             grandTotal,
+                  //                           };
+                  //                         };
 
-                                          const setupTotals = calcTotals(setup);
-                                          const exhibitionTotals =
-                                            calcTotals(exhibition);
+                  //                         const setupTotals = calcTotals(setup);
+                  //                         const exhibitionTotals =
+                  //                           calcTotals(exhibition);
 
-                                          return (
-                                            <>
-                                              <tr>
-                                                <td className="particular-cell">
-                                                  This is for Power Requirement{" "}
-                                                  {setup?.day || "SETUP DAYS"} :{" "}
-                                                  {setup?.power_required || 0}{" "}
-                                                  Unit
-                                                </td>
-                                                <td>
-                                                  {setup?.price_per_kw
-                                                    ? `₹${setup.price_per_kw}`
-                                                    : "-"}
-                                                </td>
-                                                <td>
-                                                  {setupTotals.amount
-                                                    ? `₹${setupTotals.amount.toFixed(
-                                                        2,
-                                                      )}`
-                                                    : "-"}
-                                                </td>
-                                                {showSGST && (
-                                                  <td>
-                                                    {setupTotals.sgst
-                                                      ? `₹${setupTotals.sgst.toFixed(
-                                                          2,
-                                                        )}`
-                                                      : "-"}
-                                                  </td>
-                                                )}
-                                                {showCGST && (
-                                                  <td>
-                                                    {setupTotals.cgst
-                                                      ? `₹${setupTotals.cgst.toFixed(
-                                                          2,
-                                                        )}`
-                                                      : "-"}
-                                                  </td>
-                                                )}
-                                                {showIGST && (
-                                                  <td>
-                                                    {setupTotals.igst
-                                                      ? `₹${setupTotals.igst.toFixed(
-                                                          2,
-                                                        )}`
-                                                      : "-"}
-                                                  </td>
-                                                )}
-                                                <td className="grand-total-cell">
-                                                  {setupTotals.grandTotal
-                                                    ? `₹${setupTotals.grandTotal.toFixed(
-                                                        2,
-                                                      )}`
-                                                    : "-"}
-                                                </td>
-                                              </tr>
+                  //                         return (
+                  //                           <>
+                  //                             <tr>
+                  //                               <td className="particular-cell">
+                  //                                 This is for Power Requirement{" "}
+                  //                                 {setup?.day || "SETUP DAYS"} :{" "}
+                  //                                 {setup?.power_required || 0}{" "}
+                  //                                 Unit
+                  //                               </td>
+                  //                               <td>
+                  //                                 {setup?.price_per_kw
+                  //                                   ? `₹${setup.price_per_kw}`
+                  //                                   : "-"}
+                  //                               </td>
+                  //                               <td>
+                  //                                 {setupTotals.amount
+                  //                                   ? `₹${setupTotals.amount.toFixed(
+                  //                                       2,
+                  //                                     )}`
+                  //                                   : "-"}
+                  //                               </td>
+                  //                               {showSGST && (
+                  //                                 <td>
+                  //                                   {setupTotals.sgst
+                  //                                     ? `₹${setupTotals.sgst.toFixed(
+                  //                                         2,
+                  //                                       )}`
+                  //                                     : "-"}
+                  //                                 </td>
+                  //                               )}
+                  //                               {showCGST && (
+                  //                                 <td>
+                  //                                   {setupTotals.cgst
+                  //                                     ? `₹${setupTotals.cgst.toFixed(
+                  //                                         2,
+                  //                                       )}`
+                  //                                     : "-"}
+                  //                                 </td>
+                  //                               )}
+                  //                               {showIGST && (
+                  //                                 <td>
+                  //                                   {setupTotals.igst
+                  //                                     ? `₹${setupTotals.igst.toFixed(
+                  //                                         2,
+                  //                                       )}`
+                  //                                     : "-"}
+                  //                                 </td>
+                  //                               )}
+                  //                               <td className="grand-total-cell">
+                  //                                 {setupTotals.grandTotal
+                  //                                   ? `₹${setupTotals.grandTotal.toFixed(
+                  //                                       2,
+                  //                                     )}`
+                  //                                   : "-"}
+                  //                               </td>
+                  //                             </tr>
 
-                                              <tr>
-                                                <td className="particular-cell">
-                                                  This is for Power Requirement{" "}
-                                                  {exhibition?.day ||
-                                                    "EXHIBITION DAYS"}{" "}
-                                                  :{" "}
-                                                  {exhibition?.power_required ||
-                                                    0}{" "}
-                                                  Unit
-                                                </td>
-                                                <td>
-                                                  {exhibition?.price_per_kw
-                                                    ? `₹${exhibition.price_per_kw}`
-                                                    : "-"}
-                                                </td>
-                                                <td>
-                                                  {exhibitionTotals.amount
-                                                    ? `₹${exhibitionTotals.amount.toFixed(
-                                                        2,
-                                                      )}`
-                                                    : "-"}
-                                                </td>
-                                                {showSGST && (
-                                                  <td>
-                                                    {exhibitionTotals.sgst
-                                                      ? `₹${exhibitionTotals.sgst.toFixed(
-                                                          2,
-                                                        )}`
-                                                      : "-"}
-                                                  </td>
-                                                )}
-                                                {showCGST && (
-                                                  <td>
-                                                    {exhibitionTotals.cgst
-                                                      ? `₹${exhibitionTotals.cgst.toFixed(
-                                                          2,
-                                                        )}`
-                                                      : "-"}
-                                                  </td>
-                                                )}
-                                                {showIGST && (
-                                                  <td>
-                                                    {exhibitionTotals.igst
-                                                      ? `₹${exhibitionTotals.igst.toFixed(
-                                                          2,
-                                                        )}`
-                                                      : "-"}
-                                                  </td>
-                                                )}
-                                                <td className="grand-total-cell">
-                                                  {exhibitionTotals.grandTotal
-                                                    ? `₹${exhibitionTotals.grandTotal.toFixed(
-                                                        2,
-                                                      )}`
-                                                    : "-"}
-                                                </td>
-                                              </tr>
-                                            </>
-                                          );
-                                        })()}
-                                    </tbody>
-                                  </table>
-                                );
-                              })()
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  //                             <tr>
+                  //                               <td className="particular-cell">
+                  //                                 This is for Power Requirement{" "}
+                  //                                 {exhibition?.day ||
+                  //                                   "EXHIBITION DAYS"}{" "}
+                  //                                 :{" "}
+                  //                                 {exhibition?.power_required ||
+                  //                                   0}{" "}
+                  //                                 Unit
+                  //                               </td>
+                  //                               <td>
+                  //                                 {exhibition?.price_per_kw
+                  //                                   ? `₹${exhibition.price_per_kw}`
+                  //                                   : "-"}
+                  //                               </td>
+                  //                               <td>
+                  //                                 {exhibitionTotals.amount
+                  //                                   ? `₹${exhibitionTotals.amount.toFixed(
+                  //                                       2,
+                  //                                     )}`
+                  //                                   : "-"}
+                  //                               </td>
+                  //                               {showSGST && (
+                  //                                 <td>
+                  //                                   {exhibitionTotals.sgst
+                  //                                     ? `₹${exhibitionTotals.sgst.toFixed(
+                  //                                         2,
+                  //                                       )}`
+                  //                                     : "-"}
+                  //                                 </td>
+                  //                               )}
+                  //                               {showCGST && (
+                  //                                 <td>
+                  //                                   {exhibitionTotals.cgst
+                  //                                     ? `₹${exhibitionTotals.cgst.toFixed(
+                  //                                         2,
+                  //                                       )}`
+                  //                                     : "-"}
+                  //                                 </td>
+                  //                               )}
+                  //                               {showIGST && (
+                  //                                 <td>
+                  //                                   {exhibitionTotals.igst
+                  //                                     ? `₹${exhibitionTotals.igst.toFixed(
+                  //                                         2,
+                  //                                       )}`
+                  //                                     : "-"}
+                  //                                 </td>
+                  //                               )}
+                  //                               <td className="grand-total-cell">
+                  //                                 {exhibitionTotals.grandTotal
+                  //                                   ? `₹${exhibitionTotals.grandTotal.toFixed(
+                  //                                       2,
+                  //                                     )}`
+                  //                                   : "-"}
+                  //                               </td>
+                  //                             </tr>
+                  //                           </>
+                  //                         );
+                  //                       })()}
+                  //                   </tbody>
+                  //                 </table>
+                  //               );
+                  //             })()
+                  //           )}
+                  //         </div>
+                  //       </div>
+                  //     </div>
+                  //   </div>
+                  // </div>
+
+                  <ExhibitorDashboardOverview
+                    importantPage={importantPage}
+                    activeMenu={activeMenu}
+                    exhibitorData={exhibitorData}
+                    eventScheduleData={eventScheduleData}
+                    latestNewsData={latestNewsData}
+                    activities={activities}
+                    stallList={stallList}
+                    powerData={powerData}
+                  />
                 )}
 
               {activeMenu === "Mails Inbox" && (
@@ -3767,7 +3925,7 @@ const ExhibitorDashboard = () => {
                           (type, index) => (
                             <li
                               key={type}
-                              className={index <= currentStep ? "active" : ""}
+                              className={index <= powerFormStep ? "active" : ""}
                             >
                               {type}
                             </li>
@@ -3776,125 +3934,20 @@ const ExhibitorDashboard = () => {
                       </ul>
 
                       {/* Sliding Forms Container */}
-                      <form className="Exhibitor-power-requirement-stalls-form-wrapper">
-                        {["SETUP DAYS", "EXHIBITION DAYS"].map(
-                          (type, index) => (
-                            <div
-                              key={type}
-                              className={`Exhibitor-power-requirement-stalls-form-grid ${
-                                index === currentStep
-                                  ? "slide-active"
-                                  : index < currentStep
-                                    ? "slide-left"
-                                    : "slide-right"
-                              }`}
-                            >
-                              {/* ROW 1: TYPE + PRICE (read-only) */}
-                              <div className="Exhibitor-power-requirement-stalls-form-row">
-                                <div className="Exhibitor-power-requirement-stalls-form-group">
-                                  <label>TYPE:</label>
-                                  <input type="text" value={type} readOnly />
-                                </div>
-
-                                <div className="Exhibitor-power-requirement-stalls-form-group">
-                                  <label>PRICE PER KW:</label>
-                                  <input
-                                    type="text"
-                                    value={exhibitorPricePerKw}
-                                    readOnly
-                                  />
-                                </div>
-                              </div>
-
-                              {/* ROW 2: POWER + PHASE */}
-                              <div className="Exhibitor-power-requirement-stalls-form-row">
-                                <div className="Exhibitor-power-requirement-stalls-form-group">
-                                  <label>POWER REQUIRED:</label>
-                                  <input
-                                    type="number"
-                                    name="power_required"
-                                    value={exhibitorPowerRequired}
-                                    onChange={handleExhibitorPowerChange}
-                                    disabled={isViewOnly}
-                                  />
-                                </div>
-
-                                <div className="Exhibitor-power-requirement-stalls-form-group">
-                                  <label>PHASE:</label>
-                                  <div className="Exhibitor-phase-options">
-                                    <label>
-                                      <input
-                                        type="radio"
-                                        name={`phase-${index}`}
-                                        value="Single Phase"
-                                        checked={
-                                          exhibitorPhase === "Single Phase"
-                                        }
-                                        onChange={handleExhibitorPhaseChange}
-                                        disabled={isViewOnly}
-                                      />
-                                      Single
-                                    </label>
-                                    <label>
-                                      <input
-                                        type="radio"
-                                        name={`phase-${index}`}
-                                        value="Three Phase"
-                                        checked={
-                                          exhibitorPhase === "Three Phase"
-                                        }
-                                        onChange={handleExhibitorPhaseChange}
-                                      />
-                                      Three
-                                    </label>
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* ROW 3: TOTAL + BUTTONS */}
-                              <div className="Exhibitor-power-requirement-stalls-form-row">
-                                <div className="Exhibitor-power-requirement-stalls-form-group">
-                                  <label>TOTAL AMOUNT:</label>
-                                  <input
-                                    type="text"
-                                    name="total_amount"
-                                    value={exhibitorTotalAmount}
-                                    readOnly
-                                  />
-                                </div>
-
-                                <div className="Exhibitor-power-requirement-add-button-inline">
-                                  {currentStep > 0 && (
-                                    <button
-                                      type="button"
-                                      onClick={handlePrevious}
-                                    >
-                                      Previous
-                                    </button>
-                                  )}
-                                  {currentStep < 1 ? (
-                                    <button
-                                      type="button"
-                                      onClick={handleNext}
-                                      disabled={isViewOnly}
-                                    >
-                                      Next
-                                    </button>
-                                  ) : (
-                                    <button
-                                      type="button"
-                                      onClick={handleExhibitorAdd}
-                                      disabled={isViewOnly}
-                                    >
-                                      Add
-                                    </button>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          ),
-                        )}
-                      </form>
+                      <ExhibitorPowerForm
+                        exhibitorPricePerKw={exhibitorPricePerKw}
+                        isViewOnly={isViewOnly}
+                        setPowerFormStep={setPowerFormStep} // ✅ new prop
+                        powerFormStep={powerFormStep}
+                        exhibitorPowerRequired={exhibitorPowerRequired}
+                        exhibitorPhase={exhibitorPhase}
+                        exhibitorTotalAmount={exhibitorTotalAmount}
+                        onPowerChange={handlePowerFormPowerChange}
+                        onPhaseChange={handlePowerFormPhaseChange}
+                        onNext={handlePowerFormNext}
+                        onPrevious={handlePowerFormPrevious}
+                        onAdd={handlePowerFormAdd}
+                      />
                     </div>
 
                     {/* Right Side Instructions */}
@@ -4060,176 +4113,6 @@ const ExhibitorDashboard = () => {
                   </div>
                 </>
               )}
-
-              {importantPage === "Extra Exhibitor Badges" &&
-                currentExhibitor && (
-                  <div className="ExhibitorDashboard-exhibitor-badges-form slide-up-form">
-                    <div className="ExhibitorDashboard-badge-flex-container">
-                      {/* Left Side */}
-                      <div
-                        className="ExhibitorDashboard-badge-left"
-                        style={{ marginTop: "30px", marginLeft: "30px" }}
-                      >
-                        {/* === Instructions === */}
-                        <div className="ExhibitorDashboard-instruction-box">
-                          <h3 className="ExhibitorDashboard-instruction-heading">
-                            Exhibitor Badge Policy
-                          </h3>
-                          <div className="ExhibitorDashboard-instruction-text">
-                            <br />
-                            As per your stall size, you will receive{" "}
-                            <strong>
-                              {currentExhibitor.free_badges || 0}
-                            </strong>{" "}
-                            complimentary badge
-                            {currentExhibitor.free_badges === 1 ? "" : "s"} for
-                            the exhibition.
-                            <br />
-                            <br />
-                            Additional badges can be requested at a cost of ₹100
-                            per badge. However, any badge requests made after{" "}
-                            <strong>28th February 2026</strong> will be charged
-                            at ₹200 per badge.
-                            <br />
-                            <br />
-                            We kindly request you to order only the number of
-                            badges you truly need, as issuing excess badges
-                            poses a potential security risk.
-                            <br />
-                            <br />
-                            Thank you for your cooperation.
-                          </div>
-                        </div>
-
-                        {/* === Extra Badges Form === */}
-                        <form
-                          className="ExhibitorDashboard-extra-badges-form-grid"
-                          onSubmit={handleExhibitorBadgesSubmit}
-                        >
-                          <h3>Additional Badge Request</h3>
-
-                          <div className="ExhibitorDashboard-badge-fields-row">
-                            {/* Free Badges */}
-                            <div className="ExhibitorDashboard-badge-box">
-                              <div className="ExhibitorDashboard-field-row">
-                                <label htmlFor="free_badges">
-                                  Free Badges:
-                                </label>
-                                <span>{currentExhibitor.free_badges || 0}</span>
-                              </div>
-                            </div>
-
-                            {/* Extra Badges */}
-                            <div className="ExhibitorDashboard-badge-box">
-                              <div className="ExhibitorDashboard-field-row">
-                                <label htmlFor="extra_badges">
-                                  Extra Badges:
-                                </label>
-                                <input
-                                  type="number"
-                                  id="extra_badges"
-                                  name="extra_badges"
-                                  value={extraBadges || ""}
-                                  onChange={(e) =>
-                                    setExtraBadges(e.target.value)
-                                  }
-                                  disabled={isLocked} // lock when data already submitted
-                                  style={{
-                                    backgroundColor: isLocked
-                                      ? "#f2f2f2"
-                                      : "white",
-                                    cursor: isLocked ? "not-allowed" : "text",
-                                  }}
-                                />
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* === Submit / Unlock Button === */}
-                          <div className="ExhibitorDashboard-form-submit">
-                            {isLocked ? (
-                              <button
-                                type="button"
-                                className="unlock-btn"
-                                onClick={handleUnlockRequest}
-                              >
-                                Request to Unlock
-                              </button>
-                            ) : (
-                              <button type="submit" className="submit-btn">
-                                Submit
-                              </button>
-                            )}
-                          </div>
-                        </form>
-                      </div>
-
-                      {/* === Right Side: Billing Summary === */}
-                      {(() => {
-                        const count = parseInt(extraBadges || 0, 10);
-                        const rate =
-                          new Date() > new Date("2026-02-28") ? 200 : 100; // fixed invalid date
-                        const total = count * rate;
-
-                        const companyState =
-                          currentExhibitor.state?.trim().toLowerCase() || "";
-                        const isDelhi = companyState === "delhi";
-
-                        const cgst = isDelhi ? total * 0.09 : 0;
-                        const sgst = isDelhi ? total * 0.09 : 0;
-                        const igst = !isDelhi ? total * 0.18 : 0;
-                        const grandTotal = total + cgst + sgst + igst;
-
-                        if (currentExhibitor.company_name) {
-                          localStorage.setItem(
-                            `grandTotal_badges_${currentExhibitor.company_name}`,
-                            grandTotal.toFixed(2),
-                          );
-                        }
-
-                        return (
-                          <div className="ExhibitorDashboard-badge-right ExhibitorDashboard-exhibitor-billing-section">
-                            <div className="ExhibitorDashboard-billing-summary-wrapper">
-                              <h3>Particulars</h3>
-
-                              <div className="ExhibitorDashboard-billing-summary-container">
-                                <div className="ExhibitorDashboard-billing-line">
-                                  <span>Extra Badges</span>
-                                  <span>{count}</span>
-                                </div>
-                                <div className="ExhibitorDashboard-billing-line">
-                                  <span>Total Amount</span>
-                                  <span>₹{total.toFixed(2)}</span>
-                                </div>
-                                {isDelhi ? (
-                                  <>
-                                    <div className="ExhibitorDashboard-billing-line">
-                                      <span>CGST (9%)</span>
-                                      <span>₹{cgst.toFixed(2)}</span>
-                                    </div>
-                                    <div className="ExhibitorDashboard-billing-line">
-                                      <span>SGST (9%)</span>
-                                      <span>₹{sgst.toFixed(2)}</span>
-                                    </div>
-                                  </>
-                                ) : (
-                                  <div className="ExhibitorDashboard-billing-line">
-                                    <span>IGST (18%)</span>
-                                    <span>₹{igst.toFixed(2)}</span>
-                                  </div>
-                                )}
-                                <div className="ExhibitorDashboard-billing-line ExhibitorDashboard-grand-total">
-                                  <span>GRAND TOTAL</span>
-                                  <span>₹{grandTotal.toFixed(2)}</span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })()}
-                    </div>
-                  </div>
-                )}
 
               <div className="contractor-ui-root">
                 {/* YOUR EXISTING JSX BELOW */}
@@ -4828,6 +4711,49 @@ const ExhibitorDashboard = () => {
                                 </div>
                               )}
 
+                              {showBoothDesignPreview && (
+                                <div className="Workflow-warning-popup-overlay">
+                                  <div
+                                    className="Workflow-pdf-preview-popup"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <div className="Workflow-pdf-header">
+                                      <h4>Exhibitor Form Preview</h4>
+                                      <button
+                                        className="Workflow-pdf-close-btn"
+                                        onClick={() =>
+                                          setShowBoothDesignPreview(false)
+                                        }
+                                      >
+                                        ✕
+                                      </button>
+                                    </div>
+
+                                    <div className="Workflow-pdf-body">
+                                      {previewURL ? (
+                                        <iframe
+                                          src={previewURL}
+                                          title="PDF Preview"
+                                          width="100%"
+                                          height="500px"
+                                        />
+                                      ) : (
+                                        <p>No preview available</p>
+                                      )}
+                                    </div>
+
+                                    <div className="Workflow-pdf-footer">
+                                      <button
+                                        className="Workflow-pdf-submit-btn"
+                                        onClick={handleBoothDesignUpload}
+                                      >
+                                        Submit & Upload
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+
                               {/* Step 1 Panel */}
                               <div
                                 className={`Workflow-panel panel-step-1 ${
@@ -4878,19 +4804,12 @@ const ExhibitorDashboard = () => {
                                         <div className="step-1-actions">
                                           <button
                                             className="doc-btn download-btn"
-                                            onClick={() => {
-                                              const url = `https://inoptics.in/api/download_exhibitor_form.php?company=${encodeURIComponent(
-                                                formData.company_name,
-                                              )}`;
-
-                                              const link =
-                                                document.createElement("a");
-                                              link.href = url;
-                                              link.download = "";
-                                              document.body.appendChild(link);
-                                              link.click();
-                                              document.body.removeChild(link);
-                                            }}
+                                            onClick={() =>
+                                              handleDownload(
+                                                `https://inoptics.in/api/uploads/1752656815_APPOINTED CONTRACTOR & CONTRACTOR BADGES-2.pdf`,
+                                                "1752656815_APPOINTED CONTRACTOR & CONTRACTOR BADGES-2.pdf",
+                                              )
+                                            }
                                           >
                                             <FaDownload /> Download
                                           </button>
@@ -5016,19 +4935,12 @@ const ExhibitorDashboard = () => {
                                         <div className="step-1-actions">
                                           <button
                                             className="doc-btn download-btn"
-                                            onClick={() => {
-                                              const url = `https://inoptics.in/api/download_exhibitor_form.php?company=${encodeURIComponent(
-                                                formData.company_name,
-                                              )}`;
-
-                                              const link =
-                                                document.createElement("a");
-                                              link.href = url;
-                                              link.download = "";
-                                              document.body.appendChild(link);
-                                              link.click();
-                                              document.body.removeChild(link);
-                                            }}
+                                            onClick={() =>
+                                              handleDownload(
+                                                `https://inoptics.in/api/uploads/1752656839_CONTRACTOR UNDERTAKING-DECLARATION & REGISTRATION-3.pdf`,
+                                                "1752656839_CONTRACTOR UNDERTAKING-DECLARATION & REGISTRATION-3.pdf",
+                                              )
+                                            }
                                           >
                                             <FaDownload /> Download
                                           </button>
@@ -5151,16 +5063,7 @@ const ExhibitorDashboard = () => {
                                           type="file"
                                           accept="application/pdf"
                                           style={{ display: "none" }}
-                                          onChange={(e) => {
-                                            const file = e.target.files[0];
-                                            if (!file) return;
-
-                                            setSelectedFile(file);
-                                            setPreviewURL(
-                                              URL.createObjectURL(file),
-                                            );
-                                            setShowPreview(true); // open preview
-                                          }}
+                                          onChange={handleFileSelect}
                                         />
                                       </label>
 
