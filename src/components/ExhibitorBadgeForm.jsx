@@ -5,7 +5,7 @@ import { IoClose } from "react-icons/io5";
 import { FaEdit, FaTrash, FaUpload, FaUnlock, FaLock } from "react-icons/fa";
 import { IoIosLock } from "react-icons/io";
 
-const ExhibitorBadgeForm = () => {
+const ExhibitorBadgeForm = ({ setIsInExhibitorBadges, setHasGeneratedBadge, setHasUnlockedBadge }) => {
   // ===== STATES =====
   const [exhibitors, setExhibitors] = useState([]);
   const [stallList, setStallList] = useState([]);
@@ -42,6 +42,29 @@ const ExhibitorBadgeForm = () => {
   });
 
   const currentExhibitor = exhibitors[0];
+
+
+useEffect(() => {
+  setIsInExhibitorBadges(true);
+  return () => setIsInExhibitorBadges(false);
+}, []);
+
+useEffect(() => {
+  if (companyBadges.length > 0) {
+    setHasGeneratedBadge(true);
+  }
+}, [companyBadges]);
+
+useEffect(() => {
+  const hasUnlocked = companyBadges.some(
+    (badge) => Number(badge.badge_lock) === 0
+  );
+
+  setHasUnlockedBadge(hasUnlocked);
+}, [companyBadges]);
+
+
+
 
   // ===== LOGIN CHECK & INITIAL LOAD =====
   useEffect(() => {
@@ -216,9 +239,6 @@ const ExhibitorBadgeForm = () => {
           setExtraPaidBadges(extraReq); // This is the request count
           setUsedBadges(Number(countData.used_badges) || 0);
           setFreeRemaining(freeRem);
-
-          // Lock only when free = 0 (unlimited extra generation)
-          setIsLocked(freeRem === 0);
         } else {
           console.error("❌ API returned success: false");
         }
@@ -257,136 +277,116 @@ const ExhibitorBadgeForm = () => {
 
   // ===== HANDLE BADGE SUBMIT =====
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    // Validations
-    if (!formData.name.trim()) {
-      setMessage({ type: "error", text: "Please enter candidate name" });
-      return;
-    }
+  // ===== VALIDATIONS =====
+  if (!formData.name.trim()) {
+    setMessage({ type: "error", text: "Please enter candidate name" });
+    return;
+  }
 
-    if (!formData.candidate_photo) {
-      setMessage({ type: "error", text: "Please upload candidate photo" });
-      return;
-    }
+  if (!(formData.candidate_photo instanceof File)) {
+    setMessage({ type: "error", text: "Please upload candidate photo" });
+    return;
+  }
 
-    if (formData.candidate_photo.size > 2 * 1024 * 1024) {
-      setMessage({ type: "error", text: "Image size should be less than 2MB" });
-      return;
-    }
+  if (formData.candidate_photo.size > 2 * 1024 * 1024) {
+    setMessage({ type: "error", text: "Image size should be less than 2MB" });
+    return;
+  }
 
-    setLoading(true);
-    setMessage({ type: "", text: "" });
+  setLoading(true);
+  setMessage({ type: "", text: "" });
 
-    try {
-      const formDataToSend = new FormData();
-      formDataToSend.append("name", formData.name.trim());
-      formDataToSend.append("candidate_photo", formData.candidate_photo);
-      formDataToSend.append("company_name", formData.exhibitor_company_name);
-      formDataToSend.append("stall_no", formData.stall_no);
-      formDataToSend.append("state", formData.state || "");
-      formDataToSend.append("city", formData.city || "");
-      formDataToSend.append("exhibitor_id", formData.exhibitor_id || "");
+  try {
+    const formDataToSend = new FormData();
+    formDataToSend.append("name", formData.name.trim());
+    formDataToSend.append("candidate_photo", formData.candidate_photo);
+    formDataToSend.append("company_name", formData.exhibitor_company_name);
+    formDataToSend.append("stall_no", formData.stall_no);
+    formDataToSend.append("state", formData.state || "");
+    formDataToSend.append("city", formData.city || "");
+    formDataToSend.append("exhibitor_id", formData.exhibitor_id || "");
 
-      const response = await fetch("https://inoptics.in/api/submit-badge.php", {
+    const response = await fetch(
+      "https://inoptics.in/api/submit-badge.php",
+      {
         method: "POST",
         body: formDataToSend,
-      });
-
-      const responseText = await response.text();
-      console.log("Response body:", responseText);
-
-      const data = JSON.parse(responseText);
-
-      if (data.success) {
-        setMessage({
-          type: "success",
-          text: "Badge created successfully!",
-        });
-
-        // Auto download
-        const badgeId = Number(data.badge_id);
-        const downloadUrl = `https://inoptics.in/api/exhibitor_badges_preview.php?id=${badgeId}`;
-        const fileRes = await fetch(downloadUrl);
-        const blob = await fileRes.blob();
-
-        const blobUrl = window.URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = blobUrl;
-        link.download = `badge-${badgeId}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(blobUrl);
-
-        // 🔥 CHECK: Was free badge used or extra?
-        const checkRes = await fetch(
-          `https://inoptics.in/api/get_Exhibitor_badges.php?company_name=${encodeURIComponent(
-            formData.exhibitor_company_name,
-          )}`,
-        );
-        const checkData = await checkRes.json();
-
-        if (checkData.success) {
-          const newFreeRemaining = Number(checkData.free_remaining) || 0;
-
-          console.log(`🔍 Free remaining after submit: ${newFreeRemaining}`);
-
-          // 🔥 IF FREE = 0, INCREMENT EXTRA COUNT
-          if (newFreeRemaining === 0 && freeRemaining > 0) {
-            // This was the LAST free badge, now start extra counting
-            console.log("✅ Last free badge used. Starting extra count...");
-            await autoIncrementExtraBadge();
-          } else if (newFreeRemaining === 0 && freeRemaining === 0) {
-            // Already in extra mode, increment
-            console.log("✅ Using extra badge. Incrementing count...");
-            await autoIncrementExtraBadge();
-          } else {
-            console.log(`ℹ️ ${newFreeRemaining} free badges remaining.`);
-          }
-        }
-
-        // Trigger refresh
-        setRefreshTrigger((prev) => prev + 1);
-        // 🔥 VERY LAST STEP – send mail
-        await sendExtraBadgesMail();
-        // UI update
-        const newBadgeId = Number(data.badge_id);
-        setCompanyBadges((prev) => [
-          ...prev,
-          {
-            id: newBadgeId,
-            name: formData.name.trim(),
-            stall_no: formData.stall_no,
-            state: formData.state,
-            city: formData.city,
-            photo: data.photo,
-          },
-        ]);
-
-        // Reset form
-        setFormData((prev) => ({
-          ...prev,
-          name: "",
-          candidate_photo: null,
-        }));
-        setPhotoPreview(null);
-      } else {
-        setMessage({
-          type: "error",
-          text: data.message || "Failed to create badge",
-        });
       }
-    } catch (err) {
-      console.error("❌ Submit error:", err);
-      setMessage({
-        type: "error",
-        text: err.message || "Server error",
-      });
-    } finally {
-      setLoading(false);
+    );
+
+    const responseText = await response.text();
+    console.log("Response body:", responseText);
+
+    const data = JSON.parse(responseText);
+
+    if (!data.success) {
+      throw new Error(data.message || "Failed to create badge");
     }
-  };
+
+    setMessage({
+      type: "success",
+      text: "Badge created successfully!",
+    });
+
+    const badgeId = Number(data.badge_id);
+
+    // ===== CHECK FREE / EXTRA BADGE COUNT =====
+    const checkRes = await fetch(
+      `https://inoptics.in/api/get_Exhibitor_badges.php?company_name=${encodeURIComponent(
+        formData.exhibitor_company_name
+      )}`
+    );
+    const checkData = await checkRes.json();
+
+    if (checkData.success) {
+      const newFreeRemaining = Number(checkData.free_remaining) || 0;
+      if (newFreeRemaining === 0) {
+        await autoIncrementExtraBadge();
+      }
+    }
+
+    // ===== REFRESH DATA =====
+    setRefreshTrigger((prev) => prev + 1);
+
+
+    // ===== UPDATE UI (NEW BADGE ON TOP) =====
+    setCompanyBadges((prev) => [
+      {
+        id: badgeId,
+        name: formData.name.trim(),
+        stall_no: formData.stall_no,
+        state: formData.state,
+        city: formData.city,
+        photo: data.photo,
+        badge_lock: 0,
+      },
+      ...prev,
+    ]);
+// badge successfully generate hone ke baad
+setHasGeneratedBadge(true);
+
+
+    // ===== RESET FORM =====
+    setFormData((prev) => ({
+      ...prev,
+      name: "",
+      candidate_photo: null,
+    }));
+    setPhotoPreview(null);
+
+  } catch (err) {
+    console.error("❌ Submit error:", err);
+    setMessage({
+      type: "error",
+      text: err.message || "Server error",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   // ===== AUTO INCREMENT EXTRA BADGE =====
   const autoIncrementExtraBadge = async () => {
@@ -425,38 +425,86 @@ const ExhibitorBadgeForm = () => {
 
   // ===== LOCK ALL BADGES =====
   const handleLockBadgesAfterSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!currentExhibitor?.company_name) {
-      alert("No company data available");
-      return;
-    }
+  if (!currentExhibitor?.company_name) {
+    alert("No company data available");
+    return;
+  }
 
-    try {
-      const res = await fetch(
-        "https://inoptics.in/api/lock_exhibitor_badges.php",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            company_name: currentExhibitor.company_name,
-          }),
-        },
-      );
-
-      const data = await res.json();
-
-      if (data.success) {
-        setRefreshTrigger((prev) => prev + 1);
-        alert("✅ All badges locked successfully");
-      } else {
-        alert(data.message || "Failed to lock badges");
+  try {
+    const res = await fetch(
+      "https://inoptics.in/api/lock_exhibitor_badges.php",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          company_name: currentExhibitor.company_name,
+        }),
       }
-    } catch (error) {
-      console.error("❌ Lock error:", error);
-      alert("Error locking badges");
+    );
+
+    const data = await res.json();
+
+    if (data.success) {
+      setRefreshTrigger((prev) => prev + 1);
+
+      // 🔥 ONLY SEND MAIL IF EXTRA BADGES > 0
+      if (Number(extraPaidBadges) > 0) {
+        await sendExtraBadgesMail();
+      }
+
+      alert("✅ All badges locked successfully");
+    } else {
+      alert(data.message || "Failed to lock badges");
     }
-  };
+  } catch (error) {
+    console.error("❌ Lock error:", error);
+    alert("Error locking badges");
+  }
+};
+
+
+
+
+const handleUpdateBadgesAfterUnlockRequest = async (e) => {
+  e.preventDefault();
+
+  if (!currentExhibitor?.company_name) {
+    alert("No company data available");
+    return;
+  }
+
+  try {
+    const res = await fetch(
+      "https://inoptics.in/api/lock_exhibitor_badges.php",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          company_name: currentExhibitor.company_name,
+        }),
+      }
+    );
+
+    const data = await res.json();
+
+    if (data.success) {
+      setRefreshTrigger((prev) => prev + 1);
+
+      
+      alert("✅ Submit Update Badge successfully");
+    } else {
+      alert(data.message || "Failed to update badges");
+    }
+  } catch (error) {
+    console.error("❌ Update error:", error);
+    alert("Error updating badges");
+  }
+};
+
+
+
 
   // ===== FORM HANDLERS =====
   const handleInputChange = (e) => {
@@ -624,8 +672,6 @@ const ExhibitorBadgeForm = () => {
       alert("Server error. Please try again.");
     }
   };
-
-  const isBadgeLocked = (badge) => Number(badge.badge_lock) === 1;
 
   // ===== LOADING STATE =====
   if (loading && exhibitors.length === 0) {
@@ -810,8 +856,8 @@ const ExhibitorBadgeForm = () => {
                         <td>{badge.state}</td>
                         <td>{badge.city}</td>
 
-                        <td className="actions ">
-                          {isBadgeEditable(badge) ? (
+                        <td className="actions">
+                          {badge.badge_lock === 0 && (
                             <>
                               <button
                                 className="lock-buttons-cell"
@@ -819,24 +865,36 @@ const ExhibitorBadgeForm = () => {
                               >
                                 <FaEdit />
                               </button>
+
                               <button
                                 className="lock-buttons-cell danger"
                                 onClick={() => deleteBadge(badge.id)}
                               >
                                 <FaTrash />
                               </button>
+
+                              <button
+                                className="lock-buttons-cell danger"
+                                onClick={(e) => handleUpdateBadgesAfterUnlockRequest(e)}
+                              >
+                                Submit Update Badge
+                              </button>
                             </>
-                          ) : badge.badge_lock === 2 ? (
-                            <span className="lock-buttons-cell unlock-button">
-                              <FaUnlock />
-                            </span>
-                          ) : (
+                          )}
+
+                          {badge.badge_lock === 1 && (
                             <button
-                              className="lock-buttons-cell button"
+                              className="lock-buttons-cell"
                               onClick={() => handleRequestUnlock(badge)}
                             >
                               <FaLock />
                             </button>
+                          )}
+
+                          {badge.badge_lock === 2 && (
+                            <span className="lock-buttons-cell unlock-button">
+                              <FaUnlock />
+                            </span>
                           )}
                         </td>
                       </tr>

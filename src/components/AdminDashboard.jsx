@@ -70,6 +70,9 @@ const AdminDashboard = () => {
   const [adminCopyEmail, setAdminCopyEmail] = useState("");
   const [isSendingMail, setIsSendingMail] = useState(false);
 
+  const [boothDesignStatus, setBoothDesignStatus] = useState("pending");
+  const [boothRejectReason, setBoothRejectReason] = useState("");
+
   // const [selectedMail, setSelectedMail] = useState(null);
   // const [loadingMails, setLoadingMails] = useState(false);
   // const [mailsList, setMailsList] = useState([]);
@@ -126,6 +129,7 @@ const AdminDashboard = () => {
   const [showSearchBox, setShowSearchBox] = useState(false);
 
   const [editId, setEditId] = useState(null);
+  const [selectedBoothId, setSelectedBoothId] = useState(null);
 
   const [powerType, setPowerType] = useState("");
   const [price, setPrice] = useState("");
@@ -137,6 +141,10 @@ const AdminDashboard = () => {
 
   const [showRegistrationModal, setShowRegistrationModal] = useState(false);
   const [contractorEmail, setContractorEmail] = useState("");
+
+  const [showRejectPopup, setShowRejectPopup] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
+  const [rejecting, setRejecting] = useState(false);
 
   const [showBusinessForm, setShowBusinessForm] = useState(false);
   const [businessName, setBusinessName] = useState("");
@@ -5436,71 +5444,67 @@ const AdminDashboard = () => {
     }
   };
 
+  // ===== HANDLE EDIT (Already Correct) =====
+  const handleContractorEdit = (item) => {
+    console.log("🔍 Edit item:", item); // Debug
 
+    setCompanyName(item.company_name || "");
+    setName(item.name || "");
+    setEmail(item.email || "");
+    setAddress(item.address || "");
+    setCity(item.city || "");
+    setCountry(item.country || "");
+    setPincode(item.pincode || "");
+    setPhoneNumber(item.phone_numbers || "");
+    setMobileNumber(item.mobile_numbers || "");
+    setEditId(item.id);
 
-
-// ===== HANDLE EDIT (Already Correct) =====
-const handleContractorEdit = (item) => {
-  console.log("🔍 Edit item:", item); // Debug
-  
-  setCompanyName(item.company_name || "");
-  setName(item.name || "");
-  setEmail(item.email || "");
-  setAddress(item.address || "");
-  setCity(item.city || "");
-  setCountry(item.country || "");
-  setPincode(item.pincode || "");
-  setPhoneNumber(item.phone_numbers || "");
-  setMobileNumber(item.mobile_numbers || "");
-  setEditId(item.id);
-  
-  setShowContractorRequirementEditForm(true);
-  setShowContractorRequirementAddForm(false);
-};
+    setShowContractorRequirementEditForm(true);
+    setShowContractorRequirementAddForm(false);
+  };
 
   // ===== 🔥 UPDATE CONTRACTOR (FIXED) =====
-const updateContractorRequirement = async () => {
-  if (!editId) {
-    alert("No contractor selected for editing");
-    return;
-  }
+  const updateContractorRequirement = async () => {
+    if (!editId) {
+      alert("No contractor selected for editing");
+      return;
+    }
 
-  if (!companyName || !name) {
-    alert("Please enter all required fields.");
-    return;
-  }
+    if (!companyName || !name) {
+      alert("Please enter all required fields.");
+      return;
+    }
 
-  try {
-    const res = await fetch(
-      "https://inoptics.in/api/update_contractor_requirement.php",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: editId,
-          company_name: companyName,        // ✅ Match database column
-          name: name,
-          email: email,
-          address: address,
-          city: city,
-          country: country,
-          pincode: pincode,
-          phone_numbers: phoneNumber,       // ✅ Match database column
-          mobile_numbers: mobileNumber,     // ✅ Match database column
-        }),
-      }
-    );
+    try {
+      const res = await fetch(
+        "https://inoptics.in/api/update_contractor_requirement.php",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: editId,
+            company_name: companyName, // ✅ Match database column
+            name: name,
+            email: email,
+            address: address,
+            city: city,
+            country: country,
+            pincode: pincode,
+            phone_numbers: phoneNumber, // ✅ Match database column
+            mobile_numbers: mobileNumber, // ✅ Match database column
+          }),
+        },
+      );
 
-    const data = await res.json();
-    alert(data.message);
-    resetContractorForm();
-    fetchContractorRequirements();
-  } catch (error) {
-    console.error("Error updating contractor:", error);
-    alert("Error updating contractor requirement");
-  }
-};
-
+      const data = await res.json();
+      alert(data.message);
+      resetContractorForm();
+      fetchContractorRequirements();
+    } catch (error) {
+      console.error("Error updating contractor:", error);
+      alert("Error updating contractor requirement");
+    }
+  };
 
   const requiredStallFields = [
     "stall_number",
@@ -12502,96 +12506,94 @@ const updateContractorRequirement = async () => {
   }, []);
 
   const approveBooth = async (company) => {
-  if (!company) {
-    alert("Company name missing");
-    return;
-  }
-
-  console.log("APPROVE CLICKED FOR:", company);
-
-  try {
-    const res = await fetch(
-      "https://inoptics.in/api/approve_booth_design.php",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ company }),
-      }
-    );
-
-    const text = await res.text();
-    console.log("RAW RESPONSE:", text);
-
-    if (!text) {
-      alert("Empty response from server");
+    if (!company) {
+      alert("Company name missing");
       return;
     }
 
-    let data;
+    console.log("APPROVE CLICKED FOR:", company);
+
     try {
-      data = JSON.parse(text);
-    } catch {
-      alert("Invalid JSON from server:\n" + text);
-      return;
-    }
+      const res = await fetch(
+        "https://inoptics.in/api/approve_booth_design.php",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ company }),
+        },
+      );
 
-    if (data.success) {
-      alert("✅ Booth Design Approved");
-    } else {
-      alert("❌ Not updated: " + (data.message || "No row matched"));
-    }
-  } catch (err) {
-    console.error("Approve error:", err);
-    alert("Network / server error");
-  }
-};
+      const text = await res.text();
+      console.log("RAW RESPONSE:", text);
 
+      if (!text) {
+        alert("Empty response from server");
+        return;
+      }
+
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        alert("Invalid JSON from server:\n" + text);
+        return;
+      }
+
+      if (data.success) {
+        alert("✅ Booth Design Approved");
+      } else {
+        alert("❌ Not updated: " + (data.message || "No row matched"));
+      }
+    } catch (err) {
+      console.error("Approve error:", err);
+      alert("Network / server error");
+    }
+  };
 
   const rejectBooth = async (company) => {
-  if (!company) {
-    alert("Company name missing");
-    return;
-  }
-
-  console.log("REJECT CLICKED FOR:", company);
-
-  try {
-    const res = await fetch(
-      "https://inoptics.in/api/reject_booth_design.php",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ company }),
-      }
-    );
-
-    const text = await res.text();
-    console.log("RAW RESPONSE:", text);
-
-    if (!text) {
-      alert("Empty response from server");
+    if (!company) {
+      alert("Company name missing");
       return;
     }
 
-    let data;
+    console.log("REJECT CLICKED FOR:", company);
+
     try {
-      data = JSON.parse(text);
-    } catch {
-      alert("Invalid JSON from server:\n" + text);
-      return;
-    }
+      const res = await fetch(
+        "https://inoptics.in/api/reject_booth_design.php",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ company }),
+        },
+      );
 
-    if (data.success) {
-      alert("❌ Booth Design Rejected");
-    } else {
-      alert("Failed: " + (data.message || "No row matched"));
-    }
-  } catch (err) {
-    console.error("Reject error:", err);
-    alert("Network / server error");
-  }
-};
+      const text = await res.text();
+      console.log("RAW RESPONSE:", text);
 
+      if (!text) {
+        alert("Empty response from server");
+        return;
+      }
+
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        alert("Invalid JSON from server:\n" + text);
+        return;
+      }
+
+      if (data.success) {
+        alert("❌ Booth Design Rejected");
+      } else {
+        alert("Failed: " + (data.message || "No row matched"));
+      }
+    } catch (err) {
+      console.error("Reject error:", err);
+      alert("Network / server error");
+    }
+  };
 
   const buildCompanyRows = (data) => {
     const map = {};
@@ -12690,6 +12692,122 @@ const updateContractorRequirement = async () => {
 
   const totalPaymentWithTDS =
     paymentTotals.totalPayment + paymentTotals.totalTDS;
+
+  const fetchBoothDesignStatus = async () => {
+  if (!formData.company_name) return;
+
+  try {
+    const res = await fetch(
+      `https://inoptics.in/api/get_booth_design_status.php?company=${encodeURIComponent(
+        formData.company_name
+      )}`
+    );
+
+    if (!res.ok) {
+      throw new Error("Failed to fetch booth design status");
+    }
+
+    const data = await res.json();
+
+    // 🔒 Normalize status safely
+    const rawStatus = typeof data.status === "string"
+      ? data.status.toLowerCase().trim()
+      : "pending";
+
+    const status = ["pending", "approved", "rejected"].includes(rawStatus)
+      ? rawStatus
+      : "pending";
+
+    setBoothDesignStatus(status);
+
+    // ✅ Reject reason only when rejected
+    setBoothRejectReason(
+      status === "rejected" && typeof data.reject_reason === "string"
+        ? data.reject_reason
+        : ""
+    );
+
+    console.log("🧾 Booth Design Status:", {
+      status,
+      reject_reason: data.reject_reason || null,
+    });
+
+  } catch (err) {
+    console.error("❌ Failed to fetch booth status:", err);
+    setBoothDesignStatus("pending");
+    setBoothRejectReason("");
+  }
+};
+
+
+  const handleRejectBoothDesign = async () => {
+  if (!selectedBoothId) {
+    alert("Invalid booth record");
+    return;
+  }
+
+  if (!rejectReason.trim()) {
+    alert("Please enter reject reason");
+    return;
+  }
+
+  try {
+    setRejecting(true);
+
+    const res = await fetch(
+      "https://inoptics.in/api/reject_booth_design.php",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          id: Number(selectedBoothId),
+          reason: rejectReason.trim(),
+        }),
+      }
+    );
+
+    const text = await res.text(); // 🔥 ALWAYS read text first
+    console.log("Reject API raw response:", text);
+
+    if (!res.ok) {
+      throw new Error(text || "Server error");
+    }
+
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      throw new Error("Invalid JSON from server");
+    }
+
+    if (!data.success) {
+      alert(data.message || "Reject failed");
+      return;
+    }
+
+    alert("✅ Booth design rejected successfully");
+
+    // 🔄 RESET UI
+    setShowRejectPopup(false);
+    setRejectReason("");
+    setSelectedBoothId(null);
+
+    fetchBoothDesignStatus(); // refresh exhibitor panel
+  } catch (err) {
+    console.error("Reject error:", err);
+    alert(err.message || "Something went wrong");
+  } finally {
+    setRejecting(false);
+  }
+};
+
+
+
+
+
 
   return (
     <div className="dashboard-container">
@@ -25032,9 +25150,11 @@ const updateContractorRequirement = async () => {
                                 <td>
                                   <div className="contractor-final-list-btn">
                                     <button
-                                      onClick={() =>
-                                        rejectBooth(item.exhibitor_company_name)
-                                      }
+                                       onClick={() => {
+                                        console.log("Rejecting booth item:", item);
+   setSelectedBoothId(item.booth_id); // 🔥 save id
+    setShowRejectPopup(true);    // 🔥 open popup
+  }}
                                       className="contractor-final-list-btn-reject"
                                     >
                                       <IoMdCloseCircle />
@@ -25056,6 +25176,68 @@ const updateContractorRequirement = async () => {
                           })}
                         </tbody>
                       </table>
+                    </div>
+                  </div>
+                )}
+
+                {boothDesignStatus === "rejected" && (
+  <div className="contractor-thankyou-card rejected">
+    <h3>Booth Design Rejected</h3>
+    <p>❌ Your booth design has been rejected.</p>
+
+    {boothRejectReason && (
+      <p className="reject-reason">
+        <strong>Reason:</strong> {boothRejectReason}
+      </p>
+    )}
+
+    <button
+      className="doc-btn"
+      onClick={() => setCurrentStep(3)}
+    >
+      Re-upload Booth Design
+    </button>
+  </div>
+)}
+
+
+                {showRejectPopup && (
+                  <div className="confirm-overlay">
+                    <div className="confirm-modal">
+                      <h3>Reject Booth Design</h3>
+
+                      <p>
+                        Please enter the reason for rejecting this booth design.
+                      </p>
+
+                      <textarea
+                        className="reject-textarea"
+                        placeholder="Enter rejection reason..."
+                        value={rejectReason}
+                        onChange={(e) => setRejectReason(e.target.value)}
+                        rows={4}
+                      />
+
+                      <div className="confirm-actions">
+                        <button
+                          className="cancel-btn"
+                          onClick={() => {
+                            setShowRejectPopup(false);
+                            setRejectReason("");
+                          }}
+                          disabled={rejecting}
+                        >
+                          Cancel
+                        </button>
+
+                        <button
+                          className="confirm-btn danger"
+                          disabled={!rejectReason.trim() || rejecting}
+                           onClick={() => handleRejectBoothDesign(selectedBoothId)}
+                        >
+                          {rejecting ? "Rejecting..." : "Reject Booth Design"}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )}

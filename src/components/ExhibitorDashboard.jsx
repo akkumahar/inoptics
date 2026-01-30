@@ -38,6 +38,7 @@ const ExhibitorDashboard = () => {
   });
   const [boothDesignStatus, setBoothDesignStatus] = useState("pending");
   const [boothDesignName, setBoothDesignName] = useState("");
+  const [boothRejectReason, setBoothRejectReason] = useState("");
 
   const [selectedPreviewStep, setSelectedPreviewStep] = useState("step1");
   const [powerFormStep, setPowerFormStep] = useState(0);
@@ -54,6 +55,14 @@ const ExhibitorDashboard = () => {
   const [contractorFormSubmitted, setContractorFormSubmitted] = useState(false);
 
   const [agreed, setAgreed] = useState(false);
+
+
+  const [isInExhibitorBadges, setIsInExhibitorBadges] = useState(false);
+const [pendingRoute, setPendingRoute] = useState(null);
+const [showExitPopup, setShowExitPopup] = useState(false);
+const [pendingMenu, setPendingMenu] = useState(null);
+const [hasGeneratedBadge, setHasGeneratedBadge] = useState(false);
+const [hasUnlockedBadge, setHasUnlockedBadge] = useState(false);
 
   const [boothDesignPreview, setBoothDesignPreview] = useState(null);
 
@@ -107,6 +116,20 @@ const ExhibitorDashboard = () => {
     igst: 0,
     grandTotal: 0,
   });
+
+
+
+  const forceNavigateMenu = (menu) => {
+  setActiveMenu(menu);
+  setImportantPage("");
+
+  if (window.innerWidth <= 768) {
+    setCollapsed(true);
+  }
+};
+
+
+
 
   // shorthand for first exhibitor
   const currentExhibitor = exhibitors[0];
@@ -565,49 +588,66 @@ const ExhibitorDashboard = () => {
   }, []);
 
   const handleMenuClick = (menu) => {
-    setActiveMenu(menu);
-    setImportantPage(""); // close any important page
 
-    if (menu === "Additional Requirements") {
-      setImportantPage("Furniture Requirements");
-      return;
-    }
+  // 🚨 EXIT GUARD — sirf tab popup jab:
+  // 1️⃣ Exhibitor Badges page par ho
+  // 2️⃣ At least 1 badge UNLOCKED ho
+  // 3️⃣ Kisi aur menu par ja rahe ho
+  if (
+    isInExhibitorBadges &&
+    hasUnlockedBadge &&          // 🔥 IMPORTANT FIX
+    menu !== "Exhibitor Badges"
+  ) {
+    setPendingMenu(menu);
+    setShowExitPopup(true);
+    return; // ⛔ stop here
+  }
 
-    // 👇 mobile me click ke baad menu band
-    if (window.innerWidth <= 768) {
-      setCollapsed(true);
-    }
+  // ===== NORMAL NAVIGATION =====
+  setActiveMenu(menu);
+  setImportantPage("");
 
-    if (menu === "Mails Inbox" && currentExhibitor) {
-      // open Mails Inbox and fetch full list (most recent first)
-      setLoadingMails(true);
-      fetch(
-        `https://inoptics.in/api/get_exhibitor_mails.php?company_name=${encodeURIComponent(
-          currentExhibitor.company_name,
-        )}`,
-      )
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success && Array.isArray(data.mails)) {
-            setMailsList(data.mails);
-            // keep unreadCount in sync
-            const unread = data.mails.filter(
-              (m) => Number(m.is_read) === 0,
-            ).length;
-            setUnreadCount(unread);
-          } else {
-            setMailsList([]);
-            setUnreadCount(0);
-          }
-        })
-        .catch((err) => {
-          console.error("Error fetching mails on open:", err);
+  if (menu === "Additional Requirements") {
+    setImportantPage("Furniture Requirements");
+    return;
+  }
+
+  // mobile / tablet auto close
+  if (window.innerWidth <= 768) {
+    setCollapsed(true);
+  }
+
+  // mails inbox special logic
+  if (menu === "Mails Inbox" && currentExhibitor) {
+    setLoadingMails(true);
+
+    fetch(
+      `https://inoptics.in/api/get_exhibitor_mails.php?company_name=${encodeURIComponent(
+        currentExhibitor.company_name
+      )}`
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.mails)) {
+          setMailsList(data.mails);
+          setUnreadCount(
+            data.mails.filter((m) => Number(m.is_read) === 0).length
+          );
+        } else {
           setMailsList([]);
           setUnreadCount(0);
-        })
-        .finally(() => setLoadingMails(false));
-    }
-  };
+        }
+      })
+      .catch(() => {
+        setMailsList([]);
+        setUnreadCount(0);
+      })
+      .finally(() => setLoadingMails(false));
+  }
+};
+
+
+
 
   useEffect(() => {
     fetchEventSchedule();
@@ -1904,11 +1944,8 @@ const ExhibitorDashboard = () => {
       fetchBoothDesignStatus(); // 👈 important
     }
     // Poll every 5 seconds until approved/rejected
-    const interval = setInterval(() => {
-      fetchBoothDesignStatus();
-    }, 5000);
+    fetchBoothDesignStatus();
 
-    return () => clearInterval(interval);
   }, [activeMenu, formData.company_name, contractorData]);
 
   useEffect(() => {
@@ -2526,52 +2563,71 @@ const ExhibitorDashboard = () => {
 
   // booth design upload handler
   const handleBoothDesignUpload = async () => {
-    if (!selectedFile) {
-      toast.error("No file selected");
-      return;
-    }
+  if (!selectedFile) {
+    toast.error("No file selected");
+    return;
+  }
 
-    console.log("Uploading file for company:", formData.company_name);
+  if (!formData.company_name) {
+    toast.error("Company name missing");
+    return;
+  }
 
-    if (!formData.company_name) {
-      toast.error("Company name missing");
-      return;
-    }
+  const uploadData = new FormData();
+  uploadData.append("file", selectedFile);
+  uploadData.append("company_name", formData.company_name);
 
-    const uploadData = new FormData();
-    uploadData.append("file", selectedFile);
-    uploadData.append("company_name", formData.company_name);
-
-    try {
-      const res = await fetch(
-        "https://inoptics.in/api/upload_booth_design_file.php",
-        { method: "POST", body: uploadData },
-      );
-
-      const text = await res.text();
-      console.log("RAW RESPONSE:", text);
-
-      const data = JSON.parse(text);
-
-      if (!data.success) {
-        toast.error(data.message);
-        return;
+  try {
+    const res = await fetch(
+      "https://inoptics.in/api/upload_booth_design_file.php",
+      {
+        method: "POST",
+        body: uploadData,
       }
+    );
 
-      toast.success("Booth design uploaded successfully!");
+    const text = await res.text();
+    console.log("RAW RESPONSE:", text);
 
-      setShowBoothDesignPreview(false);
-      setSelectedFile(null);
-      setPreviewURL(null);
-      setUploadedSteps((prev) => ({
-          ...prev,
-          [`step${currentStep}`]: true,
-        }));
-    } catch (err) {
-      console.error(err);
-      toast.error("Upload failed");
+    // 🔒 SAFETY CHECK 1: empty response
+    if (!text) {
+      toast.error("Empty response from server");
+      return;
     }
-  };
+
+    // 🔒 SAFETY CHECK 2: not JSON
+    if (!text.trim().startsWith("{")) {
+      toast.error("Invalid server response");
+      console.error("Non-JSON response:", text);
+      return;
+    }
+
+    const data = JSON.parse(text);
+
+    // 🔒 SAFETY CHECK 3: HTTP error
+    if (!res.ok || !data.success) {
+      toast.error(data.message || "Upload failed");
+      return;
+    }
+
+    // ✅ SUCCESS
+    toast.success("Booth design uploaded successfully!");
+
+    setShowBoothDesignPreview(false);
+    setSelectedFile(null);
+    setPreviewURL(null);
+
+    setUploadedSteps((prev) => ({
+      ...prev,
+      [`step${currentStep}`]: true,
+    }));
+
+  } catch (err) {
+    console.error("Upload error:", err);
+    toast.error("Upload failed. Please try again.");
+  }
+};
+
 
   // upload form file download handler
 
@@ -2654,30 +2710,38 @@ const ExhibitorDashboard = () => {
   }, [boothDesignStatus]);
 
   const fetchBoothDesignStatus = async () => {
-    try {
-      const res = await fetch(
-        `https://inoptics.in/api/get_booth_design_status.php?company=${encodeURIComponent(
-          formData.company_name,
-        )}`,
-      );
+  if (!formData.company_name) return;
 
-      const data = await res.json();
+  try {
+    const res = await fetch(
+      `https://inoptics.in/api/get_booth_design_status.php?company=${encodeURIComponent(
+        formData.company_name
+      )}`
+    );
 
-      let status = (data.status || "").toLowerCase().trim();
+    const data = await res.json();
 
-      // normalize
-      if (!status || status === "0") status = "pending";
-      if (status === "approved" || status === "1") status = "approved";
-      if (status === "rejected" || status === "2") status = "rejected";
+    // normalize status
+    let status = (data.status || "").toLowerCase().trim();
 
-      console.log("Booth Design Status:", status); // 🔥 DEBUG
-
-      setBoothDesignStatus(status);
-    } catch (err) {
-      console.error("Failed to fetch booth status", err);
-      setBoothDesignStatus("pending"); // safe fallback
+    if (!["pending", "approved", "rejected"].includes(status)) {
+      status = "pending";
     }
-  };
+
+    setBoothDesignStatus(status);
+    setBoothRejectReason(
+      status === "rejected" ? (data.reject_reason || "") : ""
+    );
+
+    console.log("Booth Design Status:", status); // 🔥 debug
+  } catch (err) {
+    console.error("Failed to fetch booth status", err);
+    setBoothDesignStatus("pending");
+    setBoothRejectReason("");
+  }
+};
+
+
 
   const handleExhibitorFormDownload = (url, fileName) => {
     const link = document.createElement("a");
@@ -5097,53 +5161,52 @@ const ExhibitorDashboard = () => {
                               </div>
 
                               <div
-                                className={`Workflow-panel panel-step-2 ${
-                                  currentStep === 4 ? "show" : "hide-right"
-                                }`}
-                              >
-                                {boothDesignStatus === "pending" && (
-                                  <div className="contractor-thankyou-card warning">
-                                    <h3>Booth Design Under Review</h3>
-                                    <p>
-                                      Your booth design is being reviewed by
-                                      Admin.
-                                    </p>
-                                    <p>Please wait for approval.</p>
-                                  </div>
-                                )}
+  className={`Workflow-panel panel-step-2 ${
+    currentStep === 4 ? "show" : "hide-right"
+  }`}
+>
+  {/* ===== PENDING ===== */}
+  {boothDesignStatus === "pending" && (
+    <div className="contractor-thankyou-card warning">
+      <h3>Booth Design Under Review</h3>
+      <p>Your booth design is being reviewed by the Admin.</p>
+      <p>Please wait for approval.</p>
+    </div>
+  )}
 
-                                {boothDesignStatus === "rejected" && (
-                                  <div className="contractor-thankyou-card rejected">
-                                    <h3>Booth Design Rejected</h3>
-                                    <p>
-                                      ❌ Your booth design has been rejected.
-                                      Please contact admin and upload a new
-                                      design.
-                                    </p>
+  {/* ===== REJECTED ===== */}
+  {boothDesignStatus === "rejected" && (
+  <div className="contractor-thankyou-card rejected">
+    <h3>Booth Design Rejected ❌</h3>
 
-                                    <button
-                                      className="doc-btn"
-                                      onClick={() => setCurrentStep(3)}
-                                    >
-                                      Re-Upload Booth Design
-                                    </button>
-                                  </div>
-                                )}
+    <p>
+      Your booth design was rejected for the following reason:
+    </p>
 
-                                {boothDesignStatus === "approved" && (
-                                  <div className="contractor-thankyou-card success">
-                                    <h3>Thank you for submit the form🎉</h3>
-                                    <p>
-                                      Your contractor form has been successfully
-                                      completed.
-                                    </p>
-                                    <p>
-                                      If you want to reappoint a contractor,
-                                      click Unlock.
-                                    </p>
-                                  </div>
-                                )}
-                              </div>
+    <div className="reject-reason-box">
+      {boothRejectReason || "No reason provided by admin."}
+    </div>
+
+    <button
+      className="doc-btn"
+      onClick={() => setCurrentStep(3)}
+    >
+      Re-Upload Booth Design
+    </button>
+  </div>
+)}
+
+
+  {/* ===== APPROVED ===== */}
+  {boothDesignStatus === "approved" && (
+    <div className="contractor-thankyou-card success">
+      <h3>Thank you for submitting the form 🎉</h3>
+      <p>Your booth design has been approved.</p>
+      <p>Your contractor form is now completed.</p>
+    </div>
+  )}
+</div>
+
                             </div>
                           </div>
                         </div>
@@ -5154,7 +5217,7 @@ const ExhibitorDashboard = () => {
               </div>
 
               {/* Overlay Panel for Additional Requirements */}
-              {activeMenu === "Exhibitor Badges" && <ExhibitorBadgeForm />}
+              {activeMenu === "Exhibitor Badges" && <ExhibitorBadgeForm  setIsInExhibitorBadges={setIsInExhibitorBadges}  setHasGeneratedBadge={setHasGeneratedBadge}  setHasUnlockedBadge={setHasUnlockedBadge} />}
 
               {!importantPage && activeMenu === "Payment" && (
                 <div className="exhibitordashboard-content">
@@ -5402,6 +5465,46 @@ const ExhibitorDashboard = () => {
           )}
         </div>
       </div>
+
+
+      {showExitPopup && (
+  <div className="confirm-overlay">
+    <div className="confirm-modal">
+      <h3>Leave Exhibitor Badges?</h3>
+      <p>
+        You have unsaved or pending badge-related actions.
+        Are you sure you want to leave this page?
+      </p>
+
+      <div className="confirm-actions">
+        <button
+          className="cancel-btn"
+          onClick={() => {
+            setShowExitPopup(false);
+            setPendingMenu(null);
+          }}
+        >
+          Stay Here
+        </button>
+
+       <button
+  className="confirm-btn"
+  onClick={() => {
+    setShowExitPopup(false);
+    setIsInExhibitorBadges(false);
+    setHasUnlockedBadge(false); // 🔥 reset
+    forceNavigateMenu(pendingMenu);
+    setPendingMenu(null);
+  }}
+>
+  Leave Page
+</button>
+      </div>
+    </div>
+  </div>
+)}
+
+
     </div>
   );
 };

@@ -10076,4 +10076,23 @@ margin-top: -720px;
   }
 }
 
+
+
+
+
+.reject-textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  resize: none;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.confirm-btn.danger {
+  background: #dc2626;
+  color: #fff;
+}
+
 /* contrator add form css end */
