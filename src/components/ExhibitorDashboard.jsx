@@ -37,9 +37,8 @@ const ExhibitorDashboard = () => {
     step3: null,
   });
   const [boothDesignStatus, setBoothDesignStatus] = useState("pending");
-  const [boothDesignName, setBoothDesignName] = useState("");
   const [boothRejectReason, setBoothRejectReason] = useState("");
-
+  const [isReuploading, setIsReuploading] = useState(false);
   const [selectedPreviewStep, setSelectedPreviewStep] = useState("step1");
   const [powerFormStep, setPowerFormStep] = useState(0);
 
@@ -2697,17 +2696,31 @@ const [hasUnlockedBadge, setHasUnlockedBadge] = useState(false);
     }
   }, [activeMenu, isLocked, selectedContractorId]);
 
-  useEffect(() => {
-    if (boothDesignStatus === "rejected") {
-      // only rejected should go back
-      setCurrentStep(3); // booth design upload step
-    }
 
-    if (boothDesignStatus === "approved" || boothDesignStatus === "pending") {
-      // approved & pending must stay on thankyou screen
-      setCurrentStep(4);
-    }
-  }, [boothDesignStatus]);
+useEffect(() => {
+  if (!boothDesignStatus) return;
+
+  // ⛔ user manually re-upload kar raha hai
+  if (isReuploading) return;
+
+  // ✅ pending / rejected / approved → always step 4
+  setCurrentStep(4);
+}, [boothDesignStatus, isReuploading]);
+
+
+
+
+useEffect(() => {
+  if (!formData.company_name) return;
+
+  fetchBoothDesignStatus(); // initial
+
+  const interval = setInterval(fetchBoothDesignStatus, 5000);
+  return () => clearInterval(interval);
+}, [formData.company_name]);
+
+
+
 
   const fetchBoothDesignStatus = async () => {
   if (!formData.company_name) return;
@@ -2721,37 +2734,30 @@ const [hasUnlockedBadge, setHasUnlockedBadge] = useState(false);
 
     const data = await res.json();
 
-    // normalize status
-    let status = (data.status || "").toLowerCase().trim();
+    const status = ["pending", "approved", "rejected"].includes(
+      (data.status || "").toLowerCase()
+    )
+      ? data.status.toLowerCase()
+      : "pending";
 
-    if (!["pending", "approved", "rejected"].includes(status)) {
-      status = "pending";
-    }
+    console.log("🟢 Booth status:", status, data);
 
     setBoothDesignStatus(status);
     setBoothRejectReason(
-      status === "rejected" ? (data.reject_reason || "") : ""
+      status === "rejected" ? data.reject_reason || "" : ""
     );
-
-    console.log("Booth Design Status:", status); // 🔥 debug
   } catch (err) {
-    console.error("Failed to fetch booth status", err);
-    setBoothDesignStatus("pending");
-    setBoothRejectReason("");
+    console.error("❌ Booth status fetch failed", err);
   }
 };
 
 
 
-  const handleExhibitorFormDownload = (url, fileName) => {
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", fileName);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
 
+
+
+
+ 
   return (
     <div className="exhibitordashboard-container">
       {/* Sidebar */}
@@ -5137,9 +5143,11 @@ const [hasUnlockedBadge, setHasUnlockedBadge] = useState(false);
                                         disabled={
                                           !uploadedSteps[`step${currentStep}`]
                                         }
-                                        onClick={() =>
-                                          setCurrentStep((s) => s + 1)
-                                        }
+                                      onClick={() => {
+    setIsReuploading(false);     // 🔓 auto control allow
+    setBoothDesignStatus("pending");
+    setCurrentStep(4);          // 👉 pending card
+  }}
                                         style={{
                                           opacity: uploadedSteps[
                                             `step${currentStep}`
@@ -5160,52 +5168,42 @@ const [hasUnlockedBadge, setHasUnlockedBadge] = useState(false);
                                 </div>
                               </div>
 
-                              <div
-  className={`Workflow-panel panel-step-2 ${
-    currentStep === 4 ? "show" : "hide-right"
-  }`}
->
-  {/* ===== PENDING ===== */}
+                              <div className={`Workflow-panel panel-step-2 ${currentStep === 4 ? "show" : "hide-right"}`}>
   {boothDesignStatus === "pending" && (
     <div className="contractor-thankyou-card warning">
       <h3>Booth Design Under Review</h3>
-      <p>Your booth design is being reviewed by the Admin.</p>
       <p>Please wait for approval.</p>
     </div>
   )}
 
-  {/* ===== REJECTED ===== */}
   {boothDesignStatus === "rejected" && (
-  <div className="contractor-thankyou-card rejected">
-    <h3>Booth Design Rejected ❌</h3>
-
-    <p>
-      Your booth design was rejected for the following reason:
-    </p>
-
-    <div className="reject-reason-box">
-      {boothRejectReason || "No reason provided by admin."}
+    <div className="contractor-thankyou-card rejected">
+      <h3>Booth Design Rejected ❌</h3>
+      <div className="reject-reason-box">
+        {boothRejectReason || "No reason provided by admin."}
+      </div>
+    
+      <button
+        className="doc-btn"
+        onClick={() => {
+          setIsReuploading(true);   // 🔥 STOP auto effect
+          setBoothRejectReason("");
+          setCurrentStep(3);       // 🔥 go to upload step
+        }}
+      >
+        Re-Upload Booth Design
+      </button>
     </div>
+  )}
 
-    <button
-      className="doc-btn"
-      onClick={() => setCurrentStep(3)}
-    >
-      Re-Upload Booth Design
-    </button>
-  </div>
-)}
-
-
-  {/* ===== APPROVED ===== */}
   {boothDesignStatus === "approved" && (
     <div className="contractor-thankyou-card success">
-      <h3>Thank you for submitting the form 🎉</h3>
+      <h3>Thank you 🎉</h3>
       <p>Your booth design has been approved.</p>
-      <p>Your contractor form is now completed.</p>
     </div>
   )}
 </div>
+
 
                             </div>
                           </div>

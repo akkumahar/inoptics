@@ -12703,53 +12703,95 @@ const AdminDashboard = () => {
       )}`
     );
 
-    if (!res.ok) {
-      throw new Error("Failed to fetch booth design status");
-    }
-
     const data = await res.json();
 
-    // 🔒 Normalize status safely
-    const rawStatus = typeof data.status === "string"
-      ? data.status.toLowerCase().trim()
-      : "pending";
+    const rawStatus =
+      typeof data.status === "string"
+        ? data.status.toLowerCase().trim()
+        : "pending";
 
     const status = ["pending", "approved", "rejected"].includes(rawStatus)
       ? rawStatus
       : "pending";
 
     setBoothDesignStatus(status);
-
-    // ✅ Reject reason only when rejected
     setBoothRejectReason(
-      status === "rejected" && typeof data.reject_reason === "string"
-        ? data.reject_reason
-        : ""
+      status === "rejected" ? data.reject_reason || "" : ""
     );
 
-    console.log("🧾 Booth Design Status:", {
-      status,
-      reject_reason: data.reject_reason || null,
-    });
+    // 🔥 STORE BOOTH ID FOR REJECT / APPROVE
+    setSelectedBoothId(data.booth_id || null);
 
+    console.log("Booth Status:", {
+      status,
+      booth_id: data.booth_id,
+      reason: data.reject_reason,
+    });
   } catch (err) {
-    console.error("❌ Failed to fetch booth status:", err);
+    console.error("Failed to fetch booth status", err);
     setBoothDesignStatus("pending");
     setBoothRejectReason("");
+    setSelectedBoothId(null);
   }
 };
 
+const [boothIdMap, setBoothIdMap] = useState({});
+
+const fetchAllBoothIds = async () => {
+  const map = {};
+
+  for (const item of finalListData) {
+    try {
+      const res = await fetch(
+        `https://inoptics.in/api/get_booth_design_status.php?company=${encodeURIComponent(
+          item.exhibitor_company_name
+        )}`
+      );
+
+      const data = await res.json();
+
+      if (data.booth_id) {
+        map[item.exhibitor_company_name] = data.booth_id;
+      }
+    } catch (err) {
+      console.error(
+        "Booth status fetch failed for",
+        item.exhibitor_company_name,
+        err
+      );
+    }
+  }
+
+  setBoothIdMap(map);
+};
+
+
+
+useEffect(() => {
+  if (finalListData.length > 0) {
+    fetchAllBoothIds();
+  }
+}, [finalListData]);
+
 
   const handleRejectBoothDesign = async () => {
-  if (!selectedBoothId) {
-    alert("Invalid booth record");
+  // 🔒 SAFETY CHECKS
+  if (!selectedCompany || typeof selectedCompany !== "string") {
+    alert("Company name missing");
     return;
   }
 
-  if (!rejectReason.trim()) {
+  if (!rejectReason || !rejectReason.trim()) {
     alert("Please enter reject reason");
     return;
   }
+
+  const payload = {
+    company: selectedCompany.trim(),
+    reason: rejectReason.trim(),
+  };
+
+  console.log("❌ Reject payload:", payload); // 🔥 DEBUG
 
   try {
     setRejecting(true);
@@ -12762,18 +12804,15 @@ const AdminDashboard = () => {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-        body: JSON.stringify({
-          id: Number(selectedBoothId),
-          reason: rejectReason.trim(),
-        }),
+        body: JSON.stringify(payload),
       }
     );
 
-    const text = await res.text(); // 🔥 ALWAYS read text first
+    const text = await res.text();
     console.log("Reject API raw response:", text);
 
-    if (!res.ok) {
-      throw new Error(text || "Server error");
+    if (!text) {
+      throw new Error("Empty response from server");
     }
 
     let data;
@@ -12783,26 +12822,30 @@ const AdminDashboard = () => {
       throw new Error("Invalid JSON from server");
     }
 
-    if (!data.success) {
-      alert(data.message || "Reject failed");
-      return;
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || "Reject failed");
     }
 
-    alert("✅ Booth design rejected successfully");
+    // ✅ SUCCESS
+    alert("❌ Booth design rejected successfully");
 
-    // 🔄 RESET UI
+    // 🔄 RESET UI STATE
     setShowRejectPopup(false);
     setRejectReason("");
-    setSelectedBoothId(null);
+    setSelectedCompany(null);
 
-    fetchBoothDesignStatus(); // refresh exhibitor panel
+    // 🔄 OPTIONAL: refresh list / status
+    fetchBoothDesignStatus?.();
+
   } catch (err) {
     console.error("Reject error:", err);
-    alert(err.message || "Something went wrong");
+    alert(err.message || "Server error");
   } finally {
     setRejecting(false);
   }
 };
+
+
 
 
 
@@ -25150,15 +25193,31 @@ const AdminDashboard = () => {
                                 <td>
                                   <div className="contractor-final-list-btn">
                                     <button
-                                       onClick={() => {
-                                        console.log("Rejecting booth item:", item);
-   setSelectedBoothId(item.booth_id); // 🔥 save id
-    setShowRejectPopup(true);    // 🔥 open popup
+  onClick={() => {
+    const boothId =
+      boothIdMap[item.exhibitor_company_name] || null;
+
+    console.log("Rejecting booth:", {
+      company: item.exhibitor_company_name,
+      boothId,
+    });
+
+    if (!boothId) {
+      alert("Booth design not found");
+      return;
+    }
+
+    setSelectedBoothId(boothId);                 // ✅ booth id
+    setSelectedCompany(item.exhibitor_company_name); // ✅ ADD THIS
+    setRejectReason(""); 
+    setShowRejectPopup(true);
   }}
-                                      className="contractor-final-list-btn-reject"
-                                    >
-                                      <IoMdCloseCircle />
-                                    </button>
+  className="contractor-final-list-btn-reject"
+>
+  <IoMdCloseCircle />
+</button>
+
+
                                     <button
                                       onClick={() =>
                                         approveBooth(
@@ -25213,8 +25272,8 @@ const AdminDashboard = () => {
                       <textarea
                         className="reject-textarea"
                         placeholder="Enter rejection reason..."
-                        value={rejectReason}
-                        onChange={(e) => setRejectReason(e.target.value)}
+                         value={rejectReason}
+  onChange={(e) => setRejectReason(e.target.value)}
                         rows={4}
                       />
 
