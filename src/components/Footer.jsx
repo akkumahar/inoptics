@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./Footer.css";
-import { useNavigate } from "react-router-dom";
-import { Swiper, SwiperSlide } from "swiper/react";
-import "swiper/css";
-import { Autoplay, FreeMode } from "swiper/modules";
-import { IoIosMenu } from "react-icons/io";
-
+import { Link, useNavigate } from "react-router-dom";
 
 const Footer = () => {
   const [sponsorImages, setSponsorImages] = useState([]);
@@ -13,7 +8,7 @@ const Footer = () => {
   const [footerDetails2, setFooterDetails2] = useState([]);
   const [footerDetails3, setFooterDetails3] = useState([]);
   const [footerDetails4, setFooterDetails4] = useState([]);
-  const [activeModal, setActiveModal] = useState(null); // "privacy" | "terms" | null
+  const [activeModal, setActiveModal] = useState(null);
   const [privacyDetails, setPrivacyDetails] = useState([]);
   const [termsDetails, setTermsDetails] = useState([]);
 
@@ -41,7 +36,7 @@ const Footer = () => {
     const fetchSponsors = async () => {
       try {
         const res = await fetch(
-          "https://inoptics.in/api/get_sponsor_images_list.php"
+          "https://inoptics.in/api/get_sponsor_images_list.php",
         );
         const data = await res.json();
         setSponsorImages(data);
@@ -58,18 +53,15 @@ const Footer = () => {
 
   const getSponsorImage = (type) => {
     const sponsor = sponsorImages.find(
-      (img) => img.sponsor_type?.toLowerCase() === type.toLowerCase()
+      (img) => img.sponsor_type?.toLowerCase() === type.toLowerCase(),
     );
     return sponsor ? `https://inoptics.in/api/${sponsor.image_path}` : null;
   };
 
-  useEffect(() => {}, []);
-
-  // ====== FOOTER DETAILS 1 API CALL ======
   const fetchFooterDetails1 = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_footer_details1.php"
+        "https://inoptics.in/api/get_footer_details1.php",
       );
       const data = await res.json();
       setFooterDetails1(data || []);
@@ -78,11 +70,10 @@ const Footer = () => {
     }
   };
 
-  // ====== FETCH FOOTER DETAILS 2 ======
   const fetchFooterDetails2 = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_footer_details2.php"
+        "https://inoptics.in/api/get_footer_details2.php",
       );
       const data = await res.json();
       setFooterDetails2(data || []);
@@ -91,11 +82,10 @@ const Footer = () => {
     }
   };
 
-  // ====== FOOTER DETAILS 3 API CALLS ======
   const fetchFooterDetails3 = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_footer_details3.php"
+        "https://inoptics.in/api/get_footer_details3.php",
       );
       const data = await res.json();
       setFooterDetails3(data || []);
@@ -104,24 +94,22 @@ const Footer = () => {
     }
   };
 
-  // ✅ Extract content by checking keywords
   const addressDetail = footerDetails3.find((item) =>
-    item.description?.toLowerCase().includes("address")
+    item.description?.toLowerCase().includes("address"),
   );
 
   const contactDetail = footerDetails3.find((item) =>
-    item.description?.toLowerCase().includes("call")
+    item.description?.toLowerCase().includes("call"),
   );
 
   const emailDetail = footerDetails3.find((item) =>
-    item.description?.toLowerCase().includes("email")
+    item.description?.toLowerCase().includes("email"),
   );
 
-  // ====== FOOTER DETAILS 4 API CALL ======
   const fetchFooterDetails4 = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_footer_details4.php"
+        "https://inoptics.in/api/get_footer_details4.php",
       );
       const data = await res.json();
       setFooterDetails4(data || []);
@@ -130,11 +118,10 @@ const Footer = () => {
     }
   };
 
-  // Fetch Privacy Policy
   const fetchPrivacyDetails = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_privacy_details.php"
+        "https://inoptics.in/api/get_privacy_details.php",
       );
       const data = await res.json();
       setPrivacyDetails(data || []);
@@ -143,7 +130,6 @@ const Footer = () => {
     }
   };
 
-  // Fetch Terms & Conditions
   const fetchTermsDetails = async () => {
     try {
       const res = await fetch("https://inoptics.in/api/get_terms_details.php");
@@ -154,7 +140,6 @@ const Footer = () => {
     }
   };
 
-  // Open modal with correct data
   const openModal = (type) => {
     setActiveModal(type);
     if (type === "privacy") fetchPrivacyDetails();
@@ -166,13 +151,23 @@ const Footer = () => {
   return (
     <>
       <footer className="footer">
-        {/* ===== Sponsor Strip ===== */}
-        <div >
-          <div className="sponsor-strip sponsors-define-name">
-            <div className="sponsors-define"><p>Platinum Sponsors</p></div>
-            <div className="sponsors-define"><p>Gold Sponsors</p></div>
+        {/* ===== Sponsor Header Strip ===== */}
+        <div className="sponsor-header-strip">
+          <div className="sponsors-define sponsors-define-mobile-view">
+            <p>Platinum Sponsors</p>
           </div>
-          <div className="sponsor-strip">
+          <div className="sponsors-define sponsors-define-mobile-view particular-mobile-view-hide">
+            <p>Gold Sponsors</p>
+          </div>
+        </div>
+
+        {/* ===== Main Sponsor Strip ===== */}
+        <div className="sponsor-strip">
+          <div className="sponsors-define-mobile-view-show">
+            <div className="sponsors-define">
+              <p>Platinum Sponsors</p>
+            </div>
+          </div>
           {/* Platinum */}
           <div className="platinum-box">
             {getSponsorImage("Footer-Platinum") && (
@@ -183,266 +178,98 @@ const Footer = () => {
             )}
           </div>
 
-          {/* Other sponsors */}
-          <div className="sponsor-grid">
-            {getSponsorImage("Footer-Gold") && (
-              <div className="sponsor-cell">
-                <img src={getSponsorImage("Footer-Gold")} alt="Gold Sponsor" />
+          {/* Gold Sponsors Grid */}
+          <div>
+            <div className="sponsors-define-mobile-view-show mobile-view-show">
+              <div className="sponsors-define ">
+                <p>Gold Sponsors</p>
               </div>
-            )}
+            </div>
 
-            {getSponsorImage("Footer-Silver") && (
-              <div className="sponsor-cell">
-                <img
-                  src={getSponsorImage("Footer-Silver")}
-                  alt="Silver Sponsor"
-                />
-              </div>
-            )}
+            <div className="sponsor-grid">
+              {getSponsorImage("Footer-Gold") && (
+                <div className="sponsor-cell">
+                  <img
+                    src={getSponsorImage("Footer-Gold")}
+                    alt="Gold Sponsor"
+                  />
+                </div>
+              )}
 
-            {getSponsorImage("Footer-Media") && (
-              <div className="sponsor-cell">
-                <img
-                  src={getSponsorImage("Footer-Media")}
-                  alt="Media Partner"
-                />
-              </div>
-            )}
+              {getSponsorImage("Footer-Silver") && (
+                <div className="sponsor-cell">
+                  <img
+                    src={getSponsorImage("Footer-Silver")}
+                    alt="Silver Sponsor"
+                  />
+                </div>
+              )}
 
-            {getSponsorImage("Footer-Foreign") && (
-              <div className="sponsor-cell">
-                <img
-                  src={getSponsorImage("Footer-Foreign")}
-                  alt="Foreign Partner"
-                />
-              </div>
-            )}
-            {getSponsorImage("Footer-hoya") && (
-              <div className="sponsor-cell">
-                <img
-                  src={getSponsorImage("Footer-hoya")}
-                  alt="Foreign Partner"
-                />
-              </div>
-            )}
-            {getSponsorImage("Footer-fastrack") && (
-              <div className="sponsor-cell">
-                <img
-                  src={getSponsorImage("Footer-fastrack")}
-                  alt="Foreign Partner"
-                />
-              </div>
-            )}
-            {getSponsorImage("Footer-fastrack") && (
-              <div className="sponsor-cell">
-                <img
-                  src={getSponsorImage("Footer-fastrack")}
-                  alt="Foreign Partner"
-                />
-              </div>
-            )}
-            {getSponsorImage("Footer-Foreign") && (
+              {getSponsorImage("Footer-Media") && (
+                <div className="sponsor-cell">
+                  <img
+                    src={getSponsorImage("Footer-Media")}
+                    alt="Media Partner"
+                  />
+                </div>
+              )}
+
+              {getSponsorImage("Footer-Foreign") && (
+                <div className="sponsor-cell">
+                  <img
+                    src={getSponsorImage("Footer-Foreign")}
+                    alt="Foreign Partner"
+                  />
+                </div>
+              )}
+
+              {getSponsorImage("Footer-hoya") && (
+                <div className="sponsor-cell">
+                  <img src={getSponsorImage("Footer-hoya")} alt="Hoya" />
+                </div>
+              )}
+
+              {getSponsorImage("Footer-fastrack") && (
+                <div className="sponsor-cell">
+                  <img
+                    src={getSponsorImage("Footer-fastrack")}
+                    alt="Fastrack"
+                  />
+                </div>
+              )}
+
+              {getSponsorImage("Footer-fastrack") && (
+                <div className="sponsor-cell">
+                  <img
+                    src={getSponsorImage("Footer-fastrack")}
+                    alt="Fastrack"
+                  />
+                </div>
+              )}
+
               <div className="sponsor-cell-link">
-                
-                <p>explore more sponsors</p>
+                <Link to="/benefactors" className="explore-link">
+                  Explore More Sponsors
+                </Link>
               </div>
-            )}
+            </div>
           </div>
         </div>
-        </div>
 
-        {/* <Swiper
-         modules={[Autoplay, FreeMode]}
-          loop={true}
-          freeMode={{
-            enabled: true,
-            momentum: false,   // 👈 IMPORTANT (no snap)
-            sticky: false
-          }}
-          slidesPerView="auto"
-          spaceBetween={0}
-          allowTouchMove={false}
-          autoplay={{
-            delay: 0,
-            disableOnInteraction: false,
-            pauseOnMouseEnter: false
-          }}
-          speed={7000}
-          watchSlidesProgress={true}
-          grabCursor={false}
-          className="continuous-swiper"
-        >
-          <SwiperSlide>
-            {getSponsorImage("Footer-Gold") && (
-              <div className="sponsor-swiper">
-                <img src={getSponsorImage("Footer-Gold")} alt="Gold Sponsor" />
-              </div>
-            )}
-
-          </SwiperSlide>
-          <SwiperSlide>
-            {getSponsorImage("Footer-Silver") && (
-              <div className="sponsor-swiper">
-                <img
-                  src={getSponsorImage("Footer-Silver")}
-                  alt="Silver Sponsor"
-                />
-              </div>
-            )}
-          </SwiperSlide>
-          <SwiperSlide>
-            {getSponsorImage("Footer-hoya") && (
-              <div className="sponsor-swiper">
-                <img
-                  src={getSponsorImage("Footer-hoya")}
-                  alt="Foreign Partner"
-                />
-              </div>
-            )}
-          </SwiperSlide>
-          <SwiperSlide>
-            {getSponsorImage("Footer-fastrack") && (
-              <div className="sponsor-swiper">
-                <img
-                  src={getSponsorImage("Footer-fastrack")}
-                  alt="Foreign Partner"
-                />
-              </div>
-            )}
-          </SwiperSlide>
-          <SwiperSlide>
-            {getSponsorImage("Footer-Foreign") && (
-              <div className="sponsor-swiper">
-                <img
-                  src={getSponsorImage("Footer-Foreign")}
-                  alt="Foreign Partner"
-                />
-              </div>
-            )}
-          </SwiperSlide>
-          <SwiperSlide>
-             {getSponsorImage("Footer-fastrack") && (
-              <div className="sponsor-swiper">
-                <img
-                  src={getSponsorImage("Footer-fastrack")}
-                  alt="Foreign Partner"
-                />
-              </div>
-            )}
-          </SwiperSlide>
-          <SwiperSlide>
-            {getSponsorImage("Footer-Media") && (
-              <div className="sponsor-swiper">
-                <img
-                  src={getSponsorImage("Footer-Media")}
-                  alt="Media Partner"
-                />
-              </div>
-            )}
-          </SwiperSlide>
-
-          <SwiperSlide>
-            {getSponsorImage("Footer-Silver") && (
-              <div className="sponsor-swiper">
-                <img
-                  src={getSponsorImage("Footer-Silver")}
-                  alt="Silver Sponsor"
-                />
-              </div>
-            )}
-          </SwiperSlide>
-          <SwiperSlide>
-            {getSponsorImage("Footer-Foreign") && (
-              <div className="sponsor-swiper">
-                <img
-                  src={getSponsorImage("Footer-Foreign")}
-                  alt="Foreign Partner"
-                />
-              </div>
-            )}
-          </SwiperSlide>
-          <SwiperSlide>
-            {getSponsorImage("Footer-Foreign") && (
-              <div className="sponsor-swiper">
-                <img
-                  src={getSponsorImage("Footer-Foreign")}
-                  alt="Foreign Partner"
-                />
-              </div>
-            )}
-          </SwiperSlide>
-          <SwiperSlide>
-            {getSponsorImage("Footer-Foreign") && (
-              <div className="sponsor-swiper">
-                <img
-                  src={getSponsorImage("Footer-Foreign")}
-                  alt="Foreign Partner"
-                />
-              </div>
-            )}
-          </SwiperSlide>
-          <SwiperSlide>
-            {getSponsorImage("Footer-Foreign") && (
-              <div className="sponsor-swiper">
-                <img
-                  src={getSponsorImage("Footer-Foreign")}
-                  alt="Foreign Partner"
-                />
-              </div>
-            )}
-          </SwiperSlide>
-          <SwiperSlide>
-            {getSponsorImage("Footer-Foreign") && (
-              <div className="sponsor-swiper">
-                <img
-                  src={getSponsorImage("Footer-Foreign")}
-                  alt="Foreign Partner"
-                />
-              </div>
-            )}
-          </SwiperSlide>
-          <SwiperSlide>
-            {getSponsorImage("Footer-Foreign") && (
-              <div className="sponsor-swiper">
-                <img
-                  src={getSponsorImage("Footer-Foreign")}
-                  alt="Foreign Partner"
-                />
-              </div>
-            )}
-          </SwiperSlide>
-          <SwiperSlide>
-            {getSponsorImage("Footer-Foreign") && (
-              <div className="sponsor-swiper">
-                <img
-                  src={getSponsorImage("Footer-Foreign")}
-                  alt="Foreign Partner"
-                />
-              </div>
-            )}
-          </SwiperSlide>
-          <SwiperSlide>
-            {getSponsorImage("Footer-Foreign") && (
-              <div className="sponsor-swiper">
-                <img
-                  src={getSponsorImage("Footer-Foreign")}
-                  alt="Foreign Partner"
-                />
-              </div>
-            )}
-          </SwiperSlide>
-        </Swiper> */}
-
+        {/* ===== Footer Address Section ===== */}
         <div className="footer-address">
           <div className="footer-col">
             <div className="footer-column1">
               {footerDetails1.length > 0 && (
                 <>
-                  <img
+                  <Link to="/">
+                    <img
                     src={footerDetails1[0].image}
                     alt="Footer Logo"
                     className="footer-logo-img"
                   />
+                  </Link>
+                  
                   <p
                     className="footer-description1"
                     dangerouslySetInnerHTML={{
@@ -457,7 +284,6 @@ const Footer = () => {
           </div>
 
           <div className="footer-column2">
-            {/* ✅ Fetch Title */}
             <p className="stay-updated">
               {footerDetails2[0]?.title || "Loading..."}
             </p>
@@ -471,7 +297,6 @@ const Footer = () => {
               </div>
             </form>
 
-            {/* ✅ Fetch Description with HTML support */}
             <p
               className="footer-description2"
               dangerouslySetInnerHTML={{
@@ -482,14 +307,12 @@ const Footer = () => {
             />
           </div>
 
-          <div className="footer-col1">
-            {/* === Find Us === */}
+          <div className="footer-col1 footer-column-left-align">
             <div className="find-us">
               <p>
                 <i className="fas fa-map-marker-alt"></i>
                 <span
-                  className="stay-updated2"
-                  style={{ marginLeft: "8px" }}
+                  className="stay-updated2-address"
                   dangerouslySetInnerHTML={{
                     __html: addressDetail?.description || "Our Address",
                   }}
@@ -497,13 +320,15 @@ const Footer = () => {
               </p>
             </div>
 
-            {/* === Contact === */}
             <div className="contact">
               <p>
                 <i className="fas fa-phone"></i>
-                <span
+
+                <a
+                  href={`tel:${(contactDetail?.description || "")
+                    .replace(/<[^>]*>/g, "") // html tags remove
+                    .replace(/[^0-9+]/g, "")}`} // only number keep
                   className="stay-updated2"
-                  style={{ marginLeft: "8px" }}
                   dangerouslySetInnerHTML={{
                     __html: contactDetail?.description || "Call us at:",
                   }}
@@ -511,13 +336,15 @@ const Footer = () => {
               </p>
             </div>
 
-            {/* === Email === */}
             <div className="Email">
               <p>
                 <i className="far fa-envelope-open"></i>
-                <span
-                  className="stay-updated2"
-                  style={{ marginLeft: "8px" }}
+                <a
+                  href={`mailto:${(emailDetail?.description || "")
+                    .replace(/<[^>]*>/g, "") // html tags remove
+                    .replace(/.*?:/, "") // "Email:" label remove
+                    .trim()}`}
+                  className="stay-updated2-address-phone-email"
                   dangerouslySetInnerHTML={{
                     __html: emailDetail?.description || "Email:",
                   }}
@@ -530,10 +357,7 @@ const Footer = () => {
             <div className="org">
               {footerDetails4.map((item, index) => (
                 <div className="event-item" key={index}>
-                  {/* Title from backend */}
                   <p className="footer-description">{item.title}</p>
-
-                  {/* Image from backend */}
                   <img
                     src={item.image}
                     alt={item.title}
@@ -545,6 +369,7 @@ const Footer = () => {
           </div>
         </div>
 
+        {/* ===== Copyright Area ===== */}
         <div className="copyright-area">
           <p className="cp-description">
             © 2021 Inoptic. All rights reserved. Developed by RSD Expositions.
@@ -561,18 +386,15 @@ const Footer = () => {
             </button>
           </p>
         </div>
-
-        {/* footer mobile-stickt-menu */}
-        
-
-
-        
       </footer>
 
       {/* Modal */}
       {activeModal && (
-        <div className="custom-modal-overlay">
-          <div className="custom-modal-box">
+        <div className="custom-modal-overlay" onClick={closeModal}>
+          <div
+            className="custom-modal-box"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="custom-modal-header">
               <h2>
                 {activeModal === "privacy"

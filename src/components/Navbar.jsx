@@ -72,7 +72,9 @@ const Navbar = () => {
     <>
       <nav className="navbar">
         <div className="navbar-left">
+          <Link to="/">
           <img src={Logo} alt="Logo" className="logo-image" />
+          </Link>
         </div>
 
         {/* Desktop Menu */}
