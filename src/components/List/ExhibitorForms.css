@@ -1,0 +1,221 @@
+/* ===============================
+   HISTORY TABLE WRAP
+================================ */
+.history-table-wrap {
+  max-width: 1000px;
+  margin: auto;
+  overflow-y: auto;
+  font-family: "Inter", system-ui, sans-serif;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  padding: 18px 20px;
+}
+
+.history-table-wrap::-webkit-scrollbar {
+  display: none;
+}
+
+/* ===============================
+   TABLE
+================================ */
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* ===============================
+   HEADER
+================================ */
+.history-table thead {
+  background: #161616;
+}
+
+.history-table th {
+  text-align: left;
+  padding: 12px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: 0.3px;
+}
+
+/* ===============================
+   BODY CELLS
+================================ */
+.history-table td {
+  padding: 12px 12px;
+  border-top: 1px solid #eee;
+  font-size: 14px;
+  color: #222;
+  vertical-align: middle;
+}
+
+/* ===============================
+   ROW HOVER
+================================ */
+.history-table tbody tr {
+  transition: background 0.15s ease;
+}
+
+.history-table tbody tr:hover {
+  background: #f7f9fc;
+}
+
+/* ===============================
+   FILE VIEW LINK
+================================ */
+.view-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: #eef3f8;
+  border-radius: 6px;
+  text-decoration: none;
+  color: #333;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.view-link:hover {
+  background: #dbe7f3;
+  transform: translateY(-1px);
+}
+
+/* ===============================
+   STATUS BADGES
+================================ */
+.status-approved {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #e7f7ec;
+  color: #15803d;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: capitalize;
+}
+
+.status-rejected {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #ffe8e8;
+  color: #b91c1c;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: capitalize;
+}
+
+/* ===============================
+   FILE NAME CELL
+================================ */
+.history-table td:nth-child(3) {
+  font-family: monospace;
+  font-size: 12px;
+  color: #666;
+  word-break: break-all;
+}
+
+/* ===============================
+   DATE COLUMN
+================================ */
+.history-table td:last-child {
+  font-size: 12px;
+  color: #777;
+  white-space: nowrap;
+}
+
+/* ===============================
+   EMPTY DASH STYLE
+================================ */
+.history-table td:empty::after {
+  content: "—";
+  color: #aaa;
+}
+
+
+
+/* ===============================
+   DASHBOARD WRAP
+================================ */
+.history-dashboard {
+  max-width: 1000px;
+  margin: auto;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.history-dashboard::-webkit-scrollbar {
+  display: none;
+}
+
+/* ===============================
+   SEARCH BAR
+================================ */
+.history-topbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 14px;
+}
+
+.history-search {
+  padding: 10px 14px;
+  width: 280px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #f8f8f8;
+  font-size: 14px;
+}
+
+.history-search:focus {
+  outline: none;
+  border-color: #111;
+  background: #fff;
+}
+
+/* ===============================
+   COMPANY CARD
+================================ */
+.history-company-card {
+  background: #fff;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+  overflow: hidden;
+}
+
+/* ===============================
+   COMPANY HEADER
+================================ */
+.history-company-header {
+  background: #161616;
+  color: #fff;
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* ===============================
+   TABLE SCROLL
+================================ */
+.history-table-scroll {
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.history-table-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* ===============================
+   FILE NAME MONO
+================================ */
+.mono {
+  font-family: monospace;
+  font-size: 12px;
+  color: #666;
+}

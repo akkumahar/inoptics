@@ -24,8 +24,7 @@ import {
   faFileAlt,
   faEye,
 } from "@fortawesome/free-solid-svg-icons";
-import { MdDelete } from "react-icons/md";
-import { FiEdit } from "react-icons/fi";
+import { LuFileBadge2 } from "react-icons/lu";
 
 import { FaCircleCheck } from "react-icons/fa6";
 import { IoMdCloseCircle } from "react-icons/io";
@@ -57,6 +56,7 @@ import html2pdf from "html2pdf.js";
 import jsPDF from "jspdf";
 import { toast } from "react-toastify";
 import AdminBadges from "./List/AdminBadges";
+import ExhibitorForms from "./List/ExhibitorForms";
 // import { useMemo } from 'react';
 
 const AdminDashboard = () => {
@@ -12472,7 +12472,6 @@ const AdminDashboard = () => {
         return;
       }
 
-      // 🔥 Convert array → company based map
       const map = {};
 
       json.data.forEach((row) => {
@@ -12482,13 +12481,15 @@ const AdminDashboard = () => {
           map[company] = [];
         }
 
+        // ⭐⭐⭐ MAIN FIX HERE
         map[company].push({
           file_name: row.file_name,
           file_path: row.file_path,
+          booth_design: row.booth_design || "", // ✅ ADD THIS
         });
       });
 
-      console.log("Forms Map:", map); // 👈 must show company name as key
+      console.log("Forms Map:", map); // now booth_design must appear
 
       setFormsMap(map);
     } catch (error) {
@@ -12694,163 +12695,152 @@ const AdminDashboard = () => {
     paymentTotals.totalPayment + paymentTotals.totalTDS;
 
   const fetchBoothDesignStatus = async () => {
-  if (!formData.company_name) return;
+    if (!formData.company_name) return;
 
-  try {
-    const res = await fetch(
-      `https://inoptics.in/api/get_booth_design_status.php?company=${encodeURIComponent(
-        formData.company_name
-      )}`
-    );
-
-    const data = await res.json();
-
-    const rawStatus =
-      typeof data.status === "string"
-        ? data.status.toLowerCase().trim()
-        : "pending";
-
-    const status = ["pending", "approved", "rejected"].includes(rawStatus)
-      ? rawStatus
-      : "pending";
-
-    setBoothDesignStatus(status);
-    setBoothRejectReason(
-      status === "rejected" ? data.reject_reason || "" : ""
-    );
-
-    // 🔥 STORE BOOTH ID FOR REJECT / APPROVE
-    setSelectedBoothId(data.booth_id || null);
-
-    console.log("Booth Status:", {
-      status,
-      booth_id: data.booth_id,
-      reason: data.reject_reason,
-    });
-  } catch (err) {
-    console.error("Failed to fetch booth status", err);
-    setBoothDesignStatus("pending");
-    setBoothRejectReason("");
-    setSelectedBoothId(null);
-  }
-};
-
-const [boothIdMap, setBoothIdMap] = useState({});
-
-const fetchAllBoothIds = async () => {
-  const map = {};
-
-  for (const item of finalListData) {
     try {
       const res = await fetch(
         `https://inoptics.in/api/get_booth_design_status.php?company=${encodeURIComponent(
-          item.exhibitor_company_name
-        )}`
+          formData.company_name,
+        )}`,
       );
 
       const data = await res.json();
 
-      if (data.booth_id) {
-        map[item.exhibitor_company_name] = data.booth_id;
-      }
-    } catch (err) {
-      console.error(
-        "Booth status fetch failed for",
-        item.exhibitor_company_name,
-        err
+      const rawStatus =
+        typeof data.status === "string"
+          ? data.status.toLowerCase().trim()
+          : "pending";
+
+      const status = ["pending", "approved", "rejected"].includes(rawStatus)
+        ? rawStatus
+        : "pending";
+
+      setBoothDesignStatus(status);
+      setBoothRejectReason(
+        status === "rejected" ? data.reject_reason || "" : "",
       );
+
+      // 🔥 STORE BOOTH ID FOR REJECT / APPROVE
+      setSelectedBoothId(data.booth_id || null);
+
+      console.log("Booth Status:", {
+        status,
+        booth_id: data.booth_id,
+        reason: data.reject_reason,
+      });
+    } catch (err) {
+      console.error("Failed to fetch booth status", err);
+      setBoothDesignStatus("pending");
+      setBoothRejectReason("");
+      setSelectedBoothId(null);
     }
-  }
-
-  setBoothIdMap(map);
-};
-
-
-
-useEffect(() => {
-  if (finalListData.length > 0) {
-    fetchAllBoothIds();
-  }
-}, [finalListData]);
-
-
-  const handleRejectBoothDesign = async () => {
-  // 🔒 SAFETY CHECKS
-  if (!selectedCompany || typeof selectedCompany !== "string") {
-    alert("Company name missing");
-    return;
-  }
-
-  if (!rejectReason || !rejectReason.trim()) {
-    alert("Please enter reject reason");
-    return;
-  }
-
-  const payload = {
-    company: selectedCompany.trim(),
-    reason: rejectReason.trim(),
   };
 
-  console.log("❌ Reject payload:", payload); // 🔥 DEBUG
+  const [boothIdMap, setBoothIdMap] = useState({});
 
-  try {
-    setRejecting(true);
+  const fetchAllBoothIds = async () => {
+    const map = {};
 
-    const res = await fetch(
-      "https://inoptics.in/api/reject_booth_design.php",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify(payload),
+    for (const item of finalListData) {
+      try {
+        const res = await fetch(
+          `https://inoptics.in/api/get_booth_design_status.php?company=${encodeURIComponent(
+            item.exhibitor_company_name,
+          )}`,
+        );
+
+        const data = await res.json();
+
+        if (data.booth_id) {
+          map[item.exhibitor_company_name] = data.booth_id;
+        }
+      } catch (err) {
+        console.error(
+          "Booth status fetch failed for",
+          item.exhibitor_company_name,
+          err,
+        );
       }
-    );
-
-    const text = await res.text();
-    console.log("Reject API raw response:", text);
-
-    if (!text) {
-      throw new Error("Empty response from server");
     }
 
-    let data;
+    setBoothIdMap(map);
+  };
+
+  useEffect(() => {
+    if (finalListData.length > 0) {
+      fetchAllBoothIds();
+    }
+  }, [finalListData]);
+
+  const handleRejectBoothDesign = async () => {
+    // 🔒 SAFETY CHECKS
+    if (!selectedCompany || typeof selectedCompany !== "string") {
+      alert("Company name missing");
+      return;
+    }
+
+    if (!rejectReason || !rejectReason.trim()) {
+      alert("Please enter reject reason");
+      return;
+    }
+
+    const payload = {
+      company: selectedCompany.trim(),
+      reason: rejectReason.trim(),
+    };
+
+    console.log("❌ Reject payload:", payload); // 🔥 DEBUG
+
     try {
-      data = JSON.parse(text);
-    } catch {
-      throw new Error("Invalid JSON from server");
+      setRejecting(true);
+
+      const res = await fetch(
+        "https://inoptics.in/api/reject_booth_design.php",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify(payload),
+        },
+      );
+
+      const text = await res.text();
+      console.log("Reject API raw response:", text);
+
+      if (!text) {
+        throw new Error("Empty response from server");
+      }
+
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error("Invalid JSON from server");
+      }
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Reject failed");
+      }
+
+      // ✅ SUCCESS
+      alert("❌ Booth design rejected successfully");
+
+      // 🔄 RESET UI STATE
+      setShowRejectPopup(false);
+      setRejectReason("");
+      setSelectedCompany(null);
+
+      // 🔄 OPTIONAL: refresh list / status
+      fetchBoothDesignStatus?.();
+    } catch (err) {
+      console.error("Reject error:", err);
+      alert(err.message || "Server error");
+    } finally {
+      setRejecting(false);
     }
-
-    if (!res.ok || !data.success) {
-      throw new Error(data.message || "Reject failed");
-    }
-
-    // ✅ SUCCESS
-    alert("❌ Booth design rejected successfully");
-
-    // 🔄 RESET UI STATE
-    setShowRejectPopup(false);
-    setRejectReason("");
-    setSelectedCompany(null);
-
-    // 🔄 OPTIONAL: refresh list / status
-    fetchBoothDesignStatus?.();
-
-  } catch (err) {
-    console.error("Reject error:", err);
-    alert(err.message || "Server error");
-  } finally {
-    setRejecting(false);
-  }
-};
-
-
-
-
-
-
-
+  };
 
   return (
     <div className="dashboard-container">
@@ -12887,17 +12877,16 @@ useEffect(() => {
               <li onClick={() => openOverlay("Additional Requirement")}>
                 › Additional Requirement
               </li>
-              <li onClick={() => setShowListMenu(!showListMenu)}>› List</li>
-              {!collapsed && showListMenu && (
-                <ul className="submenu">
-                  <li onClick={() => openOverlay("Exhibitor Badges")}>
-                    › Exhibitor Badges
-                  </li>
-                </ul>
-              )}
+              
             </ul>
           )}
-          <li onClick={() => openOverlay("Payments")}>
+          <li onClick={() => openOverlay("Exhibitor Forms")}>
+            <FaWpforms  /> {!collapsed && "Exhibitor Forms"}
+          </li>
+          <li onClick={() => openOverlay("Exhibitor Badges")}>
+            <LuFileBadge2  /> {!collapsed && "Exhibitor Badges"}
+          </li>
+           <li onClick={() => openOverlay("Payments")}>
             <FaMoneyBill /> {!collapsed && "Payments"}
           </li>
           <li onClick={() => openOverlay("Communication")}>
@@ -24038,6 +24027,33 @@ useEffect(() => {
 
           {/* testing */}
 
+
+          {overlayContent === "Exhibitor Forms" && (
+            <>
+              <div className="admin-sub-navbar">
+                <ul className="admin-sub-navbar-list">
+                  <li
+                    onClick={() => setActiveNavbarItem("EXHIBITOR FORMS")}
+                    className={
+                      activeNavbarItem === "Exhibitor Forms" ? "active" : ""
+                    }
+                  >
+                    Exhibitor Forms
+                  </li>
+                  
+                </ul>
+              </div>
+
+              {/* ✅ BADGES LIMIT */}
+              {activeNavbarItem === "EXHIBITOR FORMS" && (
+                <div style={{ padding: "10px" }}>
+                  <ExhibitorForms />
+                </div>
+              )}
+              
+            </>
+          )}
+
           {overlayContent === "Exhibitor Badges" && (
             <>
               <div className="admin-sub-navbar">
@@ -25169,18 +25185,46 @@ useEffect(() => {
                                     {formsMap[item.exhibitor_company_name]
                                       ?.length > 0 ? (
                                       formsMap[item.exhibitor_company_name].map(
-                                        (f, i) => (
-                                          <a
-                                            key={i}
-                                            href={`https://inoptics.in/api/${f.file_path}`}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            title={f.file_name}
-                                            className="form-view-icon"
-                                          >
-                                            <FaEye />
-                                          </a>
-                                        ),
+                                        (f, i) => {
+                                          const normalPath =
+                                            typeof f.file_path === "string"
+                                              ? f.file_path.trim()
+                                              : "";
+                                          const boothPath =
+                                            typeof f.booth_design === "string"
+                                              ? f.booth_design.trim()
+                                              : "";
+
+                                          return (
+                                            <React.Fragment key={i}>
+                                              {/* ✅ Normal form preview */}
+                                              {normalPath && (
+                                                <a
+                                                  href={`https://inoptics.in/api/${normalPath}`}
+                                                  target="_blank"
+                                                  rel="noreferrer"
+                                                  title={f.file_name || "Form"}
+                                                  className="form-view-icon"
+                                                >
+                                                  <FaEye />
+                                                </a>
+                                              )}
+
+                                              {/* ✅ Booth design preview */}
+                                              {boothPath && (
+                                                <a
+                                                  href={`https://inoptics.in/api/${boothPath}`}
+                                                  target="_blank"
+                                                  rel="noreferrer"
+                                                  title="Booth Design"
+                                                  className="form-view-icon"
+                                                >
+                                                  <FaEye />
+                                                </a>
+                                              )}
+                                            </React.Fragment>
+                                          );
+                                        },
                                       )
                                     ) : (
                                       <span style={{ color: "#999" }}>—</span>
@@ -25193,30 +25237,33 @@ useEffect(() => {
                                 <td>
                                   <div className="contractor-final-list-btn">
                                     <button
-  onClick={() => {
-    const boothId =
-      boothIdMap[item.exhibitor_company_name] || null;
+                                      onClick={() => {
+                                        const boothId =
+                                          boothIdMap[
+                                            item.exhibitor_company_name
+                                          ] || null;
 
-    console.log("Rejecting booth:", {
-      company: item.exhibitor_company_name,
-      boothId,
-    });
+                                        console.log("Rejecting booth:", {
+                                          company: item.exhibitor_company_name,
+                                          boothId,
+                                        });
 
-    if (!boothId) {
-      alert("Booth design not found");
-      return;
-    }
+                                        if (!boothId) {
+                                          alert("Booth design not found");
+                                          return;
+                                        }
 
-    setSelectedBoothId(boothId);                 // ✅ booth id
-    setSelectedCompany(item.exhibitor_company_name); // ✅ ADD THIS
-    setRejectReason(""); 
-    setShowRejectPopup(true);
-  }}
-  className="contractor-final-list-btn-reject"
->
-  <IoMdCloseCircle />
-</button>
-
+                                        setSelectedBoothId(boothId); // ✅ booth id
+                                        setSelectedCompany(
+                                          item.exhibitor_company_name,
+                                        ); // ✅ ADD THIS
+                                        setRejectReason("");
+                                        setShowRejectPopup(true);
+                                      }}
+                                      className="contractor-final-list-btn-reject"
+                                    >
+                                      <IoMdCloseCircle />
+                                    </button>
 
                                     <button
                                       onClick={() =>
@@ -25240,25 +25287,24 @@ useEffect(() => {
                 )}
 
                 {boothDesignStatus === "rejected" && (
-  <div className="contractor-thankyou-card rejected">
-    <h3>Booth Design Rejected</h3>
-    <p>❌ Your booth design has been rejected.</p>
+                  <div className="contractor-thankyou-card rejected">
+                    <h3>Booth Design Rejected</h3>
+                    <p>❌ Your booth design has been rejected.</p>
 
-    {boothRejectReason && (
-      <p className="reject-reason">
-        <strong>Reason:</strong> {boothRejectReason}
-      </p>
-    )}
+                    {boothRejectReason && (
+                      <p className="reject-reason">
+                        <strong>Reason:</strong> {boothRejectReason}
+                      </p>
+                    )}
 
-    <button
-      className="doc-btn"
-      onClick={() => setCurrentStep(3)}
-    >
-      Re-upload Booth Design
-    </button>
-  </div>
-)}
-
+                    <button
+                      className="doc-btn"
+                      onClick={() => setCurrentStep(3)}
+                    >
+                      Re-upload Booth Design
+                    </button>
+                  </div>
+                )}
 
                 {showRejectPopup && (
                   <div className="confirm-overlay">
@@ -25272,8 +25318,8 @@ useEffect(() => {
                       <textarea
                         className="reject-textarea"
                         placeholder="Enter rejection reason..."
-                         value={rejectReason}
-  onChange={(e) => setRejectReason(e.target.value)}
+                        value={rejectReason}
+                        onChange={(e) => setRejectReason(e.target.value)}
                         rows={4}
                       />
 
@@ -25292,7 +25338,9 @@ useEffect(() => {
                         <button
                           className="confirm-btn danger"
                           disabled={!rejectReason.trim() || rejecting}
-                           onClick={() => handleRejectBoothDesign(selectedBoothId)}
+                          onClick={() =>
+                            handleRejectBoothDesign(selectedBoothId)
+                          }
                         >
                           {rejecting ? "Rejecting..." : "Reject Booth Design"}
                         </button>

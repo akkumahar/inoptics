@@ -173,7 +173,7 @@ img {
   display: flex;
   justify-content: space-between;
   font-size: 13px;
-  padding: 6px 0;
+  padding: 0px 0;
   border-bottom: 1px dashed #e5e7eb;
 }
 
@@ -190,11 +190,15 @@ img {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow-x: auto;
+  /* overflow-y: auto; */
+  max-height: 73vh;
+  height: 100%;
   -webkit-overflow-scrolling: touch;
 }
 
 .badge-table {
   width: 100%;
+  /* overflow-y: auto; */
   border-collapse: collapse;
   min-width: 720px;
 }
@@ -304,8 +308,12 @@ img {
   background: #ffcccc;
 }
 
-.no-data{
-  padding: 10px;
+.no-badges{
+   display: flex;
+   font-size: 1.2vw;
+  justify-content: center;  
+  align-items: center;    
+  height: 100%;  
 }
 
 /* ================= MODAL ================= */
@@ -782,7 +790,7 @@ img {
 
 .lock-confirm-modal {
   background: #fff;
-  max-width: 520px;
+  max-width: 570px;
   width: 90%;
   padding: 24px 28px;
   border-radius: 12px;
@@ -827,3 +835,75 @@ img {
 
 
 /* popup css end */
+
+.badge-flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
+  border-radius: 15px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.badge-flag.free {
+  background: #e6f9ec;
+  color: #1a7f37;
+  border: 1px solid #1a7f37;
+}
+
+.badge-flag.paid {
+  background: #fff2e6;
+  color: #FF0000;
+  border: 1px solid #FF0000;
+}
+
+.badge-rupee-icon{
+  font-size: 14px;
+}
+
+
+.label-with-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.field-error {
+  color: #d32f2f;
+  font-size: 13px;
+  font-weight: 600;
+  margin-left: 5px;
+}
+
+
+.badge-flag {
+  position: relative;
+  overflow: hidden;
+}
+
+.badge-flag::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 120%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgb(255, 255, 255),
+    transparent
+  );
+  animation: badgeSweep 2s infinite;
+}
+
+@keyframes badgeSweep {
+  0% { left: -120%; }
+  100% { left: 140%; }
+}
+
+
+
+
+

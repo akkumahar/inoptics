@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   FaBars,
   FaTachometerAlt,
@@ -36,6 +37,54 @@ const ExhibitorDashboard = () => {
     step2: null,
     step3: null,
   });
+
+
+   const [brandsData, setBrandsData] = useState({
+      website: "",
+      products: [], // ✅ array
+      home_brands: "",
+      distributors: "",
+      international_brands: "",
+    });
+
+      const [formData, setFormData] = useState({
+    company_name: "",
+    email: "",
+    contact_number: "",
+  });
+  
+
+     const [products, setProducts] = useState([]);
+const [showBrandsEditForm, setShowBrandsEditForm] = useState(false);
+const [activeMenu, setActiveMenu] = useState("Dashboard");
+
+  // Fetch Products
+  const fetchProducts = async () => {
+    try {
+      const res = await axios.get("https://inoptics.in/api/get_product.php");
+      setProducts(res.data);
+    } catch (err) {
+      alert("Error fetching products");
+    }
+  };
+
+    useEffect(() => {
+      if (activeMenu === "Contractors" && formData.company_name) {
+        fetchProducts();
+      }
+    }, [activeMenu, formData.company_name]);
+
+
+  const CONTRACTOR_STEP_KEY = "contractor_step";
+  const [currentStep, setCurrentStep] = useState(() => {
+    const saved = localStorage.getItem(CONTRACTOR_STEP_KEY);
+    return saved ? Number(saved) : 0;
+  });
+
+  useEffect(() => {
+    localStorage.setItem(CONTRACTOR_STEP_KEY, currentStep);
+  }, [currentStep]);
+
   const [boothDesignStatus, setBoothDesignStatus] = useState("pending");
   const [boothRejectReason, setBoothRejectReason] = useState("");
   const [isReuploading, setIsReuploading] = useState(false);
@@ -55,18 +104,15 @@ const ExhibitorDashboard = () => {
 
   const [agreed, setAgreed] = useState(false);
 
-
   const [isInExhibitorBadges, setIsInExhibitorBadges] = useState(false);
-const [pendingRoute, setPendingRoute] = useState(null);
-const [showExitPopup, setShowExitPopup] = useState(false);
-const [pendingMenu, setPendingMenu] = useState(null);
-const [hasGeneratedBadge, setHasGeneratedBadge] = useState(false);
-const [hasUnlockedBadge, setHasUnlockedBadge] = useState(false);
 
-  const [boothDesignPreview, setBoothDesignPreview] = useState(null);
+  const [showExitPopup, setShowExitPopup] = useState(false);
+  const [pendingMenu, setPendingMenu] = useState(null);
+  const [hasGeneratedBadge, setHasGeneratedBadge] = useState(false);
+  const [hasUnlockedBadge, setHasUnlockedBadge] = useState(false);
 
   // 🔹 New states
-  const [activeMenu, setActiveMenu] = useState("Dashboard");
+  
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [importantPage, setImportantPage] = useState("");
 
@@ -85,24 +131,14 @@ const [hasUnlockedBadge, setHasUnlockedBadge] = useState(false);
   const [eventScheduleData, setEventScheduleData] = useState([]);
   const [latestNewsData, setLatestNewsData] = useState([]);
   const [collapsed, setCollapsed] = useState(false);
-  const [furnitureList, setFurnitureList] = useState([]);
-  const [powerList, setPowerList] = useState([]);
-  const [badgeList, setBadgeList] = useState([]);
 
   const [furnitureVendorDetails, setFurnitureVendorDetails] = useState([]);
   const [isFurnitureSaved, setIsFurnitureSaved] = useState(false);
   const [isSendingMail, setIsSendingMail] = useState(false);
   const [emailMasterData, setEmailMasterData] = useState([]);
-  const [formData, setFormData] = useState({
-    company_name: "",
-    email: "",
-    contact_number: "",
-  });
+
 
   const [coreFormData, setCoreFormData] = useState([]);
-  const [selectedPreview, setSelectedPreview] = useState(null);
-
-  const [exhibitor, setExhibitor] = useState({});
 
   const [showFurnitureList, setShowFurnitureList] = useState(false);
 
@@ -116,19 +152,14 @@ const [hasUnlockedBadge, setHasUnlockedBadge] = useState(false);
     grandTotal: 0,
   });
 
-
-
   const forceNavigateMenu = (menu) => {
-  setActiveMenu(menu);
-  setImportantPage("");
+    setActiveMenu(menu);
+    setImportantPage("");
 
-  if (window.innerWidth <= 768) {
-    setCollapsed(true);
-  }
-};
-
-
-
+    if (window.innerWidth <= 768) {
+      setCollapsed(true);
+    }
+  };
 
   // shorthand for first exhibitor
   const currentExhibitor = exhibitors[0];
@@ -587,66 +618,62 @@ const [hasUnlockedBadge, setHasUnlockedBadge] = useState(false);
   }, []);
 
   const handleMenuClick = (menu) => {
+    // 🚨 EXIT GUARD — sirf tab popup jab:
+    // 1️⃣ Exhibitor Badges page par ho
+    // 2️⃣ At least 1 badge UNLOCKED ho
+    // 3️⃣ Kisi aur menu par ja rahe ho
+    if (
+      isInExhibitorBadges &&
+      hasUnlockedBadge && // 🔥 IMPORTANT FIX
+      menu !== "Exhibitor Badges"
+    ) {
+      setPendingMenu(menu);
+      setShowExitPopup(true);
+      return; // ⛔ stop here
+    }
 
-  // 🚨 EXIT GUARD — sirf tab popup jab:
-  // 1️⃣ Exhibitor Badges page par ho
-  // 2️⃣ At least 1 badge UNLOCKED ho
-  // 3️⃣ Kisi aur menu par ja rahe ho
-  if (
-    isInExhibitorBadges &&
-    hasUnlockedBadge &&          // 🔥 IMPORTANT FIX
-    menu !== "Exhibitor Badges"
-  ) {
-    setPendingMenu(menu);
-    setShowExitPopup(true);
-    return; // ⛔ stop here
-  }
+    // ===== NORMAL NAVIGATION =====
+    setActiveMenu(menu);
+    setImportantPage("");
 
-  // ===== NORMAL NAVIGATION =====
-  setActiveMenu(menu);
-  setImportantPage("");
+    if (menu === "Additional Requirements") {
+      setImportantPage("Furniture Requirements");
+      return;
+    }
 
-  if (menu === "Additional Requirements") {
-    setImportantPage("Furniture Requirements");
-    return;
-  }
+    // mobile / tablet auto close
+    if (window.innerWidth <= 768) {
+      setCollapsed(true);
+    }
 
-  // mobile / tablet auto close
-  if (window.innerWidth <= 768) {
-    setCollapsed(true);
-  }
+    // mails inbox special logic
+    if (menu === "Mails Inbox" && currentExhibitor) {
+      setLoadingMails(true);
 
-  // mails inbox special logic
-  if (menu === "Mails Inbox" && currentExhibitor) {
-    setLoadingMails(true);
-
-    fetch(
-      `https://inoptics.in/api/get_exhibitor_mails.php?company_name=${encodeURIComponent(
-        currentExhibitor.company_name
-      )}`
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success && Array.isArray(data.mails)) {
-          setMailsList(data.mails);
-          setUnreadCount(
-            data.mails.filter((m) => Number(m.is_read) === 0).length
-          );
-        } else {
+      fetch(
+        `https://inoptics.in/api/get_exhibitor_mails.php?company_name=${encodeURIComponent(
+          currentExhibitor.company_name,
+        )}`,
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && Array.isArray(data.mails)) {
+            setMailsList(data.mails);
+            setUnreadCount(
+              data.mails.filter((m) => Number(m.is_read) === 0).length,
+            );
+          } else {
+            setMailsList([]);
+            setUnreadCount(0);
+          }
+        })
+        .catch(() => {
           setMailsList([]);
           setUnreadCount(0);
-        }
-      })
-      .catch(() => {
-        setMailsList([]);
-        setUnreadCount(0);
-      })
-      .finally(() => setLoadingMails(false));
-  }
-};
-
-
-
+        })
+        .finally(() => setLoadingMails(false));
+    }
+  };
 
   useEffect(() => {
     fetchEventSchedule();
@@ -1063,7 +1090,7 @@ const [hasUnlockedBadge, setHasUnlockedBadge] = useState(false);
 
   // ==== Power Requirement States ====
   //  const [powerTypes] = useState(["Setup Days", "Exhibition Days"]);
-  const [currentStep, setCurrentStep] = useState(0);
+
   const [previewTableList, setPreviewTableList] = useState([]); // to display before submission
   const [isSavedToDB, setIsSavedToDB] = useState(false);
 
@@ -1803,19 +1830,19 @@ const [hasUnlockedBadge, setHasUnlockedBadge] = useState(false);
     }
   };
 
-  useEffect(() => {
-    if (isLocked === 1) {
-      setContractorFormSubmitted(true);
-      localStorage.setItem("contractorFormSubmitted", "true");
-      setCurrentStep(2); // thank you
-    }
+  // useEffect(() => {
+  //   if (isLocked === 1) {
+  //     setContractorFormSubmitted(true);
+  //     localStorage.setItem("contractorFormSubmitted", "true");
+  //     setCurrentStep(2);
+  //   }
 
-    if (isLocked === 0) {
-      setContractorFormSubmitted(false);
-      localStorage.removeItem("contractorFormSubmitted");
-      setCurrentStep(1); // back to form
-    }
-  }, [isLocked]);
+  //   if (isLocked === 0) {
+  //     setContractorFormSubmitted(false);
+  //     localStorage.removeItem("contractorFormSubmitted");
+  //     setCurrentStep(1);
+  //   }
+  // }, [isLocked]);
 
   // Fetch selected contractor for the current exhibitor
   const fetchSelectedContractor = async (companyName) => {
@@ -1944,7 +1971,6 @@ const [hasUnlockedBadge, setHasUnlockedBadge] = useState(false);
     }
     // Poll every 5 seconds until approved/rejected
     fetchBoothDesignStatus();
-
   }, [activeMenu, formData.company_name, contractorData]);
 
   useEffect(() => {
@@ -1966,17 +1992,17 @@ const [hasUnlockedBadge, setHasUnlockedBadge] = useState(false);
     }
   };
 
-  useEffect(() => {
-    if (!selectedContractorId || activeMenu !== "Contractors") return;
+  // useEffect(() => {
+  //   if (!selectedContractorId || activeMenu !== "Contractors") return;
 
-    setWorkflowActive(true);
+  //   setWorkflowActive(true);
 
-    if (contractorFormSubmitted) {
-      setCurrentStep(4); // thank you
-    } else {
-      setCurrentStep(1); // form steps
-    }
-  }, [selectedContractorId, contractorFormSubmitted, activeMenu]);
+  //   if (contractorFormSubmitted) {
+  //     setCurrentStep(4);
+  //   } else {
+  //     setCurrentStep(1);
+  //   }
+  // }, [selectedContractorId, contractorFormSubmitted, activeMenu]);
 
   // This controls both workflowActive AND slide animation based on is_locked
   useEffect(() => {
@@ -2001,10 +2027,6 @@ const [hasUnlockedBadge, setHasUnlockedBadge] = useState(false);
   const [uploadedFileURL, setUploadedFileURL] = useState("");
 
   // When user clicks "Select" (before confirmation)
-  const askConfirmSelect = (contractor) => {
-    setSelectedContractorTemp(contractor); // store selected contractor temporarily
-    setShowPopup(true); // open popup
-  };
 
   // When user clicks OK
   const confirmSelect = async () => {
@@ -2014,6 +2036,7 @@ const [hasUnlockedBadge, setHasUnlockedBadge] = useState(false);
       await selectContractor(selectedContractorTemp.id); // This sets selectedContractorId + alerts
       setWorkflowActive(true);
       setCurrentStep(1);
+      localStorage.setItem(CONTRACTOR_STEP_KEY, 1);
     } catch (error) {
       console.error(error);
       alert("Failed to select contractor. Please try again.");
@@ -2239,7 +2262,7 @@ const [hasUnlockedBadge, setHasUnlockedBadge] = useState(false);
         // 🔐 LOCK FLOW
         setContractorFormSubmitted(true);
         localStorage.setItem("contractorFormSubmitted", "true");
-        setCurrentStep(3); // Final thank you step
+
         setWorkflowActive(true); // 👉 keep right panel open
       } else {
         alert("Failed to send email: " + data.message);
@@ -2250,6 +2273,7 @@ const [hasUnlockedBadge, setHasUnlockedBadge] = useState(false);
     }
   };
 
+  const [stallPaymentCleared, setStallPaymentCleared] = useState(0);
   const [powerCleared, setPowerCleared] = useState(0);
   const [badgeCleared, setBadgeCleared] = useState(0);
   const [powerPendingAmount, setPowerPendingAmount] = useState(null);
@@ -2262,17 +2286,8 @@ const [hasUnlockedBadge, setHasUnlockedBadge] = useState(false);
   const [showPdfPreview, setShowPdfPreview] = useState(false);
   const [pdfUrl, setPdfUrl] = useState("");
   const [badgePayments, setBadgePayments] = useState([]);
-  const [badgePaymentType, setBadgePaymentType] = useState("");
-  const [badgePaymentDate, setBadgePaymentDate] = useState("");
-  const [badgeExhibitorBankName, setBadgeExhibitorBankName] = useState("");
-  const [badgeReceiverBankName, setBadgeReceiverBankName] = useState("");
-  const [badgeAmount, setBadgeAmount] = useState("");
-  const [badgeTds, setBadgeTds] = useState("");
-  const [editingBadgeIndex, setEditingBadgeIndex] = useState(null);
-  const [badgePendingAmount, setBadgePendingAmount] = useState(0);
   const [badgeReceived, setBadgeReceived] = useState(0);
   const [badgePending, setBadgePending] = useState(0);
-  const [activePaymentDetailsOverlay, setActiveOverlay] = useState(null);
   const [selectedBranding, setSelectedBranding] = useState([]);
   const [brandingBilling, setBrandingBilling] = useState({
     subTotal: 0,
@@ -2311,56 +2326,73 @@ const [hasUnlockedBadge, setHasUnlockedBadge] = useState(false);
 
   // Fetch Power Payments on load
   useEffect(() => {
-    if (activePaymentDetailsOverlay === "power" && formData.company_name) {
-      fetchPowerPayments();
-    }
-  }, [activePaymentDetailsOverlay, formData.company_name]);
+    fetchPowerPayments();
+  }, [formData.company_name]);
 
   const fetchPowerPayments = async () => {
     try {
       const res = await fetch(
         `https://inoptics.in/api/get_exhibitor_power_payment.php?company_name=${formData.company_name}`,
       );
+
       const data = await res.json();
+      console.log("POWER PAYMENT API:", data); // 🔥 ADD THIS
 
       if (data.success) {
         const normalized = data.records.map((pay) => ({
-          type: pay.payment_type || "",
-          date: pay.payment_date || "",
-          exhibitorBank: pay.exhibitor_bank_name || "",
-          receiverBank: pay.receiver_bank_name || "",
           amount: parseFloat(pay.amount_paid || 0),
-          tds: parseFloat(pay.tds || 0),
         }));
-        setPowerPayments(normalized);
+
+        const totalPaid = normalized.reduce((s, p) => s + p.amount, 0);
+
+        console.log("POWER CLEARED =", totalPaid); // 🔥 ADD THIS
+
+        setPowerCleared(totalPaid);
       }
-    } catch (error) {
-      console.error("Error fetching power payments:", error);
+    } catch (e) {
+      console.error("power fetch error", e);
     }
   };
 
   const fetchBadgePayments = async () => {
-    try {
-      const res = await fetch(
-        `https://inoptics.in/api/get_exhibitor_badge_payment.php?company_name=${formData.company_name}`,
-      );
-      const data = await res.json();
+    if (!formData.company_name) return;
 
-      if (data.success) {
-        const normalized = data.records.map((pay) => ({
-          type: pay.payment_type || "",
-          date: pay.payment_date || "",
-          exhibitorBank: pay.exhibitor_bank_name || "",
-          receiverBank: pay.receiver_bank_name || "",
-          amount: parseFloat(pay.amount_paid || 0),
-          tds: parseFloat(pay.tds || 0),
-        }));
-        setBadgePayments(normalized);
-      }
+    try {
+      console.log("Fetching badge payments for:", formData.company_name);
+
+      const res = await fetch(
+        `https://inoptics.in/api/get_exhibitor_badge_payment.php?company_name=${encodeURIComponent(formData.company_name)}`,
+      );
+
+      const data = await res.json();
+      console.log("Badge API response:", data);
+
+      const list = Array.isArray(data.records) ? data.records : [];
+
+      const normalized = list.map((pay) => ({
+        type: pay.payment_type ?? "",
+        date: pay.payment_date ?? "",
+        exhibitorBank: pay.exhibitor_bank_name ?? "",
+        receiverBank: pay.receiver_bank_name ?? "",
+        amount: Number(pay.amount_paid ?? 0),
+        tds: Number(pay.tds ?? 0),
+      }));
+
+      setBadgePayments(normalized);
+
+      // ✅ optional — also auto update cleared amount here
+      const totalPaid = normalized.reduce((s, p) => s + p.amount, 0);
+      setBadgeCleared(totalPaid);
     } catch (error) {
       console.error("Error fetching badge payments:", error);
+      setBadgePayments([]);
+      setBadgeCleared(0);
     }
   };
+
+  useEffect(() => {
+    fetchBadgePayments();
+  }, [formData.company_name]);
 
   // ✅ Helper to calculate discount % (for summary)
   const getDiscountPercent = (summary) => {
@@ -2369,17 +2401,39 @@ const [hasUnlockedBadge, setHasUnlockedBadge] = useState(false);
   };
 
   const getExhibitorBadgeBilling = () => {
-    const count = parseInt(formData.extra_badges, 10) || 0;
-    const rate = new Date() > new Date("2026-02-30") ? 200 : 100;
+    const count = Number(extraBadges || 0);
+    const rate = new Date() > new Date("2026-02-28") ? 200 : 100;
     const total = count * rate;
 
-    // const isDelhi = formData?.state?.trim().toLowerCase() === "delhi";
+    const isDelhi = currentExhibitor?.state?.trim().toLowerCase() === "delhi";
+
     const cgst = isDelhi ? total * 0.09 : 0;
     const sgst = isDelhi ? total * 0.09 : 0;
     const igst = !isDelhi ? total * 0.18 : 0;
+
     const grandTotal = total + cgst + sgst + igst;
 
-    return { count, rate, total, cgst, sgst, igst, grandTotal };
+    const cleared = Number(badgeCleared || 0);
+
+    // ✅ correct pending
+    const pending = Math.max(0, Number((grandTotal - cleared).toFixed(2)));
+
+    let paymentStatus = "NOT PAID";
+    if (cleared > 0 && pending > 0) paymentStatus = "PARTIAL";
+    if (pending === 0 && grandTotal > 0) paymentStatus = "PAID";
+
+    return {
+      count,
+      total,
+      cgst,
+      sgst,
+      igst,
+      grandTotal,
+      cleared,
+      pending,
+      paymentStatus,
+      isDelhi,
+    };
   };
 
   const stallSummary = stallList?.reduce(
@@ -2403,6 +2457,43 @@ const [hasUnlockedBadge, setHasUnlockedBadge] = useState(false);
       currency: "",
     },
   );
+
+  const fetchStallClearedPayments = async () => {
+    if (!formData.company_name) return;
+
+    const cleanName = formData.company_name
+      .replace(/\u00A0/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    try {
+      const res = await fetch(
+        `https://inoptics.in/api/get_exhibitor_payment.php?company_name=${encodeURIComponent(cleanName)}`,
+      );
+
+      const data = await res.json();
+
+      if (!data.success) {
+        setStallPaymentCleared(0);
+        return;
+      }
+
+      // ✅ sum all payments
+      const totalPaid = data.records.reduce(
+        (sum, r) => sum + Number(r.amount_paid || 0),
+        0,
+      );
+
+      setStallPaymentCleared(totalPaid);
+    } catch (err) {
+      console.error("stall payment fetch error", err);
+      setStallPaymentCleared(0);
+    }
+  };
+
+  useEffect(() => {
+    fetchStallClearedPayments();
+  }, [formData.company_name]);
 
   // ✅ Save Badge pending (from getExhibitorBadgeBilling)
   useEffect(() => {
@@ -2505,9 +2596,16 @@ const [hasUnlockedBadge, setHasUnlockedBadge] = useState(false);
   const handleFinalUpload = async () => {
     if (!selectedFile) return;
 
+    // ✅ decide form_type from step
+    let formType = "";
+    if (currentStep === 1) formType = "appointed";
+    else if (currentStep === 2) formType = "undertaking";
+    else if (currentStep === 3) formType = "booth_design"; // optional future
+
     const uploadData = new FormData();
     uploadData.append("file", selectedFile);
-    uploadData.append("exhibitor_company_name", formData.company_name); // ✅ correct
+    uploadData.append("exhibitor_company_name", formData.company_name);
+    uploadData.append("form_type", formType); // ✅ NEW LINE
 
     try {
       const res = await fetch(
@@ -2529,7 +2627,7 @@ const [hasUnlockedBadge, setHasUnlockedBadge] = useState(false);
             ...prev,
             [`step${currentStep}`]: data.file_path,
           };
-          console.log("Uploaded Files:", updated); // 👈 Debug check
+          console.log("Uploaded Files:", updated);
           return updated;
         });
 
@@ -2537,14 +2635,15 @@ const [hasUnlockedBadge, setHasUnlockedBadge] = useState(false);
           ...prev,
           [`step${currentStep}`]: true,
         }));
-        // 🔥 THIS enables Next
+
         setShowPreview(false);
         setSelectedFile(null);
         setPreviewURL(null);
       } else {
-        toast.error("Upload failed");
+        toast.error(data.message || "Upload failed");
       }
     } catch (err) {
+      console.error(err);
       toast.error("Upload error");
     }
   };
@@ -2562,71 +2661,85 @@ const [hasUnlockedBadge, setHasUnlockedBadge] = useState(false);
 
   // booth design upload handler
   const handleBoothDesignUpload = async () => {
-  if (!selectedFile) {
-    toast.error("No file selected");
-    return;
-  }
+    if (!selectedFile) {
+      toast.error("No file selected");
+      return;
+    }
 
-  if (!formData.company_name) {
-    toast.error("Company name missing");
-    return;
-  }
+    const uploadData = new FormData();
+    uploadData.append("file", selectedFile);
+    uploadData.append("company_name", formData.company_name);
 
-  const uploadData = new FormData();
-  uploadData.append("file", selectedFile);
-  uploadData.append("company_name", formData.company_name);
+    try {
+      const res = await fetch(
+        "https://inoptics.in/api/upload_booth_design_file.php",
+        {
+          method: "POST",
+          body: uploadData,
+        },
+      );
 
-  try {
-    const res = await fetch(
-      "https://inoptics.in/api/upload_booth_design_file.php",
-      {
-        method: "POST",
-        body: uploadData,
+      const data = await res.json();
+      console.log("BOOTH UPLOAD RESPONSE:", data);
+
+      if (!data.success) {
+        toast.error("Upload failed");
+        return;
       }
-    );
 
-    const text = await res.text();
-    console.log("RAW RESPONSE:", text);
+      toast.success("Booth design uploaded!");
 
-    // 🔒 SAFETY CHECK 1: empty response
-    if (!text) {
-      toast.error("Empty response from server");
-      return;
+      // ⭐⭐⭐ THIS LINE WAS MISSING — BUTTON SHOW FIX
+      setUploadedFiles((prev) => ({
+        ...prev,
+        step3: data.file_path || "booth_uploaded",
+      }));
+
+      // mark step complete
+      setUploadedSteps((prev) => ({
+        ...prev,
+        step3: true,
+      }));
+
+      setSelectedFile(null);
+      setPreviewURL(null);
+      setShowBoothDesignPreview(false);
+    } catch (err) {
+      console.error(err);
+      toast.error("Upload failed");
     }
+  };
 
-    // 🔒 SAFETY CHECK 2: not JSON
-    if (!text.trim().startsWith("{")) {
-      toast.error("Invalid server response");
-      console.error("Non-JSON response:", text);
-      return;
-    }
+  useEffect(() => {
+    if (!formData.company_name) return;
 
-    const data = JSON.parse(text);
+    const checkFile = async (type, stepKey) => {
+      try {
+        const res = await fetch(
+          `https://inoptics.in/api/download_exhibitor_form.php?company=${encodeURIComponent(
+            formData.company_name,
+          )}&type=${type}`,
+          { method: "HEAD" }, // 🔥 fast check — no download
+        );
 
-    // 🔒 SAFETY CHECK 3: HTTP error
-    if (!res.ok || !data.success) {
-      toast.error(data.message || "Upload failed");
-      return;
-    }
+        if (res.ok) {
+          setUploadedFiles((prev) => ({
+            ...prev,
+            [stepKey]: "exists",
+          }));
 
-    // ✅ SUCCESS
-    toast.success("Booth design uploaded successfully!");
+          setUploadedSteps((prev) => ({
+            ...prev,
+            [stepKey]: true,
+          }));
+        }
+      } catch {}
+    };
 
-    setShowBoothDesignPreview(false);
-    setSelectedFile(null);
-    setPreviewURL(null);
-
-    setUploadedSteps((prev) => ({
-      ...prev,
-      [`step${currentStep}`]: true,
-    }));
-
-  } catch (err) {
-    console.error("Upload error:", err);
-    toast.error("Upload failed. Please try again.");
-  }
-};
-
+    checkFile("form", "step1");
+    checkFile("undertaking", "step2");
+    checkFile("booth", "step3");
+  }, [formData.company_name]);
 
   // upload form file download handler
 
@@ -2637,6 +2750,8 @@ const [hasUnlockedBadge, setHasUnlockedBadge] = useState(false);
       )}`;
 
       const res = await fetch(url);
+      console.log("resonse ", url);
+
       const blob = await res.blob();
 
       const blobUrl = window.URL.createObjectURL(blob);
@@ -2650,6 +2765,49 @@ const [hasUnlockedBadge, setHasUnlockedBadge] = useState(false);
     } catch (err) {
       console.error("Download failed", err);
       alert("Download failed");
+    }
+  };
+
+  const downloadBoothDesign = async () => {
+    try {
+      const url =
+        `https://inoptics.in/api/download_exhibitor_form.php` +
+        `?company=${encodeURIComponent(formData.company_name)}` +
+        `&type=booth`;
+
+      console.log("Booth download URL:", url);
+
+      const res = await fetch(url);
+
+      if (!res.ok) {
+        throw new Error("Server returned " + res.status);
+      }
+
+      const blob = await res.blob();
+
+      const blobUrl = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = blobUrl;
+
+      // filename from header if available
+      const disposition = res.headers.get("Content-Disposition");
+      let filename = "booth_design.pdf";
+
+      if (disposition && disposition.includes("filename=")) {
+        filename = disposition.split("filename=")[1].replace(/"/g, "");
+      }
+
+      a.download = filename;
+
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      console.error("Booth download failed", err);
+      alert("Booth design download failed");
     }
   };
 
@@ -2675,89 +2833,125 @@ const [hasUnlockedBadge, setHasUnlockedBadge] = useState(false);
   useEffect(() => {
     if (activeMenu !== "Contractors") return;
 
-    // If locked → ALWAYS show Thank You
-    if (isLocked === 1) {
+    if (selectedContractorId) {
       setWorkflowActive(true);
-      setCurrentStep(4); // Thank You step
-      setContractorFormSubmitted(true);
-      return;
+    } else {
+      setWorkflowActive(false);
     }
+  }, [activeMenu, selectedContractorId]);
 
-    // If unlocked → normal flow
-    if (isLocked === 0) {
-      setContractorFormSubmitted(false);
+  useEffect(() => {
+    if (!boothDesignStatus) return;
 
-      if (selectedContractorId) {
-        setWorkflowActive(true);
-        setCurrentStep(1); // start contractor steps
-      } else {
-        setWorkflowActive(false);
-      }
-    }
-  }, [activeMenu, isLocked, selectedContractorId]);
+    // ⛔ user manually re-upload kar raha hai
+    if (isReuploading) return;
 
+    // ✅ pending / rejected / approved → always step 4
+    // setCurrentStep(4);
+  }, [boothDesignStatus, isReuploading]);
 
-useEffect(() => {
-  if (!boothDesignStatus) return;
+  useEffect(() => {
+    if (!formData.company_name) return;
 
-  // ⛔ user manually re-upload kar raha hai
-  if (isReuploading) return;
+    fetchBoothDesignStatus(); // initial
 
-  // ✅ pending / rejected / approved → always step 4
-  setCurrentStep(4);
-}, [boothDesignStatus, isReuploading]);
-
-
-
-
-useEffect(() => {
-  if (!formData.company_name) return;
-
-  fetchBoothDesignStatus(); // initial
-
-  const interval = setInterval(fetchBoothDesignStatus, 5000);
-  return () => clearInterval(interval);
-}, [formData.company_name]);
-
-
-
+    const interval = setInterval(fetchBoothDesignStatus, 5000);
+    return () => clearInterval(interval);
+  }, [formData.company_name]);
 
   const fetchBoothDesignStatus = async () => {
-  if (!formData.company_name) return;
+    if (!formData.company_name) return;
 
-  try {
-    const res = await fetch(
-      `https://inoptics.in/api/get_booth_design_status.php?company=${encodeURIComponent(
-        formData.company_name
-      )}`
-    );
+    try {
+      const res = await fetch(
+        `https://inoptics.in/api/get_booth_design_status.php?company=${encodeURIComponent(
+          formData.company_name,
+        )}`,
+      );
 
-    const data = await res.json();
+      const data = await res.json();
 
-    const status = ["pending", "approved", "rejected"].includes(
-      (data.status || "").toLowerCase()
-    )
-      ? data.status.toLowerCase()
-      : "pending";
+      const status = ["pending", "approved", "rejected"].includes(
+        (data.status || "").toLowerCase(),
+      )
+        ? data.status.toLowerCase()
+        : "pending";
 
-    console.log("🟢 Booth status:", status, data);
+      console.log("🟢 Booth status:", status, data);
 
-    setBoothDesignStatus(status);
-    setBoothRejectReason(
-      status === "rejected" ? data.reject_reason || "" : ""
-    );
-  } catch (err) {
-    console.error("❌ Booth status fetch failed", err);
-  }
-};
+      setBoothDesignStatus(status);
+      setBoothRejectReason(
+        status === "rejected" ? data.reject_reason || "" : "",
+      );
+    } catch (err) {
+      console.error("❌ Booth status fetch failed", err);
+    }
+  };
+
+const handleSubmitBrands = async () => {
+    try {
+      const response = await fetch(
+        "https://inoptics.in/api/add_exhibitor_brands.php",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            Company_name: formData.company_name,
+            ...brandsData,
+          }),
+        },
+      );
+
+      const data = await response.json();
+      if (data.status === "success") {
+        alert("Brands submitted successfully!");
+        setShowBrandsEditForm(true);
+      } else if (data.status === "exists") {
+        alert("Brands data already exists. You can update it.");
+        setShowBrandsEditForm(true);
+      } else {
+        alert("Error: " + data.message);
+      }
+    } catch (error) {
+      console.error("Submit Brands Error:", error);
+      alert("Something went wrong.");
+    }
+  };
+
+
+  const handleUpdateBrands = async () => {
+    try {
+      const response = await fetch(
+        "https://inoptics.in/api/update_exhibitor_brands.php",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            Company_name: formData.company_name,
+            ...brandsData,
+          }),
+        },
+      );
+
+      const data = await response.json();
+      if (data.status === "success") {
+        alert("Brands updated successfully!");
+      } else {
+        alert("Update failed: " + data.message);
+      }
+    } catch (error) {
+      console.error("Update Brands Error:", error);
+      alert("Something went wrong.");
+    }
+  };
 
 
 
 
-
-
-
- 
   return (
     <div className="exhibitordashboard-container">
       {/* Sidebar */}
@@ -2993,393 +3187,6 @@ useEffect(() => {
               {!importantPage &&
                 activeMenu === "Dashboard" &&
                 exhibitorData && (
-                  // <div className="exhibitordashboard-content">
-                  //   <div className="exhibitordashboard-dashboard-grid">
-                  //     <div className="exhibitordashboard-big-container">
-                  //       <div className="exhibitordashboard-row">
-                  //         <div className="exhibitordashboard-left-container">
-                  //           <div className="exhibitordashboard-middle">
-                  //             <div className="exhibitordashboard-card">
-                  //               <div className="exhibitordashboard-section">
-                  //                 <h3>Event Schedule</h3>
-                  //                 {eventScheduleData.length === 0 ? (
-                  //                   <p>No event schedule found.</p>
-                  //                 ) : (
-                  //                   <div className="event-schedule-description">
-                  //                     <div
-                  //                       dangerouslySetInnerHTML={{
-                  //                         __html:
-                  //                           eventScheduleData[0].description,
-                  //                       }}
-                  //                     />
-                  //                   </div>
-                  //                 )}
-                  //               </div>
-                  //             </div>
-                  //           </div>
-
-                  //           {/* Right container (Latest News) */}
-                  //           <div className="exhibitordashboard-right">
-                  //             <div className="exhibitordashboard-card">
-                  //               <div className="exhibitordashboard-section">
-                  //                 <h3>Latest News</h3>
-                  //                 {latestNewsData.length === 0 ? (
-                  //                   <p>No latest news available.</p>
-                  //                 ) : (
-                  //                   latestNewsData.map((item, index) => (
-                  //                     <div key={index} className="news-item">
-                  //                       <h4>{item.title}</h4>
-                  //                       <p>{item.text}</p>
-                  //                       {item.news_link && (
-                  //                         <a
-                  //                           href={item.news_link}
-                  //                           target="_blank"
-                  //                           rel="noopener noreferrer"
-                  //                           className="news-link"
-                  //                         >
-                  //                           Read more →
-                  //                         </a>
-                  //                       )}
-                  //                     </div>
-                  //                   ))
-                  //                 )}
-                  //               </div>
-                  //             </div>
-                  //           </div>
-                  //         </div>
-
-                  //         {/* Right side: Exhibitor Checklist */}
-                  //         <div className="exhibitordashboard-bottom">
-                  //           <div className="exhibitordashboard-card">
-                  //             <h3>Exhibitor Checklist</h3>
-
-                  //             <div className="checklist-list">
-                  //               {activities.map((item) => {
-                  //                 const isDone = item.done;
-
-                  //                 return (
-                  //                   <div
-                  //                     key={item.id}
-                  //                     className={`checklist-row ${
-                  //                       isDone ? "completed" : "pending"
-                  //                     }`}
-                  //                   >
-                  //                     <div className="checklist-left">
-                  //                       <span className="checklist-icon">
-                  //                         {isDone ? "✓" : "!"}
-                  //                       </span>
-
-                  //                       <span className="checklist-name">
-                  //                         {item.name}
-                  //                       </span>
-                  //                     </div>
-
-                  //                     <span className="checklist-status">
-                  //                       {isDone ? "Completed" : "Pending"}
-                  //                     </span>
-                  //                   </div>
-                  //                 );
-                  //               })}
-                  //             </div>
-                  //           </div>
-                  //         </div>
-                  //       </div>
-
-                  //       <div className="exhibitordashboard-bottom">
-                  //         <div className="exhibitordashboard-card">
-                  //           <h2 className="particular-heading">
-                  //             Exhibitor Payments Review
-                  //           </h2>
-
-                  //           {stallList.length === 0 ? (
-                  //             <p className="profile-empty">
-                  //               No stall details found.
-                  //             </p>
-                  //           ) : (
-                  //             (() => {
-                  //               const showSGST = stallList.some(
-                  //                 (s) => parseFloat(s.sgst_9_percent) > 0,
-                  //               );
-                  //               const showCGST = stallList.some(
-                  //                 (s) => parseFloat(s.cgst_9_percent) > 0,
-                  //               );
-                  //               const showIGST = stallList.some(
-                  //                 (s) => parseFloat(s.igst_18_percent) > 0,
-                  //               );
-
-                  //               return (
-                  //                 <table className="stall-payment-table">
-                  //                   <thead>
-                  //                     <tr>
-                  //                       <th className="particular-col">
-                  //                         Particular
-                  //                       </th>
-                  //                       <th>Price/sq mtr</th>
-                  //                       <th>Amount</th>
-                  //                       {showSGST && <th>SGST (9%)</th>}
-                  //                       {showCGST && <th>CGST (9%)</th>}
-                  //                       {showIGST && <th>IGST (18%)</th>}
-                  //                       <th>Grand Total</th>
-                  //                     </tr>
-                  //                   </thead>
-                  //                   <tbody>
-                  //                     {stallList.map((stall, idx) => (
-                  //                       <tr key={idx}>
-                  //                         <td className="particular-cell">
-                  //                           {`This is for the Stall Booking: Stall No: ${
-                  //                             stall.stall_number || "N/A"
-                  //                           }, Category: ${
-                  //                             stall.stall_category || "N/A"
-                  //                           }, Area: ${
-                  //                             stall.stall_area
-                  //                               ? `${stall.stall_area} sq. mtr`
-                  //                               : "N/A"
-                  //                           }`}
-                  //                         </td>
-
-                  //                         <td>
-                  //                           {stall.stall_price
-                  //                             ? `₹${stall.stall_price}`
-                  //                             : "-"}
-                  //                         </td>
-
-                  //                         <td>
-                  //                           {stall.total
-                  //                             ? `₹${stall.total}`
-                  //                             : "-"}
-                  //                         </td>
-
-                  //                         {showSGST && (
-                  //                           <td>
-                  //                             {parseFloat(
-                  //                               stall.sgst_9_percent,
-                  //                             ) > 0
-                  //                               ? `₹${stall.sgst_9_percent}`
-                  //                               : "-"}
-                  //                           </td>
-                  //                         )}
-                  //                         {showCGST && (
-                  //                           <td>
-                  //                             {parseFloat(
-                  //                               stall.cgst_9_percent,
-                  //                             ) > 0
-                  //                               ? `₹${stall.cgst_9_percent}`
-                  //                               : "-"}
-                  //                           </td>
-                  //                         )}
-                  //                         {showIGST && (
-                  //                           <td>
-                  //                             {parseFloat(
-                  //                               stall.igst_18_percent,
-                  //                             ) > 0
-                  //                               ? `₹${stall.igst_18_percent}`
-                  //                               : "-"}
-                  //                           </td>
-                  //                         )}
-
-                  //                         <td className="grand-total-cell">
-                  //                           {stall.grand_total
-                  //                             ? `₹${stall.grand_total}`
-                  //                             : "-"}
-                  //                         </td>
-                  //                       </tr>
-                  //                     ))}
-
-                  //                     {powerData.length > 0 &&
-                  //                       (() => {
-                  //                         const showSGST = stallList.some(
-                  //                           (s) =>
-                  //                             parseFloat(s.sgst_9_percent) > 0,
-                  //                         );
-                  //                         const showCGST = stallList.some(
-                  //                           (s) =>
-                  //                             parseFloat(s.cgst_9_percent) > 0,
-                  //                         );
-                  //                         const showIGST = stallList.some(
-                  //                           (s) =>
-                  //                             parseFloat(s.igst_18_percent) > 0,
-                  //                         );
-
-                  //                         const setup = powerData.find((p) =>
-                  //                           p.day
-                  //                             ?.toLowerCase()
-                  //                             .includes("setup"),
-                  //                         );
-                  //                         const exhibition = powerData.find(
-                  //                           (p) =>
-                  //                             p.day
-                  //                               ?.toLowerCase()
-                  //                               .includes("exhibition"),
-                  //                         );
-
-                  //                         const calcTotals = (row) => {
-                  //                           if (!row)
-                  //                             return {
-                  //                               amount: 0,
-                  //                               sgst: 0,
-                  //                               cgst: 0,
-                  //                               igst: 0,
-                  //                               grandTotal: 0,
-                  //                             };
-
-                  //                           const amount = parseFloat(
-                  //                             row.total_amount || 0,
-                  //                           );
-                  //                           let sgst = 0,
-                  //                             cgst = 0,
-                  //                             igst = 0,
-                  //                             grandTotal = amount;
-
-                  //                           if (showSGST || showCGST) {
-                  //                             sgst = amount * 0.09;
-                  //                             cgst = amount * 0.09;
-                  //                             grandTotal = amount + sgst + cgst;
-                  //                           } else if (showIGST) {
-                  //                             igst = amount * 0.18;
-                  //                             grandTotal = amount + igst;
-                  //                           }
-
-                  //                           return {
-                  //                             amount,
-                  //                             sgst,
-                  //                             cgst,
-                  //                             igst,
-                  //                             grandTotal,
-                  //                           };
-                  //                         };
-
-                  //                         const setupTotals = calcTotals(setup);
-                  //                         const exhibitionTotals =
-                  //                           calcTotals(exhibition);
-
-                  //                         return (
-                  //                           <>
-                  //                             <tr>
-                  //                               <td className="particular-cell">
-                  //                                 This is for Power Requirement{" "}
-                  //                                 {setup?.day || "SETUP DAYS"} :{" "}
-                  //                                 {setup?.power_required || 0}{" "}
-                  //                                 Unit
-                  //                               </td>
-                  //                               <td>
-                  //                                 {setup?.price_per_kw
-                  //                                   ? `₹${setup.price_per_kw}`
-                  //                                   : "-"}
-                  //                               </td>
-                  //                               <td>
-                  //                                 {setupTotals.amount
-                  //                                   ? `₹${setupTotals.amount.toFixed(
-                  //                                       2,
-                  //                                     )}`
-                  //                                   : "-"}
-                  //                               </td>
-                  //                               {showSGST && (
-                  //                                 <td>
-                  //                                   {setupTotals.sgst
-                  //                                     ? `₹${setupTotals.sgst.toFixed(
-                  //                                         2,
-                  //                                       )}`
-                  //                                     : "-"}
-                  //                                 </td>
-                  //                               )}
-                  //                               {showCGST && (
-                  //                                 <td>
-                  //                                   {setupTotals.cgst
-                  //                                     ? `₹${setupTotals.cgst.toFixed(
-                  //                                         2,
-                  //                                       )}`
-                  //                                     : "-"}
-                  //                                 </td>
-                  //                               )}
-                  //                               {showIGST && (
-                  //                                 <td>
-                  //                                   {setupTotals.igst
-                  //                                     ? `₹${setupTotals.igst.toFixed(
-                  //                                         2,
-                  //                                       )}`
-                  //                                     : "-"}
-                  //                                 </td>
-                  //                               )}
-                  //                               <td className="grand-total-cell">
-                  //                                 {setupTotals.grandTotal
-                  //                                   ? `₹${setupTotals.grandTotal.toFixed(
-                  //                                       2,
-                  //                                     )}`
-                  //                                   : "-"}
-                  //                               </td>
-                  //                             </tr>
-
-                  //                             <tr>
-                  //                               <td className="particular-cell">
-                  //                                 This is for Power Requirement{" "}
-                  //                                 {exhibition?.day ||
-                  //                                   "EXHIBITION DAYS"}{" "}
-                  //                                 :{" "}
-                  //                                 {exhibition?.power_required ||
-                  //                                   0}{" "}
-                  //                                 Unit
-                  //                               </td>
-                  //                               <td>
-                  //                                 {exhibition?.price_per_kw
-                  //                                   ? `₹${exhibition.price_per_kw}`
-                  //                                   : "-"}
-                  //                               </td>
-                  //                               <td>
-                  //                                 {exhibitionTotals.amount
-                  //                                   ? `₹${exhibitionTotals.amount.toFixed(
-                  //                                       2,
-                  //                                     )}`
-                  //                                   : "-"}
-                  //                               </td>
-                  //                               {showSGST && (
-                  //                                 <td>
-                  //                                   {exhibitionTotals.sgst
-                  //                                     ? `₹${exhibitionTotals.sgst.toFixed(
-                  //                                         2,
-                  //                                       )}`
-                  //                                     : "-"}
-                  //                                 </td>
-                  //                               )}
-                  //                               {showCGST && (
-                  //                                 <td>
-                  //                                   {exhibitionTotals.cgst
-                  //                                     ? `₹${exhibitionTotals.cgst.toFixed(
-                  //                                         2,
-                  //                                       )}`
-                  //                                     : "-"}
-                  //                                 </td>
-                  //                               )}
-                  //                               {showIGST && (
-                  //                                 <td>
-                  //                                   {exhibitionTotals.igst
-                  //                                     ? `₹${exhibitionTotals.igst.toFixed(
-                  //                                         2,
-                  //                                       )}`
-                  //                                     : "-"}
-                  //                                 </td>
-                  //                               )}
-                  //                               <td className="grand-total-cell">
-                  //                                 {exhibitionTotals.grandTotal
-                  //                                   ? `₹${exhibitionTotals.grandTotal.toFixed(
-                  //                                       2,
-                  //                                     )}`
-                  //                                   : "-"}
-                  //                               </td>
-                  //                             </tr>
-                  //                           </>
-                  //                         );
-                  //                       })()}
-                  //                   </tbody>
-                  //                 </table>
-                  //               );
-                  //             })()
-                  //           )}
-                  //         </div>
-                  //       </div>
-                  //     </div>
-                  //   </div>
-                  // </div>
-
                   <ExhibitorDashboardOverview
                     importantPage={importantPage}
                     activeMenu={activeMenu}
@@ -3481,17 +3288,60 @@ useEffect(() => {
                       INSTRUCTION
                     </h3>
                   </div>
+
                   <div className="instruction-body">
                     {instructionsList.length === 0 ? (
                       <p>No instructions added.</p>
                     ) : (
                       <div className="instruction-content">
+                        {/* ✅ Instruction HTML FIRST */}
                         <div
                           className="editor-content"
                           dangerouslySetInnerHTML={{
                             __html: instructionsList[0].content,
                           }}
                         />
+
+                        {/* ✅ LAST — checkbox + dates */}
+                        <div
+                          style={{
+                            marginTop: 16,
+                            padding: "10px 12px",
+                            background: "#f6f8fa",
+                            borderRadius: 6,
+                          }}
+                        >
+                          <label
+                            style={{
+                              display: "flex",
+                              gap: 8,
+                              alignItems: "center",
+                            }}
+                          >
+                            <input type="checkbox" checked disabled />
+                            Accepted Terms & Conditions
+                            <div
+                              style={{
+                                fontSize: 13,
+                                opacity: 0.8,
+                                marginTop: 6,
+                              }}
+                            >
+                              <div>
+                                {new Date(
+                                  instructionsList[0].created_at,
+                                ).toLocaleString("en-IN")}
+                              </div>
+
+                              {/* <div>
+                <strong>Last Updated:</strong>{" "}
+                {new Date(
+                  instructionsList[0].updated_at
+                ).toLocaleString("en-IN")}
+              </div> */}
+                            </div>
+                          </label>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -3682,18 +3532,142 @@ useEffect(() => {
                     </div>
 
                     {/* RIGHT SIDE (Brand Container) */}
-                    <div className="profile-right">
-                      <div className="profile-card">
-                        <div className="profile-section">
-                          <h3 className="profile-section-title">
-                            Brand Container
-                          </h3>
-                          <p className="profile-empty">
-                            Brand details or logo can go here.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
+                   <div className="profile-right">
+  <div className="profile-card">
+
+    <div className="brands-form slide-up-form">
+      <h2 className="brands-heading">Brands</h2>
+
+      <div className="brands-input-row">
+
+        {/* Website */}
+        <div className="brands-field-group">
+          <label>Website:</label>
+          <input
+            type="text"
+            value={brandsData.website}
+            onChange={(e) =>
+              setBrandsData(prev => ({
+                ...prev,
+                website: e.target.value,
+              }))
+            }
+          />
+        </div>
+
+        {/* Products Multi Select */}
+        <div className="brands-field-group">
+          <label>Products:</label>
+
+          <div className="selected-products-container">
+            {Array.isArray(brandsData.products) &&
+              brandsData.products.map((product, index) => (
+                <div key={index} className="selected-product">
+                  {product}
+                  <span
+                    className="remove-icon"
+                    onClick={() =>
+                      setBrandsData(prev => ({
+                        ...prev,
+                        products: prev.products.filter(p => p !== product),
+                      }))
+                    }
+                  >
+                    ✖
+                  </span>
+                </div>
+              ))}
+          </div>
+
+          <select
+            value=""
+            onChange={(e) => {
+              const selected = e.target.value;
+              if (
+                selected &&
+                !brandsData.products.includes(selected)
+              ) {
+                setBrandsData(prev => ({
+                  ...prev,
+                  products: [...prev.products, selected],
+                }));
+              }
+            }}
+          >
+            <option value="">-- Select Product --</option>
+            {products.map((p, i) => (
+              <option key={i} value={p.name}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Home Brands */}
+        <div className="brands-field-group">
+          <label>Home Brands:</label>
+          <input
+            type="text"
+            value={brandsData.home_brands}
+            onChange={(e) =>
+              setBrandsData(prev => ({
+                ...prev,
+                home_brands: e.target.value,
+              }))
+            }
+          />
+        </div>
+
+        {/* Distributors */}
+        <div className="brands-field-group">
+          <label>Distributors of Brands:</label>
+          <input
+            type="text"
+            value={brandsData.distributors}
+            onChange={(e) =>
+              setBrandsData(prev => ({
+                ...prev,
+                distributors: e.target.value,
+              }))
+            }
+          />
+        </div>
+
+        {/* International */}
+        <div className="brands-field-group">
+          <label>International Brands:</label>
+          <input
+            type="text"
+            value={brandsData.international_brands}
+            onChange={(e) =>
+              setBrandsData(prev => ({
+                ...prev,
+                international_brands: e.target.value,
+              }))
+            }
+          />
+        </div>
+
+      </div>
+
+      <div className="brands-button-section">
+        <button
+          className="brands-details-add-brands-btn"
+          onClick={
+            showBrandsEditForm
+              ? handleUpdateBrands
+              : handleSubmitBrands
+          }
+        >
+          {showBrandsEditForm ? "Update" : "Submit"}
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
                   </div>
                 </div>
               )}
@@ -4066,7 +4040,6 @@ useEffect(() => {
                     </div>
                   </div>
 
-                  {/* Table + Billing Section */}
                   {/* Table + Billing Section */}
                   <div className="Exhibitor-power-requirement-below-section">
                     <div className="Exhibitor-power-requirement-table-container">
@@ -4443,9 +4416,19 @@ useEffect(() => {
                                           : "step3";
 
                                       setSelectedPreviewStep(firstAvailable);
-                                      setPdfUrl(
-                                        `https://inoptics.in/api/${uploadedFiles[firstAvailable]}`,
-                                      );
+
+                                      if (firstAvailable === "step3") {
+                                        setPdfUrl(
+                                          `https://inoptics.in/api/download_exhibitor_form.php?company=${encodeURIComponent(
+                                            formData.company_name,
+                                          )}&type=booth`,
+                                        );
+                                      } else {
+                                        setPdfUrl(
+                                          `https://inoptics.in/api/${uploadedFiles[firstAvailable]}`,
+                                        );
+                                      }
+
                                       setShowPdfPreview(true);
                                     }}
                                   >
@@ -4525,11 +4508,7 @@ useEffect(() => {
                                             <div className="file-actions">
                                               <button
                                                 className="form-icon"
-                                                onClick={() =>
-                                                  forceDownload(
-                                                    uploadedFiles.step3,
-                                                  )
-                                                }
+                                                onClick={downloadBoothDesign}
                                                 title="Download"
                                               >
                                                 <FaDownload />
@@ -4788,7 +4767,7 @@ useEffect(() => {
                                     onClick={(e) => e.stopPropagation()}
                                   >
                                     <div className="Workflow-pdf-header">
-                                      <h4>Exhibitor Form Preview</h4>
+                                      <h4>Exhibitor Booth Design Preview</h4>
                                       <button
                                         className="Workflow-pdf-close-btn"
                                         onClick={() =>
@@ -4933,6 +4912,16 @@ useEffect(() => {
                                           </button>
                                         </div>
                                       )}
+                                    </div>
+
+                                    <br />
+                                    <div>
+                                      <p className="field-error ">
+                                        Access to the Next step will be enabled
+                                        only after the mandatory form has been
+                                        downloaded, duly completed, and
+                                        uploaded.
+                                      </p>
                                     </div>
                                   </div>
                                 </div>
@@ -5143,11 +5132,11 @@ useEffect(() => {
                                         disabled={
                                           !uploadedSteps[`step${currentStep}`]
                                         }
-                                      onClick={() => {
-    setIsReuploading(false);     // 🔓 auto control allow
-    setBoothDesignStatus("pending");
-    setCurrentStep(4);          // 👉 pending card
-  }}
+                                        onClick={() => {
+                                          setIsReuploading(false); // 🔓 auto control allow
+                                          setBoothDesignStatus("pending");
+                                          setCurrentStep(4); // 👉 pending card
+                                        }}
                                         style={{
                                           opacity: uploadedSteps[
                                             `step${currentStep}`
@@ -5168,43 +5157,44 @@ useEffect(() => {
                                 </div>
                               </div>
 
-                              <div className={`Workflow-panel panel-step-2 ${currentStep === 4 ? "show" : "hide-right"}`}>
-  {boothDesignStatus === "pending" && (
-    <div className="contractor-thankyou-card warning">
-      <h3>Booth Design Under Review</h3>
-      <p>Please wait for approval.</p>
-    </div>
-  )}
+                              <div
+                                className={`Workflow-panel panel-step-2 ${currentStep === 4 ? "show" : "hide-right"}`}
+                              >
+                                {boothDesignStatus === "pending" && (
+                                  <div className="contractor-thankyou-card warning">
+                                    <h3>Booth Design Under Review</h3>
+                                    <p>Please wait for approval.</p>
+                                  </div>
+                                )}
 
-  {boothDesignStatus === "rejected" && (
-    <div className="contractor-thankyou-card rejected">
-      <h3>Booth Design Rejected ❌</h3>
-      <div className="reject-reason-box">
-        {boothRejectReason || "No reason provided by admin."}
-      </div>
-    
-      <button
-        className="doc-btn"
-        onClick={() => {
-          setIsReuploading(true);   // 🔥 STOP auto effect
-          setBoothRejectReason("");
-          setCurrentStep(3);       // 🔥 go to upload step
-        }}
-      >
-        Re-Upload Booth Design
-      </button>
-    </div>
-  )}
+                                {boothDesignStatus === "rejected" && (
+                                  <div className="contractor-thankyou-card rejected">
+                                    <h3>Booth Design Rejected ❌</h3>
+                                    <div className="reject-reason-box">
+                                      {boothRejectReason ||
+                                        "No reason provided by admin."}
+                                    </div>
 
-  {boothDesignStatus === "approved" && (
-    <div className="contractor-thankyou-card success">
-      <h3>Thank you 🎉</h3>
-      <p>Your booth design has been approved.</p>
-    </div>
-  )}
-</div>
+                                    <button
+                                      className="doc-btn"
+                                      onClick={() => {
+                                        setIsReuploading(true); // 🔥 STOP auto effect
+                                        setBoothRejectReason("");
+                                        setCurrentStep(3); // 🔥 go to upload step
+                                      }}
+                                    >
+                                      Re-Upload Booth Design
+                                    </button>
+                                  </div>
+                                )}
 
-
+                                {boothDesignStatus === "approved" && (
+                                  <div className="contractor-thankyou-card success">
+                                    <h3>Thank you 🎉</h3>
+                                    <p>Your booth design has been approved.</p>
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -5215,174 +5205,247 @@ useEffect(() => {
               </div>
 
               {/* Overlay Panel for Additional Requirements */}
-              {activeMenu === "Exhibitor Badges" && <ExhibitorBadgeForm  setIsInExhibitorBadges={setIsInExhibitorBadges}  setHasGeneratedBadge={setHasGeneratedBadge}  setHasUnlockedBadge={setHasUnlockedBadge} />}
+              {activeMenu === "Exhibitor Badges" && (
+                <ExhibitorBadgeForm
+                  setIsInExhibitorBadges={setIsInExhibitorBadges}
+                  setHasGeneratedBadge={setHasGeneratedBadge}
+                  setHasUnlockedBadge={setHasUnlockedBadge}
+                />
+              )}
 
               {!importantPage && activeMenu === "Payment" && (
                 <div className="exhibitordashboard-content">
                   <div className="payment-cards-container">
+
+                    {/* ✅ BANK DETAILS BLOCK */}
+<div className="bank-details">
+  
+
+  <div className="bank-row">
+
+    <div className="bank-column">
+      <p><strong>A/C Name:</strong> RSD EXPOSITIONS</p>
+      <p><strong>Bank Name:</strong> Kotak Mahindra Bank</p>
+      <p><strong>Bank A/c No.:</strong> 01992000000491</p>
+      <p><strong>Address:</strong> Defence Colony, New Delhi</p>
+      <p><strong>IFSC Code:</strong> KKBK0004620</p>
+    </div>
+
+    <div className="bank-column">
+      <p><strong>A/C Name:</strong> RSD EXPOSITIONS</p>
+      <p><strong>Bank Name:</strong> HDFC BANK</p>
+      <p><strong>Bank A/c No.:</strong> 99999811045088</p>
+      <p><strong>Address:</strong> Delhi</p>
+      <p><strong>IFSC Code:</strong> HDFC0000578</p>
+    </div>
+
+    <div className="bank-column">
+      <p><strong>A/C Name:</strong> RSD EXPOSITIONS</p>
+      <p><strong>Bank Name:</strong> IndusInd Bank</p>
+      <p><strong>Bank A/c No.:</strong> 259811045088</p>
+      <p><strong>Address:</strong> Karol Bagh, New Delhi</p>
+      <p><strong>IFSC Code:</strong> INDB0000169</p>
+    </div>
+
+    <div className="bank-column">
+      <p><strong>A/C Name:</strong> RSD EXPOSITIONS</p>
+      <p><strong>Bank Name:</strong> Axis Bank</p>
+      <p><strong>Bank A/c No.:</strong> 0032144225</p>
+      <p><strong>Address:</strong> Delhi</p>
+      <p><strong>IFSC Code:</strong> UTIB0005109</p>
+    </div>
+
+  </div>
+</div>
+
                     <div className="payment-card-grid">
                       {/* First Card: Stall Charges Summary */}
-                      <div className="payment-card">
-                        <h4>Stall Particulars</h4>
+                      {(() => {
+                        // ✅ SAFE OBJECT
+                        const summary = stallSummary || {};
 
-                        <div className="billing-summary">
-                          <div className="billing-row">
-                            <span>Total:</span>
-                            <strong>
-                              {stallSummary.total.toFixed(2)}{" "}
-                              {stallSummary.currency}
-                            </strong>
-                          </div>
+                        // ✅ SAFE NUMBERS
+                        const safeTotal = Number(summary.total || 0);
+                        const safeDiscount = Number(
+                          summary.discounted_amount || 0,
+                        );
+                        const safeSgst = Number(summary.sgst || 0);
+                        const safeCgst = Number(summary.cgst || 0);
+                        const safeIgst = Number(summary.igst || 0);
+                        const safeGrand = Number(summary.grand_total || 0);
 
-                          {stallSummary.discounted_amount > 0 && (
-                            <div className="billing-row">
-                              <span>
-                                Discount ({getDiscountPercent(stallSummary)}
-                                %):
-                              </span>
-                              <strong>
-                                {stallSummary.discounted_amount.toFixed(2)}{" "}
-                                {stallSummary.currency}
-                              </strong>
-                            </div>
-                          )}
+                        const safeCleared = Number(stallPaymentCleared || 0);
 
-                          {isDelhi ? (
-                            <>
+                        // ✅ FINAL PENDING
+                        const pendingAmount = Math.max(
+                          0,
+                          Number((safeGrand - safeCleared).toFixed(2)),
+                        );
+
+                        return (
+                          <div className="payment-card">
+                            <h4>Stall Particulars</h4>
+
+                            <div className="billing-summary">
                               <div className="billing-row">
-                                <span>SGST (9%):</span>
-                                <strong>
-                                  {stallSummary.sgst.toFixed(2)}{" "}
-                                  {stallSummary.currency}
-                                </strong>
+                                <span>Total:</span>
+                                <strong>₹ {safeTotal.toFixed(2)}</strong>
                               </div>
+
+                              {safeDiscount > 0 && (
+                                <div className="billing-row">
+                                  <span>
+                                    Discount ({getDiscountPercent(summary)}%):
+                                  </span>
+                                  <strong>₹ {safeDiscount.toFixed(2)}</strong>
+                                </div>
+                              )}
+
+                              {isDelhi ? (
+                                <>
+                                  <div className="billing-row">
+                                    <span>SGST (9%):</span>
+                                    <strong>₹ {safeSgst.toFixed(2)}</strong>
+                                  </div>
+
+                                  <div className="billing-row">
+                                    <span>CGST (9%):</span>
+                                    <strong>₹ {safeCgst.toFixed(2)}</strong>
+                                  </div>
+                                </>
+                              ) : (
+                                <div className="billing-row">
+                                  <span>IGST (18%):</span>
+                                  <strong>₹ {safeIgst.toFixed(2)}</strong>
+                                </div>
+                              )}
+
+                              <div className="billing-row total">
+                                <span>Grand Total:</span>
+                                <strong>₹ {safeGrand.toFixed(2)}</strong>
+                              </div>
+
                               <div className="billing-row">
-                                <span>CGST (9%):</span>
-                                <strong>
-                                  {stallSummary.cgst.toFixed(2)}{" "}
-                                  {stallSummary.currency}
-                                </strong>
+                                <span>Cleared Amount:</span>
+                                <strong>₹ {safeCleared.toFixed(2)}</strong>
                               </div>
-                            </>
-                          ) : (
-                            <div className="billing-row">
-                              <span>IGST (18%):</span>
-                              <strong>
-                                {stallSummary.igst.toFixed(2)}{" "}
-                                {stallSummary.currency}
-                              </strong>
+
+                              <div
+                                className="billing-row"
+                                style={{
+                                  color: pendingAmount <= 0 ? "green" : "red",
+                                  fontWeight: "bold",
+                                  marginTop: "10px",
+                                }}
+                              >
+                                <span>
+                                  {pendingAmount <= 0
+                                    ? "PAYMENT CLEARED"
+                                    : "PENDING AMOUNT"}
+                                </span>
+
+                                <strong>₹ {pendingAmount.toFixed(2)}</strong>
+                              </div>
                             </div>
-                          )}
-
-                          <div className="billing-row total">
-                            <span>Grand Total:</span>
-                            <strong>
-                              {stallSummary.grand_total.toFixed(2)}{" "}
-                              {stallSummary.currency}
-                            </strong>
                           </div>
-
-                          <div className="billing-row">
-                            <span>Cleared Amount:</span>
-                            <strong>
-                              {stallCleared.toFixed(2)} {stallSummary.currency}
-                            </strong>
-                          </div>
-
-                          {/* ✅ Overall Pending Amount Row */}
-                          {pendingAmount !== null && (
-                            <div
-                              className="billing-row"
-                              style={{
-                                color: pendingAmount <= 0 ? "green" : "red",
-                                fontWeight: "bold",
-                                marginTop: "10px",
-                              }}
-                            >
-                              <span>
-                                {pendingAmount <= 0
-                                  ? "PAYMENT CLEARED"
-                                  : "PENDING AMOUNT"}
-                              </span>
-                              <strong>
-                                {pendingAmount.toFixed(2)}{" "}
-                                {stallSummary.currency}
-                              </strong>
-                            </div>
-                          )}
-                        </div>
-                      </div>
+                        );
+                      })()}
 
                       {/* === Card 2: Power Requirement Billing === */}
-                      <div className="payment-card">
-                        <h4>Power Requirement</h4>
+                      {(() => {
+                        const safeTotal = Number(grandTotal || 0);
+                        const safeCleared = Number(powerCleared || 0);
 
-                        <div className="billing-summary">
-                          <div className="billing-row">
-                            <span>Total:</span>
-                            <strong>₹{totalPrice.toFixed(2)} </strong>
-                          </div>
+                        const powerPendingAmount = Math.max(
+                          0,
+                          Number((safeTotal - safeCleared).toFixed(2)),
+                        );
 
-                          {isDelhi ? (
-                            <>
+                        return (
+                          <div className="payment-card">
+                            <h4>Power Requirement</h4>
+
+                            <div className="billing-summary">
                               <div className="billing-row">
-                                <span>CGST (9%):</span>
-                                <strong>₹{cgst.toFixed(2)} </strong>
+                                <span>Total:</span>
+                                <strong>
+                                  ₹ {Number(totalPrice || 0).toFixed(2)}
+                                </strong>
                               </div>
+
+                              {isDelhi ? (
+                                <>
+                                  <div className="billing-row">
+                                    <span>CGST (9%):</span>
+                                    <strong>
+                                      ₹ {Number(cgst || 0).toFixed(2)}
+                                    </strong>
+                                  </div>
+
+                                  <div className="billing-row">
+                                    <span>SGST (9%):</span>
+                                    <strong>
+                                      ₹ {Number(sgst || 0).toFixed(2)}
+                                    </strong>
+                                  </div>
+                                </>
+                              ) : (
+                                <div className="billing-row">
+                                  <span>IGST (18%):</span>
+                                  <strong>
+                                    ₹ {Number(igst || 0).toFixed(2)}
+                                  </strong>
+                                </div>
+                              )}
+
+                              <div className="billing-row total">
+                                <span>Grand Total:</span>
+                                <strong>₹ {safeTotal.toFixed(2)}</strong>
+                              </div>
+
                               <div className="billing-row">
-                                <span>SGST (9%):</span>
-                                <strong>₹{sgst.toFixed(2)} </strong>
+                                <span>Cleared Amount:</span>
+                                <strong>₹ {safeCleared.toFixed(2)}</strong>
                               </div>
-                            </>
-                          ) : (
-                            <div className="billing-row">
-                              <span>IGST (18%):</span>
-                              <strong>₹{igst.toFixed(2)} </strong>
+
+                              <div
+                                className="billing-row"
+                                style={{
+                                  color:
+                                    powerPendingAmount <= 0 ? "green" : "red",
+                                  fontWeight: "bold",
+                                  marginTop: "10px",
+                                }}
+                              >
+                                <span>
+                                  {powerPendingAmount <= 0
+                                    ? "PENDING AMOUNT"
+                                    : "PAYMENT CLEARED"}
+                                </span>
+
+                                <strong>
+                                  ₹ {powerPendingAmount.toFixed(2)}
+                                </strong>
+                              </div>
                             </div>
-                          )}
-
-                          <div className="billing-row total">
-                            <span>Grand Total:</span>
-                            <strong>₹{grandTotal.toFixed(2)} </strong>
                           </div>
-
-                          <div className="billing-row">
-                            <span>Cleared Amount:</span>
-                            <strong>₹{powerCleared.toFixed(2)}</strong>
-                          </div>
-
-                          {powerPendingAmount !== null && (
-                            <div
-                              className="billing-row"
-                              style={{
-                                color:
-                                  powerPendingAmount <= 0 ? "green" : "red",
-                                fontWeight: "bold",
-                                marginTop: "10px",
-                              }}
-                            >
-                              <span>
-                                {powerPendingAmount <= 0
-                                  ? "PAYMENT CLEARED"
-                                  : "PENDING AMOUNT"}
-                              </span>
-                              <strong>₹{powerPendingAmount.toFixed(2)}</strong>
-                            </div>
-                          )}
-                        </div>
-
-                        <div
-                          style={{
-                            alignSelf: "flex-end",
-                            marginTop: "auto",
-                          }}
-                        ></div>
-                      </div>
+                        );
+                      })()}
 
                       {/* === Card 3: Exhibitor Badges Billing === */}
                       {(() => {
-                        const { count, total, cgst, sgst, igst, grandTotal } =
-                          getExhibitorBadgeBilling();
+                        const b = getExhibitorBadgeBilling() || {};
+
+                        const count = Number(b.count || 0);
+                        const total = Number(b.total || 0);
+                        const cgst = Number(b.cgst || 0);
+                        const sgst = Number(b.sgst || 0);
+                        const igst = Number(b.igst || 0);
+                        const grand = Number(b.grandTotal || 0);
+                        const cleared = Number(b.cleared || 0);
+                        const pending = Number(b.pending || 0);
+                        const status = b.paymentStatus || "NOT PAID";
+                        const isDelhi = Boolean(b.isDelhi);
 
                         return (
                           <div className="payment-card">
@@ -5391,64 +5454,46 @@ useEffect(() => {
                             <div className="billing-summary">
                               <div className="billing-row">
                                 <span>Extra Badges:</span>
-                                <strong>{count || 0}</strong>
+                                <strong>{count}</strong>
                               </div>
 
                               <div className="billing-row">
                                 <span>Total Amount:</span>
-                                <strong>₹{total?.toFixed(2) || "0.00"}</strong>
+                                <strong>₹ {total.toFixed(2)}</strong>
                               </div>
 
                               {isDelhi ? (
                                 <>
                                   <div className="billing-row">
                                     <span>CGST (9%):</span>
-                                    <strong>
-                                      ₹{cgst?.toFixed(2) || "0.00"}
-                                    </strong>
+                                    <strong>₹ {cgst.toFixed(2)}</strong>
                                   </div>
                                   <div className="billing-row">
                                     <span>SGST (9%):</span>
-                                    <strong>
-                                      ₹{sgst?.toFixed(2) || "0.00"}
-                                    </strong>
+                                    <strong>₹ {sgst.toFixed(2)}</strong>
                                   </div>
                                 </>
                               ) : (
                                 <div className="billing-row">
                                   <span>IGST (18%):</span>
-                                  <strong>₹{igst?.toFixed(2) || "0.00"}</strong>
+                                  <strong>₹ {igst.toFixed(2)}</strong>
                                 </div>
                               )}
 
                               <div className="billing-row total">
                                 <span>Grand Total:</span>
-                                <strong>
-                                  ₹{grandTotal?.toFixed(2) || "0.00"}
-                                </strong>
+                                <strong>₹ {grand.toFixed(2)}</strong>
                               </div>
 
                               <div className="billing-row">
                                 <span>Cleared Amount:</span>
-                                <strong>₹{badgeCleared.toFixed(2)}</strong>
+                                <strong>₹ {cleared.toFixed(2)}</strong>
                               </div>
 
-                              {badgePendingAmount !== null && (
-                                <div
-                                  className="billing-row pending"
-                                  style={{
-                                    color:
-                                      badgePendingAmount <= 0 ? "green" : "red",
-                                  }}
-                                >
-                                  <span>
-                                    {badgePendingAmount <= 0
-                                      ? "PAYMENT CLEARED"
-                                      : "PENDING AMOUNT"}
-                                  </span>
-                                  <strong>
-                                    ₹{badgePendingAmount.toFixed(2)}
-                                  </strong>
+                              {pending > 0 && (
+                                <div className="billing-row">
+                                  <span>Pending Amount:</span>
+                                  <strong>₹ {pending.toFixed(2)}</strong>
                                 </div>
                               )}
                             </div>
@@ -5464,45 +5509,42 @@ useEffect(() => {
         </div>
       </div>
 
-
       {showExitPopup && (
-  <div className="confirm-overlay">
-    <div className="confirm-modal">
-      <h3>Leave Exhibitor Badges?</h3>
-      <p>
-        You have unsaved or pending badge-related actions.
-        Are you sure you want to leave this page?
-      </p>
+        <div className="confirm-overlay">
+          <div className="confirm-modal">
+            <h3>Leave Exhibitor Badges?</h3>
+            <p>
+              You have unsaved or pending badge-related actions. Are you sure
+              you want to leave this page?
+            </p>
 
-      <div className="confirm-actions">
-        <button
-          className="cancel-btn"
-          onClick={() => {
-            setShowExitPopup(false);
-            setPendingMenu(null);
-          }}
-        >
-          Stay Here
-        </button>
+            <div className="confirm-actions">
+              <button
+                className="cancel-btn"
+                onClick={() => {
+                  setShowExitPopup(false);
+                  setPendingMenu(null);
+                }}
+              >
+                Stay Here
+              </button>
 
-       <button
-  className="confirm-btn"
-  onClick={() => {
-    setShowExitPopup(false);
-    setIsInExhibitorBadges(false);
-    setHasUnlockedBadge(false); // 🔥 reset
-    forceNavigateMenu(pendingMenu);
-    setPendingMenu(null);
-  }}
->
-  Leave Page
-</button>
-      </div>
-    </div>
-  </div>
-)}
-
-
+              <button
+                className="confirm-btn"
+                onClick={() => {
+                  setShowExitPopup(false);
+                  setIsInExhibitorBadges(false);
+                  setHasUnlockedBadge(false); // 🔥 reset
+                  forceNavigateMenu(pendingMenu);
+                  setPendingMenu(null);
+                }}
+              >
+                Leave Page
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

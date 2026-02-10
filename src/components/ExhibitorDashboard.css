@@ -4308,4 +4308,49 @@ iframe img {
   background: #1e40af;
 }
 
+
+.field-error {
+  color: #d32f2f;
+  font-size: 13px;
+  font-weight: 600;
+  margin-left: 5px;
+}
+
 /* popup card leave exhibitor badge component end */
+
+
+/* payments section in bank details css start */
+
+.bank-details {
+  margin-top: 28px;
+  padding:  0 0 18px 0;
+}
+
+.bank-details h4 {
+  margin-bottom: 14px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.bank-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.bank-column {
+  font-size: 20px;
+  color: black;
+  border: none;
+  background: none;
+
+}
+
+.bank-column p {
+  margin: 4px 0;
+  font-size: 13px;
+}
+
+
+
+/* payments section in bank details css end */
