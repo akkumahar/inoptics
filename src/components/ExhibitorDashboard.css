@@ -810,6 +810,21 @@ img, iframe, video {
   /* gap: 20px; */
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* Card Style */
 .profile-card {
   padding: 20px;
@@ -4078,7 +4093,7 @@ iframe img {
 /* ================= TOP ROW ================= */
 .exhibitordashboard-row {
   display: grid;
-  grid-template-columns: 1fr 360px;
+  grid-template-columns: 1fr 500px;
   gap: 20px;
   align-items: flex-start;
 }
@@ -4354,3 +4369,294 @@ iframe img {
 
 
 /* payments section in bank details css end */
+
+
+
+
+
+/*  brands container styling with responsive start */
+
+/* =====================================================
+   BRANDS — CLEAN FLAT RESPONSIVE UI
+   ===================================================== */
+
+/* ROOT CARD */
+
+.profile-right {
+  width: 100%;
+}
+
+.profile-card {
+  width: 100%;
+  padding: 28px 32px;
+  border-radius: 18px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+/* ================= HEADER ================= */
+
+.brands-heading,
+.brands-view-header h2 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+  letter-spacing: .2px;
+}
+
+.brands-view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 14px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* ================= GRID ================= */
+
+.brands-input-row,
+.brands-view-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px 32px;
+  width: 100%;
+}
+
+.brands-full {
+  grid-column: span 2;
+}
+
+/* ================= FIELD GROUP ================= */
+
+.brands-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.brands-field-group label,
+.brands-view-grid label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* ================= INPUTS ================= */
+
+.brands-field-group input,
+.brands-field-group select {
+  width: 100%;
+  height: 46px;
+  border-radius: 10px;           /* not full round */
+  border: 1px solid #d7dde5;
+  padding: 0 14px;
+  font-size: 14px;
+  background: transparent;
+  outline: none;
+  transition: .2s ease;
+}
+
+.brands-field-group input:focus,
+.brands-field-group select:focus {
+  border-color: #2563eb;
+}
+
+/* ================= PRODUCT TAGS ================= */
+
+.selected-products-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.selected-product {
+  background: #eef2f7;
+  border: 1px solid #dbe2ea;
+  color: #334155;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.remove-icon {
+  cursor: pointer;
+  font-size: 12px;
+  opacity: .7;
+}
+
+.remove-icon:hover {
+  opacity: 1;
+}
+
+/* ================= BUTTON ================= */
+
+.brands-button-section {
+  margin-top: 26px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.brands-details-add-brands-btn {
+  height: 44px;
+  padding: 0 22px;
+  border-radius: 10px;
+  border: none;
+  background: #111;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.brands-details-add-brands-btn:hover {
+  background: #000;
+}
+
+/* ================= VIEW MODE ================= */
+
+.view-pill {
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  border-radius: 20px;
+  border: 1px solid #d7dde5;
+  background: transparent;
+  font-size: 14px;
+  color: #475569;
+  word-break: break-all;
+}
+
+.view-box {
+  border-radius: 14px;
+  border: 1px solid #e1e6ee;
+  padding: 12px 16px;
+  background: transparent;
+  font-size: 14px;
+  color: #334155;
+  line-height: 1.7;
+  min-height: 46px;
+}
+
+/* ================= EDIT BUTTON ================= */
+
+.brands-edit-btn {
+  background: #eef2f7;
+  border: 1px solid #dbe2ea;
+  color: #2563eb;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.brands-edit-btn:hover {
+  background: #e6edf7;
+}
+
+/* ================= ANIMATION (OPTIONAL) ================= */
+
+.slide-up-form {
+  animation: brandsFadeUp .35s ease;
+}
+
+@keyframes brandsFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =====================================================
+   RESPONSIVE — TABLET
+   ===================================================== */
+
+@media (max-width: 1024px) {
+
+  .profile-card {
+    padding: 22px;
+  }
+
+  .brands-input-row,
+  .brands-view-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .brands-full {
+    grid-column: span 1;
+  }
+
+}
+
+/* =====================================================
+   RESPONSIVE — MOBILE
+   ===================================================== */
+
+@media (max-width: 600px) {
+
+  .profile-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .brands-heading,
+  .brands-view-header h2 {
+    font-size: 22px;
+  }
+
+  .brands-field-group label,
+  .brands-view-grid label {
+    font-size: 13px;
+  }
+
+  .brands-field-group input,
+  .brands-field-group select {
+    height: 42px;
+    font-size: 13px;
+  }
+
+  .view-pill,
+  .view-box {
+    font-size: 13px;
+  }
+
+  .brands-button-section {
+    justify-content: stretch;
+  }
+
+  .brands-details-add-brands-btn {
+    width: 100%;
+  }
+
+}
+
+/* =====================================================
+   EXTRA SMALL MOBILE
+   ===================================================== */
+
+@media (max-width: 380px) {
+
+  .brands-heading {
+    font-size: 20px;
+  }
+
+  .profile-card {
+    padding: 12px;
+  }
+
+}

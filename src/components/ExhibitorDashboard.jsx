@@ -38,42 +38,42 @@ const ExhibitorDashboard = () => {
     step3: null,
   });
 
+  const [brandsData, setBrandsData] = useState({
+    website: "",
+    products: [],
+    home_brands: "",
+    distributors: "",
+    international_brands: "",
+  });
 
-   const [brandsData, setBrandsData] = useState({
-      website: "",
-      products: [], // ✅ array
-      home_brands: "",
-      distributors: "",
-      international_brands: "",
-    });
-
-      const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({
     company_name: "",
     email: "",
     contact_number: "",
   });
-  
 
-     const [products, setProducts] = useState([]);
-const [showBrandsEditForm, setShowBrandsEditForm] = useState(false);
-const [activeMenu, setActiveMenu] = useState("Dashboard");
+  const [products, setProducts] = useState([]);
+  const [showBrandsEditForm, setShowBrandsEditForm] = useState(false);
+  const [hasBrandsData, setHasBrandsData] = useState(false);
+  const [activeMenu, setActiveMenu] = useState("Dashboard");
+  // const [isBrandsSubmitted, setIsBrandsSubmitted] = useState(false);
 
   // Fetch Products
   const fetchProducts = async () => {
     try {
       const res = await axios.get("https://inoptics.in/api/get_product.php");
       setProducts(res.data);
+      console.log("product list", res.data);
     } catch (err) {
       alert("Error fetching products");
     }
   };
 
-    useEffect(() => {
-      if (activeMenu === "Contractors" && formData.company_name) {
-        fetchProducts();
-      }
-    }, [activeMenu, formData.company_name]);
-
+  useEffect(() => {
+    if (activeMenu === "Profile" && formData.company_name) {
+      fetchProducts();
+    }
+  }, [activeMenu, formData.company_name]);
 
   const CONTRACTOR_STEP_KEY = "contractor_step";
   const [currentStep, setCurrentStep] = useState(() => {
@@ -112,7 +112,7 @@ const [activeMenu, setActiveMenu] = useState("Dashboard");
   const [hasUnlockedBadge, setHasUnlockedBadge] = useState(false);
 
   // 🔹 New states
-  
+
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [importantPage, setImportantPage] = useState("");
 
@@ -136,7 +136,6 @@ const [activeMenu, setActiveMenu] = useState("Dashboard");
   const [isFurnitureSaved, setIsFurnitureSaved] = useState(false);
   const [isSendingMail, setIsSendingMail] = useState(false);
   const [emailMasterData, setEmailMasterData] = useState([]);
-
 
   const [coreFormData, setCoreFormData] = useState([]);
 
@@ -2888,38 +2887,66 @@ const [activeMenu, setActiveMenu] = useState("Dashboard");
     }
   };
 
-const handleSubmitBrands = async () => {
-    try {
-      const response = await fetch(
-        "https://inoptics.in/api/add_exhibitor_brands.php",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            Company_name: formData.company_name,
-            ...brandsData,
-          }),
-        },
-      );
-
-      const data = await response.json();
-      if (data.status === "success") {
-        alert("Brands submitted successfully!");
-        setShowBrandsEditForm(true);
-      } else if (data.status === "exists") {
-        alert("Brands data already exists. You can update it.");
-        setShowBrandsEditForm(true);
-      } else {
-        alert("Error: " + data.message);
-      }
-    } catch (error) {
-      console.error("Submit Brands Error:", error);
-      alert("Something went wrong.");
-    }
+  const handleEditBrands = () => {
+    setShowBrandsEditForm(false);
   };
 
+  const handleSubmitBrands = async () => {
+  const payload = {
+    Company_name: currentExhibitor.company_name,
+    website: brandsData.website,
+    products: (brandsData.products || []).join(","), // ✅ FIX
+    home_brands: brandsData.home_brands,
+    distributors: brandsData.distributors,
+    international_brands: brandsData.international_brands,
+  };
+
+  console.log("SUBMIT:", payload);
+
+  await fetch("https://inoptics.in/api/add_exhibitor_brands.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  setHasBrandsData(true);
+  setShowBrandsEditForm(true);
+};
+
+
+  useEffect(() => {
+    if (!formData.company_name) return;
+
+    fetch(
+      `https://inoptics.in/api/get_exhibitor_brands.php?Company_name=${encodeURIComponent(
+        formData.company_name,
+      )}`,
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("brandsData:", data);
+        if (data.status === "success") {
+          
+setBrandsData({
+  website: data.Website || "",
+  products: Array.isArray(data.Products)
+    ? data.Products
+    : (data.Products || "")
+        .split(",")
+        .map(x => x.trim())
+        .filter(Boolean),
+
+  home_brands: data.Home_brands || "",
+  distributors: data.Distributors || "",
+  international_brands: data.International_brands || "",
+});
+
+
+          setHasBrandsData(true);
+          setShowBrandsEditForm(true);
+        }
+      });
+  }, [formData.company_name]);
 
   const handleUpdateBrands = async () => {
     try {
@@ -2940,6 +2967,7 @@ const handleSubmitBrands = async () => {
       const data = await response.json();
       if (data.status === "success") {
         alert("Brands updated successfully!");
+        setShowBrandsEditForm(false);
       } else {
         alert("Update failed: " + data.message);
       }
@@ -2948,9 +2976,6 @@ const handleSubmitBrands = async () => {
       alert("Something went wrong.");
     }
   };
-
-
-
 
   return (
     <div className="exhibitordashboard-container">
@@ -3196,6 +3221,8 @@ const handleSubmitBrands = async () => {
                     activities={activities}
                     stallList={stallList}
                     powerData={powerData}
+                    getExhibitorBadgeBilling={getExhibitorBadgeBilling}
+                    currentExhibitor={currentExhibitor}
                   />
                 )}
 
@@ -3532,142 +3559,215 @@ const handleSubmitBrands = async () => {
                     </div>
 
                     {/* RIGHT SIDE (Brand Container) */}
-                   <div className="profile-right">
-  <div className="profile-card">
+                    <div className="profile-right">
+                      <div className="profile-card">
+                        {/* ================= FORM MODE ================= */}
+                        {!showBrandsEditForm && (
+                          <div className="brands-form slide-up-form">
+                            <h2 className="brands-heading">Brands</h2>
 
-    <div className="brands-form slide-up-form">
-      <h2 className="brands-heading">Brands</h2>
+                            <div className="brands-input-row">
+                              {/* WEBSITE */}
+                              <div className="brands-field-group">
+                                <label>Website:</label>
+                                <input
+                                  value={brandsData.website || ""}
+                                  onChange={(e) =>
+                                    setBrandsData((p) => ({
+                                      ...p,
+                                      website: e.target.value,
+                                    }))
+                                  }
+                                />
+                              </div>
 
-      <div className="brands-input-row">
+                              {/* PRODUCTS */}
+                              <div className="brands-field-group">
+                                <label>Products:</label>
 
-        {/* Website */}
-        <div className="brands-field-group">
-          <label>Website:</label>
-          <input
-            type="text"
-            value={brandsData.website}
-            onChange={(e) =>
-              setBrandsData(prev => ({
-                ...prev,
-                website: e.target.value,
-              }))
-            }
-          />
-        </div>
+                                <div className="selected-products-container">
+                                  {(brandsData.products || []).map((p, i) => (
+                                    <div
+                                      key={p + "-" + i}
+                                      className="selected-product"
+                                    >
+                                      {p}
+                                      <span
+                                        className="remove-icon"
+                                        onClick={() =>
+                                          setBrandsData((prev) => ({
+                                            ...prev,
+                                            products: prev.products.filter(
+                                              (x) => x !== p,
+                                            ),
+                                          }))
+                                        }
+                                      >
+                                        ✖
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
 
-        {/* Products Multi Select */}
-        <div className="brands-field-group">
-          <label>Products:</label>
+                                <select
+                                  value=""
+                                  onChange={(e) => {
+                                    const v = e.target.value;
+                                    if (
+                                      v &&
+                                      !(brandsData.products || []).includes(v)
+                                    ) {
+                                      setBrandsData((p) => ({
+                                        ...p,
+                                        products: [...(p.products || []), v],
+                                      }));
+                                    }
+                                  }}
+                                >
+                                  <option value="">-- Select Product --</option>
+                                  {products.map((p, i) => (
+                                    <option
+                                      key={p.name + "-" + i}
+                                      value={p.name}
+                                    >
+                                      {p.name}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
 
-          <div className="selected-products-container">
-            {Array.isArray(brandsData.products) &&
-              brandsData.products.map((product, index) => (
-                <div key={index} className="selected-product">
-                  {product}
-                  <span
-                    className="remove-icon"
-                    onClick={() =>
-                      setBrandsData(prev => ({
-                        ...prev,
-                        products: prev.products.filter(p => p !== product),
-                      }))
-                    }
-                  >
-                    ✖
-                  </span>
-                </div>
-              ))}
-          </div>
+                              {/* HOME BRANDS */}
+                              <div className="brands-field-group">
+                                <label>Home Brands:</label>
+                                <input
+                                  value={brandsData.home_brands || ""}
+                                  onChange={(e) =>
+                                    setBrandsData((p) => ({
+                                      ...p,
+                                      home_brands: e.target.value,
+                                    }))
+                                  }
+                                />
+                              </div>
 
-          <select
-            value=""
-            onChange={(e) => {
-              const selected = e.target.value;
-              if (
-                selected &&
-                !brandsData.products.includes(selected)
-              ) {
-                setBrandsData(prev => ({
-                  ...prev,
-                  products: [...prev.products, selected],
-                }));
-              }
-            }}
-          >
-            <option value="">-- Select Product --</option>
-            {products.map((p, i) => (
-              <option key={i} value={p.name}>
-                {p.name}
-              </option>
-            ))}
-          </select>
-        </div>
+                              {/* DISTRIBUTORS */}
+                              <div className="brands-field-group">
+                                <label>Distributors:</label>
+                                <input
+                                  value={brandsData.distributors || ""}
+                                  onChange={(e) =>
+                                    setBrandsData((p) => ({
+                                      ...p,
+                                      distributors: e.target.value,
+                                    }))
+                                  }
+                                />
+                              </div>
 
-        {/* Home Brands */}
-        <div className="brands-field-group">
-          <label>Home Brands:</label>
-          <input
-            type="text"
-            value={brandsData.home_brands}
-            onChange={(e) =>
-              setBrandsData(prev => ({
-                ...prev,
-                home_brands: e.target.value,
-              }))
-            }
-          />
-        </div>
+                              {/* INTERNATIONAL */}
+                              <div className="brands-field-group brands-full">
+                                <label>International Brands:</label>
+                                <input
+                                  value={brandsData.international_brands || ""}
+                                  onChange={(e) =>
+                                    setBrandsData((p) => ({
+                                      ...p,
+                                      international_brands: e.target.value,
+                                    }))
+                                  }
+                                />
+                              </div>
+                            </div>
 
-        {/* Distributors */}
-        <div className="brands-field-group">
-          <label>Distributors of Brands:</label>
-          <input
-            type="text"
-            value={brandsData.distributors}
-            onChange={(e) =>
-              setBrandsData(prev => ({
-                ...prev,
-                distributors: e.target.value,
-              }))
-            }
-          />
-        </div>
+                            <div className="brands-button-section">
+                              <button
+                                className="brands-details-add-brands-btn"
+                                onClick={handleSubmitBrands}
+                              >
+                                Submit
+                              </button>
+                            </div>
+                          </div>
+                        )}
 
-        {/* International */}
-        <div className="brands-field-group">
-          <label>International Brands:</label>
-          <input
-            type="text"
-            value={brandsData.international_brands}
-            onChange={(e) =>
-              setBrandsData(prev => ({
-                ...prev,
-                international_brands: e.target.value,
-              }))
-            }
-          />
-        </div>
+                        {/* ================= VIEW MODE ================= */}
+                        {showBrandsEditForm && (
+  <div className="brands-view-card slide-up-form">
 
-      </div>
-
-      <div className="brands-button-section">
-        <button
-          className="brands-details-add-brands-btn"
-          onClick={
-            showBrandsEditForm
-              ? handleUpdateBrands
-              : handleSubmitBrands
-          }
-        >
-          {showBrandsEditForm ? "Update" : "Submit"}
-        </button>
-      </div>
-
+    <div className="brands-view-header">
+      <h2>Brands</h2>
+      <button
+        className="brands-edit-btn"
+        onClick={handleEditBrands}
+        type="button"
+      >
+        ✏ Edit
+      </button>
     </div>
 
+    <div className="brands-view-grid">
+
+      {/* Website */}
+      <div>
+        <label>Website</label>
+        <div className="view-pill">
+          {brandsData?.website?.trim() || "—"}
+        </div>
+      </div>
+
+      {/* Products — array + string safe */}
+      <div>
+  <label>Products</label>
+
+  <div className="view-pill">
+    {Array.isArray(brandsData.products)
+      ? brandsData.products.length
+        ? brandsData.products.join(", ")
+        : "—"
+      : typeof brandsData.products === "string"
+        ? brandsData.products
+        : "—"}
   </div>
 </div>
 
+      {/* Home Brands */}
+      <div>
+        <label>Home Brands</label>
+        <div className="view-box">
+          {(brandsData?.home_brands || "")
+            .split(",")
+            .map(b => b.trim())
+            .filter(Boolean)
+            .join(", ") || "—"}
+        </div>
+      </div>
+
+      {/* Distributors */}
+      <div>
+        <label>Distributors</label>
+        <div className="view-box">
+          {brandsData?.distributors?.trim() || "—"}
+        </div>
+      </div>
+
+      {/* International */}
+      <div className="brands-full">
+        <label>International Brands</label>
+        <div className="view-box">
+          {(brandsData?.international_brands || "")
+            .split(",")
+            .map(b => b.trim())
+            .filter(Boolean)
+            .join(", ") || "—"}
+        </div>
+      </div>
+
+    </div>
+  </div>
+)}
+
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -5216,47 +5316,82 @@ const handleSubmitBrands = async () => {
               {!importantPage && activeMenu === "Payment" && (
                 <div className="exhibitordashboard-content">
                   <div className="payment-cards-container">
-
                     {/* ✅ BANK DETAILS BLOCK */}
-<div className="bank-details">
-  
+                    <div className="bank-details">
+                      <div className="bank-row">
+                        <div className="bank-column">
+                          <p>
+                            <strong>A/C Name:</strong> RSD EXPOSITIONS
+                          </p>
+                          <p>
+                            <strong>Bank Name:</strong> Kotak Mahindra Bank
+                          </p>
+                          <p>
+                            <strong>Bank A/c No.:</strong> 01992000000491
+                          </p>
+                          <p>
+                            <strong>Address:</strong> Defence Colony, New Delhi
+                          </p>
+                          <p>
+                            <strong>IFSC Code:</strong> KKBK0004620
+                          </p>
+                        </div>
 
-  <div className="bank-row">
+                        <div className="bank-column">
+                          <p>
+                            <strong>A/C Name:</strong> RSD EXPOSITIONS
+                          </p>
+                          <p>
+                            <strong>Bank Name:</strong> HDFC BANK
+                          </p>
+                          <p>
+                            <strong>Bank A/c No.:</strong> 99999811045088
+                          </p>
+                          <p>
+                            <strong>Address:</strong> Delhi
+                          </p>
+                          <p>
+                            <strong>IFSC Code:</strong> HDFC0000578
+                          </p>
+                        </div>
 
-    <div className="bank-column">
-      <p><strong>A/C Name:</strong> RSD EXPOSITIONS</p>
-      <p><strong>Bank Name:</strong> Kotak Mahindra Bank</p>
-      <p><strong>Bank A/c No.:</strong> 01992000000491</p>
-      <p><strong>Address:</strong> Defence Colony, New Delhi</p>
-      <p><strong>IFSC Code:</strong> KKBK0004620</p>
-    </div>
+                        <div className="bank-column">
+                          <p>
+                            <strong>A/C Name:</strong> RSD EXPOSITIONS
+                          </p>
+                          <p>
+                            <strong>Bank Name:</strong> IndusInd Bank
+                          </p>
+                          <p>
+                            <strong>Bank A/c No.:</strong> 259811045088
+                          </p>
+                          <p>
+                            <strong>Address:</strong> Karol Bagh, New Delhi
+                          </p>
+                          <p>
+                            <strong>IFSC Code:</strong> INDB0000169
+                          </p>
+                        </div>
 
-    <div className="bank-column">
-      <p><strong>A/C Name:</strong> RSD EXPOSITIONS</p>
-      <p><strong>Bank Name:</strong> HDFC BANK</p>
-      <p><strong>Bank A/c No.:</strong> 99999811045088</p>
-      <p><strong>Address:</strong> Delhi</p>
-      <p><strong>IFSC Code:</strong> HDFC0000578</p>
-    </div>
-
-    <div className="bank-column">
-      <p><strong>A/C Name:</strong> RSD EXPOSITIONS</p>
-      <p><strong>Bank Name:</strong> IndusInd Bank</p>
-      <p><strong>Bank A/c No.:</strong> 259811045088</p>
-      <p><strong>Address:</strong> Karol Bagh, New Delhi</p>
-      <p><strong>IFSC Code:</strong> INDB0000169</p>
-    </div>
-
-    <div className="bank-column">
-      <p><strong>A/C Name:</strong> RSD EXPOSITIONS</p>
-      <p><strong>Bank Name:</strong> Axis Bank</p>
-      <p><strong>Bank A/c No.:</strong> 0032144225</p>
-      <p><strong>Address:</strong> Delhi</p>
-      <p><strong>IFSC Code:</strong> UTIB0005109</p>
-    </div>
-
-  </div>
-</div>
+                        <div className="bank-column">
+                          <p>
+                            <strong>A/C Name:</strong> RSD EXPOSITIONS
+                          </p>
+                          <p>
+                            <strong>Bank Name:</strong> Axis Bank
+                          </p>
+                          <p>
+                            <strong>Bank A/c No.:</strong> 0032144225
+                          </p>
+                          <p>
+                            <strong>Address:</strong> Delhi
+                          </p>
+                          <p>
+                            <strong>IFSC Code:</strong> UTIB0005109
+                          </p>
+                        </div>
+                      </div>
+                    </div>
 
                     <div className="payment-card-grid">
                       {/* First Card: Stall Charges Summary */}
