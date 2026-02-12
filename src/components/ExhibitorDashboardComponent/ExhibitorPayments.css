@@ -1,0 +1,357 @@
+
+/* payment card style section start */
+.payment-card-grid {
+  display: grid;
+  width: 80%;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  align-items: stretch;
+}
+
+.payment-card {
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+}
+
+/* Title */
+.payment-card h4 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111;
+}
+
+/* Billing Box */
+/* .billing-summary {
+   flex-grow: 1;
+  background: #fafafa;
+  border-radius: 14px;
+  padding: 18px;
+  margin-top: 12px;
+  border: 1px solid #eee;
+} */
+.payment-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 10px;
+}
+/* Each Row */
+.billing-row {
+  display: flex;
+  align-items: center;
+  font-size: 14.5px;
+  color: #555;
+}
+
+.billing-row:last-child {
+  border-bottom: none;
+}
+
+.billing-row:last-of-type {
+  border-bottom: none;
+}
+
+/* Values */
+.billing-row strong {
+  font-weight: 600;
+  color: #111;
+}
+
+/* Grand Total Row */
+.billing-row.total {
+  font-size: 16px;
+  font-weight: 600;
+  color: #000;
+  margin-top: 6px;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Pending amount text */
+.billing-row.pending {
+  color: #e53935;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+/* QR */
+.payment-card img {
+  border: 1px solid #eee;
+  padding: 6px;
+  background: #fff;
+  border-radius: 10px;
+}
+
+/* Black Pending Button */
+.payment-card button {
+  width: 100%;
+  margin-top: 18px;
+  padding: 14px;
+  border-radius: 14px;
+  background: linear-gradient(90deg, #111, #333);
+  color: white;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.payment-card button:hover {
+  background: linear-gradient(90deg, #000, #222);
+  transform: translateY(-1px);
+}
+
+/* payment card style section end */
+
+
+
+
+/* payment card style section start */
+.payment-card-grid {
+  display: grid;
+  width: 80%;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  align-items: stretch;
+}
+
+.payment-card {
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+}
+
+/* Title */
+.payment-card h4 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111;
+}
+
+/* Billing Box */
+/* .billing-summary {
+   flex-grow: 1;
+  background: #fafafa;
+  border-radius: 14px;
+  padding: 18px;
+  margin-top: 12px;
+  border: 1px solid #eee;
+} */
+.payment-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 10px;
+}
+/* Each Row */
+.billing-row {
+  display: flex;
+  align-items: center;
+  font-size: 14.5px;
+  color: #555;
+}
+
+.billing-row:last-child {
+  border-bottom: none;
+}
+
+.billing-row:last-of-type {
+  border-bottom: none;
+}
+
+/* Values */
+.billing-row strong {
+  font-weight: 600;
+  color: #111;
+}
+
+/* Grand Total Row */
+.billing-row.total {
+  font-size: 16px;
+  font-weight: 600;
+  color: #000;
+  margin-top: 6px;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Pending amount text */
+.billing-row.pending {
+  color: #e53935;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+/* QR */
+.payment-card img {
+  border: 1px solid #eee;
+  padding: 6px;
+  background: #fff;
+  border-radius: 10px;
+}
+
+/* Black Pending Button */
+.payment-card button {
+  width: 100%;
+  margin-top: 18px;
+  padding: 14px;
+  border-radius: 14px;
+  background: linear-gradient(90deg, #111, #333);
+  color: white;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.payment-card button:hover {
+  background: linear-gradient(90deg, #000, #222);
+  transform: translateY(-1px);
+}
+
+/* payment card style section end */
+
+
+
+/* ======================================
+   PAYMENT CARDS — RESPONSIVE OVERRIDE
+   ====================================== */
+
+
+
+   .exhibitordashboard-content {
+   
+    width: 127%;
+
+   }
+/* default desktop */
+.payment-card-grid {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ---------- LARGE DESKTOP ---------- */
+@media (min-width: 1400px) {
+  .payment-card-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+}
+
+/* ---------- LAPTOP ---------- */
+@media (max-width: 1200px) {
+  .payment-card-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+}
+
+/* ---------- TABLET ---------- */
+@media (max-width: 992px) {
+  .payment-card-grid {
+    grid-template-columns: repeat(2, 1fr);
+    width: 100%;
+  }
+}
+
+/* ---------- MOBILE ---------- */
+@media (max-width: 640px) {
+  .payment-card-grid {
+    grid-template-columns: 1fr;
+    width: 127%;
+    gap: 12px;
+    margin-bottom: 80px;
+  }
+
+  .payment-card {
+    padding: 14px;
+  }
+
+  .payment-card h4 {
+    font-size: 17px;
+  }
+
+  .billing-row {
+    font-size: 13px;
+  }
+}
+
+/* ---------- EXTRA SMALL MOBILE ---------- */
+@media (max-width: 380px) {
+
+  .billing-row {
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .billing-row strong {
+    text-align: left;
+  }
+
+  .payment-card button {
+    padding: 12px;
+    font-size: 14px;
+  }
+}
+
+/* ======================================
+   BANK DETAILS — RESPONSIVE GRID
+   ====================================== */
+
+/* desktop */
+.bank-row {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+/* tablet → 2 per row */
+@media (max-width: 992px) {
+  .bank-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* mobile → ALSO 2 per row (as you requested) */
+@media (max-width: 600px) {
+  .bank-row {
+    width: 127%;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px;
+  }
+
+  .bank-column {
+    padding: 12px;
+    font-size: 13px;
+    border-radius: 12px;
+    background-color: #ffff;
+    border: 1px solid #e5e7eb;
+  }
+
+  .bank-column p {
+    margin: 3px 0;
+    line-height: 1.4;
+  }
+
+  .bank-column strong {
+    font-size: 12.5px;
+  }
+}
+
+/* very small mobile → still 2 grid but tighter */
+@media (max-width: 360px) {
+  .bank-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px;
+  }
+
+  .bank-column {
+    padding: 10px;
+    font-size: 12px;
+  }
+}

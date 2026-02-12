@@ -1,0 +1,192 @@
+/* =====================================================
+   POWER REQUIREMENT — RESPONSIVE OVERRIDE (FINAL)
+   Paste at END of your CSS
+   ===================================================== */
+
+/* ---------- DESKTOP FIX WIDTH REMOVE ---------- */
+
+.Exhibitor-power-requirement-wrapper {
+  width: 100% !important;
+  max-width: 100%;
+  margin-left: 0 !important;
+  gap: 40px !important;
+}
+
+.Exhibitor-power-requirement-below-section {
+  width: 100% !important;
+  max-width: 100%;
+  margin-left: 0 !important;
+}
+
+/* ---------- FLEX AUTO ---------- */
+
+.Exhibitor-power-requirement-form-left {
+  min-width: 0 !important;
+}
+
+.Exhibitor-power-requirement-instruction-box {
+  min-width: 0 !important;
+}
+
+/* ---------- PROGRESS BAR FLEXIBLE ---------- */
+
+#Exhibitor-progressbar {
+  gap: 80px !important;
+  flex-wrap: wrap;
+}
+
+#Exhibitor-progressbar li:after {
+  width: 160%;
+  left: -130%;
+}
+
+/* ---------- TABLE SCROLL SAFETY ---------- */
+
+.Exhibitor-power-requirement-table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.Exhibitor-power-requirement-table {
+  min-width: 640px;
+}
+
+/* ---------- BILLING CARD LOOK ---------- */
+
+.Exhibitor-power-requirement-billing {
+  background: #fafafa;
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+/* ---------- FORM GRID AUTO ---------- */
+
+.Exhibitor-power-requirement-stalls-form-group {
+  flex: 1 1 48%;
+}
+
+/* =====================================================
+   TABLET (≤1024px)
+   ===================================================== */
+
+@media (max-width: 1024px) {
+
+  .Exhibitor-power-requirement-wrapper {
+    flex-direction: column;
+    gap: 28px !important;
+  }
+
+  .Exhibitor-power-requirement-below-section {
+    flex-direction: column;
+    gap: 28px;
+    margin-bottom: 180px;
+  }
+
+  .Exhibitor-power-requirement-table-container,
+  .Exhibitor-power-requirement-billing {
+    flex: 1 1 100%;
+  }
+
+  /* progress tighter */
+  #Exhibitor-progressbar {
+    display: none;
+  }
+
+  
+
+  /* form → single column */
+  .Exhibitor-power-requirement-stalls-form-group {
+    flex: 1 1 100%;
+  }
+
+  .Exhibitor-power-requirement-add-button-inline {
+    flex: 1 1 100%;
+    justify-content: flex-start;
+  }
+
+  /* instruction box */
+  .Exhibitor-power-requirement-instruction-box {
+    margin-top: 0 !important;
+  }
+
+  .Exhibitor-power-requirement-top-buttons-inside-box {
+    margin-top: 0 !important;
+    flex-wrap: wrap;
+  }
+
+}
+
+/* =====================================================
+   MOBILE (≤600px)
+   ===================================================== */
+
+@media (max-width: 600px) {
+
+  /* progress vertical style */
+  #Exhibitor-progressbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px !important;
+  }
+
+  #Exhibitor-progressbar li:after {
+    display: none;
+  }
+
+  #Exhibitor-progressbar li {
+    font-size: 13px;
+  }
+
+  /* form padding tighter */
+  .Exhibitor-power-requirement-stalls-form-group {
+    padding: 12px;
+  }
+
+  .Exhibitor-power-requirement-stalls-form-group label {
+    font-size: 13px;
+  }
+
+  .Exhibitor-power-requirement-stalls-form-group input,
+  .Exhibitor-power-requirement-stalls-form-group select {
+    font-size: 14px;
+    padding: 8px 10px;
+  }
+
+  /* buttons full width */
+  .Exhibitor-power-btn,
+  .Exhibitor-power-requirement-add-button-inline button {
+    width: 100%;
+  }
+
+  .Exhibitor-power-requirement-top-buttons-inside-box {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* instruction text */
+  .Exhibitor-power-requirement-instruction-box h3 {
+    font-size: 20px;
+  }
+
+  .Exhibitor-power-requirement-instruction-box li {
+    font-size: 14px;
+  }
+
+  /* table font */
+  .Exhibitor-power-requirement-table th,
+  .Exhibitor-power-requirement-table td {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  /* billing text */
+  .Exhibitor-power-requirement-stalls-forms-group {
+    font-size: 13px;
+  }
+
+  .Exhibitor-power-requirement-stalls-forms-group.total {
+    font-size: 14px;
+  }
+
+}

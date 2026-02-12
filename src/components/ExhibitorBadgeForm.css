@@ -26,7 +26,6 @@ img {
 /* ================= PAGE ================= */
 .exhibitordashboard-declaration-content {
   min-height: 100vh;
-  padding: 0 10px;
   background: var(--bg);
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   color: var(--text);
@@ -100,6 +99,7 @@ img {
   grid-template-columns: 360px 1fr;
   gap: 16px;
   align-items: flex-start;
+  padding: 10px;
 }
 
 /* ================= POLICY ================= */
@@ -502,6 +502,7 @@ img {
 @media (max-width: 992px) {
   .main-container-exhibitor {
     grid-template-columns: 1fr;
+    margin-bottom: 100px;
   }
   
   .badge-info-bar {

@@ -1151,6 +1151,10 @@ useEffect(() => {
       <RiMoneyRupeeCircleFill className="badge-rupee-icon" /> PAID BADGE
     </span>
   )}
+<div className="badge-counter">
+              <span>Free Badges Remaining:</span>
+              <strong>{freeRemaining}</strong>
+            </div>
 </div>
                   
                   <p>

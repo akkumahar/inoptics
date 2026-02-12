@@ -1,0 +1,124 @@
+/* =========================================
+   PROFILE + BRANDS RESPONSIVE PATCH ONLY
+   (paste at END of your CSS)
+   ========================================= */
+
+/* prevent right overflow */
+.profile-layout,
+.profile-right,
+.profile-left,
+.profile-card {
+  min-width: 0;
+  padding: 8px 4px;
+  max-width: 98%;
+}
+
+/* remove right empty space issue */
+.profile-layout {
+  grid-template-columns: 35% 65%;
+  gap: 24px;
+}
+
+/* make grids shrink-safe */
+.brands-input-row,
+.brands-view-grid {
+  width: 100%;
+  min-width: 0;
+}
+
+/* inputs never overflow */
+.brands-field-group input,
+.brands-field-group select {
+  width: 100%;
+  min-width: 0;
+}
+
+/* long values wrap */
+.view-pill,
+.view-box {
+  word-break: break-word;
+}
+
+/* detail rows wrap safely */
+.profile-details-row span {
+  word-break: break-word;
+}
+
+
+
+/* =========================================
+   TABLET
+   ========================================= */
+
+@media (max-width: 1100px) {
+
+  .profile-layout {
+    grid-template-columns: 1fr;
+    margin-bottom: 170px;
+  }
+
+  .profile-left {
+    order: 1;
+  }
+
+  .profile-right {
+    order: 2;
+  }
+
+}
+
+
+
+/* =========================================
+   MOBILE — COMPANY + STALL DETAILS COMPACT
+   ========================================= */
+
+@media (max-width: 640px) {
+
+  /* section titles smaller */
+  .profile-section-title {
+    font-size: 18px !important;
+    margin-bottom: 8px;
+  }
+
+  /* grid already 2fr 2fr — keep your rule */
+  .profile-details-row {
+    padding: 4px 6px !important;
+    border-radius: 5px;
+  }
+
+  /* label smaller */
+  .profile-details-row label {
+    font-size: 13px !important;
+    font-weight: 600;
+  }
+
+  /* value smaller */
+  .profile-details-row span {
+    font-size: 13px !important;
+    font-weight: 500;
+  }
+
+  /* reduce section spacing */
+  .profile-details-grid {
+    gap: 6px;
+  }
+
+}
+
+/* =========================================
+   EXTRA SMALL MOBILE — MORE COMPACT
+   ========================================= */
+
+@media (max-width: 380px) {
+
+  .profile-details-row label,
+  .profile-details-row span {
+    font-size: 12px !important;
+  }
+
+  .profile-details-row {
+    padding: 3px 5px !important;
+  }
+
+}

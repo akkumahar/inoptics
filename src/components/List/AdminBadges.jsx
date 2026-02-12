@@ -10,7 +10,7 @@ import {
   FaEye,
 } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
-import { MdToggleOff,MdVerified, MdToggleOn } from "react-icons/md";
+import { MdToggleOff, MdVerified, MdToggleOn } from "react-icons/md";
 
 import { RiMoneyRupeeCircleFill } from "react-icons/ri";
 
@@ -30,8 +30,8 @@ const AdminBadges = () => {
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [previewBadgeId, setPreviewBadgeId] = useState(null);
 
-
   const [freeQuotaMap, setFreeQuotaMap] = useState({});
+  const [badgePaymentSummary, setBadgePaymentSummary] = useState({});
 
   /* ================= FETCH ================= */
   useEffect(() => {
@@ -59,12 +59,10 @@ const AdminBadges = () => {
       const term = search.toLowerCase().trim();
       if (!term) return company;
 
-      const companyMatch = company.company_name
-        ?.toLowerCase()
-        .includes(term);
+      const companyMatch = company.company_name?.toLowerCase().includes(term);
 
       const badgeMatches = (company.badges || []).filter((b) =>
-        b.name?.toLowerCase().includes(term)
+        b.name?.toLowerCase().includes(term),
       );
 
       if (companyMatch) return company;
@@ -117,31 +115,62 @@ const AdminBadges = () => {
   };
 
   const updateBadge = async () => {
-    try {
-      const res = await fetch(`${SITE}/api/edit_exhibitor_badge.php`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(editingBadge),
-      });
+  try {
 
-      const data = await res.json();
-      if (!data.success) return toast.error("Update failed");
+    const fd = new FormData();
+    fd.append("id", editingBadge.id);
+    fd.append("name", editingBadge.name);
+    fd.append("stall_no", editingBadge.stall_no);
+    fd.append("state", editingBadge.state || "");
+    fd.append("city", editingBadge.city || "");
 
-      setCompanies((prev) =>
-        prev.map((c) => ({
-          ...c,
-          badges: c.badges.map((b) =>
-            b.id === editingBadge.id ? editingBadge : b,
-          ),
-        })),
-      );
-
-      toast.success("Updated");
-      setShowEditModal(false);
-    } catch {
-      toast.error("Update failed");
+    // ✅ image optional
+    if (editingBadge.candidate_photo instanceof File) {
+      fd.append("candidate_photo", editingBadge.candidate_photo);
     }
-  };
+
+    const res = await fetch(`${SITE}/api/edit_exhibitor_badge.php`, {
+      method: "POST",
+      body: fd,   // ✅ NO content-type header
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      toast.error(data.message || "Update failed");
+      return;
+    }
+
+    /* ===== refresh UI ===== */
+    setCompanies(prev =>
+      prev.map(c => ({
+        ...c,
+        badges: c.badges.map(b =>
+          b.id === editingBadge.id
+            ? {
+                ...b,
+                name: editingBadge.name,
+                stall_no: editingBadge.stall_no,
+                state: editingBadge.state,
+                city: editingBadge.city,
+                photo: data.candidate_photo
+                  ? data.candidate_photo + "?t=" + data.ts
+                  : b.photo
+              }
+            : b
+        )
+      }))
+    );
+
+    toast.success("Badge updated");
+    setShowEditModal(false);
+
+  } catch (err) {
+    console.error(err);
+    toast.error("Update failed");
+  }
+};
+
 
   /* ================= PRINT TOGGLE ================= */
   const togglePrintStatus = async (badge) => {
@@ -164,23 +193,73 @@ const AdminBadges = () => {
     }
   };
 
+  useEffect(() => {
+    companies.forEach((c) => {
+      fetch(
+        `${SITE}/api/get_Exhibitor_badges.php?company_name=${encodeURIComponent(c.company_name)}`,
+      )
+        .then((r) => r.json())
+        .then((d) => {
+          if (d.success) {
+            setFreeQuotaMap((prev) => ({
+              ...prev,
+              [c.company_name]: Number(d.free_badges || 0),
+            }));
+          }
+        });
+    });
+  }, [companies]);
 
-useEffect(() => {
-  companies.forEach(c => {
-    fetch(`${SITE}/api/get_Exhibitor_badges.php?company_name=${encodeURIComponent(c.company_name)}`)
-      .then(r => r.json())
-      .then(d => {
-        if (d.success) {
-          setFreeQuotaMap(prev => ({
-            ...prev,
-            [c.company_name]: Number(d.free_badges || 0)
-          }));
-        }
-      });
-  });
-}, [companies]);
+  const getBadgeRate = () => {
+    return new Date() > new Date("2026-02-28") ? 200 : 100;
+  };
 
+  useEffect(() => {
+    if (!companies.length) return;
 
+    companies.forEach(async (company) => {
+      try {
+        const res = await fetch(
+          `${SITE}/api/get_exhibitor_badge_payment.php?company_name=${encodeURIComponent(company.company_name)}`,
+        );
+
+        const data = await res.json();
+        const records = Array.isArray(data.records) ? data.records : [];
+
+        // ✅ cleared amount
+        const cleared = records.reduce(
+          (sum, r) => sum + Number(r.amount_paid || 0) + Number(r.tds || 0),
+          0,
+        );
+
+        // ✅ free quota
+        const freeQuota = freeQuotaMap[company.company_name] || 0;
+
+        // ✅ paid badge count
+        const paidBadgeCount = Math.max(
+          0,
+          (company.badges?.length || 0) - freeQuota,
+        );
+
+        const rate = getBadgeRate();
+        const totalAmount = paidBadgeCount * rate;
+
+        const pending = Math.max(0, totalAmount - cleared);
+
+        setBadgePaymentSummary((prev) => ({
+          ...prev,
+          [company.company_name]: {
+            paidBadgeCount,
+            totalAmount,
+            cleared,
+            pending,
+          },
+        }));
+      } catch (e) {
+        console.error("Badge payment fetch failed", e);
+      }
+    });
+  }, [companies, freeQuotaMap]);
 
   /* ================= PREVIEW ================= */
   const openPreview = (id) => {
@@ -197,7 +276,6 @@ useEffect(() => {
 
   return (
     <div className="badge-dashboard">
-
       {/* 🔍 SEARCH */}
       <div style={{ marginBottom: 18 }}>
         <input
@@ -225,16 +303,45 @@ useEffect(() => {
             className="company-header"
             onClick={() => toggleCompany(company.company_name)}
           >
+            <div
+              className="company-header"
+              onClick={() => toggleCompany(company.company_name)}
+            >
+              {" "}
+              <div>
+                {" "}
+                <strong>{company.company_name}</strong>{" "}
+              </div>{" "}
+            </div>
             <div>
-              <strong>{company.company_name}</strong>
-              <span className="badge-count">
-                Badges: {company.badges.length}
-              </span>
+              {badgePaymentSummary[company.company_name] && (
+                <div className="badge-pay-summary">
+                  <span> Badges: {company.badges.length} </span>{" "}
+                  <span>
+                    Paid Badges:{" "}
+                    {badgePaymentSummary[company.company_name].paidBadgeCount}
+                  </span>
+                  <span>
+                    Total: ₹{" "}
+                    {badgePaymentSummary[company.company_name].totalAmount}
+                  </span>
+                  <span>
+                    Cleared: ₹{" "}
+                    {badgePaymentSummary[company.company_name].cleared}
+                  </span>
+                  <span>
+                    Pending: ₹{" "}
+                    {badgePaymentSummary[company.company_name].pending}
+                  </span>
+                </div>
+              )}
             </div>
 
-            {openCompany === company.company_name
-              ? <FaChevronUp className="badge-table-icon"/>
-              : <FaChevronDown className="badge-table-icon"/>}
+            {openCompany === company.company_name ? (
+              <FaChevronUp className="badge-table-icon" />
+            ) : (
+              <FaChevronDown className="badge-table-icon" />
+            )}
           </div>
 
           {openCompany === company.company_name && (
@@ -252,67 +359,67 @@ useEffect(() => {
                   </thead>
 
                   <tbody>
-  {[...(company.badges || [])]
-    .sort((a, b) => a.id - b.id)
-    .map((badge, index) => {
+                    {[...(company.badges || [])]
+                      .sort((a, b) => a.id - b.id)
+                      .map((badge, index) => {
+                        // ✅ CORRECT SOURCE
+                        const freeQuota =
+                          freeQuotaMap[company.company_name] || 0;
+                        const isFree = index < freeQuota;
 
-      // ✅ CORRECT SOURCE
-      const freeQuota = freeQuotaMap[company.company_name] || 0;
-      const isFree = index < freeQuota;
+                        return (
+                          <tr key={badge.id}>
+                            <td>{badge.name}</td>
+                            <td>{badge.stall_no}</td>
 
-      return (
-        <tr key={badge.id}>
-          <td>{badge.name}</td>
-          <td>{badge.stall_no}</td>
+                            {/* ✅ TYPE COLUMN */}
+                            <td>
+                              {isFree ? (
+                                <span className="badge-flag free">
+                                  <MdVerified /> FREE
+                                </span>
+                              ) : (
+                                <span className="badge-flag paid">
+                                  <RiMoneyRupeeCircleFill className="badge-rupee-icon" />
+                                  PAID
+                                </span>
+                              )}
+                            </td>
 
-          {/* ✅ TYPE COLUMN */}
-          <td>
-            {isFree ? (
-              <span className="badge-flag free">
-                <MdVerified /> FREE
-              </span>
-            ) : (
-              <span className="badge-flag paid">
-                <RiMoneyRupeeCircleFill className="badge-rupee-icon" />
-                PAID
-              </span>
-            )}
-          </td>
+                            <td className="actions">
+                              <button onClick={() => togglePrintStatus(badge)}>
+                                <FaPrint />
+                                {printToggle[badge.id] ? (
+                                  <MdToggleOn size={36} color="#16a34a" />
+                                ) : (
+                                  <MdToggleOff size={36} color="#9ca3af" />
+                                )}
+                              </button>
 
-          <td className="actions">
-            <button onClick={() => togglePrintStatus(badge)}>
-              <FaPrint />
-              {printToggle[badge.id]
-                ? <MdToggleOn size={36} color="#16a34a"/>
-                : <MdToggleOff size={36} color="#9ca3af"/>}
-            </button>
+                              <button onClick={() => openEditModal(badge)}>
+                                <FaEdit />
+                              </button>
 
-            <button onClick={() => openEditModal(badge)}>
-              <FaEdit />
-            </button>
+                              <button
+                                className="danger"
+                                onClick={() => deleteBadge(badge.id)}
+                              >
+                                <FaTrash />
+                              </button>
+                            </td>
 
-            <button
-              className="danger"
-              onClick={() => deleteBadge(badge.id)}
-            >
-              <FaTrash />
-            </button>
-          </td>
-
-          <td>
-            <button
-              className="eye-btn"
-              onClick={() => openPreview(badge.id)}
-            >
-              <FaEye />
-            </button>
-          </td>
-        </tr>
-      );
-    })}
-</tbody>
-
-
+                            <td>
+                              <button
+                                className="eye-btn"
+                                onClick={() => openPreview(badge.id)}
+                              >
+                                <FaEye />
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                  </tbody>
                 </table>
               </div>
             </div>
@@ -341,17 +448,77 @@ useEffect(() => {
       {showEditModal && editingBadge && (
         <div className="modal-overlay">
           <div className="modal-box">
-            <button className="modal-close" onClick={() => setShowEditModal(false)}>
+            <button
+              className="modal-close"
+              onClick={() => setShowEditModal(false)}
+            >
               <IoClose />
             </button>
 
             <h3>Edit Badge</h3>
 
-            <input value={editingBadge.name}
-              onChange={e => setEditingBadge({...editingBadge, name:e.target.value})} />
+            <input
+              value={editingBadge.name}
+              onChange={(e) =>
+                setEditingBadge({ ...editingBadge, name: e.target.value })
+              }
+              placeholder="Candidate Name"
+            />
 
-            <input value={editingBadge.stall_no}
-              onChange={e => setEditingBadge({...editingBadge, stall_no:e.target.value})} />
+            <input
+              value={editingBadge.stall_no}
+              onChange={(e) =>
+                setEditingBadge({
+                  ...editingBadge,
+                  stall_no: e.target.value,
+                })
+              }
+              placeholder="Stall No"
+            />
+
+            <input
+              value={editingBadge.state}
+              onChange={(e) =>
+                setEditingBadge({ ...editingBadge, state: e.target.value })
+              }
+              placeholder="State"
+            />
+
+            <input
+              value={editingBadge.city}
+              onChange={(e) =>
+                setEditingBadge({ ...editingBadge, city: e.target.value })
+              }
+              placeholder="City"
+            />
+
+            {/* ===== IMAGE UPLOAD + PREVIEW ===== */}
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (!file) return;
+
+                  setEditingBadge((prev) => ({
+                    ...prev,
+                    candidate_photo: file,
+                    preview: URL.createObjectURL(file),
+                  }));
+                }}
+              />
+
+              {editingBadge?.preview && (
+                <img
+                  src={editingBadge.preview}
+                  alt="preview"
+                  width={50}
+                  height={50}
+                  style={{ borderRadius: "4px", objectFit: "cover" }}
+                />
+              )}
+            </div>
 
             <button className="update-btn" onClick={updateBadge}>
               Update Badge
@@ -359,7 +526,6 @@ useEffect(() => {
           </div>
         </div>
       )}
-
     </div>
   );
 };

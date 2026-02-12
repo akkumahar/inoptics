@@ -1,0 +1,380 @@
+/* =====================================
+   FurnitureRequirements – Full CSS
+   ===================================== */
+
+.furniture-requirements-container {
+  width: 100%;
+}
+
+
+/* =========================
+   MAIN LAYOUT
+   ========================= */
+
+.furniture-main-layout {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+  margin-top: 20px;
+}
+
+/* =========================
+   Furniture Table Mobile Scroll Fix
+   ========================= */
+
+.furniture-table-section {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;              /* parent y-scroll off */
+}
+
+.furniture-table-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;              /* ✅ horizontal scroll ON */
+  overflow-y: hidden;            /* ❌ vertical scroll OFF */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* table width force so scroll triggers */
+.furniture-table {
+  min-width: 720px;              /* adjust if needed */
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* mobile tighter cells */
+@media (max-width: 600px) {
+
+  .furniture-table th,
+  .furniture-table td {
+    font-size: 12px;
+    padding: 6px;
+    white-space: nowrap;         /* prevent wrap → enables scroll */
+  }
+
+  .furniture-table-img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .furniture-qty-input {
+    width: 46px;
+  }
+
+}
+
+
+
+/* =========================
+   MODAL
+   ========================= */
+
+.furniture-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.furniture-modal-content {
+  background: #fff;
+  width: 92%;
+  max-width: 1200px;
+  max-height: 90vh;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.furniture-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1976d2;
+  color: #fff;
+  padding: 14px 20px;
+}
+
+.furniture-modal-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.furniture-modal-close-btn {
+  border: none;
+  background: none;
+  color: #fff;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.furniture-modal-body {
+  padding: 20px;
+  overflow-y: auto;
+}
+
+
+/* =========================
+   GRID
+   ========================= */
+
+.furniture-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+
+/* =========================
+   CARD
+   ========================= */
+
+.furniture-card {
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+  background: #fafafa;
+  transition: .2s ease;
+}
+
+.furniture-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+}
+
+.furniture-card-img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  margin-bottom: 10px;
+}
+
+.furniture-card-name {
+  font-size: 14px;
+  font-weight: 500;
+  font-family: "Montserrat";
+  color: #201d1d;
+  margin-bottom: 4px;
+}
+
+.furniture-card-price {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1976d2;
+  margin-bottom: 8px;
+}
+
+
+/* =========================
+   BUTTONS
+   ========================= */
+
+.btn-select,
+.btn-selected {
+  padding: 7px 12px;
+  border-radius: 6px;
+  border: none;
+  font-size: 13px;
+}
+
+.btn-select {
+  background: #1976d2;
+  color: #fff;
+  cursor: pointer;
+}
+
+.btn-select:hover {
+  background: #1259a6;
+}
+
+.btn-selected {
+  background: #4caf50;
+  color: #fff;
+  cursor: not-allowed;
+}
+
+.btn-delete {
+  background: #ff4d4f;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-delete:hover {
+  background: #d9363e;
+}
+
+
+/* =========================
+   TABLE
+   ========================= */
+
+.furniture-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.furniture-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 650px;
+  overflow-y: hidden;
+}
+
+.furniture-table th,
+.furniture-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.furniture-table th {
+  background: #f5f5f5;
+  font-weight: 600;
+}
+
+.furniture-table-img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+}
+
+.furniture-qty-input {
+  width: 60px;
+  padding: 5px;
+  text-align: center;
+}
+
+.furniture-empty-msg {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+
+/* =========================
+   BILLING + ACTIONS
+   ========================= */
+
+.furniture-action-btn {
+  margin-bottom: 15px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  padding-top: 8px;
+}
+
+.furniture-action-btn button {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  padding: 9px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.furniture-action-btn button:hover {
+  background: #0056b3;
+}
+
+.furniture-billing-details > div {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.furniture-grand-total {
+  font-weight: 700;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+
+/* =========================
+   RESPONSIVE
+   ========================= */
+
+/* -------- Tablet -------- */
+
+@media (max-width: 1024px) {
+
+  .furniture-main-layout {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .furniture-table-section,
+  .furniture-billing-section {
+    flex: 1 1 100%;
+    padding-left: 0;
+    padding: 0 12px;
+  }
+
+  .furniture-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+}
+
+
+/* -------- Mobile -------- */
+
+@media (max-width: 600px) {
+
+  .furniture-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .furniture-card-img {
+    width: 80px;
+    height: 80px;
+  }
+
+  .furniture-table th,
+  .furniture-table td {
+    font-size: 12px;
+    padding: 6px;
+  }
+
+  .furniture-table-img {
+    width: 50px;
+    height: 50px;
+  }
+
+  .furniture-qty-input {
+    width: 48px;
+  }
+
+  .furniture-action-btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .furniture-action-btn-group button {
+    width: 100%;
+  }
+
+  .furniture-billing-section {
+    padding: 14px;
+  }
+
+  .furniture-modal-content {
+    width: 96%;
+    max-height: 92vh;
+  }
+
+}

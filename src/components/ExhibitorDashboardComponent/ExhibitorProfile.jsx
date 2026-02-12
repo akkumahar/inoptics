@@ -1,0 +1,285 @@
+import React from "react";
+
+import "./ExhibitorProfile.css"
+const ExhibitorProfile = ({
+  exhibitors = [],
+  stallList = [],
+
+  /* brands */
+  brandsData,
+  setBrandsData,
+  products = [],
+  showBrandsEditForm,
+  handleSubmitBrands,
+  handleEditBrands,
+}) => {
+  return (
+    <div className="profile-content">
+      <div className="profile-layout">
+
+        {/* LEFT SIDE */}
+        <div className="profile-left">
+          <PersonalDetailsCard exhibitors={exhibitors} />
+          <StallDetailsCard stallList={stallList} />
+        </div>
+
+        {/* RIGHT SIDE */}
+        <div className="profile-right">
+          <BrandsCard
+            brandsData={brandsData}
+            setBrandsData={setBrandsData}
+            products={products}
+            showBrandsEditForm={showBrandsEditForm}
+            handleSubmitBrands={handleSubmitBrands}
+            handleEditBrands={handleEditBrands}
+          />
+        </div>
+
+      </div>
+    </div>
+  );
+};
+
+export default ExhibitorProfile;
+
+
+/* ================= PERSONAL DETAILS ================= */
+
+const PersonalDetailsCard = ({ exhibitors }) => (
+  <div className="profile-card">
+    <div className="profile-section">
+      <h3 className="profile-section-title">Personal Details</h3>
+
+      {exhibitors.length === 0 ? (
+        <p className="profile-empty">No exhibitors found.</p>
+      ) : (
+        exhibitors.map((ex) => (
+          <div key={ex.id} className="profile-details-grid">
+            <Detail label="Company Name" value={ex.company_name} />
+            <Detail label="Name" value={ex.name} />
+            <Detail label="Address" value={ex.address} />
+            <Detail label="City" value={ex.city} />
+            <Detail label="State" value={ex.state} />
+            <Detail label="Pincode" value={ex.pin} />
+            <Detail label="Mobile No" value={ex.mobile} />
+            <Detail label="Email" value={ex.email} />
+            <Detail label="GST" value={ex.gst} />
+          </div>
+        ))
+      )}
+    </div>
+  </div>
+);
+
+
+/* ================= STALL DETAILS ================= */
+
+const StallDetailsCard = ({ stallList }) => (
+  <div className="profile-card">
+    <div className="profile-section">
+      <h3 className="profile-section-title">Stall Details</h3>
+
+      {stallList.length === 0 ? (
+        <p className="profile-empty">No stall details found.</p>
+      ) : (
+        stallList.map((stall, idx) => (
+          <div key={idx} className="profile-details-grid">
+            <Detail label="Stall Number" value={stall.stall_number} />
+            <Detail label="Stall Category" value={stall.stall_category} />
+            <Detail
+              label="Stall Price"
+              value={stall.stall_price ? `₹${stall.stall_price}` : null}
+            />
+            <Detail
+              label="Stall Area"
+              value={
+                stall.stall_area ? `${stall.stall_area} sq. ft.` : null
+              }
+            />
+          </div>
+        ))
+      )}
+    </div>
+  </div>
+);
+
+
+/* ================= BRANDS CARD ================= */
+
+const BrandsCard = ({
+  brandsData,
+  setBrandsData,
+  products,
+  showBrandsEditForm,
+  handleSubmitBrands,
+  handleEditBrands,
+}) => {
+  return (
+    <div className="profile-card">
+
+      {/* ================= FORM MODE ================= */}
+      {!showBrandsEditForm && (
+        <div className="brands-form slide-up-form">
+          <h2 className="brands-heading">Brands</h2>
+
+          <div className="brands-input-row">
+
+            <Field
+              label="Website"
+              value={brandsData.website}
+              onChange={(v) =>
+                setBrandsData((p) => ({ ...p, website: v }))
+              }
+            />
+
+            {/* PRODUCTS */}
+            <div className="brands-field-group">
+              <label>Products:</label>
+
+              <div className="selected-products-container">
+                {(brandsData.products || []).map((p, i) => (
+                  <div key={p + i} className="selected-product">
+                    {p}
+                    <span
+                      className="remove-icon"
+                      onClick={() =>
+                        setBrandsData((prev) => ({
+                          ...prev,
+                          products: prev.products.filter(x => x !== p),
+                        }))
+                      }
+                    >
+                      ✖
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              <select
+                value=""
+                onChange={(e) => {
+                  const v = e.target.value;
+                  if (
+                    v &&
+                    !(brandsData.products || []).includes(v)
+                  ) {
+                    setBrandsData((p) => ({
+                      ...p,
+                      products: [...(p.products || []), v],
+                    }));
+                  }
+                }}
+              >
+                <option value="">-- Select Product --</option>
+                {products.map((p, i) => (
+                  <option key={i} value={p.name}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <Field
+              label="Home Brands"
+              value={brandsData.home_brands}
+              onChange={(v) =>
+                setBrandsData((p) => ({ ...p, home_brands: v }))
+              }
+            />
+
+            <Field
+              label="Distributors"
+              value={brandsData.distributors}
+              onChange={(v) =>
+                setBrandsData((p) => ({ ...p, distributors: v }))
+              }
+            />
+
+            <Field
+              label="International Brands"
+              full
+              value={brandsData.international_brands}
+              onChange={(v) =>
+                setBrandsData((p) => ({
+                  ...p,
+                  international_brands: v,
+                }))
+              }
+            />
+          </div>
+
+          <div className="brands-button-section">
+            <button
+              className="brands-details-add-brands-btn"
+              onClick={handleSubmitBrands}
+            >
+              Submit
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ================= VIEW MODE ================= */}
+      {showBrandsEditForm && (
+        <div className="brands-view-card slide-up-form">
+          <div className="brands-view-header">
+            <h2>Brands</h2>
+            <button
+              className="brands-edit-btn"
+              onClick={handleEditBrands}
+              type="button"
+            >
+              ✏ Edit
+            </button>
+          </div>
+
+          <div className="brands-view-grid">
+            <View label="Website" value={brandsData?.website} />
+            <View
+              label="Products"
+              value={
+                Array.isArray(brandsData.products)
+                  ? brandsData.products.join(", ")
+                  : brandsData.products
+              }
+            />
+            <View label="Home Brands" value={brandsData?.home_brands} />
+            <View label="Distributors" value={brandsData?.distributors} />
+            <View
+              label="International Brands"
+              value={brandsData?.international_brands}
+              full
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+
+/* ================= SMALL REUSABLE UI ================= */
+
+const Detail = ({ label, value }) => (
+  <div className="profile-details-row">
+    <label>{label}:</label>
+    <span>{value || "N/A"}</span>
+  </div>
+);
+
+const Field = ({ label, value, onChange, full }) => (
+  <div className={`brands-field-group ${full ? "brands-full" : ""}`}>
+    <label>{label}:</label>
+    <input
+      value={value || ""}
+      onChange={(e) => onChange(e.target.value)}
+    />
+  </div>
+);
+
+const View = ({ label, value, full }) => (
+  <div className={full ? "brands-full" : ""}>
+    <label>{label}</label>
+    <div className="view-box">{value || "—"}</div>
+  </div>
+);

@@ -21,8 +21,14 @@ import {
 } from "react-icons/fa";
 import "./ExhibitorDashboard.css";
 import ExhibitorBadgeForm from "./ExhibitorBadgeForm";
+import ExhibitorPayments from "./ExhibitorDashboardComponent/ExhibitorPayments";
 import ExhibitorPowerForm from "./ExhibitorDashboardComponent/ExhibitorPowerForm";
 import ExhibitorDashboardOverview from "./ExhibitorDashboardComponent/ExhibitorDashboardOverview";
+import ExhibitorProfile from "./ExhibitorDashboardComponent/ExhibitorProfile";
+import ExhibitorMailbox from "./ExhibitorDashboardComponent/ExhibitorMailBox";
+import ExhibitorFurnitureRequirements from "./ExhibitorDashboardComponent/ExhibitorFurnitureRequirements";
+import ExhibitorPowerRequirement from "./ExhibitorDashboardComponent/ExhibitorPowerRequirement";
+import ExhibitorContractors from "./ExhibitorDashboardComponent/ExhibitorContractors";
 
 const ExhibitorDashboard = () => {
   const navigate = useNavigate();
@@ -93,6 +99,7 @@ const ExhibitorDashboard = () => {
 
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewURL, setPreviewURL] = useState(null);
+
   const [showPreview, setShowPreview] = useState(false);
   const [showBoothDesignPreview, setShowBoothDesignPreview] = useState(false);
   const [exhibitorData, setExhibitorData] = useState(null);
@@ -130,7 +137,10 @@ const ExhibitorDashboard = () => {
   const [stallList, setStallList] = useState([]);
   const [eventScheduleData, setEventScheduleData] = useState([]);
   const [latestNewsData, setLatestNewsData] = useState([]);
-  const [collapsed, setCollapsed] = useState(false);
+
+  const BREAKPOINT = 1024;
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= BREAKPOINT);
+  const [collapsed, setCollapsed] = useState(window.innerWidth <= BREAKPOINT);
 
   const [furnitureVendorDetails, setFurnitureVendorDetails] = useState([]);
   const [isFurnitureSaved, setIsFurnitureSaved] = useState(false);
@@ -601,16 +611,36 @@ const ExhibitorDashboard = () => {
     }
   };
 
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth <= 768) {
-        setCollapsed(true); // mobile → close
-      } else {
-        setCollapsed(false); // desktop → open
-      }
-    };
+  // useEffect(() => {
+  //   const handleResize = () => {
+  //     if (window.innerWidth <= 768) {
+  //       setCollapsed(true); // mobile → close
+  //     } else {
+  //       setCollapsed(false); // desktop → open
+  //     }
+  //   };
 
-    handleResize(); // page load par bhi run hoga
+  //   handleResize(); // page load par bhi run hoga
+
+  //   window.addEventListener("resize", handleResize);
+  //   return () => window.removeEventListener("resize", handleResize);
+  // }, []);
+
+  useEffect(() => {
+    let prevIsMobile = window.innerWidth <= BREAKPOINT;
+
+    const handleResize = () => {
+      const nowMobile = window.innerWidth <= BREAKPOINT;
+
+      setIsMobile(nowMobile);
+
+      // only change collapsed when crossing breakpoint
+      if (nowMobile !== prevIsMobile) {
+        setCollapsed(nowMobile);
+      }
+
+      prevIsMobile = nowMobile;
+    };
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -2892,27 +2922,26 @@ const ExhibitorDashboard = () => {
   };
 
   const handleSubmitBrands = async () => {
-  const payload = {
-    Company_name: currentExhibitor.company_name,
-    website: brandsData.website,
-    products: (brandsData.products || []).join(","), // ✅ FIX
-    home_brands: brandsData.home_brands,
-    distributors: brandsData.distributors,
-    international_brands: brandsData.international_brands,
+    const payload = {
+      Company_name: currentExhibitor.company_name,
+      website: brandsData.website,
+      products: (brandsData.products || []).join(","), // ✅ FIX
+      home_brands: brandsData.home_brands,
+      distributors: brandsData.distributors,
+      international_brands: brandsData.international_brands,
+    };
+
+    console.log("SUBMIT:", payload);
+
+    await fetch("https://inoptics.in/api/add_exhibitor_brands.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    setHasBrandsData(true);
+    setShowBrandsEditForm(true);
   };
-
-  console.log("SUBMIT:", payload);
-
-  await fetch("https://inoptics.in/api/add_exhibitor_brands.php", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-
-  setHasBrandsData(true);
-  setShowBrandsEditForm(true);
-};
-
 
   useEffect(() => {
     if (!formData.company_name) return;
@@ -2926,21 +2955,19 @@ const ExhibitorDashboard = () => {
       .then((data) => {
         console.log("brandsData:", data);
         if (data.status === "success") {
-          
-setBrandsData({
-  website: data.Website || "",
-  products: Array.isArray(data.Products)
-    ? data.Products
-    : (data.Products || "")
-        .split(",")
-        .map(x => x.trim())
-        .filter(Boolean),
+          setBrandsData({
+            website: data.Website || "",
+            products: Array.isArray(data.Products)
+              ? data.Products
+              : (data.Products || "")
+                  .split(",")
+                  .map((x) => x.trim())
+                  .filter(Boolean),
 
-  home_brands: data.Home_brands || "",
-  distributors: data.Distributors || "",
-  international_brands: data.International_brands || "",
-});
-
+            home_brands: data.Home_brands || "",
+            distributors: data.Distributors || "",
+            international_brands: data.International_brands || "",
+          });
 
           setHasBrandsData(true);
           setShowBrandsEditForm(true);
@@ -2980,71 +3007,82 @@ setBrandsData({
   return (
     <div className="exhibitordashboard-container">
       {/* Sidebar */}
-      <div className="mobile-topbar">
-        <button
-          className="mobile-toggle-btn"
-          onClick={() => setCollapsed(!collapsed)}
-        >
-          <FaBars />
-        </button>
-      </div>
-      <aside
-        className={`exhibitordashboard-sidebar ${collapsed ? "collapsed" : ""}`}
-      >
-        <div className="exhibitordashboard-sidebar-header">
-          <h2 className="exhibitordashboard-sidebar-title">Exhibitor Panel</h2>
+
+      {isMobile && !collapsed && (
+        <div className="sidebar-overlay" onClick={() => setCollapsed(true)} />
+      )}
+
+      <div>
+        <div className="mobile-topbar">
           <button
-            className="toggle-btn"
+            className="mobile-toggle-btn"
             onClick={() => setCollapsed(!collapsed)}
           >
             <FaBars />
           </button>
         </div>
+        <aside
+          className={`exhibitordashboard-sidebar 
+    ${collapsed ? "collapsed" : ""} 
+    ${isMobile ? "mobile" : "desktop"}
+  `}
+        >
+          <div className="exhibitordashboard-sidebar-header">
+            <h2 className="exhibitordashboard-sidebar-title">
+              Exhibitor Panel
+            </h2>
+            <button
+              className="toggle-btn"
+              onClick={() => setCollapsed(!collapsed)}
+            >
+              <FaBars />
+            </button>
+          </div>
 
-        <ul className="exhibitordashboard-sidebar-menu">
-          {menus.map((menu) => (
+          <ul className="exhibitordashboard-sidebar-menu">
+            {menus.map((menu) => (
+              <li
+                key={menu.name}
+                className={activeMenu === menu.name ? "active" : ""}
+                onClick={() => {
+                  handleMenuClick(menu.name);
+                  if (window.innerWidth <= 768) {
+                    setCollapsed(true); // 👈 mobile / tablet me auto close
+                  }
+                }}
+                style={{ position: "relative" }}
+              >
+                <span className="icon">{menu.icon}</span>
+                {!collapsed && <span className="label">{menu.name}</span>}
+
+                {menu.name === "Mails Inbox" && unreadCount > 0 && (
+                  <span className="mail-badge-sidebar">{unreadCount}</span>
+                )}
+              </li>
+            ))}
+
             <li
-              key={menu.name}
-              className={activeMenu === menu.name ? "active" : ""}
+              className="logout-btn"
               onClick={() => {
-                handleMenuClick(menu.name);
-                if (window.innerWidth <= 1024) {
-                  setCollapsed(true); // 👈 mobile / tablet me auto close
+                handleLogout();
+                if (window.innerWidth <= 768) {
+                  setCollapsed(true);
                 }
               }}
-              style={{ position: "relative" }}
             >
-              <span className="icon">{menu.icon}</span>
-              {!collapsed && <span className="label">{menu.name}</span>}
-
-              {menu.name === "Mails Inbox" && unreadCount > 0 && (
-                <span className="mail-badge-sidebar">{unreadCount}</span>
-              )}
+              <span className="icon">
+                <FaSignOutAlt />
+              </span>
+              {!collapsed && <span className="label">Logout</span>}
             </li>
-          ))}
-
-          <li
-            className="logout-btn"
-            onClick={() => {
-              handleLogout();
-              if (window.innerWidth <= 1024) {
-                setCollapsed(true);
-              }
-            }}
-          >
-            <span className="icon">
-              <FaSignOutAlt />
-            </span>
-            {!collapsed && <span className="label">Logout</span>}
-          </li>
-        </ul>
-      </aside>
-
-      {!collapsed && window.innerWidth <= 1024 && (
-        <div className="sidebar-overlay" onClick={() => setCollapsed(true)} />
-      )}
-
-      <div className="exhibitordashboard-main-content">
+          </ul>
+        </aside>
+      </div>
+      <div
+        className={`exhibitordashboard-main-content ${
+          collapsed ? "sidebar-collapsed" : "sidebar-open"
+        }`}
+      >
         <header className="exhibitordashboard-navbar">
           <h1>{activeMenu}</h1>
 
@@ -3227,85 +3265,93 @@ setBrandsData({
                 )}
 
               {activeMenu === "Mails Inbox" && (
-                <div className="ExhibitorMails-instruction-container">
-                  <div className="ExhibitorMails-instruction-header">
-                    <h3 className="ExhibitorMails-instruction-heading">
-                      INBOX
-                    </h3>
-                  </div>
+                // <div className="ExhibitorMails-instruction-container">
+                //   <div className="ExhibitorMails-instruction-header">
+                //     <h3 className="ExhibitorMails-instruction-heading">
+                //       INBOX
+                //     </h3>
+                //   </div>
 
-                  <div className="ExhibitorMails-instruction-body">
-                    {/* Left Panel - Mail List */}
-                    <div className="mail-list-panel">
-                      {loadingMails ? (
-                        <p className="mail-status-text">Loading mails...</p>
-                      ) : mailsList.length === 0 ? (
-                        <p className="mail-status-text">No mails sent yet.</p>
-                      ) : (
-                        mailsList.map((mail) => (
-                          <div
-                            key={mail.id}
-                            className={`mail-list-item ${
-                              selectedMail?.id === mail.id ? "selected" : ""
-                            }`}
-                            onClick={() => handleMailClick(mail)}
-                          >
-                            <div className="mail-list-header">
-                              <h4
-                                className={`mail-subject ${
-                                  mail.is_read == 0 ? "unread" : ""
-                                }`}
-                              >
-                                {mail.subject}
-                              </h4>
-                              {mail.is_read == 0 && (
-                                <span className="mail-new-badge">New</span>
-                              )}
-                            </div>
-                            <small className="mail-date">
-                              {new Date(mail.sent_at).toLocaleString()}
-                            </small>
-                            <p
-                              className={`mail-snippet ${
-                                mail.is_read == 0 ? "unread" : ""
-                              }`}
-                              dangerouslySetInnerHTML={{
-                                __html:
-                                  mail.content.length > 80
-                                    ? mail.content.substring(0, 80) + "..."
-                                    : mail.content,
-                              }}
-                            />
-                          </div>
-                        ))
-                      )}
-                    </div>
+                //   <div className="ExhibitorMails-instruction-body">
+                //     {/* Left Panel - Mail List */}
+                //     <div className="mail-list-panel">
+                //       {loadingMails ? (
+                //         <p className="mail-status-text">Loading mails...</p>
+                //       ) : mailsList.length === 0 ? (
+                //         <p className="mail-status-text">No mails sent yet.</p>
+                //       ) : (
+                //         mailsList.map((mail) => (
+                //           <div
+                //             key={mail.id}
+                //             className={`mail-list-item ${
+                //               selectedMail?.id === mail.id ? "selected" : ""
+                //             }`}
+                //             onClick={() => handleMailClick(mail)}
+                //           >
+                //             <div className="mail-list-header">
+                //               <h4
+                //                 className={`mail-subject ${
+                //                   mail.is_read == 0 ? "unread" : ""
+                //                 }`}
+                //               >
+                //                 {mail.subject}
+                //               </h4>
+                //               {mail.is_read == 0 && (
+                //                 <span className="mail-new-badge">New</span>
+                //               )}
+                //             </div>
+                //             <small className="mail-date">
+                //               {new Date(mail.sent_at).toLocaleString()}
+                //             </small>
+                //             <p
+                //               className={`mail-snippet ${
+                //                 mail.is_read == 0 ? "unread" : ""
+                //               }`}
+                //               dangerouslySetInnerHTML={{
+                //                 __html:
+                //                   mail.content.length > 80
+                //                     ? mail.content.substring(0, 80) + "..."
+                //                     : mail.content,
+                //               }}
+                //             />
+                //           </div>
+                //         ))
+                //       )}
+                //     </div>
 
-                    {/* Right Panel - Selected Mail */}
-                    <div className="mail-view-panel">
-                      {selectedMail ? (
-                        <>
-                          <h2 className="mail-view-subject">
-                            {selectedMail.subject}
-                          </h2>
-                          <small className="mail-view-date">
-                            {new Date(selectedMail.sent_at).toLocaleString()}
-                          </small>
-                          <div
-                            className="mail-view-content"
-                            dangerouslySetInnerHTML={{
-                              __html: selectedMail.content,
-                            }}
-                          />
-                        </>
-                      ) : (
-                        <p className="mail-view-placeholder">
-                          Select a mail to view
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                //     {/* Right Panel - Selected Mail */}
+                //     <div className="mail-view-panel">
+                //       {selectedMail ? (
+                //         <>
+                //           <h2 className="mail-view-subject">
+                //             {selectedMail.subject}
+                //           </h2>
+                //           <small className="mail-view-date">
+                //             {new Date(selectedMail.sent_at).toLocaleString()}
+                //           </small>
+                //           <div
+                //             className="mail-view-content"
+                //             dangerouslySetInnerHTML={{
+                //               __html: selectedMail.content,
+                //             }}
+                //           />
+                //         </>
+                //       ) : (
+                //         <p className="mail-view-placeholder">
+                //           Select a mail to view
+                //         </p>
+                //       )}
+                //     </div>
+                //   </div>
+                // </div>
+
+                <ExhibitorMailbox
+                  mailsList={mailsList}
+                  loadingMails={loadingMails}
+                  selectedMail={selectedMail}
+                  onSelectMail={(mail) => setSelectedMail(mail)}
+                  onBackToList={() => setSelectedMail(null)}
+                />
               )}
 
               {importantPage === "Instructions" && (
@@ -3452,1859 +3498,1183 @@ setBrandsData({
               )}
 
               {!importantPage && activeMenu === "Profile" && (
-                <div className="profile-content">
-                  <div className="profile-layout">
-                    {/* LEFT SIDE (Personal + Stall stacked) */}
-                    <div className="profile-left">
-                      {/* Personal Details */}
-                      <div className="profile-card">
-                        <div className="profile-section">
-                          <h3 className="profile-section-title">
-                            Personal Details
-                          </h3>
-                          {exhibitors.length === 0 ? (
-                            <p className="profile-empty">
-                              No exhibitors found.
-                            </p>
-                          ) : (
-                            exhibitors.map((exhibitor) => (
-                              <div
-                                key={exhibitor.id}
-                                className="profile-details-grid"
-                              >
-                                <div className="profile-details-row">
-                                  <label>Company Name:</label>
-                                  <span>{exhibitor.company_name || "-"}</span>
-                                </div>
-                                <div className="profile-details-row">
-                                  <label>Name:</label>
-                                  <span>{exhibitor.name || "-"}</span>
-                                </div>
-                                <div className="profile-details-row">
-                                  <label>Address:</label>
-                                  <span>{exhibitor.address || "N/A"}</span>
-                                </div>
-                                <div className="profile-details-row">
-                                  <label>City:</label>
-                                  <span>{exhibitor.city || "N/A"}</span>
-                                </div>
-                                <div className="profile-details-row">
-                                  <label>State:</label>
-                                  <span>{exhibitor.state || "N/A"}</span>
-                                </div>
-                                <div className="profile-details-row">
-                                  <label>Pincode:</label>
-                                  <span>{exhibitor.pin || "N/A"}</span>
-                                </div>
-                                <div className="profile-details-row">
-                                  <label>Mobile No:</label>
-                                  <span>{exhibitor.mobile || "N/A"}</span>
-                                </div>
-                                <div className="profile-details-row">
-                                  <label>Email:</label>
-                                  <span>{exhibitor.email || "-"}</span>
-                                </div>
-                                <div className="profile-details-row">
-                                  <label>GST:</label>
-                                  <span>{exhibitor.gst || "N/A"}</span>
-                                </div>
-                              </div>
-                            ))
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Stall Details */}
-                      <div className="profile-card">
-                        <div className="profile-section">
-                          <h3 className="profile-section-title">
-                            Stall Details
-                          </h3>
-                          {stallList.length === 0 ? (
-                            <p className="profile-empty">
-                              No stall details found.
-                            </p>
-                          ) : (
-                            stallList.map((stall, idx) => (
-                              <div key={idx} className="profile-details-grid">
-                                <div className="profile-details-row">
-                                  <label>Stall Number:</label>
-                                  <span>{stall.stall_number || "N/A"}</span>
-                                </div>
-                                <div className="profile-details-row">
-                                  <label>Stall Category:</label>
-                                  <span>{stall.stall_category || "N/A"}</span>
-                                </div>
-                                <div className="profile-details-row">
-                                  <label>Stall Price:</label>
-                                  <span>
-                                    {stall.stall_price
-                                      ? `₹${stall.stall_price}`
-                                      : "N/A"}
-                                  </span>
-                                </div>
-                                <div className="profile-details-row">
-                                  <label>Stall Area:</label>
-                                  <span>
-                                    {stall.stall_area
-                                      ? `${stall.stall_area} sq. ft.`
-                                      : "N/A"}
-                                  </span>
-                                </div>
-                              </div>
-                            ))
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* RIGHT SIDE (Brand Container) */}
-                    <div className="profile-right">
-                      <div className="profile-card">
-                        {/* ================= FORM MODE ================= */}
-                        {!showBrandsEditForm && (
-                          <div className="brands-form slide-up-form">
-                            <h2 className="brands-heading">Brands</h2>
-
-                            <div className="brands-input-row">
-                              {/* WEBSITE */}
-                              <div className="brands-field-group">
-                                <label>Website:</label>
-                                <input
-                                  value={brandsData.website || ""}
-                                  onChange={(e) =>
-                                    setBrandsData((p) => ({
-                                      ...p,
-                                      website: e.target.value,
-                                    }))
-                                  }
-                                />
-                              </div>
-
-                              {/* PRODUCTS */}
-                              <div className="brands-field-group">
-                                <label>Products:</label>
-
-                                <div className="selected-products-container">
-                                  {(brandsData.products || []).map((p, i) => (
-                                    <div
-                                      key={p + "-" + i}
-                                      className="selected-product"
-                                    >
-                                      {p}
-                                      <span
-                                        className="remove-icon"
-                                        onClick={() =>
-                                          setBrandsData((prev) => ({
-                                            ...prev,
-                                            products: prev.products.filter(
-                                              (x) => x !== p,
-                                            ),
-                                          }))
-                                        }
-                                      >
-                                        ✖
-                                      </span>
-                                    </div>
-                                  ))}
-                                </div>
-
-                                <select
-                                  value=""
-                                  onChange={(e) => {
-                                    const v = e.target.value;
-                                    if (
-                                      v &&
-                                      !(brandsData.products || []).includes(v)
-                                    ) {
-                                      setBrandsData((p) => ({
-                                        ...p,
-                                        products: [...(p.products || []), v],
-                                      }));
-                                    }
-                                  }}
-                                >
-                                  <option value="">-- Select Product --</option>
-                                  {products.map((p, i) => (
-                                    <option
-                                      key={p.name + "-" + i}
-                                      value={p.name}
-                                    >
-                                      {p.name}
-                                    </option>
-                                  ))}
-                                </select>
-                              </div>
-
-                              {/* HOME BRANDS */}
-                              <div className="brands-field-group">
-                                <label>Home Brands:</label>
-                                <input
-                                  value={brandsData.home_brands || ""}
-                                  onChange={(e) =>
-                                    setBrandsData((p) => ({
-                                      ...p,
-                                      home_brands: e.target.value,
-                                    }))
-                                  }
-                                />
-                              </div>
-
-                              {/* DISTRIBUTORS */}
-                              <div className="brands-field-group">
-                                <label>Distributors:</label>
-                                <input
-                                  value={brandsData.distributors || ""}
-                                  onChange={(e) =>
-                                    setBrandsData((p) => ({
-                                      ...p,
-                                      distributors: e.target.value,
-                                    }))
-                                  }
-                                />
-                              </div>
-
-                              {/* INTERNATIONAL */}
-                              <div className="brands-field-group brands-full">
-                                <label>International Brands:</label>
-                                <input
-                                  value={brandsData.international_brands || ""}
-                                  onChange={(e) =>
-                                    setBrandsData((p) => ({
-                                      ...p,
-                                      international_brands: e.target.value,
-                                    }))
-                                  }
-                                />
-                              </div>
-                            </div>
-
-                            <div className="brands-button-section">
-                              <button
-                                className="brands-details-add-brands-btn"
-                                onClick={handleSubmitBrands}
-                              >
-                                Submit
-                              </button>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* ================= VIEW MODE ================= */}
-                        {showBrandsEditForm && (
-  <div className="brands-view-card slide-up-form">
-
-    <div className="brands-view-header">
-      <h2>Brands</h2>
-      <button
-        className="brands-edit-btn"
-        onClick={handleEditBrands}
-        type="button"
-      >
-        ✏ Edit
-      </button>
-    </div>
-
-    <div className="brands-view-grid">
-
-      {/* Website */}
-      <div>
-        <label>Website</label>
-        <div className="view-pill">
-          {brandsData?.website?.trim() || "—"}
-        </div>
-      </div>
-
-      {/* Products — array + string safe */}
-      <div>
-  <label>Products</label>
-
-  <div className="view-pill">
-    {Array.isArray(brandsData.products)
-      ? brandsData.products.length
-        ? brandsData.products.join(", ")
-        : "—"
-      : typeof brandsData.products === "string"
-        ? brandsData.products
-        : "—"}
-  </div>
-</div>
-
-      {/* Home Brands */}
-      <div>
-        <label>Home Brands</label>
-        <div className="view-box">
-          {(brandsData?.home_brands || "")
-            .split(",")
-            .map(b => b.trim())
-            .filter(Boolean)
-            .join(", ") || "—"}
-        </div>
-      </div>
-
-      {/* Distributors */}
-      <div>
-        <label>Distributors</label>
-        <div className="view-box">
-          {brandsData?.distributors?.trim() || "—"}
-        </div>
-      </div>
-
-      {/* International */}
-      <div className="brands-full">
-        <label>International Brands</label>
-        <div className="view-box">
-          {(brandsData?.international_brands || "")
-            .split(",")
-            .map(b => b.trim())
-            .filter(Boolean)
-            .join(", ") || "—"}
-        </div>
-      </div>
-
-    </div>
-  </div>
-)}
-
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                
+                <ExhibitorProfile
+                  exhibitors={exhibitors}
+                  stallList={stallList}
+                  brandsData={brandsData}
+                  setBrandsData={setBrandsData}
+                  products={products}
+                  showBrandsEditForm={showBrandsEditForm}
+                  handleSubmitBrands={handleSubmitBrands}
+                  handleEditBrands={handleEditBrands}
+                />
               )}
 
               {importantPage === "Furniture Requirements" && (
-                <div className="furniture-requirements-container">
-                  {/* Furniture List Modal */}
-                  {showFurnitureList && (
-                    <div className="furniture-modal-overlay">
-                      <div className="furniture-modal-content">
-                        <div className="furniture-modal-header">
-                          <h2>Furniture List</h2>
-                          <button
-                            className="furniture-modal-close-btn"
-                            onClick={() => setShowFurnitureList(false)}
-                          >
-                            ×
-                          </button>
-                        </div>
-                        <div className="furniture-modal-body">
-                          <div className="furniture-grid">
-                            {furnitureData.length === 0 ? (
-                              <p>No furniture available.</p>
-                            ) : (
-                              furnitureData
-                                .sort((a, b) => {
-                                  const piA = parseInt(
-                                    a.name.match(/PI-(\d+)/)?.[1] || 0,
-                                  );
-                                  const piB = parseInt(
-                                    b.name.match(/PI-(\d+)/)?.[1] || 0,
-                                  );
-                                  return piA - piB;
-                                })
-                                .map((item) => {
-                                  const alreadySelected =
-                                    selectedFurniture.some(
-                                      (f) => f.id === item.id,
-                                    );
-                                  return (
-                                    <div
-                                      className="furniture-card"
-                                      key={item.id}
-                                    >
-                                      <img
-                                        src={`https://www.inoptics.in/api/uploads/${item.image}`}
-                                        alt={item.name}
-                                        className="furniture-card-img"
-                                      />
-                                      <div className="furniture-card-name">
-                                        {item.name}
-                                      </div>
-                                      <div className="furniture-card-price">
-                                        ₹{item.price}
-                                      </div>
-                                      {alreadySelected ? (
-                                        <button
-                                          className="btn-selected"
-                                          disabled
-                                        >
-                                          Selected
-                                        </button>
-                                      ) : (
-                                        <button
-                                          className="btn-select"
-                                          onClick={() =>
-                                            setSelectedFurniture([
-                                              ...selectedFurniture,
-                                              { ...item, quantity: 1 },
-                                            ])
-                                          }
-                                        >
-                                          Select
-                                        </button>
-                                      )}
-                                    </div>
-                                  );
-                                })
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Main Layout */}
-                  <div className="furniture-main-layout">
-                    {/* Table Section */}
-                    <div className="furniture-table-section">
-                      <table className="furniture-table">
-                        <thead>
-                          <tr>
-                            <th>ID</th>
-                            <th>Image</th>
-                            <th>Name</th>
-                            <th>Price</th>
-                            <th>Quantity</th>
-                            <th>Total</th>
-                            {!isFurnitureSaved && <th>Action</th>}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {selectedFurniture.length > 0 ? (
-                            selectedFurniture.map((item, index) => (
-                              <tr key={item.id}>
-                                <td>{index + 1}</td>
-                                <td>
-                                  <img
-                                    src={`https://www.inoptics.in/api/uploads/${item.image}`}
-                                    alt={item.name}
-                                    className="furniture-table-img"
-                                  />
-                                </td>
-                                <td>{item.name}</td>
-                                <td>₹{item.price}</td>
-                                <td>
-                                  <input
-                                    type="number"
-                                    min="1"
-                                    value={item.quantity || 1}
-                                    onChange={(e) =>
-                                      handleQuantityChange(
-                                        index,
-                                        e.target.value,
-                                      )
-                                    }
-                                    className="furniture-qty-input"
-                                    disabled={isFurnitureSaved}
-                                  />
-                                </td>
-                                <td>
-                                  ₹
-                                  {item.quantity
-                                    ? (item.quantity * item.price).toFixed(2)
-                                    : "0.00"}
-                                </td>
-                                {!isFurnitureSaved && (
-                                  <td>
-                                    <button
-                                      className="btn-delete"
-                                      onClick={() =>
-                                        setSelectedFurniture(
-                                          selectedFurniture.filter(
-                                            (_, i) => i !== index,
-                                          ),
-                                        )
-                                      }
-                                    >
-                                      Delete
-                                    </button>
-                                  </td>
-                                )}
-                              </tr>
-                            ))
-                          ) : (
-                            <tr>
-                              <td
-                                colSpan={isFurnitureSaved ? 6 : 7}
-                                className="furniture-empty-msg"
-                              >
-                                No furniture selected yet.
-                              </td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-
-                    {/* Billing Section */}
-                    <div className="furniture-billing-section">
-                      <div className="furniture-action-btn">
-                        <button
-                          onClick={() => setShowFurnitureList(true)}
-                          disabled={isFurnitureSaved}
-                        >
-                          Add Furniture
-                        </button>
-
-                        {!isFurnitureSaved ? (
-                          <button
-                            onClick={async () => {
-                              await updateSelectedFurniture(
-                                currentExhibitor?.company_name,
-                                selectedFurniture,
-                              );
-                              await handleSendFurnitureMail(
-                                "InOptics 2026 @ Extra Furniture Request Confirmation",
-                              );
-                              setIsFurnitureSaved(true);
-                            }}
-                            style={{
-                              marginLeft: "10px",
-                              background: "#4caf50",
-                              color: "#fff",
-                            }}
-                          >
-                            Save
-                          </button>
-                        ) : (
-                          <button
-                            onClick={handleUnlockRequestMail}
-                            style={{
-                              marginLeft: "10px",
-                              background: "#ff9800",
-                              color: "#fff",
-                            }}
-                          >
-                            Unlock Request
-                          </button>
-                        )}
-                      </div>
-
-                      <h3>Particulars</h3>
-                      <div className="furniture-billing-details">
-                        <div>
-                          <span>Total</span>
-                          <span>
-                            ₹{furnitureBilling.amount?.toFixed(2) || "0.00"}
-                          </span>
-                        </div>
-
-                        {currentExhibitor?.state?.toLowerCase() === "delhi" ? (
-                          <>
-                            <div>
-                              <span>CGST (9%)</span>
-                              <span>
-                                ₹{furnitureBilling.cgst?.toFixed(2) || "0.00"}
-                              </span>
-                            </div>
-                            <div>
-                              <span>SGST (9%)</span>
-                              <span>
-                                ₹{furnitureBilling.sgst?.toFixed(2) || "0.00"}
-                              </span>
-                            </div>
-                          </>
-                        ) : (
-                          <div>
-                            <span>IGST (18%)</span>
-                            <span>
-                              ₹{furnitureBilling.igst?.toFixed(2) || "0.00"}
-                            </span>
-                          </div>
-                        )}
-
-                        <hr />
-                        <div className="furniture-grand-total">
-                          <span>GRAND TOTAL</span>
-                          <span>
-                            ₹{furnitureBilling.grandTotal?.toFixed(2) || "0.00"}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Vendor Instructions */}
-                      <div className="furniture-instruction">
-                        {furnitureVendorDetails.length > 0 ? (
-                          furnitureVendorDetails.map((vendor) => (
-                            <div
-                              key={vendor.id}
-                              dangerouslySetInnerHTML={{
-                                __html: vendor.description,
-                              }}
-                              style={{
-                                fontSize: "15px",
-                                lineHeight: "1.8",
-                                fontFamily: "Segoe UI",
-                                textAlign: "left",
-                                marginTop: "10px",
-                                color: "#333",
-                              }}
-                            />
-                          ))
-                        ) : (
-                          <p
-                            style={{
-                              fontStyle: "italic",
-                              marginBottom: "10px",
-                            }}
-                          >
-                            Loading vendor details...
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <ExhibitorFurnitureRequirements
+                  furnitureData={furnitureData}
+                  selectedFurniture={selectedFurniture}
+                  setSelectedFurniture={setSelectedFurniture}
+                  showFurnitureList={showFurnitureList}
+                  setShowFurnitureList={setShowFurnitureList}
+                  isFurnitureSaved={isFurnitureSaved}
+                  setIsFurnitureSaved={setIsFurnitureSaved}
+                  handleQuantityChange={handleQuantityChange}
+                  updateSelectedFurniture={updateSelectedFurniture}
+                  handleSendFurnitureMail={handleSendFurnitureMail}
+                  handleUnlockRequestMail={handleUnlockRequestMail}
+                  furnitureBilling={furnitureBilling}
+                  furnitureVendorDetails={furnitureVendorDetails}
+                  currentExhibitor={currentExhibitor}
+                />
               )}
 
               {importantPage === "Power Requirement" && currentExhibitor && (
                 <>
-                  {/* Wrapper for Progress + Form */}
-                  <div className="Exhibitor-power-requirement-wrapper">
-                    {/* Left Side Form Section */}
-                    <div className="Exhibitor-power-requirement-form-left">
-                      {/* Progress Bar */}
-                      <ul id="Exhibitor-progressbar">
-                        {["SETUP DAYS", "EXHIBITION DAYS"].map(
-                          (type, index) => (
-                            <li
-                              key={type}
-                              className={index <= powerFormStep ? "active" : ""}
-                            >
-                              {type}
-                            </li>
-                          ),
-                        )}
-                      </ul>
+                  
 
-                      {/* Sliding Forms Container */}
-                      <ExhibitorPowerForm
-                        exhibitorPricePerKw={exhibitorPricePerKw}
-                        isViewOnly={isViewOnly}
-                        setPowerFormStep={setPowerFormStep} // ✅ new prop
-                        powerFormStep={powerFormStep}
-                        exhibitorPowerRequired={exhibitorPowerRequired}
-                        exhibitorPhase={exhibitorPhase}
-                        exhibitorTotalAmount={exhibitorTotalAmount}
-                        onPowerChange={handlePowerFormPowerChange}
-                        onPhaseChange={handlePowerFormPhaseChange}
-                        onNext={handlePowerFormNext}
-                        onPrevious={handlePowerFormPrevious}
-                        onAdd={handlePowerFormAdd}
-                      />
-                    </div>
-
-                    {/* Right Side Instructions */}
-                    <div className="Exhibitor-power-requirement-instruction-box">
-                      <div className="Exhibitor-power-requirement-top-buttons-inside-box">
-                        {/* If form is editable → show Submit button */}
-                        {!isViewOnly ? (
-                          <button
-                            className="Exhibitor-power-btn submit-btn"
-                            onClick={handleExhibitorPowerSubmit}
-                          >
-                            {showExhibitorEditForm ? "Update" : "Submit"}
-                          </button>
-                        ) : (
-                          /* If form is locked → show Unlock Request button */
-                          <button
-                            className="Exhibitor-power-btn unlock-request-btn"
-                            onClick={handlePowerUnlockRequest}
-                          >
-                            Request to Unlock
-                          </button>
-                        )}
-                      </div>
-
-                      <h3>Power Requirement Guidelines</h3>
-                      <ul>
-                        <li>
-                          Power requirements for setup days and exhibition days
-                          must be submitted separately.
-                        </li>
-                        <li>
-                          Power will be arranged as per the requirement form.
-                          Requests made after 28th Feb 2026 may incur additional
-                          charges.
-                        </li>
-                        <li>
-                          If unsure, consult your fabricator for accurate
-                          requirements.
-                        </li>
-                        <li>
-                          Ensure your contractor uses quality wiring — extra
-                          usage may incur charges.
-                        </li>
-                        <li>Thank you for your cooperation.</li>
-                      </ul>
-                    </div>
-                  </div>
-
-                  {/* Table + Billing Section */}
-                  <div className="Exhibitor-power-requirement-below-section">
-                    <div className="Exhibitor-power-requirement-table-container">
-                      <table className="Exhibitor-power-requirement-table">
-                        <thead>
-                          <tr>
-                            <th>Days</th>
-                            <th>Price per KW</th>
-                            <th>Power Required</th>
-                            <th>Phase</th>
-                            <th>Total Amount</th>
-                            {!isViewOnly && <th>Action</th>}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {previewTableList.length > 0 && !isViewOnly ? (
-                            <>
-                              {previewTableList.map((item, index) => (
-                                <tr key={index}>
-                                  <td>{item.day}</td>
-                                  <td>{item.pricePerKw}</td>
-                                  <td>{item.powerRequired}</td>
-                                  <td>{item.phase}</td>
-                                  <td>{item.totalAmount}</td>
-                                  {index === 0 && ( // 👈 Only show remove button on first row
-                                    <td rowSpan={previewTableList.length}>
-                                      <button
-                                        type="button"
-                                        onClick={handleResetPowerData}
-                                        className="Exhibitor-Power-remove-btn"
-                                      >
-                                        Remove
-                                      </button>
-                                    </td>
-                                  )}
-                                </tr>
-                              ))}
-                            </>
-                          ) : powerData.length > 0 ? (
-                            powerData.map((item, i) => (
-                              <tr key={i}>
-                                <td>{item.day}</td>
-                                <td>{item.price_per_kw}</td>
-                                <td>{item.power_required}</td>
-                                <td>{item.phase}</td>
-                                <td>{item.total_amount}</td>
-                              </tr>
-                            ))
-                          ) : (
-                            <tr>
-                              <td
-                                colSpan="6"
-                                style={{
-                                  textAlign: "center",
-                                  color: "#e5e9ee",
-                                }}
-                              >
-                                No data to display
-                              </td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-
-                    <div className="Exhibitor-power-requirement-billing">
-                      <h3>Power Requirement Billing</h3>
-                      <div className="Exhibitor-power-requirement-stalls-forms-group">
-                        <span className="Exhibitor-power-label">Company:</span>
-                        <strong>{currentExhibitor.company_name || "-"}</strong>
-                      </div>
-                      <div className="Exhibitor-power-requirement-stalls-forms-group">
-                        <span className="Exhibitor-power-label">State:</span>
-                        <strong>{currentExhibitor.state || "N/A"}</strong>
-                      </div>
-                      <div className="Exhibitor-power-requirement-stalls-forms-group">
-                        <span className="Exhibitor-power-label">
-                          Total Price:
-                        </span>
-                        <strong>{totalPrice.toFixed(2)} ₹</strong>
-                      </div>
-
-                      {currentExhibitor.state?.toLowerCase() === "delhi" ? (
-                        <>
-                          <div className="Exhibitor-power-requirement-stalls-forms-group">
-                            <span className="Exhibitor-power-label">
-                              CGST (9%):
-                            </span>
-                            <strong>{cgst.toFixed(2)} ₹</strong>
-                          </div>
-                          <div className="Exhibitor-power-requirement-stalls-forms-group">
-                            <span className="Exhibitor-power-label">
-                              SGST (9%):
-                            </span>
-                            <strong>{sgst.toFixed(2)} ₹</strong>
-                          </div>
-                        </>
-                      ) : (
-                        <div className="Exhibitor-power-requirement-stalls-forms-group">
-                          <span className="Exhibitor-power-label">
-                            IGST (18%):
-                          </span>
-                          <strong>{igst.toFixed(2)} ₹</strong>
-                        </div>
-                      )}
-
-                      <div className="Exhibitor-power-requirement-stalls-forms-group total">
-                        <span className="Exhibitor-power-label">
-                          Grand Total:
-                        </span>
-                        <strong>{grandTotal.toFixed(2)} ₹</strong>
-                      </div>
-                    </div>
-                  </div>
+                  <ExhibitorPowerRequirement
+                    currentExhibitor={currentExhibitor}
+                    exhibitorPricePerKw={exhibitorPricePerKw}
+                    isViewOnly={isViewOnly}
+                    setPowerFormStep={setPowerFormStep}
+                    powerFormStep={powerFormStep}
+                    exhibitorPowerRequired={exhibitorPowerRequired}
+                    exhibitorPhase={exhibitorPhase}
+                    exhibitorTotalAmount={exhibitorTotalAmount}
+                    handlePowerFormPowerChange={handlePowerFormPowerChange}
+                    handlePowerFormPhaseChange={handlePowerFormPhaseChange}
+                    handlePowerFormNext={handlePowerFormNext}
+                    handlePowerFormPrevious={handlePowerFormPrevious}
+                    handlePowerFormAdd={handlePowerFormAdd}
+                    handleExhibitorPowerSubmit={handleExhibitorPowerSubmit}
+                    showExhibitorEditForm={showExhibitorEditForm}
+                    handlePowerUnlockRequest={handlePowerUnlockRequest}
+                    previewTableList={previewTableList}
+                    powerData={powerData}
+                    handleResetPowerData={handleResetPowerData}
+                    totalPrice={totalPrice}
+                    cgst={cgst}
+                    sgst={sgst}
+                    igst={igst}
+                    grandTotal={grandTotal}
+                    ExhibitorPowerForm={ExhibitorPowerForm}
+                  />
                 </>
               )}
 
               <div className="contractor-ui-root">
-                {/* YOUR EXISTING JSX BELOW */}
                 {!importantPage && activeMenu === "Contractors" && (
-                  <div className="contractor-ui-body">
-                    {!importantPage && activeMenu === "Contractors" && (
-                      <div className="ExhibitorContractors-root">
-                        {showPopup && (
-                          <div className="ContractorPopup-overlay">
-                            <div className="ContractorPopup-box">
-                              <h3>Confirm Contractor Selection</h3>
-                              <p>
-                                Are you sure you would like to proceed with
-                                <strong>
-                                  {" "}
-                                  {selectedContractorTemp?.company_name}{" "}
-                                </strong>
-                                as your booth contractor?
-                                <p>
-                                  {" "}
-                                  <strong>
-                                    Please note that once the contractor is
-                                    confirmed, the selection will be locked and
-                                    cannot be changed. If you wish to make any
-                                    changes later, an unlock request will need
-                                    to be submitted from the next page.
-                                  </strong>
-                                </p>
-                              </p>
+                      // <div className="ExhibitorContractors-root">
+                      //   {showPopup && (
+                      //     <div className="ContractorPopup-overlay">
+                      //       <div className="ContractorPopup-box">
+                      //         <h3>Confirm Contractor Selection</h3>
+                      //         <p>
+                      //           Are you sure you would like to proceed with
+                      //           <strong>
+                      //             {" "}
+                      //             {selectedContractorTemp?.company_name}{" "}
+                      //           </strong>
+                      //           as your booth contractor?
+                      //           <p>
+                      //             {" "}
+                      //             <strong>
+                      //               Please note that once the contractor is
+                      //               confirmed, the selection will be locked and
+                      //               cannot be changed. If you wish to make any
+                      //               changes later, an unlock request will need
+                      //               to be submitted from the next page.
+                      //             </strong>
+                      //           </p>
+                      //         </p>
 
-                              <div className="ContractorPopup-buttons">
-                                <button
-                                  className="PopupCancelBtn"
-                                  onClick={cancelSelect}
-                                >
-                                  Cancel
-                                </button>
-                                <button
-                                  className="PopupOkBtn"
-                                  onClick={confirmSelect}
-                                >
-                                  OK
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        )}
+                      //         <div className="ContractorPopup-buttons">
+                      //           <button
+                      //             className="PopupCancelBtn"
+                      //             onClick={cancelSelect}
+                      //           >
+                      //             Cancel
+                      //           </button>
+                      //           <button
+                      //             className="PopupOkBtn"
+                      //             onClick={confirmSelect}
+                      //           >
+                      //             OK
+                      //           </button>
+                      //         </div>
+                      //       </div>
+                      //     </div>
+                      //   )}
 
-                        {/* NEW: Contractor List Overlay (view only, no action column) */}
-                        {showContractorListOverlay && (
-                          <div
-                            className="ContractorListOverlay-overlay"
-                            onClick={() => setShowContractorListOverlay(false)}
-                          >
-                            <div
-                              className="ContractorListOverlay-box"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <h3>Contractor List</h3>
-                              <button
-                                className="ContractorListOverlay-close"
-                                onClick={() =>
-                                  setShowContractorListOverlay(false)
-                                }
-                              >
-                                ×
-                              </button>
+                      //   {showContractorListOverlay && (
+                      //     <div
+                      //       className="ContractorListOverlay-overlay"
+                      //       onClick={() => setShowContractorListOverlay(false)}
+                      //     >
+                      //       <div
+                      //         className="ContractorListOverlay-box"
+                      //         onClick={(e) => e.stopPropagation()}
+                      //       >
+                      //         <h3>Contractor List</h3>
+                      //         <button
+                      //           className="ContractorListOverlay-close"
+                      //           onClick={() =>
+                      //             setShowContractorListOverlay(false)
+                      //           }
+                      //         >
+                      //           ×
+                      //         </button>
 
-                              <div className="ExhibitorContractors-appointed-contractor-wrapper overlay-table-wrapper">
-                                <div className="ExhibitorContractors-exhibitor-cont-table-container">
-                                  <table className="ExhibitorContractors-appointed-contractor-table">
-                                    <thead>
-                                      <tr>
-                                        <th>ID</th>
-                                        <th>Name</th>
-                                        <th>Company Name</th>
-                                        <th>City</th>
-                                        <th>Phn/Mob No</th>
-                                        <th>Email</th>
-                                        <th>Action</th>
-                                      </tr>
-                                    </thead>
+                      //         <div className="ExhibitorContractors-appointed-contractor-wrapper overlay-table-wrapper">
+                      //           <div className="ExhibitorContractors-exhibitor-cont-table-container">
+                      //             <table className="ExhibitorContractors-appointed-contractor-table">
+                      //               <thead>
+                      //                 <tr>
+                      //                   <th>ID</th>
+                      //                   <th>Name</th>
+                      //                   <th>Company Name</th>
+                      //                   <th>City</th>
+                      //                   <th>Phn/Mob No</th>
+                      //                   <th>Email</th>
+                      //                   <th>Action</th>
+                      //                 </tr>
+                      //               </thead>
 
-                                    <tbody>
-                                      {contractorData.map(
-                                        (contractor, index) => (
-                                          <tr key={contractor.id}>
-                                            <td>{index + 1}</td>
-                                            <td>{contractor.name}</td>
-                                            <td>{contractor.company_name}</td>
-                                            <td>{contractor.city}</td>
-                                            <td>
-                                              {contractor.mobile_numbers}
-                                              {contractor.phone_numbers
-                                                ? `, ${contractor.phone_numbers}`
-                                                : ""}
-                                            </td>
-                                            <td>{contractor.email}</td>
+                      //               <tbody>
+                      //                 {contractorData.map(
+                      //                   (contractor, index) => (
+                      //                     <tr key={contractor.id}>
+                      //                       <td>{index + 1}</td>
+                      //                       <td>{contractor.name}</td>
+                      //                       <td>{contractor.company_name}</td>
+                      //                       <td>{contractor.city}</td>
+                      //                       <td>
+                      //                         {contractor.mobile_numbers}
+                      //                         {contractor.phone_numbers
+                      //                           ? `, ${contractor.phone_numbers}`
+                      //                           : ""}
+                      //                       </td>
+                      //                       <td>{contractor.email}</td>
 
-                                            <td>
-                                              {selectedContractorId ===
-                                              contractor.id ? (
-                                                <button
-                                                  className="ExhibitorContractors-unselect-btn"
-                                                  onClick={unselectContractor}
-                                                >
-                                                  Unselect
-                                                </button>
-                                              ) : (
-                                                <button
-                                                  className="ExhibitorContractors-select-btn"
-                                                  onClick={() => {
-                                                    setSelectedContractorTemp(
-                                                      contractor,
-                                                    );
-                                                    setShowPopup(true);
-                                                  }}
-                                                  disabled={
-                                                    !!selectedContractorId
-                                                  }
-                                                >
-                                                  Select
-                                                </button>
-                                              )}
-                                            </td>
-                                          </tr>
-                                        ),
-                                      )}
-                                    </tbody>
-                                  </table>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        )}
+                      //                       <td>
+                      //                         {selectedContractorId ===
+                      //                         contractor.id ? (
+                      //                           <button
+                      //                             className="ExhibitorContractors-unselect-btn"
+                      //                             onClick={unselectContractor}
+                      //                           >
+                      //                             Unselect
+                      //                           </button>
+                      //                         ) : (
+                      //                           <button
+                      //                             className="ExhibitorContractors-select-btn"
+                      //                             onClick={() => {
+                      //                               setSelectedContractorTemp(
+                      //                                 contractor,
+                      //                               );
+                      //                               setShowPopup(true);
+                      //                             }}
+                      //                             disabled={
+                      //                               !!selectedContractorId
+                      //                             }
+                      //                           >
+                      //                             Select
+                      //                           </button>
+                      //                         )}
+                      //                       </td>
+                      //                     </tr>
+                      //                   ),
+                      //                 )}
+                      //               </tbody>
+                      //             </table>
+                      //           </div>
+                      //         </div>
+                      //       </div>
+                      //     </div>
+                      //   )}
 
-                        <div className="ExhibitorContractors-main-split">
-                          <div className="ExhibitorContractors-leftContainer">
-                            <div
-                              className={`left-layer original-left-layer ${
-                                workflowActive ? "slide-out-left" : "visible"
-                              }`}
-                            >
-                              <div className="ExhibitorContractors-left-top-row">
-                                <div className="ExhibitorContractors-left-top-item">
-                                  <h2 className="ExhibitorContractors-heading">
-                                    Contractor Selection <br />& Registration
-                                    Process
-                                  </h2>
-                                  <ul className="ExhibitorContractors-points">
-                                    <li>
-                                      This section outlines the first step in
-                                      completing the contractor undertaking
-                                      process. Kindly follow the instructions
-                                      below to ensure a smooth and timely
-                                      submission.
-                                    </li>
-                                    <li>
-                                      Exhibitors may select a contractor of
-                                      their choice from the approved contractor
-                                      list displayed on the right-hand side of
-                                      the portal.
-                                    </li>
-                                    <li>
-                                      If an exhibitor wishes to engage a
-                                      contractor who is not listed, the
-                                      contractor must first complete a
-                                      registration process. A one-time
-                                      contractor registration fee of ₹10,000 per
-                                      exhibition will be applicable.
-                                    </li>
-                                    <li>
-                                      Once a contractor is selected, the
-                                      selection will be treated as final. Any
-                                      request to change the selected contractor
-                                      at a later stage will require a formal
-                                      unlock request for approval.
-                                    </li>
-                                    <li>
-                                      To add a new contractor to the system,
-                                      exhibitors may send the contractor a
-                                      registration request via email using the
-                                      field provided below.
-                                    </li>
-                                    <li>
-                                      After the contractor selection is
-                                      completed, the form will automatically
-                                      proceed to the second step of the
-                                      submission process.
-                                    </li>
-                                  </ul>
+                      //   <div className="ExhibitorContractors-main-split">
+                      //     <div className="ExhibitorContractors-leftContainer">
+                      //       <div
+                      //         className={`left-layer original-left-layer ${
+                      //           workflowActive ? "slide-out-left" : "visible"
+                      //         }`}
+                      //       >
+                      //         <div className="ExhibitorContractors-left-top-row">
+                      //           <div className="ExhibitorContractors-left-top-item">
+                      //             <h2 className="ExhibitorContractors-heading">
+                      //               Contractor Selection <br />& Registration
+                      //               Process
+                      //             </h2>
+                      //             <ul className="ExhibitorContractors-points">
+                      //               <li>
+                      //                 This section outlines the first step in
+                      //                 completing the contractor undertaking
+                      //                 process. Kindly follow the instructions
+                      //                 below to ensure a smooth and timely
+                      //                 submission.
+                      //               </li>
+                      //               <li>
+                      //                 Exhibitors may select a contractor of
+                      //                 their choice from the approved contractor
+                      //                 list displayed on the right-hand side of
+                      //                 the portal.
+                      //               </li>
+                      //               <li>
+                      //                 If an exhibitor wishes to engage a
+                      //                 contractor who is not listed, the
+                      //                 contractor must first complete a
+                      //                 registration process. A one-time
+                      //                 contractor registration fee of ₹10,000 per
+                      //                 exhibition will be applicable.
+                      //               </li>
+                      //               <li>
+                      //                 Once a contractor is selected, the
+                      //                 selection will be treated as final. Any
+                      //                 request to change the selected contractor
+                      //                 at a later stage will require a formal
+                      //                 unlock request for approval.
+                      //               </li>
+                      //               <li>
+                      //                 To add a new contractor to the system,
+                      //                 exhibitors may send the contractor a
+                      //                 registration request via email using the
+                      //                 field provided below.
+                      //               </li>
+                      //               <li>
+                      //                 After the contractor selection is
+                      //                 completed, the form will automatically
+                      //                 proceed to the second step of the
+                      //                 submission process.
+                      //               </li>
+                      //             </ul>
 
-                                  <label className="ExhibitorContractors-email-label">
-                                    Send Your Unregistered Contractor Email ID:
-                                  </label>
+                      //             <label className="ExhibitorContractors-email-label">
+                      //               Send Your Unregistered Contractor Email ID:
+                      //             </label>
 
-                                  <div className="ExhibitorContractors-email-row">
-                                    <input
-                                      type="email"
-                                      placeholder="Enter contractor email"
-                                      value={contractorEmail}
-                                      onChange={(e) =>
-                                        setContractorEmail(e.target.value)
-                                      }
-                                      className="ExhibitorContractors-email-input"
-                                    />
-                                    <button
-                                      className="ExhibitorContractors-email-submit-btn"
-                                      onClick={() =>
-                                        handleSendRegistrationMail(
-                                          contractorEmail,
-                                        )
-                                      }
-                                    >
-                                      Submit
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
+                      //             <div className="ExhibitorContractors-email-row">
+                      //               <input
+                      //                 type="email"
+                      //                 placeholder="Enter contractor email"
+                      //                 value={contractorEmail}
+                      //                 onChange={(e) =>
+                      //                   setContractorEmail(e.target.value)
+                      //                 }
+                      //                 className="ExhibitorContractors-email-input"
+                      //               />
+                      //               <button
+                      //                 className="ExhibitorContractors-email-submit-btn"
+                      //                 onClick={() =>
+                      //                   handleSendRegistrationMail(
+                      //                     contractorEmail,
+                      //                   )
+                      //                 }
+                      //               >
+                      //                 Submit
+                      //               </button>
+                      //             </div>
+                      //           </div>
+                      //         </div>
+                      //       </div>
 
-                            <div
-                              className={`left-layer workflow-left-layer ${
-                                workflowActive ? "slide-in-right" : "hidden"
-                              }`}
-                            >
-                              {/* NEW TOP ACTION BAR */}
-                              <div className="workflow-left-top-actions">
-                                <button
-                                  className="unlock-btn"
-                                  onClick={requestContractorChange}
-                                >
-                                  <span className="btn-icon">
-                                    <FaLockOpen className="btn-icon" /> Unlock
-                                  </span>
-                                </button>
+                      //       <div
+                      //         className={`left-layer workflow-left-layer ${
+                      //           workflowActive ? "slide-in-right" : "hidden"
+                      //         }`}
+                      //       >
+                      //         {/* NEW TOP ACTION BAR */}
+                      //         <div className="workflow-left-top-actions">
+                      //           <button
+                      //             className="unlock-btn"
+                      //             onClick={requestContractorChange}
+                      //           >
+                      //             <span className="btn-icon">
+                      //               <FaLockOpen className="btn-icon" /> Unlock
+                      //             </span>
+                      //           </button>
 
-                                <button
-                                  className="view-list-btn"
-                                  onClick={() =>
-                                    setShowContractorListOverlay(true)
-                                  }
-                                >
-                                  <span className="btn-icon">
-                                    <FaEye className="btn-icon" />
-                                    View Contractor List
-                                  </span>
-                                </button>
+                      //           <button
+                      //             className="view-list-btn"
+                      //             onClick={() =>
+                      //               setShowContractorListOverlay(true)
+                      //             }
+                      //           >
+                      //             <span className="btn-icon">
+                      //               <FaEye className="btn-icon" />
+                      //               View Contractor List
+                      //             </span>
+                      //           </button>
 
-                                {Object.values(uploadedFiles).some(Boolean) && (
-                                  <button
-                                    className="view-uploaded-btn"
-                                    onClick={() => {
-                                      const firstAvailable = uploadedFiles.step1
-                                        ? "step1"
-                                        : uploadedFiles.step2
-                                          ? "step2"
-                                          : "step3";
+                      //           {Object.values(uploadedFiles).some(Boolean) && (
+                      //             <button
+                      //               className="view-uploaded-btn"
+                      //               onClick={() => {
+                      //                 const firstAvailable = uploadedFiles.step1
+                      //                   ? "step1"
+                      //                   : uploadedFiles.step2
+                      //                     ? "step2"
+                      //                     : "step3";
 
-                                      setSelectedPreviewStep(firstAvailable);
+                      //                 setSelectedPreviewStep(firstAvailable);
 
-                                      if (firstAvailable === "step3") {
-                                        setPdfUrl(
-                                          `https://inoptics.in/api/download_exhibitor_form.php?company=${encodeURIComponent(
-                                            formData.company_name,
-                                          )}&type=booth`,
-                                        );
-                                      } else {
-                                        setPdfUrl(
-                                          `https://inoptics.in/api/${uploadedFiles[firstAvailable]}`,
-                                        );
-                                      }
+                      //                 if (firstAvailable === "step3") {
+                      //                   setPdfUrl(
+                      //                     `https://inoptics.in/api/download_exhibitor_form.php?company=${encodeURIComponent(
+                      //                       formData.company_name,
+                      //                     )}&type=booth`,
+                      //                   );
+                      //                 } else {
+                      //                   setPdfUrl(
+                      //                     `https://inoptics.in/api/${uploadedFiles[firstAvailable]}`,
+                      //                   );
+                      //                 }
 
-                                      setShowPdfPreview(true);
-                                    }}
-                                  >
-                                    <FaCloudUploadAlt className="btn-icon" />{" "}
-                                    View Uploads
-                                  </button>
-                                )}
+                      //                 setShowPdfPreview(true);
+                      //               }}
+                      //             >
+                      //               <FaCloudUploadAlt className="btn-icon" />{" "}
+                      //               View Uploads
+                      //             </button>
+                      //           )}
 
-                                {showPdfPreview && (
-                                  <div className="pdf-preview-overlay">
-                                    <div className="pdf-preview-card small-card">
-                                      {/* Header */}
-                                      <div className="pdf-preview-header">
-                                        <h5>Uploaded Forms</h5>
-                                        <button
-                                          onClick={() =>
-                                            setShowPdfPreview(false)
-                                          }
-                                          className="form-icon-close"
-                                        >
-                                          ✖
-                                        </button>
-                                      </div>
+                      //           {showPdfPreview && (
+                      //             <div className="pdf-preview-overlay">
+                      //               <div className="pdf-preview-card small-card">
+                      //                 {/* Header */}
+                      //                 <div className="pdf-preview-header">
+                      //                   <h5>Uploaded Forms</h5>
+                      //                   <button
+                      //                     onClick={() =>
+                      //                       setShowPdfPreview(false)
+                      //                     }
+                      //                     className="form-icon-close"
+                      //                   >
+                      //                     ✖
+                      //                   </button>
+                      //                 </div>
 
-                                      {/* File List */}
-                                      <div className="uploaded-file-list">
-                                        {uploadedFiles.step1 && (
-                                          <div className="uploaded-file-row">
-                                            <span>
-                                              Exhibitor Confirmation & Form
-                                              Upload
-                                            </span>
-                                            <div className="file-actions">
-                                              <button
-                                                className="form-icon"
-                                                onClick={() =>
-                                                  forceDownload(
-                                                    uploadedFiles.step1,
-                                                  )
-                                                }
-                                                title="Download"
-                                              >
-                                                <FaDownload />
-                                              </button>
-                                            </div>
-                                          </div>
-                                        )}
+                      //                 {/* File List */}
+                      //                 <div className="uploaded-file-list">
+                      //                   {uploadedFiles.step1 && (
+                      //                     <div className="uploaded-file-row">
+                      //                       <span>
+                      //                         Exhibitor Confirmation & Form
+                      //                         Upload
+                      //                       </span>
+                      //                       <div className="file-actions">
+                      //                         <button
+                      //                           className="form-icon"
+                      //                           onClick={() =>
+                      //                             forceDownload(
+                      //                               uploadedFiles.step1,
+                      //                             )
+                      //                           }
+                      //                           title="Download"
+                      //                         >
+                      //                           <FaDownload />
+                      //                         </button>
+                      //                       </div>
+                      //                     </div>
+                      //                   )}
 
-                                        {uploadedFiles.step2 && (
-                                          <div className="uploaded-file-row">
-                                            <span>
-                                              Mandatory Contractor Undertaking
-                                              Form
-                                            </span>
-                                            <div className="file-actions">
-                                              <button
-                                                className="form-icon"
-                                                onClick={() =>
-                                                  forceDownload(
-                                                    uploadedFiles.step2,
-                                                  )
-                                                }
-                                                title="Download"
-                                              >
-                                                <FaDownload />
-                                              </button>
-                                            </div>
-                                          </div>
-                                        )}
+                      //                   {uploadedFiles.step2 && (
+                      //                     <div className="uploaded-file-row">
+                      //                       <span>
+                      //                         Mandatory Contractor Undertaking
+                      //                         Form
+                      //                       </span>
+                      //                       <div className="file-actions">
+                      //                         <button
+                      //                           className="form-icon"
+                      //                           onClick={() =>
+                      //                             forceDownload(
+                      //                               uploadedFiles.step2,
+                      //                             )
+                      //                           }
+                      //                           title="Download"
+                      //                         >
+                      //                           <FaDownload />
+                      //                         </button>
+                      //                       </div>
+                      //                     </div>
+                      //                   )}
 
-                                        {uploadedFiles.step3 && (
-                                          <div className="uploaded-file-row">
-                                            <span>
-                                              Booth Dimensions & Construction
-                                              Guidelines
-                                            </span>
-                                            <div className="file-actions">
-                                              <button
-                                                className="form-icon"
-                                                onClick={downloadBoothDesign}
-                                                title="Download"
-                                              >
-                                                <FaDownload />
-                                              </button>
-                                            </div>
-                                          </div>
-                                        )}
+                      //                   {uploadedFiles.step3 && (
+                      //                     <div className="uploaded-file-row">
+                      //                       <span>
+                      //                         Booth Dimensions & Construction
+                      //                         Guidelines
+                      //                       </span>
+                      //                       <div className="file-actions">
+                      //                         <button
+                      //                           className="form-icon"
+                      //                           onClick={downloadBoothDesign}
+                      //                           title="Download"
+                      //                         >
+                      //                           <FaDownload />
+                      //                         </button>
+                      //                       </div>
+                      //                     </div>
+                      //                   )}
 
-                                        {!uploadedFiles.step1 &&
-                                          !uploadedFiles.step2 &&
-                                          !uploadedFiles.step3 && (
-                                            <p
-                                              style={{
-                                                textAlign: "center",
-                                                color: "#777",
-                                              }}
-                                            >
-                                              No forms uploaded yet
-                                            </p>
-                                          )}
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
+                      //                   {!uploadedFiles.step1 &&
+                      //                     !uploadedFiles.step2 &&
+                      //                     !uploadedFiles.step3 && (
+                      //                       <p
+                      //                         style={{
+                      //                           textAlign: "center",
+                      //                           color: "#777",
+                      //                         }}
+                      //                       >
+                      //                         No forms uploaded yet
+                      //                       </p>
+                      //                     )}
+                      //                 </div>
+                      //               </div>
+                      //             </div>
+                      //           )}
+                      //         </div>
 
-                              <div className="workflow-left-flex-row">
-                                <div className="selected-contractor-container">
-                                  <h2 className="ExhibitorContractors-heading">
-                                    Selected Contractor
-                                  </h2>
-                                  <div className="selected-contractor-container-box">
-                                    <p>
-                                      <strong>Company Name:</strong>{" "}
-                                    </p>
-                                    <p>{selectedContractor?.company_name}</p>
-                                  </div>
-                                  <div className="selected-contractor-container-box">
-                                    <p>
-                                      <strong>Name:</strong>
-                                    </p>
-                                    <p>{selectedContractor?.name}</p>
-                                  </div>
-                                  <div className="selected-contractor-container-box">
-                                    <p>
-                                      <strong>City:</strong>
-                                    </p>
-                                    <p>{selectedContractor?.city}</p>
-                                  </div>
-                                  <div className="selected-contractor-container-box">
-                                    <p>
-                                      <strong>Phone/Mobile:</strong>{" "}
-                                    </p>
-                                    <p>
-                                      {selectedContractor?.mobile_numbers}
-                                      {selectedContractor?.phone_numbers
-                                        ? `, ${selectedContractor?.phone_numbers}`
-                                        : ""}
-                                    </p>
-                                  </div>
-                                  <div className="selected-contractor-container-box">
-                                    <p>
-                                      <strong>Email:</strong>{" "}
-                                    </p>
-                                    <p>{selectedContractor?.email}</p>
-                                  </div>
-                                </div>
+                      //         <div className="workflow-left-flex-row">
+                      //           <div className="selected-contractor-container">
+                      //             <h2 className="ExhibitorContractors-heading">
+                      //               Selected Contractor
+                      //             </h2>
+                      //             <div className="selected-contractor-container-box">
+                      //               <p>
+                      //                 <strong>Company Name:</strong>{" "}
+                      //               </p>
+                      //               <p>{selectedContractor?.company_name}</p>
+                      //             </div>
+                      //             <div className="selected-contractor-container-box">
+                      //               <p>
+                      //                 <strong>Name:</strong>
+                      //               </p>
+                      //               <p>{selectedContractor?.name}</p>
+                      //             </div>
+                      //             <div className="selected-contractor-container-box">
+                      //               <p>
+                      //                 <strong>City:</strong>
+                      //               </p>
+                      //               <p>{selectedContractor?.city}</p>
+                      //             </div>
+                      //             <div className="selected-contractor-container-box">
+                      //               <p>
+                      //                 <strong>Phone/Mobile:</strong>{" "}
+                      //               </p>
+                      //               <p>
+                      //                 {selectedContractor?.mobile_numbers}
+                      //                 {selectedContractor?.phone_numbers
+                      //                   ? `, ${selectedContractor?.phone_numbers}`
+                      //                   : ""}
+                      //               </p>
+                      //             </div>
+                      //             <div className="selected-contractor-container-box">
+                      //               <p>
+                      //                 <strong>Email:</strong>{" "}
+                      //               </p>
+                      //               <p>{selectedContractor?.email}</p>
+                      //             </div>
+                      //           </div>
 
-                                {/* Left: NEW INSTRUCTION CONTAINER */}
-                                <div className="exhibitor-instruction-box-checklist">
-                                  <div className="exhibitor-instruction-header">
-                                    <h4>Contractor Checklist</h4>
-                                  </div>
+                      //           {/* Left: NEW INSTRUCTION CONTAINER */}
+                      //           <div className="exhibitor-instruction-box-checklist">
+                      //             <div className="exhibitor-instruction-header">
+                      //               <h4>Contractor Checklist</h4>
+                      //             </div>
 
-                                  <div className="exhibitorInstructions-container">
-                                    {/* LEFT — Steps */}
-                                    <div className="Workflow-progress">
-                                      <div
-                                        className={`wf-step ${
-                                          currentStep >= 0 ? "active" : ""
-                                        }`}
-                                      >
-                                        <div className="wf-step-num">1</div>
-                                      </div>
-                                      <div
-                                        className={`wf-step ${
-                                          currentStep >= 1 ? "active" : ""
-                                        }`}
-                                      >
-                                        <div className="wf-step-num">2</div>
-                                      </div>
-                                      <div
-                                        className={`wf-step ${
-                                          currentStep >= 2 ? "active" : ""
-                                        }`}
-                                      >
-                                        <div className="wf-step-num">3</div>
-                                      </div>
-                                      <div
-                                        className={`wf-step ${
-                                          currentStep >= 3 ? "active" : ""
-                                        }`}
-                                      >
-                                        <div className="wf-step-num">4</div>
-                                      </div>
-                                    </div>
+                      //             <div className="exhibitorInstructions-container">
+                      //               {/* LEFT — Steps */}
+                      //               <div className="Workflow-progress">
+                      //                 <div
+                      //                   className={`wf-step ${
+                      //                     currentStep >= 0 ? "active" : ""
+                      //                   }`}
+                      //                 >
+                      //                   <div className="wf-step-num">1</div>
+                      //                 </div>
+                      //                 <div
+                      //                   className={`wf-step ${
+                      //                     currentStep >= 1 ? "active" : ""
+                      //                   }`}
+                      //                 >
+                      //                   <div className="wf-step-num">2</div>
+                      //                 </div>
+                      //                 <div
+                      //                   className={`wf-step ${
+                      //                     currentStep >= 2 ? "active" : ""
+                      //                   }`}
+                      //                 >
+                      //                   <div className="wf-step-num">3</div>
+                      //                 </div>
+                      //                 <div
+                      //                   className={`wf-step ${
+                      //                     currentStep >= 3 ? "active" : ""
+                      //                   }`}
+                      //                 >
+                      //                   <div className="wf-step-num">4</div>
+                      //                 </div>
+                      //               </div>
 
-                                    {/* RIGHT — Step content */}
-                                    <div className="exhibitorinsructionchecklist-box">
-                                      <div className="exhibitorInstructions-content-box">
-                                        <h2 className="ExhibitorContractors-heading-checklist">
-                                          Conatractor Selection
-                                        </h2>
-                                      </div>
+                      //               {/* RIGHT — Step content */}
+                      //               <div className="exhibitorinsructionchecklist-box">
+                      //                 <div className="exhibitorInstructions-content-box">
+                      //                   <h2 className="ExhibitorContractors-heading-checklist">
+                      //                     Conatractor Selection
+                      //                   </h2>
+                      //                 </div>
 
-                                      <div className="exhibitorInstructions-content-box">
-                                        <h2 className="ExhibitorContractors-heading-checklist">
-                                          Exhibitor - Appointed Contrator
-                                        </h2>
-                                      </div>
+                      //                 <div className="exhibitorInstructions-content-box">
+                      //                   <h2 className="ExhibitorContractors-heading-checklist">
+                      //                     Exhibitor - Appointed Contrator
+                      //                   </h2>
+                      //                 </div>
 
-                                      <div className="exhibitorInstructions-content-box">
-                                        <h2 className="ExhibitorContractors-heading-checklist">
-                                          Contractor Undertaking Declaration
-                                        </h2>
-                                      </div>
-                                      <div className="exhibitorInstructions-content-box">
-                                        <h2 className="ExhibitorContractors-heading-checklist">
-                                          Upload Designs & Documents
-                                        </h2>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+                      //                 <div className="exhibitorInstructions-content-box">
+                      //                   <h2 className="ExhibitorContractors-heading-checklist">
+                      //                     Contractor Undertaking Declaration
+                      //                   </h2>
+                      //                 </div>
+                      //                 <div className="exhibitorInstructions-content-box">
+                      //                   <h2 className="ExhibitorContractors-heading-checklist">
+                      //                     Upload Designs & Documents
+                      //                   </h2>
+                      //                 </div>
+                      //               </div>
+                      //             </div>
+                      //           </div>
+                      //         </div>
+                      //       </div>
+                      //     </div>
 
-                          <div className="ExhibitorContractors-rightContainer">
-                            {/* Original Layer - Register Unlisted Contractor */}
-                            <div
-                              className={`right-layer original-layer ${
-                                workflowActive ? "slide-out-right" : "visible"
-                              }`}
-                            >
-                              <div className="ExhibitorContractors-exhibitor-cont-table-container">
-                                <table className="ExhibitorContractors-appointed-contractor-table">
-                                  <thead>
-                                    <tr>
-                                      <th>ID</th>
-                                      <th>Company Name</th>
-                                      <th>Name</th>
-                                      <th>City</th>
-                                      <th>Phn/Mob No</th>
-                                      <th>Email</th>
-                                      <th>Action</th>
-                                    </tr>
-                                  </thead>
+                      //     <div className="ExhibitorContractors-rightContainer">
+                      //       {/* Original Layer - Register Unlisted Contractor */}
+                      //       <div
+                      //         className={`right-layer original-layer ${
+                      //           workflowActive ? "slide-out-right" : "visible"
+                      //         }`}
+                      //       >
+                      //         <div className="ExhibitorContractors-exhibitor-cont-table-container">
+                      //           <table className="ExhibitorContractors-appointed-contractor-table">
+                      //             <thead>
+                      //               <tr>
+                      //                 <th>ID</th>
+                      //                 <th>Company Name</th>
+                      //                 <th>Name</th>
+                      //                 <th>City</th>
+                      //                 <th>Phn/Mob No</th>
+                      //                 <th>Email</th>
+                      //                 <th>Action</th>
+                      //               </tr>
+                      //             </thead>
 
-                                  <tbody>
-                                    {contractorData.map((contractor, index) => (
-                                      <tr key={contractor.id}>
-                                        <td>{index + 1}</td>
-                                        <td>{contractor.company_name}</td>
-                                        <td>{contractor.name}</td>
-                                        <td>{contractor.city}</td>
-                                        <td>
-                                          {contractor.mobile_numbers}
-                                          {contractor.phone_numbers
-                                            ? `, ${contractor.phone_numbers}`
-                                            : ""}
-                                        </td>
-                                        <td>{contractor.email}</td>
+                      //             <tbody>
+                      //               {contractorData.map((contractor, index) => (
+                      //                 <tr key={contractor.id}>
+                      //                   <td>{index + 1}</td>
+                      //                   <td>{contractor.company_name}</td>
+                      //                   <td>{contractor.name}</td>
+                      //                   <td>{contractor.city}</td>
+                      //                   <td>
+                      //                     {contractor.mobile_numbers}
+                      //                     {contractor.phone_numbers
+                      //                       ? `, ${contractor.phone_numbers}`
+                      //                       : ""}
+                      //                   </td>
+                      //                   <td>{contractor.email}</td>
 
-                                        <td>
-                                          {selectedContractorId ===
-                                          contractor.id ? (
-                                            <button
-                                              className="ExhibitorContractors-unselect-btn"
-                                              onClick={unselectContractor}
-                                            >
-                                              Unselect
-                                            </button>
-                                          ) : (
-                                            <button
-                                              className="ExhibitorContractors-select-btn"
-                                              onClick={() => {
-                                                setSelectedContractorTemp(
-                                                  contractor,
-                                                );
-                                                setShowPopup(true);
-                                              }}
-                                              disabled={!!selectedContractorId}
-                                            >
-                                              Select
-                                            </button>
-                                          )}
-                                        </td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
-                              </div>
-                            </div>
+                      //                   <td>
+                      //                     {selectedContractorId ===
+                      //                     contractor.id ? (
+                      //                       <button
+                      //                         className="ExhibitorContractors-unselect-btn"
+                      //                         onClick={unselectContractor}
+                      //                       >
+                      //                         Unselect
+                      //                       </button>
+                      //                     ) : (
+                      //                       <button
+                      //                         className="ExhibitorContractors-select-btn"
+                      //                         onClick={() => {
+                      //                           setSelectedContractorTemp(
+                      //                             contractor,
+                      //                           );
+                      //                           setShowPopup(true);
+                      //                         }}
+                      //                         disabled={!!selectedContractorId}
+                      //                       >
+                      //                         Select
+                      //                       </button>
+                      //                     )}
+                      //                   </td>
+                      //                 </tr>
+                      //               ))}
+                      //             </tbody>
+                      //           </table>
+                      //         </div>
+                      //       </div>
 
-                            {/* Workflow Layer */}
-                            <div
-                              className={`right-layer workflow-layer ${
-                                workflowActive ? "slide-in-left" : "hidden"
-                              }`}
-                            >
-                              {/* Warning Popup */}
+                      //       {/* Workflow Layer */}
+                      //       <div
+                      //         className={`right-layer workflow-layer ${
+                      //           workflowActive ? "slide-in-left" : "hidden"
+                      //         }`}
+                      //       >
+                      //         {/* Warning Popup */}
 
-                              {showPreview && (
-                                <div className="Workflow-warning-popup-overlay">
-                                  <div
-                                    className="Workflow-pdf-preview-popup"
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    {/* Header */}
-                                    <div className="Workflow-pdf-header">
-                                      <h4>Exhibitor Form Preview</h4>
-                                      <button
-                                        className="Workflow-pdf-close-btn"
-                                        onClick={() => setShowPreview(false)}
-                                      >
-                                        ✕
-                                      </button>
-                                    </div>
+                      //         {showPreview && (
+                      //           <div className="Workflow-warning-popup-overlay">
+                      //             <div
+                      //               className="Workflow-pdf-preview-popup"
+                      //               onClick={(e) => e.stopPropagation()}
+                      //             >
+                      //               {/* Header */}
+                      //               <div className="Workflow-pdf-header">
+                      //                 <h4>Exhibitor Form Preview</h4>
+                      //                 <button
+                      //                   className="Workflow-pdf-close-btn"
+                      //                   onClick={() => setShowPreview(false)}
+                      //                 >
+                      //                   ✕
+                      //                 </button>
+                      //               </div>
 
-                                    {/* PDF */}
-                                    <div className="Workflow-pdf-body">
-                                      <iframe
-                                        src={previewURL}
-                                        title="PDF Preview"
-                                      />
-                                    </div>
+                      //               {/* PDF */}
+                      //               <div className="Workflow-pdf-body">
+                      //                 <iframe
+                      //                   src={previewURL}
+                      //                   title="PDF Preview"
+                      //                 />
+                      //               </div>
 
-                                    {/* Footer */}
-                                    <div className="Workflow-pdf-footer">
-                                      <button
-                                        className="Workflow-pdf-submit-btn"
-                                        onClick={handleFinalUpload}
-                                      >
-                                        Submit & Upload
-                                      </button>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
+                      //               {/* Footer */}
+                      //               <div className="Workflow-pdf-footer">
+                      //                 <button
+                      //                   className="Workflow-pdf-submit-btn"
+                      //                   onClick={handleFinalUpload}
+                      //                 >
+                      //                   Submit & Upload
+                      //                 </button>
+                      //               </div>
+                      //             </div>
+                      //           </div>
+                      //         )}
 
-                              {showBoothDesignPreview && (
-                                <div className="Workflow-warning-popup-overlay">
-                                  <div
-                                    className="Workflow-pdf-preview-popup"
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    <div className="Workflow-pdf-header">
-                                      <h4>Exhibitor Booth Design Preview</h4>
-                                      <button
-                                        className="Workflow-pdf-close-btn"
-                                        onClick={() =>
-                                          setShowBoothDesignPreview(false)
-                                        }
-                                      >
-                                        ✕
-                                      </button>
-                                    </div>
+                      //         {showBoothDesignPreview && (
+                      //           <div className="Workflow-warning-popup-overlay">
+                      //             <div
+                      //               className="Workflow-pdf-preview-popup"
+                      //               onClick={(e) => e.stopPropagation()}
+                      //             >
+                      //               <div className="Workflow-pdf-header">
+                      //                 <h4>Exhibitor Booth Design Preview</h4>
+                      //                 <button
+                      //                   className="Workflow-pdf-close-btn"
+                      //                   onClick={() =>
+                      //                     setShowBoothDesignPreview(false)
+                      //                   }
+                      //                 >
+                      //                   ✕
+                      //                 </button>
+                      //               </div>
 
-                                    <div className="Workflow-pdf-body">
-                                      {previewURL ? (
-                                        <iframe
-                                          src={previewURL}
-                                          title="PDF Preview"
-                                          width="100%"
-                                          height="500px"
-                                        />
-                                      ) : (
-                                        <p>No preview available</p>
-                                      )}
-                                    </div>
+                      //               <div className="Workflow-pdf-body">
+                      //                 {previewURL ? (
+                      //                   <iframe
+                      //                     src={previewURL}
+                      //                     title="PDF Preview"
+                      //                     width="100%"
+                      //                     height="500px"
+                      //                   />
+                      //                 ) : (
+                      //                   <p>No preview available</p>
+                      //                 )}
+                      //               </div>
 
-                                    <div className="Workflow-pdf-footer">
-                                      <button
-                                        className="Workflow-pdf-submit-btn"
-                                        onClick={handleBoothDesignUpload}
-                                      >
-                                        Submit & Upload
-                                      </button>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
+                      //               <div className="Workflow-pdf-footer">
+                      //                 <button
+                      //                   className="Workflow-pdf-submit-btn"
+                      //                   onClick={handleBoothDesignUpload}
+                      //                 >
+                      //                   Submit & Upload
+                      //                 </button>
+                      //               </div>
+                      //             </div>
+                      //           </div>
+                      //         )}
 
-                              {/* Step 1 Panel */}
-                              <div
-                                className={`Workflow-panel panel-step-1 ${
-                                  currentStep === 1 ? "show" : "hide-left"
-                                }`}
-                              >
-                                {/* <h3 className="Workflow-heading"> Mandatory Form for Exhibitor</h3> */}
+                      //         {/* Step 1 Panel */}
+                      //         <div
+                      //           className={`Workflow-panel panel-step-1 ${
+                      //             currentStep === 1 ? "show" : "hide-left"
+                      //           }`}
+                      //         >
+                      //           {/* <h3 className="Workflow-heading"> Mandatory Form for Exhibitor</h3> */}
 
-                                <div className="ExhibitorStep1-grid">
-                                  {/* LEFT — Instructions */}
-                                  <div className="ExhibitorInstructions">
-                                    <div>
-                                      <h4>
-                                        Step 2: Exhibitor Confirmation & Form
-                                        Upload
-                                      </h4>
+                      //           <div className="ExhibitorStep1-grid">
+                      //             {/* LEFT — Instructions */}
+                      //             <div className="ExhibitorInstructions">
+                      //               <div>
+                      //                 <h4>
+                      //                   Step 2: Exhibitor Confirmation & Form
+                      //                   Upload
+                      //                 </h4>
 
-                                      <ul className="instruction-alignment">
-                                        <li>
-                                          Exhibitors must download the mandatory
-                                          Exhibitor Form, duly sign and stamp
-                                          it, and upload the completed form to
-                                          proceed to Step 3.
-                                        </li>
-                                        <li>
-                                          By uploading the form, the exhibitor
-                                          formally confirms their intent to
-                                          appoint the selected contractor and
-                                          informs RSD Expositions accordingly.
-                                        </li>
-                                        <li>
-                                          Any change to the appointed contractor
-                                          after submission must be initiated via
-                                          the Unlock Request option available in
-                                          the next step.
-                                        </li>
-                                        <li>
-                                          Fabricator appointment is subject to
-                                          organiser approval and applicable
-                                          security deposit guidelines, as
-                                          communicated by RSD Expositions.
-                                        </li>
-                                      </ul>
-                                    </div>
+                      //                 <ul className="instruction-alignment">
+                      //                   <li>
+                      //                     Exhibitors must download the mandatory
+                      //                     Exhibitor Form, duly sign and stamp
+                      //                     it, and upload the completed form to
+                      //                     proceed to Step 3.
+                      //                   </li>
+                      //                   <li>
+                      //                     By uploading the form, the exhibitor
+                      //                     formally confirms their intent to
+                      //                     appoint the selected contractor and
+                      //                     informs RSD Expositions accordingly.
+                      //                   </li>
+                      //                   <li>
+                      //                     Any change to the appointed contractor
+                      //                     after submission must be initiated via
+                      //                     the Unlock Request option available in
+                      //                     the next step.
+                      //                   </li>
+                      //                   <li>
+                      //                     Fabricator appointment is subject to
+                      //                     organiser approval and applicable
+                      //                     security deposit guidelines, as
+                      //                     communicated by RSD Expositions.
+                      //                   </li>
+                      //                 </ul>
+                      //               </div>
 
-                                    <div>
-                                      {currentStep === 1 && (
-                                        <div className="step-1-actions">
-                                          <button
-                                            className="doc-btn download-btn"
-                                            onClick={() =>
-                                              handleDownload(
-                                                `https://inoptics.in/api/uploads/1752656815_APPOINTED CONTRACTOR & CONTRACTOR BADGES-2.pdf`,
-                                                "1752656815_APPOINTED CONTRACTOR & CONTRACTOR BADGES-2.pdf",
-                                              )
-                                            }
-                                          >
-                                            <FaDownload /> Download
-                                          </button>
+                      //               <div>
+                      //                 {currentStep === 1 && (
+                      //                   <div className="step-1-actions">
+                      //                     <button
+                      //                       className="doc-btn download-btn"
+                      //                       onClick={() =>
+                      //                         handleDownload(
+                      //                           `https://inoptics.in/api/uploads/1752656815_APPOINTED CONTRACTOR & CONTRACTOR BADGES-2.pdf`,
+                      //                           "1752656815_APPOINTED CONTRACTOR & CONTRACTOR BADGES-2.pdf",
+                      //                         )
+                      //                       }
+                      //                     >
+                      //                       <FaDownload /> Download
+                      //                     </button>
 
-                                          {/* Optional: Keep Upload button for manual trigger */}
-                                          <label className="doc-btn">
-                                            <FaUpload className="doc-icon-exhibitor" />
-                                            Upload
-                                            <input
-                                              type="file"
-                                              accept="application/pdf"
-                                              style={{ display: "none" }}
-                                              onChange={(e) => {
-                                                const file = e.target.files[0];
-                                                if (!file) return;
+                      //                     {/* Optional: Keep Upload button for manual trigger */}
+                      //                     <label className="doc-btn">
+                      //                       <FaUpload className="doc-icon-exhibitor" />
+                      //                       Upload
+                      //                       <input
+                      //                         type="file"
+                      //                         accept="application/pdf"
+                      //                         style={{ display: "none" }}
+                      //                         onChange={(e) => {
+                      //                           const file = e.target.files[0];
+                      //                           if (!file) return;
 
-                                                setSelectedFile(file);
-                                                setPreviewURL(
-                                                  URL.createObjectURL(file),
-                                                );
-                                                setShowPreview(true); // open preview
-                                              }}
-                                            />
-                                          </label>
+                      //                           setSelectedFile(file);
+                      //                           setPreviewURL(
+                      //                             URL.createObjectURL(file),
+                      //                           );
+                      //                           setShowPreview(true); // open preview
+                      //                         }}
+                      //                       />
+                      //                     </label>
 
-                                          {/* NEW: Next Button with Validation */}
-                                          <button
-                                            className="Workflow-next-btn doc-btn"
-                                            disabled={
-                                              !uploadedSteps[
-                                                `step${currentStep}`
-                                              ]
-                                            }
-                                            onClick={() =>
-                                              setCurrentStep((s) => s + 1)
-                                            }
-                                            style={{
-                                              opacity: uploadedSteps[
-                                                `step${currentStep}`
-                                              ]
-                                                ? 1
-                                                : 0.4,
-                                              cursor: uploadedSteps[
-                                                `step${currentStep + 1}`
-                                              ]
-                                                ? "pointer"
-                                                : "not-allowed",
-                                            }}
-                                          >
-                                            Next
-                                          </button>
-                                        </div>
-                                      )}
-                                    </div>
+                      //                     {/* NEW: Next Button with Validation */}
+                      //                     <button
+                      //                       className="Workflow-next-btn doc-btn"
+                      //                       disabled={
+                      //                         !uploadedSteps[
+                      //                           `step${currentStep}`
+                      //                         ]
+                      //                       }
+                      //                       onClick={() =>
+                      //                         setCurrentStep((s) => s + 1)
+                      //                       }
+                      //                       style={{
+                      //                         opacity: uploadedSteps[
+                      //                           `step${currentStep}`
+                      //                         ]
+                      //                           ? 1
+                      //                           : 0.4,
+                      //                         cursor: uploadedSteps[
+                      //                           `step${currentStep + 1}`
+                      //                         ]
+                      //                           ? "pointer"
+                      //                           : "not-allowed",
+                      //                       }}
+                      //                     >
+                      //                       Next
+                      //                     </button>
+                      //                   </div>
+                      //                 )}
+                      //               </div>
 
-                                    <br />
-                                    <div>
-                                      <p className="field-error ">
-                                        Access to the Next step will be enabled
-                                        only after the mandatory form has been
-                                        downloaded, duly completed, and
-                                        uploaded.
-                                      </p>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
+                      //               <br />
+                      //               <div>
+                      //                 <p className="field-error ">
+                      //                   Access to the Next step will be enabled
+                      //                   only after the mandatory form has been
+                      //                   downloaded, duly completed, and
+                      //                   uploaded.
+                      //                 </p>
+                      //               </div>
+                      //             </div>
+                      //           </div>
+                      //         </div>
 
-                              {/* Step 2 Panel */}
-                              <div
-                                className={`Workflow-panel panel-step-2 ${
-                                  currentStep === 2 ? "show" : "hide-right"
-                                }`}
-                              >
-                                <div className="ExhibitorStep1-grid">
-                                  {/* LEFT — Instructions */}
-                                  <div className="ExhibitorInstructions">
-                                    <div>
-                                      <h4>
-                                        {" "}
-                                        Step 3: Mandatory Contractor Undertaking
-                                        Form
-                                      </h4>
+                      //         {/* Step 2 Panel */}
+                      //         <div
+                      //           className={`Workflow-panel panel-step-2 ${
+                      //             currentStep === 2 ? "show" : "hide-right"
+                      //           }`}
+                      //         >
+                      //           <div className="ExhibitorStep1-grid">
+                      //             {/* LEFT — Instructions */}
+                      //             <div className="ExhibitorInstructions">
+                      //               <div>
+                      //                 <h4>
+                      //                   {" "}
+                      //                   Step 3: Mandatory Contractor Undertaking
+                      //                   Form
+                      //                 </h4>
 
-                                      <ul className="instruction-alignment">
-                                        <li>
-                                          This form must be completed by the
-                                          selected contractor as confirmation of
-                                          acceptance of all exhibition rules and
-                                          regulations.
-                                        </li>
-                                        <li>
-                                          Exhibitors may send the form directly
-                                          to the contractor using the “Send Form
-                                          To Contractor” button, or download and
-                                          share it manually.
-                                        </li>
-                                        <li>
-                                          The contractor is required to fill,
-                                          sign, and stamp the form and return it
-                                          to the exhibitor.
-                                        </li>
-                                        <li>
-                                          The exhibitor must upload the signed
-                                          and stamped form to complete this
-                                          step.
-                                        </li>
-                                        <li>
-                                          Contractor finalisation will be
-                                          enabled only after successful upload
-                                          of the completed form.
-                                        </li>
-                                        <li>
-                                          Completion of this step is mandatory
-                                          for participation in InOptics 2026.
-                                        </li>
-                                      </ul>
-                                    </div>
+                      //                 <ul className="instruction-alignment">
+                      //                   <li>
+                      //                     This form must be completed by the
+                      //                     selected contractor as confirmation of
+                      //                     acceptance of all exhibition rules and
+                      //                     regulations.
+                      //                   </li>
+                      //                   <li>
+                      //                     Exhibitors may send the form directly
+                      //                     to the contractor using the “Send Form
+                      //                     To Contractor” button, or download and
+                      //                     share it manually.
+                      //                   </li>
+                      //                   <li>
+                      //                     The contractor is required to fill,
+                      //                     sign, and stamp the form and return it
+                      //                     to the exhibitor.
+                      //                   </li>
+                      //                   <li>
+                      //                     The exhibitor must upload the signed
+                      //                     and stamped form to complete this
+                      //                     step.
+                      //                   </li>
+                      //                   <li>
+                      //                     Contractor finalisation will be
+                      //                     enabled only after successful upload
+                      //                     of the completed form.
+                      //                   </li>
+                      //                   <li>
+                      //                     Completion of this step is mandatory
+                      //                     for participation in InOptics 2026.
+                      //                   </li>
+                      //                 </ul>
+                      //               </div>
 
-                                    <div className="contractor-form-btn">
-                                      {currentStep === 2 && (
-                                        <button
-                                          className="doc-btn"
-                                          onClick={sendFormToContractor}
-                                        >
-                                          Send Form To Contractor
-                                        </button>
-                                      )}
-                                    </div>
+                      //               <div className="contractor-form-btn">
+                      //                 {currentStep === 2 && (
+                      //                   <button
+                      //                     className="doc-btn"
+                      //                     onClick={sendFormToContractor}
+                      //                   >
+                      //                     Send Form To Contractor
+                      //                   </button>
+                      //                 )}
+                      //               </div>
 
-                                    <div>
-                                      {currentStep === 2 && (
-                                        <div className="step-1-actions">
-                                          <button
-                                            className="doc-btn download-btn"
-                                            onClick={() =>
-                                              handleDownload(
-                                                `https://inoptics.in/api/uploads/1752656839_CONTRACTOR UNDERTAKING-DECLARATION & REGISTRATION-3.pdf`,
-                                                "1752656839_CONTRACTOR UNDERTAKING-DECLARATION & REGISTRATION-3.pdf",
-                                              )
-                                            }
-                                          >
-                                            <FaDownload /> Download
-                                          </button>
+                      //               <div>
+                      //                 {currentStep === 2 && (
+                      //                   <div className="step-1-actions">
+                      //                     <button
+                      //                       className="doc-btn download-btn"
+                      //                       onClick={() =>
+                      //                         handleDownload(
+                      //                           `https://inoptics.in/api/uploads/1752656839_CONTRACTOR UNDERTAKING-DECLARATION & REGISTRATION-3.pdf`,
+                      //                           "1752656839_CONTRACTOR UNDERTAKING-DECLARATION & REGISTRATION-3.pdf",
+                      //                         )
+                      //                       }
+                      //                     >
+                      //                       <FaDownload /> Download
+                      //                     </button>
 
-                                          {/* Optional: Keep Upload button for manual trigger */}
-                                          <label className="doc-btn">
-                                            <FaUpload className="doc-icon-exhibitor" />
-                                            Upload
-                                            <input
-                                              type="file"
-                                              accept="application/pdf"
-                                              style={{ display: "none" }}
-                                              onChange={(e) => {
-                                                const file = e.target.files[0];
-                                                if (!file) return;
+                      //                     {/* Optional: Keep Upload button for manual trigger */}
+                      //                     <label className="doc-btn">
+                      //                       <FaUpload className="doc-icon-exhibitor" />
+                      //                       Upload
+                      //                       <input
+                      //                         type="file"
+                      //                         accept="application/pdf"
+                      //                         style={{ display: "none" }}
+                      //                         onChange={(e) => {
+                      //                           const file = e.target.files[0];
+                      //                           if (!file) return;
 
-                                                setSelectedFile(file);
-                                                setPreviewURL(
-                                                  URL.createObjectURL(file),
-                                                );
-                                                setShowPreview(true); // open preview
-                                              }}
-                                            />
-                                          </label>
+                      //                           setSelectedFile(file);
+                      //                           setPreviewURL(
+                      //                             URL.createObjectURL(file),
+                      //                           );
+                      //                           setShowPreview(true); // open preview
+                      //                         }}
+                      //                       />
+                      //                     </label>
 
-                                          {/* NEW: Next Button with Validation */}
-                                          <button
-                                            className="Workflow-next-btn doc-btn"
-                                            disabled={
-                                              !uploadedSteps[
-                                                `step${currentStep}`
-                                              ]
-                                            }
-                                            onClick={() =>
-                                              setCurrentStep((s) => s + 1)
-                                            }
-                                            style={{
-                                              opacity: uploadedSteps[
-                                                `step${currentStep}`
-                                              ]
-                                                ? 1
-                                                : 0.4,
-                                              cursor: uploadedSteps[
-                                                `step${currentStep}`
-                                              ]
-                                                ? "pointer"
-                                                : "not-allowed",
-                                            }}
-                                          >
-                                            Next
-                                          </button>
-                                        </div>
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
+                      //                     {/* NEW: Next Button with Validation */}
+                      //                     <button
+                      //                       className="Workflow-next-btn doc-btn"
+                      //                       disabled={
+                      //                         !uploadedSteps[
+                      //                           `step${currentStep}`
+                      //                         ]
+                      //                       }
+                      //                       onClick={() =>
+                      //                         setCurrentStep((s) => s + 1)
+                      //                       }
+                      //                       style={{
+                      //                         opacity: uploadedSteps[
+                      //                           `step${currentStep}`
+                      //                         ]
+                      //                           ? 1
+                      //                           : 0.4,
+                      //                         cursor: uploadedSteps[
+                      //                           `step${currentStep}`
+                      //                         ]
+                      //                           ? "pointer"
+                      //                           : "not-allowed",
+                      //                       }}
+                      //                     >
+                      //                       Next
+                      //                     </button>
+                      //                   </div>
+                      //                 )}
+                      //               </div>
+                      //             </div>
+                      //           </div>
+                      //         </div>
 
-                              <div
-                                className={`Workflow-panel panel-step-2 ${
-                                  currentStep === 3 ? "show" : "hide-right"
-                                }`}
-                              >
-                                <div className="ExhibitorStep1-grid">
-                                  {/* LEFT — Instructions */}
-                                  <div className="ExhibitorInstructions">
-                                    <div>
-                                      <h4>
-                                        Step 4: Booth Dimensions & Construction
-                                        Guidelines (Raw Space)
-                                      </h4>
+                      //         <div
+                      //           className={`Workflow-panel panel-step-2 ${
+                      //             currentStep === 3 ? "show" : "hide-right"
+                      //           }`}
+                      //         >
+                      //           <div className="ExhibitorStep1-grid">
+                      //             {/* LEFT — Instructions */}
+                      //             <div className="ExhibitorInstructions">
+                      //               <div>
+                      //                 <h4>
+                      //                   Step 4: Booth Dimensions & Construction
+                      //                   Guidelines (Raw Space)
+                      //                 </h4>
 
-                                      <ul className="instruction-alignment">
-                                        <li>
-                                          The booth must be constructed strictly
-                                          within the allotted area. No extension
-                                          beyond the approved space is
-                                          permitted.
-                                        </li>
-                                        <li>
-                                          Maximum permissible height for any
-                                          booth structure or partition wall is
-                                          3.0 metres (12 feet).
-                                        </li>
-                                        <li>
-                                          Partition walls between adjoining
-                                          stalls must not exceed the permitted
-                                          height and must be neatly finished on
-                                          both sides.
-                                        </li>
-                                        <li>
-                                          All special or custom-built structures
-                                          must remain within the allotted booth
-                                          boundaries. Mezzanine floors are
-                                          strictly not permitted.
-                                        </li>
-                                        <li>
-                                          All booth structures must be
-                                          pre-fabricated and only assembled and
-                                          finished on-site. Carpentry work
-                                          inside the exhibition hall is not
-                                          allowed.
-                                        </li>
-                                        <li>
-                                          All construction and decorative
-                                          materials used must be fire-retardant
-                                          and compliant with safety regulations.
-                                          Electrical installations must be
-                                          carried out only by licensed
-                                          electricians.
-                                        </li>
-                                      </ul>
-                                    </div>
+                      //                 <ul className="instruction-alignment">
+                      //                   <li>
+                      //                     The booth must be constructed strictly
+                      //                     within the allotted area. No extension
+                      //                     beyond the approved space is
+                      //                     permitted.
+                      //                   </li>
+                      //                   <li>
+                      //                     Maximum permissible height for any
+                      //                     booth structure or partition wall is
+                      //                     3.0 metres (12 feet).
+                      //                   </li>
+                      //                   <li>
+                      //                     Partition walls between adjoining
+                      //                     stalls must not exceed the permitted
+                      //                     height and must be neatly finished on
+                      //                     both sides.
+                      //                   </li>
+                      //                   <li>
+                      //                     All special or custom-built structures
+                      //                     must remain within the allotted booth
+                      //                     boundaries. Mezzanine floors are
+                      //                     strictly not permitted.
+                      //                   </li>
+                      //                   <li>
+                      //                     All booth structures must be
+                      //                     pre-fabricated and only assembled and
+                      //                     finished on-site. Carpentry work
+                      //                     inside the exhibition hall is not
+                      //                     allowed.
+                      //                   </li>
+                      //                   <li>
+                      //                     All construction and decorative
+                      //                     materials used must be fire-retardant
+                      //                     and compliant with safety regulations.
+                      //                     Electrical installations must be
+                      //                     carried out only by licensed
+                      //                     electricians.
+                      //                   </li>
+                      //                 </ul>
+                      //               </div>
 
-                                    <div className="contractor-form-btn">
-                                      <label className="doc-btn">
-                                        <FaUpload className="doc-icon-exhibitor" />
-                                        Upload
-                                        <input
-                                          type="file"
-                                          accept="application/pdf"
-                                          style={{ display: "none" }}
-                                          onChange={handleFileSelect}
-                                        />
-                                      </label>
+                      //               <div className="contractor-form-btn">
+                      //                 <label className="doc-btn">
+                      //                   <FaUpload className="doc-icon-exhibitor" />
+                      //                   Upload
+                      //                   <input
+                      //                     type="file"
+                      //                     accept="application/pdf"
+                      //                     style={{ display: "none" }}
+                      //                     onChange={handleFileSelect}
+                      //                   />
+                      //                 </label>
 
-                                      {/* NEW: Next Button with Validation */}
-                                      <button
-                                        className="Workflow-next-btn doc-btn"
-                                        disabled={
-                                          !uploadedSteps[`step${currentStep}`]
-                                        }
-                                        onClick={() => {
-                                          setIsReuploading(false); // 🔓 auto control allow
-                                          setBoothDesignStatus("pending");
-                                          setCurrentStep(4); // 👉 pending card
-                                        }}
-                                        style={{
-                                          opacity: uploadedSteps[
-                                            `step${currentStep}`
-                                          ]
-                                            ? 1
-                                            : 0.4,
-                                          cursor: uploadedSteps[
-                                            `step${currentStep}`
-                                          ]
-                                            ? "pointer"
-                                            : "not-allowed",
-                                        }}
-                                      >
-                                        Next
-                                      </button>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
+                      //                 {/* NEW: Next Button with Validation */}
+                      //                 <button
+                      //                   className="Workflow-next-btn doc-btn"
+                      //                   disabled={
+                      //                     !uploadedSteps[`step${currentStep}`]
+                      //                   }
+                      //                   onClick={() => {
+                      //                     setIsReuploading(false); // 🔓 auto control allow
+                      //                     setBoothDesignStatus("pending");
+                      //                     setCurrentStep(4); // 👉 pending card
+                      //                   }}
+                      //                   style={{
+                      //                     opacity: uploadedSteps[
+                      //                       `step${currentStep}`
+                      //                     ]
+                      //                       ? 1
+                      //                       : 0.4,
+                      //                     cursor: uploadedSteps[
+                      //                       `step${currentStep}`
+                      //                     ]
+                      //                       ? "pointer"
+                      //                       : "not-allowed",
+                      //                   }}
+                      //                 >
+                      //                   Next
+                      //                 </button>
+                      //               </div>
+                      //             </div>
+                      //           </div>
+                      //         </div>
 
-                              <div
-                                className={`Workflow-panel panel-step-2 ${currentStep === 4 ? "show" : "hide-right"}`}
-                              >
-                                {boothDesignStatus === "pending" && (
-                                  <div className="contractor-thankyou-card warning">
-                                    <h3>Booth Design Under Review</h3>
-                                    <p>Please wait for approval.</p>
-                                  </div>
-                                )}
+                      //         <div
+                      //           className={`Workflow-panel panel-step-2 ${currentStep === 4 ? "show" : "hide-right"}`}
+                      //         >
+                      //           {boothDesignStatus === "pending" && (
+                      //             <div className="contractor-thankyou-card warning">
+                      //               <h3>Booth Design Under Review</h3>
+                      //               <p>Please wait for approval.</p>
+                      //             </div>
+                      //           )}
 
-                                {boothDesignStatus === "rejected" && (
-                                  <div className="contractor-thankyou-card rejected">
-                                    <h3>Booth Design Rejected ❌</h3>
-                                    <div className="reject-reason-box">
-                                      {boothRejectReason ||
-                                        "No reason provided by admin."}
-                                    </div>
+                      //           {boothDesignStatus === "rejected" && (
+                      //             <div className="contractor-thankyou-card rejected">
+                      //               <h3>Booth Design Rejected ❌</h3>
+                      //               <div className="reject-reason-box">
+                      //                 {boothRejectReason ||
+                      //                   "No reason provided by admin."}
+                      //               </div>
 
-                                    <button
-                                      className="doc-btn"
-                                      onClick={() => {
-                                        setIsReuploading(true); // 🔥 STOP auto effect
-                                        setBoothRejectReason("");
-                                        setCurrentStep(3); // 🔥 go to upload step
-                                      }}
-                                    >
-                                      Re-Upload Booth Design
-                                    </button>
-                                  </div>
-                                )}
+                      //               <button
+                      //                 className="doc-btn"
+                      //                 onClick={() => {
+                      //                   setIsReuploading(true); // 🔥 STOP auto effect
+                      //                   setBoothRejectReason("");
+                      //                   setCurrentStep(3); // 🔥 go to upload step
+                      //                 }}
+                      //               >
+                      //                 Re-Upload Booth Design
+                      //               </button>
+                      //             </div>
+                      //           )}
 
-                                {boothDesignStatus === "approved" && (
-                                  <div className="contractor-thankyou-card success">
-                                    <h3>Thank you 🎉</h3>
-                                    <p>Your booth design has been approved.</p>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                      //           {boothDesignStatus === "approved" && (
+                      //             <div className="contractor-thankyou-card success">
+                      //               <h3>Thank you 🎉</h3>
+                      //               <p>Your booth design has been approved.</p>
+                      //             </div>
+                      //           )}
+                      //         </div>
+                      //       </div>
+                      //     </div>
+                      //   </div>
+                      // </div>
+                     <ExhibitorContractors
+  importantPage={importantPage}
+  activeMenu={activeMenu}
+
+  showPopup={showPopup}
+  setShowPopup={setShowPopup}
+  selectedContractorTemp={selectedContractorTemp}
+  cancelSelect={cancelSelect}
+  confirmSelect={confirmSelect}
+
+  showContractorListOverlay={showContractorListOverlay}
+  setShowContractorListOverlay={setShowContractorListOverlay}
+
+  contractorData={contractorData}
+  selectedContractorId={selectedContractorId}
+  unselectContractor={unselectContractor}
+  setSelectedContractorTemp={setSelectedContractorTemp}
+
+  workflowActive={workflowActive}
+
+  contractorEmail={contractorEmail}
+  setContractorEmail={setContractorEmail}
+  handleSendRegistrationMail={handleSendRegistrationMail}
+
+  requestContractorChange={requestContractorChange}
+
+  uploadedFiles={uploadedFiles}
+  setSelectedPreviewStep={setSelectedPreviewStep}
+  setPdfUrl={setPdfUrl}
+  setShowPdfPreview={setShowPdfPreview}
+  showPdfPreview={showPdfPreview}
+
+  forceDownload={forceDownload}
+  downloadBoothDesign={downloadBoothDesign}
+  formData={formData}
+
+  selectedContractor={selectedContractor}
+
+  currentStep={currentStep}
+  setCurrentStep={setCurrentStep}
+  uploadedSteps={uploadedSteps}
+
+  showPreview={showPreview}
+  setShowPreview={setShowPreview}
+  previewURL={previewURL}
+  setPreviewURL={setPreviewURL}
+  setSelectedFile={setSelectedFile}
+  handleFinalUpload={handleFinalUpload}
+
+  handleDownload={handleDownload}
+  sendFormToContractor={sendFormToContractor}
+  handleFileSelect={handleFileSelect}
+
+  setIsReuploading={setIsReuploading}
+  boothDesignStatus={boothDesignStatus}
+  setBoothDesignStatus={setBoothDesignStatus}
+  boothRejectReason={boothRejectReason}
+  setBoothRejectReason={setBoothRejectReason}
+
+  showBoothDesignPreview={showBoothDesignPreview}
+  setShowBoothDesignPreview={setShowBoothDesignPreview}
+  handleBoothDesignUpload={handleBoothDesignUpload}
+/>
+
+
+
+                  // <div className="contractor-ui-body">
+                  //   {!importantPage && activeMenu === "Contractors" && (
+                  //   )}
+                  // </div>
                 )}
               </div>
 
-              {/* Overlay Panel for Additional Requirements */}
               {activeMenu === "Exhibitor Badges" && (
                 <ExhibitorBadgeForm
                   setIsInExhibitorBadges={setIsInExhibitorBadges}
@@ -5314,372 +4684,61 @@ setBrandsData({
               )}
 
               {!importantPage && activeMenu === "Payment" && (
-                <div className="exhibitordashboard-content">
-                  <div className="payment-cards-container">
-                    {/* ✅ BANK DETAILS BLOCK */}
-                    <div className="bank-details">
-                      <div className="bank-row">
-                        <div className="bank-column">
-                          <p>
-                            <strong>A/C Name:</strong> RSD EXPOSITIONS
-                          </p>
-                          <p>
-                            <strong>Bank Name:</strong> Kotak Mahindra Bank
-                          </p>
-                          <p>
-                            <strong>Bank A/c No.:</strong> 01992000000491
-                          </p>
-                          <p>
-                            <strong>Address:</strong> Defence Colony, New Delhi
-                          </p>
-                          <p>
-                            <strong>IFSC Code:</strong> KKBK0004620
-                          </p>
-                        </div>
-
-                        <div className="bank-column">
-                          <p>
-                            <strong>A/C Name:</strong> RSD EXPOSITIONS
-                          </p>
-                          <p>
-                            <strong>Bank Name:</strong> HDFC BANK
-                          </p>
-                          <p>
-                            <strong>Bank A/c No.:</strong> 99999811045088
-                          </p>
-                          <p>
-                            <strong>Address:</strong> Delhi
-                          </p>
-                          <p>
-                            <strong>IFSC Code:</strong> HDFC0000578
-                          </p>
-                        </div>
-
-                        <div className="bank-column">
-                          <p>
-                            <strong>A/C Name:</strong> RSD EXPOSITIONS
-                          </p>
-                          <p>
-                            <strong>Bank Name:</strong> IndusInd Bank
-                          </p>
-                          <p>
-                            <strong>Bank A/c No.:</strong> 259811045088
-                          </p>
-                          <p>
-                            <strong>Address:</strong> Karol Bagh, New Delhi
-                          </p>
-                          <p>
-                            <strong>IFSC Code:</strong> INDB0000169
-                          </p>
-                        </div>
-
-                        <div className="bank-column">
-                          <p>
-                            <strong>A/C Name:</strong> RSD EXPOSITIONS
-                          </p>
-                          <p>
-                            <strong>Bank Name:</strong> Axis Bank
-                          </p>
-                          <p>
-                            <strong>Bank A/c No.:</strong> 0032144225
-                          </p>
-                          <p>
-                            <strong>Address:</strong> Delhi
-                          </p>
-                          <p>
-                            <strong>IFSC Code:</strong> UTIB0005109
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="payment-card-grid">
-                      {/* First Card: Stall Charges Summary */}
-                      {(() => {
-                        // ✅ SAFE OBJECT
-                        const summary = stallSummary || {};
-
-                        // ✅ SAFE NUMBERS
-                        const safeTotal = Number(summary.total || 0);
-                        const safeDiscount = Number(
-                          summary.discounted_amount || 0,
-                        );
-                        const safeSgst = Number(summary.sgst || 0);
-                        const safeCgst = Number(summary.cgst || 0);
-                        const safeIgst = Number(summary.igst || 0);
-                        const safeGrand = Number(summary.grand_total || 0);
-
-                        const safeCleared = Number(stallPaymentCleared || 0);
-
-                        // ✅ FINAL PENDING
-                        const pendingAmount = Math.max(
-                          0,
-                          Number((safeGrand - safeCleared).toFixed(2)),
-                        );
-
-                        return (
-                          <div className="payment-card">
-                            <h4>Stall Particulars</h4>
-
-                            <div className="billing-summary">
-                              <div className="billing-row">
-                                <span>Total:</span>
-                                <strong>₹ {safeTotal.toFixed(2)}</strong>
-                              </div>
-
-                              {safeDiscount > 0 && (
-                                <div className="billing-row">
-                                  <span>
-                                    Discount ({getDiscountPercent(summary)}%):
-                                  </span>
-                                  <strong>₹ {safeDiscount.toFixed(2)}</strong>
-                                </div>
-                              )}
-
-                              {isDelhi ? (
-                                <>
-                                  <div className="billing-row">
-                                    <span>SGST (9%):</span>
-                                    <strong>₹ {safeSgst.toFixed(2)}</strong>
-                                  </div>
-
-                                  <div className="billing-row">
-                                    <span>CGST (9%):</span>
-                                    <strong>₹ {safeCgst.toFixed(2)}</strong>
-                                  </div>
-                                </>
-                              ) : (
-                                <div className="billing-row">
-                                  <span>IGST (18%):</span>
-                                  <strong>₹ {safeIgst.toFixed(2)}</strong>
-                                </div>
-                              )}
-
-                              <div className="billing-row total">
-                                <span>Grand Total:</span>
-                                <strong>₹ {safeGrand.toFixed(2)}</strong>
-                              </div>
-
-                              <div className="billing-row">
-                                <span>Cleared Amount:</span>
-                                <strong>₹ {safeCleared.toFixed(2)}</strong>
-                              </div>
-
-                              <div
-                                className="billing-row"
-                                style={{
-                                  color: pendingAmount <= 0 ? "green" : "red",
-                                  fontWeight: "bold",
-                                  marginTop: "10px",
-                                }}
-                              >
-                                <span>
-                                  {pendingAmount <= 0
-                                    ? "PAYMENT CLEARED"
-                                    : "PENDING AMOUNT"}
-                                </span>
-
-                                <strong>₹ {pendingAmount.toFixed(2)}</strong>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })()}
-
-                      {/* === Card 2: Power Requirement Billing === */}
-                      {(() => {
-                        const safeTotal = Number(grandTotal || 0);
-                        const safeCleared = Number(powerCleared || 0);
-
-                        const powerPendingAmount = Math.max(
-                          0,
-                          Number((safeTotal - safeCleared).toFixed(2)),
-                        );
-
-                        return (
-                          <div className="payment-card">
-                            <h4>Power Requirement</h4>
-
-                            <div className="billing-summary">
-                              <div className="billing-row">
-                                <span>Total:</span>
-                                <strong>
-                                  ₹ {Number(totalPrice || 0).toFixed(2)}
-                                </strong>
-                              </div>
-
-                              {isDelhi ? (
-                                <>
-                                  <div className="billing-row">
-                                    <span>CGST (9%):</span>
-                                    <strong>
-                                      ₹ {Number(cgst || 0).toFixed(2)}
-                                    </strong>
-                                  </div>
-
-                                  <div className="billing-row">
-                                    <span>SGST (9%):</span>
-                                    <strong>
-                                      ₹ {Number(sgst || 0).toFixed(2)}
-                                    </strong>
-                                  </div>
-                                </>
-                              ) : (
-                                <div className="billing-row">
-                                  <span>IGST (18%):</span>
-                                  <strong>
-                                    ₹ {Number(igst || 0).toFixed(2)}
-                                  </strong>
-                                </div>
-                              )}
-
-                              <div className="billing-row total">
-                                <span>Grand Total:</span>
-                                <strong>₹ {safeTotal.toFixed(2)}</strong>
-                              </div>
-
-                              <div className="billing-row">
-                                <span>Cleared Amount:</span>
-                                <strong>₹ {safeCleared.toFixed(2)}</strong>
-                              </div>
-
-                              <div
-                                className="billing-row"
-                                style={{
-                                  color:
-                                    powerPendingAmount <= 0 ? "green" : "red",
-                                  fontWeight: "bold",
-                                  marginTop: "10px",
-                                }}
-                              >
-                                <span>
-                                  {powerPendingAmount <= 0
-                                    ? "PENDING AMOUNT"
-                                    : "PAYMENT CLEARED"}
-                                </span>
-
-                                <strong>
-                                  ₹ {powerPendingAmount.toFixed(2)}
-                                </strong>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })()}
-
-                      {/* === Card 3: Exhibitor Badges Billing === */}
-                      {(() => {
-                        const b = getExhibitorBadgeBilling() || {};
-
-                        const count = Number(b.count || 0);
-                        const total = Number(b.total || 0);
-                        const cgst = Number(b.cgst || 0);
-                        const sgst = Number(b.sgst || 0);
-                        const igst = Number(b.igst || 0);
-                        const grand = Number(b.grandTotal || 0);
-                        const cleared = Number(b.cleared || 0);
-                        const pending = Number(b.pending || 0);
-                        const status = b.paymentStatus || "NOT PAID";
-                        const isDelhi = Boolean(b.isDelhi);
-
-                        return (
-                          <div className="payment-card">
-                            <h4>Exhibitor Badges</h4>
-
-                            <div className="billing-summary">
-                              <div className="billing-row">
-                                <span>Extra Badges:</span>
-                                <strong>{count}</strong>
-                              </div>
-
-                              <div className="billing-row">
-                                <span>Total Amount:</span>
-                                <strong>₹ {total.toFixed(2)}</strong>
-                              </div>
-
-                              {isDelhi ? (
-                                <>
-                                  <div className="billing-row">
-                                    <span>CGST (9%):</span>
-                                    <strong>₹ {cgst.toFixed(2)}</strong>
-                                  </div>
-                                  <div className="billing-row">
-                                    <span>SGST (9%):</span>
-                                    <strong>₹ {sgst.toFixed(2)}</strong>
-                                  </div>
-                                </>
-                              ) : (
-                                <div className="billing-row">
-                                  <span>IGST (18%):</span>
-                                  <strong>₹ {igst.toFixed(2)}</strong>
-                                </div>
-                              )}
-
-                              <div className="billing-row total">
-                                <span>Grand Total:</span>
-                                <strong>₹ {grand.toFixed(2)}</strong>
-                              </div>
-
-                              <div className="billing-row">
-                                <span>Cleared Amount:</span>
-                                <strong>₹ {cleared.toFixed(2)}</strong>
-                              </div>
-
-                              {pending > 0 && (
-                                <div className="billing-row">
-                                  <span>Pending Amount:</span>
-                                  <strong>₹ {pending.toFixed(2)}</strong>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })()}
-                    </div>
-                  </div>
-                </div>
+                <ExhibitorPayments
+                  stallSummary={stallSummary}
+                  stallPaymentCleared={stallPaymentCleared}
+                  isDelhi={isDelhi}
+                  getDiscountPercent={getDiscountPercent}
+                  totalPrice={totalPrice}
+                  cgst={cgst}
+                  sgst={sgst}
+                  igst={igst}
+                  grandTotal={grandTotal}
+                  powerCleared={powerCleared}
+                  getExhibitorBadgeBilling={getExhibitorBadgeBilling}
+                />
               )}
             </>
           )}
         </div>
-      </div>
 
-      {showExitPopup && (
-        <div className="confirm-overlay">
-          <div className="confirm-modal">
-            <h3>Leave Exhibitor Badges?</h3>
-            <p>
-              You have unsaved or pending badge-related actions. Are you sure
-              you want to leave this page?
-            </p>
+        {showExitPopup && (
+          <div className="confirm-overlay">
+            <div className="confirm-modal">
+              <h3>Leave Exhibitor Badges?</h3>
+              <p>
+                You have unsaved or pending badge-related actions. Are you sure
+                you want to leave this page?
+              </p>
 
-            <div className="confirm-actions">
-              <button
-                className="cancel-btn"
-                onClick={() => {
-                  setShowExitPopup(false);
-                  setPendingMenu(null);
-                }}
-              >
-                Stay Here
-              </button>
+              <div className="confirm-actions">
+                <button
+                  className="cancel-btn"
+                  onClick={() => {
+                    setShowExitPopup(false);
+                    setPendingMenu(null);
+                  }}
+                >
+                  Stay Here
+                </button>
 
-              <button
-                className="confirm-btn"
-                onClick={() => {
-                  setShowExitPopup(false);
-                  setIsInExhibitorBadges(false);
-                  setHasUnlockedBadge(false); // 🔥 reset
-                  forceNavigateMenu(pendingMenu);
-                  setPendingMenu(null);
-                }}
-              >
-                Leave Page
-              </button>
+                <button
+                  className="confirm-btn"
+                  onClick={() => {
+                    setShowExitPopup(false);
+                    setIsInExhibitorBadges(false);
+                    setHasUnlockedBadge(false); // 🔥 reset
+                    forceNavigateMenu(pendingMenu);
+                    setPendingMenu(null);
+                  }}
+                >
+                  Leave Page
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

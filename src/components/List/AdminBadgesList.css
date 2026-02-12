@@ -40,7 +40,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
+  padding: 5px 20px;
   cursor: pointer;
   background: #161616;
   transition: background 0.2s ease;
@@ -53,15 +53,29 @@
   color: #ffffff;
 }
 
-.badge-count {
-  margin-left: 12px;
-  font-size: 13px;
-  color: #ffffff;
-}
+
 
 .badge-table-icon{
   color: #ffffff;
 }
+
+.badge-pay-summary {
+  display: flex;
+  gap: 14px;
+  font-size: 12px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+  color: #374151;
+}
+
+.badge-pay-summary span {
+  background: #f3f4f6;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+
+
 /* ===============================
    BADGE LIST
 ================================ */
@@ -197,7 +211,7 @@
   position: absolute;
   top: 14px;
   right: 16px;
-  background: transparent;
+  background: #ffff;
   border: none;
   font-size: 26px;
   color: #666;
@@ -279,8 +293,7 @@
 ================================ */
 .preview-box {
   max-width: 95%;
-  padding: 18px 18px 22px;
-  height: auto;
+  height: 560px;
 }
 
 /* Badge container */
@@ -298,6 +311,8 @@
   border-radius: 14px;
   background: #fff;
 }
+
+
 
 
 
@@ -374,3 +389,6 @@
   0% { left: -120%; }
   100% { left: 140%; }
 }
+
+
+

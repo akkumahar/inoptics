@@ -148,6 +148,11 @@ img, iframe, video {
   overflow-y: hidden;
 }
 
+
+.exhibitor-panel-main-content-containner{
+  display: flex;
+}
+
 .exhibitordashboard-main-content::-webkit-scrollbar{
   display: none;
 }
@@ -319,6 +324,7 @@ img, iframe, video {
  
   flex: 1;
   overflow-y: auto;
+
 }
 
 
@@ -329,7 +335,6 @@ img, iframe, video {
 .exhibitordashboard-content {
   flex: 1;
   overflow-y: auto;
-  padding: 0 10px;
 }
 
 /* Dashboard grid now full width */
@@ -790,10 +795,7 @@ img, iframe, video {
 /* profile css  */
 
 
-/* Profile Main Content */
-.profile-content {
-  padding: 20px;
-}
+
 
 /* Layout: Left (stacked) + Right */
 .profile-layout {
@@ -825,14 +827,7 @@ img, iframe, video {
 
 
 
-/* Card Style */
-.profile-card {
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
 
-}
 
 /* Section Title */
 .profile-section-title {
@@ -1310,152 +1305,6 @@ font-weight: 500;
   height: 100%;
   background-color: #fff;
 }
-
-/* ---------- Left Panel - Mail List ---------- */
-.mail-list-panel {
-  width: 30%;
-  border-right: 1px solid #e5e5e5;
-  overflow-y: auto;
-  background-color: #ffffff;
-}
-
-.mail-status-text {
-  padding: 15px;
-  color: #666;
-  text-align: center;
-  font-size: 14px;
-}
-
-.mail-list-item {
-  padding: 12px 16px;
-  border-bottom: 1px solid #f0f0f0;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.mail-list-item:hover {
-  background-color: #f5f7fa;
-}
-
-.mail-list-item.selected {
-  background-color: #e6f0ff;
-  border-left: 4px solid #0073e6;
-}
-
-/* ---------- Gmail-Style Enhancements ---------- */
-.mail-list-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.mail-subject {
-  margin: 0;
-  font-size: 14px;
-  color: #222;
-  font-weight: 600;
-}
-
-.mail-subject.unread,
-.mail-snippet.unread {
-  font-weight: 700;
-  color: #000;
-}
-
-.mail-new-badge {
-  background: #0073e6;
-  color: white;
-  padding: 2px 6px;
-  font-size: 11px;
-  border-radius: 6px;
-  margin-left: 6px;
-}
-
-.mail-date {
-  font-size: 11px;
-  color: #999;
-  display: block;
-  margin-bottom: 6px;
-}
-
-.mail-snippet {
-  font-size: 12px;
-  color: #555;
-  margin: 0;
-  line-height: 1.4;
-}
-
-/* ---------- Right Panel - Selected Mail ---------- */
-.mail-view-panel {
-  width: 70%;
-  padding: 20px 25px;
-  overflow-y: auto;
-  background-color: #ffffff;
-  border-left: 1px solid #e5e5e5;
-}
-
-.mail-view-subject {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  color: #333;
-}
-
-.mail-view-date {
-  display: block;
-  margin-top: 6px;
-  font-size: 12px;
-  color: #888;
-}
-
-.mail-view-content {
-  margin-top: 20px;
-  font-size: 14px;
-  color: #444;
-  line-height: 1.7;
-  word-wrap: break-word;
-}
-
-.mail-view-placeholder {
-  text-align: center;
-  margin-top: 40px;
-  color: #777;
-  font-size: 14px;
-}
-
-/* ---------- Scrollbar Styling ---------- */
-.mail-list-panel::-webkit-scrollbar,
-.mail-view-panel::-webkit-scrollbar {
-  width: 6px;
-}
-
-.mail-list-panel::-webkit-scrollbar-thumb,
-.mail-view-panel::-webkit-scrollbar-thumb {
-  background-color: #ccc;
-  border-radius: 3px;
-}
-
-.mail-list-panel::-webkit-scrollbar-thumb:hover,
-.mail-view-panel::-webkit-scrollbar-thumb:hover {
-  background-color: #999;
-}
-
-.mail-badge {
-  background: red;
-  color: white;
-  border-radius: 50%;
-  padding: 2px 7px;
-  font-size: 12px;
-  font-weight: bold;
-  margin-left: 6px;
-  display: inline-block;
-  vertical-align: middle;
-}
-
-
 
 
 .ExhibitorInstruction-instruction-container {
@@ -4234,6 +4083,7 @@ iframe img {
   /* Payment table scroll hint */
   .stall-payment-table {
     font-size: 12px;
+    overflow-y: hidden;
   }
 
   .stall-payment-table th,
@@ -4246,10 +4096,7 @@ iframe img {
     margin-bottom: 12px;
   }
 
-  /* Avoid overflow */
-  .exhibitordashboard-content {
-    padding-bottom: 40px;
-  }
+
 }
 
 
@@ -4371,29 +4218,7 @@ iframe img {
 /* payments section in bank details css end */
 
 
-
-
-
 /*  brands container styling with responsive start */
-
-/* =====================================================
-   BRANDS — CLEAN FLAT RESPONSIVE UI
-   ===================================================== */
-
-/* ROOT CARD */
-
-.profile-right {
-  width: 100%;
-}
-
-.profile-card {
-  width: 100%;
-  padding: 28px 32px;
-  border-radius: 18px;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-}
 
 /* ================= HEADER ================= */
 
@@ -4581,82 +4406,78 @@ iframe img {
   }
 }
 
-/* =====================================================
-   RESPONSIVE — TABLET
-   ===================================================== */
 
+
+/* ================= SIDEBAR BASE ================= */
+
+.exhibitordashboard-sidebar {
+  background: #111827;
+  color: white;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  z-index: 2000;
+  transition: transform 0.3s ease, width 0.3s ease;
+}
+
+/* ===== DESKTOP MODE ===== */
+
+.exhibitordashboard-sidebar.desktop {
+  position: fixed;
+  width: 260px;
+  transform: translateX(0);
+}
+
+.exhibitordashboard-sidebar.desktop.collapsed {
+  width: 72px;
+}
+
+/* ===== MOBILE MODE ===== */
+
+.exhibitordashboard-sidebar.mobile {
+  position: fixed;
+  width: 260px;
+  transform: translateX(-100%);
+}
+
+.exhibitordashboard-sidebar.mobile:not(.collapsed) {
+  transform: translateX(0);
+}
+
+/* ===== OVERLAY ===== */
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 1500;
+}
+
+/* ================= MAIN CONTENT SHIFT ================= */
+
+.exhibitordashboard-main-content {
+  transition: margin-left 0.3s ease;
+  min-width: 0;
+}
+
+/* desktop shift */
+@media (min-width: 1025px) {
+
+  .exhibitordashboard-main-content.sidebar-open {
+    margin-left: 260px;
+  }
+
+  .exhibitordashboard-main-content.sidebar-collapsed {
+    margin-left: 72px;
+  }
+
+}
+
+/* mobile no shift */
 @media (max-width: 1024px) {
 
-  .profile-card {
-    padding: 22px;
-  }
-
-  .brands-input-row,
-  .brands-view-grid {
-    grid-template-columns: 1fr;
-    gap: 18px;
-  }
-
-  .brands-full {
-    grid-column: span 1;
-  }
-
-}
-
-/* =====================================================
-   RESPONSIVE — MOBILE
-   ===================================================== */
-
-@media (max-width: 600px) {
-
-  .profile-card {
-    padding: 16px;
-    border-radius: 14px;
-  }
-
-  .brands-heading,
-  .brands-view-header h2 {
-    font-size: 22px;
-  }
-
-  .brands-field-group label,
-  .brands-view-grid label {
-    font-size: 13px;
-  }
-
-  .brands-field-group input,
-  .brands-field-group select {
-    height: 42px;
-    font-size: 13px;
-  }
-
-  .view-pill,
-  .view-box {
-    font-size: 13px;
-  }
-
-  .brands-button-section {
-    justify-content: stretch;
-  }
-
-  .brands-details-add-brands-btn {
-    width: 100%;
-  }
-
-}
-
-/* =====================================================
-   EXTRA SMALL MOBILE
-   ===================================================== */
-
-@media (max-width: 380px) {
-
-  .brands-heading {
-    font-size: 20px;
-  }
-
-  .profile-card {
-    padding: 12px;
+  .exhibitordashboard-main-content {
+    margin-left: 0 !important;
   }
 
 }
