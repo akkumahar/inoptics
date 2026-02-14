@@ -1,14 +1,9 @@
-import React, { useState, useEffect,useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./ExhibitorBadgeForm.css";
 import { FaCirclePlus } from "react-icons/fa6";
 import { IoClose } from "react-icons/io5";
 
-import {
-  FaEdit,
-  FaUpload,
-  FaUnlock,
-  FaLock,
-} from "react-icons/fa";
+import { FaEdit, FaUpload, FaUnlock, FaLock } from "react-icons/fa";
 import { MdVerified } from "react-icons/md";
 import { RiMoneyRupeeCircleFill } from "react-icons/ri";
 
@@ -32,12 +27,8 @@ const ExhibitorBadgeForm = ({
     photo: "",
   });
 
-
-
-
-const photoInputRef = useRef(null);
-const [unlockApprovedMap, setUnlockApprovedMap] = useState({});
-
+  const photoInputRef = useRef(null);
+  const [unlockApprovedMap, setUnlockApprovedMap] = useState({});
 
   const [loading, setLoading] = useState(true);
   const [loadingCompanyBadges, setLoadingCompanyBadges] = useState(false);
@@ -48,7 +39,6 @@ const [unlockApprovedMap, setUnlockApprovedMap] = useState({});
   const [extraPaidBadges, setExtraPaidBadges] = useState(0); // Extra badges requested count
   const [usedBadges, setUsedBadges] = useState(0);
   const [freeRemaining, setFreeRemaining] = useState(0);
-
 
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [photoPreview, setPhotoPreview] = useState(null);
@@ -70,9 +60,6 @@ const [unlockApprovedMap, setUnlockApprovedMap] = useState({});
     setIsInExhibitorBadges(true);
     return () => setIsInExhibitorBadges(false);
   }, []);
-
-
-
 
   useEffect(() => {
     if (companyBadges.length > 0) {
@@ -206,7 +193,6 @@ const [unlockApprovedMap, setUnlockApprovedMap] = useState({});
       console.error("Error fetching stall data:", error);
     }
   };
-  
 
   // ===== AUTO REFRESH BADGE DATA =====
   useEffect(() => {
@@ -231,14 +217,13 @@ const [unlockApprovedMap, setUnlockApprovedMap] = useState({});
         const badgeData = await badgeRes.json();
 
         if (!cancelled && badgeData.success) {
-  const badges = badgeData.badges || [];
-  setCompanyBadges(badges);
+          const badges = badgeData.badges || [];
+          setCompanyBadges(badges);
 
-  badges.forEach(b => {
-    fetchUnlockApprovedStatus(b.id);
-  });
-}
-
+          badges.forEach((b) => {
+            fetchUnlockApprovedStatus(b.id);
+          });
+        }
 
         /* ===============================
          2️⃣ FETCH COUNTS (AFTER LIST)
@@ -364,8 +349,6 @@ const [unlockApprovedMap, setUnlockApprovedMap] = useState({});
         await autoIncrementExtraBadge();
       }
 
-      
-
       // ===== SUCCESS UI =====
       setFieldErrors({ name: "", photo: "" });
 
@@ -382,24 +365,22 @@ const [unlockApprovedMap, setUnlockApprovedMap] = useState({});
         ...prev,
       ]);
 
-
-
       setRefreshTrigger((p) => p + 1);
       setHasGeneratedBadge(true);
 
-     // reset form state
-setFormData((prev) => ({
-  ...prev,
-  name: "",
-  candidate_photo: null,
-}));
+      // reset form state
+      setFormData((prev) => ({
+        ...prev,
+        name: "",
+        candidate_photo: null,
+      }));
 
-setPhotoPreview(null);
+      setPhotoPreview(null);
 
-// ✅ clear file input UI
-if (photoInputRef.current) {
-  photoInputRef.current.value = "";
-}
+      // ✅ clear file input UI
+      if (photoInputRef.current) {
+        photoInputRef.current.value = "";
+      }
       setMessage({ type: "success", text: "Badge created successfully!" });
     } catch (err) {
       const msg = err.message || "";
@@ -493,94 +474,86 @@ if (photoInputRef.current) {
     }
   };
 
-
   const fetchUnlockApprovedStatus = async (badgeId) => {
-  try {
-    const res = await fetch(
-      `https://inoptics.in/api/get_unlock_approved_status.php?badge_id=${badgeId}`
-    );
+    try {
+      const res = await fetch(
+        `https://inoptics.in/api/get_unlock_approved_status.php?badge_id=${badgeId}`,
+      );
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (data.success) {
-      setUnlockApprovedMap(prev => ({
-        ...prev,
-        [badgeId]: Number(data.unlock_approved)
-      }));
+      if (data.success) {
+        setUnlockApprovedMap((prev) => ({
+          ...prev,
+          [badgeId]: Number(data.unlock_approved),
+        }));
+      }
+    } catch (err) {
+      console.error("unlock_approved fetch error", err);
     }
+  };
 
-  } catch (err) {
-    console.error("unlock_approved fetch error", err);
-  }
-};
+  useEffect(() => {
+    const t = setInterval(() => {
+      companyBadges.forEach((b) => {
+        fetchUnlockApprovedStatus(b.id);
+      });
+    }, 5000);
 
-
-useEffect(() => {
-  const t = setInterval(() => {
-    companyBadges.forEach(b => {
-      fetchUnlockApprovedStatus(b.id);
-    });
-  }, 5000);
-
-  return () => clearInterval(t);
-}, [companyBadges]);
-
-
-
+    return () => clearInterval(t);
+  }, [companyBadges]);
 
   const handleUpdateBadgesAfterUnlockRequest = async (e, badgeId) => {
-  e?.preventDefault?.();
+    e?.preventDefault?.();
 
-  if (!badgeId || !currentExhibitor?.company_name) {
-    alert("Company or Badge ID missing");
-    return;
-  }
+    if (!badgeId || !currentExhibitor?.company_name) {
+      alert("Company or Badge ID missing");
+      return;
+    }
 
-  try {
-    const res = await fetch(
-      "https://inoptics.in/api/lock_exhibitor_badges.php",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          badge_id: Number(badgeId),
-          company_name: currentExhibitor.company_name, // ✅ add this back
-        }),
+    try {
+      const res = await fetch(
+        "https://inoptics.in/api/lock_exhibitor_badges.php",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            badge_id: Number(badgeId),
+            company_name: currentExhibitor.company_name, // ✅ add this back
+          }),
+        },
+      );
+
+      if (!res.ok) {
+        throw new Error("Server error");
       }
-    );
 
-    if (!res.ok) {
-      throw new Error("Server error");
+      const data = await res.json();
+
+      if (!data.success) {
+        throw new Error(data.message || "Update failed");
+      }
+
+      // ✅ instant UI update
+      setCompanyBadges((prev) =>
+        prev.map((b) =>
+          Number(b.id) === Number(badgeId)
+            ? { ...b, badge_lock: 1, unlock_approved: 0 }
+            : b,
+        ),
+      );
+
+      setUnlockApprovedMap((prev) => ({
+        ...prev,
+        [badgeId]: 0,
+      }));
+
+      alert("✅ Badge locked after update");
+    } catch (error) {
+      console.error("❌ Update error:", error);
+      alert(error.message || "Update failed");
     }
-
-    const data = await res.json();
-
-    if (!data.success) {
-      throw new Error(data.message || "Update failed");
-    }
-
-    // ✅ instant UI update
-    setCompanyBadges(prev =>
-      prev.map(b =>
-        Number(b.id) === Number(badgeId)
-          ? { ...b, badge_lock: 1, unlock_approved: 0 }
-          : b
-      )
-    );
-
-    setUnlockApprovedMap(prev => ({
-      ...prev,
-      [badgeId]: 0
-    }));
-
-    alert("✅ Badge locked after update");
-
-  } catch (error) {
-    console.error("❌ Update error:", error);
-    alert(error.message || "Update failed");
-  }
-};
-
+  };
 
   // ===== FORM HANDLERS =====
   const handleInputChange = (e) => {
@@ -784,22 +757,21 @@ useEffect(() => {
     }
   };
 
-useEffect(() => {
-  if (loadingCompanyBadges) return;
+  useEffect(() => {
+    if (loadingCompanyBadges) return;
 
-  // only when freeRemaining becomes 0
-  if (Number(freeRemaining) !== 0) return;
+    // only when freeRemaining becomes 0
+    if (Number(freeRemaining) !== 0) return;
 
-  // global one-time flag
-  const alreadyShown = localStorage.getItem("freeRemainingPopupShown");
+    // global one-time flag
+    const alreadyShown = localStorage.getItem("freeRemainingPopupShown");
 
-  if (!alreadyShown) {
-    console.log("🔥 Showing freeRemaining popup");
-    setShowFreeOverPopup(true);
-    localStorage.setItem("freeRemainingPopupShown", "1");
-  }
-
-}, [freeRemaining, loadingCompanyBadges]);
+    if (!alreadyShown) {
+      console.log("🔥 Showing freeRemaining popup");
+      setShowFreeOverPopup(true);
+      localStorage.setItem("freeRemainingPopupShown", "1");
+    }
+  }, [freeRemaining, loadingCompanyBadges]);
 
   // ===== LOADING STATE =====
   if (loading && exhibitors.length === 0) {
@@ -947,10 +919,45 @@ useEffect(() => {
             </div>
           </div>
 
+          <div className="exhibitor-heading only-for-mobile-version">
+            <div className="badge-info-bar">
+              <div className="badge-counter">
+                <span>Free Badges Allotted:</span>
+                <strong>{freeBadges}</strong>
+              </div>
+              <div className="badge-counter">
+                <span>Free Badges Remaining:</span>
+                <strong>{freeRemaining}</strong>
+              </div>
+              <div className="badge-counter">
+                <span>Extra Badges Requested:</span>
+                <strong>{extraPaidBadges}</strong>
+              </div>
+            </div>
+            <div className="exhibitor-heading-extra-badge-btn">
+              <button
+                className="generate-badge-btn"
+                onClick={() => setShowLockConfirm(true)}
+              >
+                <FaUpload />
+                Submit All Badges
+              </button>
+
+              <button
+                className="generate-badge-btn"
+                onClick={() => setShowBadgePopup(true)}
+              >
+                <FaCirclePlus />
+                Add Badge
+              </button>
+            </div>
+          </div>
+
           {loadingCompanyBadges ? (
             <p className="loading-text">Loading badges...</p>
           ) : (
             <div className="badge-table-wrapper">
+              <h6 className="only-for-mobile-version badge-list-table">Badges List</h6>
               {companyBadges.length === 0 ? (
                 <div className="no-badges">
                   <p className="no-data">
@@ -978,7 +985,7 @@ useEffect(() => {
                         const isFree = index < freeBadges;
 
                         return (
-                          <tr key={badge.id}>
+                          <tr key={badge.id}  className="badge-row-card">
                             <td>
                               <img
                                 src={`https://inoptics.in/${badge.photo}`}
@@ -1015,20 +1022,23 @@ useEffect(() => {
                                   >
                                     <FaEdit />
                                   </button>
-
-                                   
                                 </>
                               )}
 
                               {badge.badge_lock === 0 &&
- unlockApprovedMap[badge.id] === 1 && (
-  <button
-    className="lock-buttons-cell danger"
-    onClick={(e) => handleUpdateBadgesAfterUnlockRequest(e, badge.id)}
-  >
-    Submit Update Badge
-  </button>
-)}
+                                unlockApprovedMap[badge.id] === 1 && (
+                                  <button
+                                    className="lock-buttons-cell danger"
+                                    onClick={(e) =>
+                                      handleUpdateBadgesAfterUnlockRequest(
+                                        e,
+                                        badge.id,
+                                      )
+                                    }
+                                  >
+                                    Submit Update Badge
+                                  </button>
+                                )}
                               {badge.badge_lock === 1 && (
                                 <button
                                   className="lock-buttons-cell"
@@ -1140,23 +1150,31 @@ useEffect(() => {
                   >
                     <IoClose />
                   </button>
-                  <div style={{ margin: "10px 0", display: "flex", alignItems: "center", gap: "10px" }}>
-                  <h2>Exhibitor Badge Registration</h2>
-  {freeRemaining > 0 ? (
-    <span className="badge-flag free">
-      <MdVerified /> FREE BADGE
-    </span>
-  ) : (
-    <span className="badge-flag paid">
-      <RiMoneyRupeeCircleFill className="badge-rupee-icon" /> PAID BADGE
-    </span>
-  )}
-<div className="badge-counter">
-              <span>Free Badges Remaining:</span>
-              <strong>{freeRemaining}</strong>
-            </div>
-</div>
-                  
+                  <div
+                    style={{
+                      margin: "10px 0",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                    }}
+                  >
+                    <h2>Exhibitor Badge Registration</h2>
+                    {freeRemaining > 0 ? (
+                      <span className="badge-flag free">
+                        <MdVerified /> FREE BADGE
+                      </span>
+                    ) : (
+                      <span className="badge-flag paid">
+                        <RiMoneyRupeeCircleFill className="badge-rupee-icon" />{" "}
+                        PAID BADGE
+                      </span>
+                    )}
+                    <div className="badge-counter">
+                      <span>Free Badges Remaining:</span>
+                      <strong>{freeRemaining}</strong>
+                    </div>
+                  </div>
+
                   <p>
                     Additional badges can be requested at a cost of ₹100 + GST
                     per badge.

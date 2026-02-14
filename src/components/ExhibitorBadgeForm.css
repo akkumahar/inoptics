@@ -499,6 +499,25 @@ img {
 
 
 /* ================= RESPONSIVE - TABLETS ================= */
+@media (max-width: 1024px) {
+  .main-container-exhibitor {
+    grid-template-columns: 1fr;
+    margin-bottom: 100px;
+  }
+  
+  .badge-info-bar {
+    justify-content: flex-start;
+  }
+
+  .exhibitor-heading{
+    display: none;
+  }
+
+  .only-for-mobile-version{
+    display: block;
+  }
+
+}
 @media (max-width: 992px) {
   .main-container-exhibitor {
     grid-template-columns: 1fr;
@@ -508,6 +527,19 @@ img {
   .badge-info-bar {
     justify-content: flex-start;
   }
+
+  .exhibitor-heading{
+    display: none;
+  }
+
+  .only-for-mobile-version{
+    display: block;
+  }
+
+  .exhibitor-heading-extra-badge-btn {
+    margin-top: 10px;
+  }
+  
 }
 
 /* ================= RESPONSIVE - MOBILE (600px - 768px) ================= */
@@ -544,175 +576,167 @@ img {
     border-left: none;
     border-right: none;
   }
+  .exhibitor-heading{
+    display: none;
+  }
+
+  .only-for-mobile-version{
+    display: block;
+  }
+
+  .exhibitor-heading-extra-badge-btn {
+    margin-top: 10px;
+  }
 }
 
 /* ================= 🔥 MOBILE OPTIMIZED (≤600px) ================= */
+
+
+/* =========================================
+   BADGE TABLE → PROFESSIONAL MOBILE CARD
+   Only mobile — desktop safe
+========================================= */
+
 @media (max-width: 600px) {
-  /* Modal Adjustments */
-  .modal-overlay {
-    padding: 0;
-    align-items: flex-start;
-  }
-  
-  .exhibitor-form-container {
-    max-width: 100%;
-    height: 100%;
-  }
-  
-  .modal-box{
-    margin-top: 100px;
-    height: min(63vh, 800px);
-  }
-  .form-wrapper {
-    padding: 16px 14px;
-    padding-top: 52px;
-    border-radius: 0;
-    border: none;
-    border-radius: 10px;
-  }
-  
-  .form-wrapper h2 {
-    font-size: 16px;
-    margin-bottom: 12px;
-    padding-right: 35px;
-  }
-  
-  /* Close Button - Fixed and Visible */
-  .exhibitor-modal-close {
-    width: 36px;
-    height: 36px;
-    top: 8px;
-    right: 8px;
-    background: var(--primary);
-    color: white;
-    border: none;
-    font-size: 22px;
-    border-radius: 50%;
-  }
-  
-  /* Badge Info Bar - Full Width Stack */
-  .badge-info-bar {
-    display: grid;
-    grid-template-columns: 4fr 4fr;
-    gap: 6px;
-    margin-bottom: 14px;
-  }
-  
-  .exhibitor-heading-extra-badge-btn{
-    display: grid;
-    grid-template-columns: 2fr 2fr;
-    gap: 7px;
-    margin-bottom: 14px;
-  }
-
-  .exhibitordashboard-declaration-content, .ExhibitorDashboard-billing-line
-{
-    padding: 0 0px;
-}
-
-.ExhibitorDashboard-instruction-heading {
-  font-size: 23px;
-  text-decoration: none;
-
-}
-  .badge-counter {
-    width: 100%;
-    justify-content: space-between;
-    padding: 8px 12px;
-  }
-  
-  .badge-counter span {
-    font-size: 11px;
-  }
-  
-  .badge-counter strong {
-    font-size: 14px;
-  }
-  
-  /* Form Row - Single Column on Small Mobile */
-  .form-row {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-  
-  /* Form Labels & Inputs */
-  .form-group label {
-    font-size: 12px;
-    margin-bottom: 5px;
-  }
-  
-  .input-field,
-  .disabled-input {
-    height: 42px;
-    font-size: 14px;
-    padding: 0 12px;
-  }
-  
-  /* Photo Section - Full Width Vertical Layout */
-  .candicate-preview {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-  
-  .candicate-preview-input {
-    order: 1;
-  }
-  
-  .photo-preview {
-    order: 2;
-    width: 140px;
-    height: 140px;
-    margin: 0 auto;
-  }
-  
-  .file-input {
-    height: 42px;
-    padding: 10px 12px;
-    font-size: 13px;
-  }
-  
-  /* Submit Button */
-  .submit-btn {
-    height: 44px;
-    font-size: 14px;
-    margin-top: 4px;
-  }
 
 
-   
-  /* 🔥 Sirf form ke andar wale badge-info-bar ko hide karo */
-  #badge-info-bar-mobile{
+ 
+  /* hide table header */
+  .badge-table thead {
     display: none;
   }
-  
-  
-  /* Extra Badges Form */
-  .ExhibitorDashboard-extra-badges-form-grid {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
-  
-  .ExhibitorDashboard-badge-box input {
-    max-width: 100%;
-    height: 42px;
-  }
-  
-  .ExhibitorDashboard-form-submit button {
-    width: 100%;
-    height: 42px;
-  }
-  
-  /* Message Box */
-  .message {
-    font-size: 12px;
-    padding: 8px 10px;
+
+  .badge-table {
+    min-width: 0;
   }
 
-  .no-data{
-  padding: 10px;
-  margin-bottom: 100px;
+  /* card row */
+  .badge-row-card {
+    display: block;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    margin: 3px;
+    padding: 6px 6px;
+    position: relative;
+  }
+
+  .badge-row-card td {
+    display: block;
+    border: none;
+    padding: 0;
+  }
+
+  /* ===== top section ===== */
+
+  /* photo */
+  .badge-row-card td:nth-child(1) {
+    float: left;
+    margin-right: 12px;
+  }
+
+  .badge-photo {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    object-fit: cover;
+    border: 1px solid #e5e7eb;
+  }
+
+  /* name */
+  .badge-row-card td:nth-child(2) {
+    font-size: 15px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 4px;
+  }
+
+  /* ===== meta line ===== */
+
+  .badge-row-card td:nth-child(3),
+  .badge-row-card td:nth-child(4),
+  .badge-row-card td:nth-child(5) {
+    display: inline-block;
+    font-size: 12.5px;
+    color: #6b7280;
+    margin-right: 10px;
+  }
+
+  /* ===== flag row ===== */
+
+  .badge-row-card td:nth-child(6) {
+    margin-top: 6px;
+  }
+
+  .badge-flag {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 999px;
+  }
+
+  .badge-flag.free {
+    background: #e8f7ee;
+    color: #1a7f37;
+    border: 1px solid #1a7f37;
+  }
+
+  .badge-flag.paid {
+    background: #ffecec;
+    color: #d60000;
+    border: 1px solid #d60000;
+  }
+
+  /* ===== action button ===== noted */
+
+  .badge-row-card td.actions {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+  }
+
+  .lock-buttons-cell {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    padding: 0 !important;
+    background: #eef2f7;
+  }
+
+  /* clear float */
+  .badge-row-card::after {
+    content: "";
+    display: block;
+    clear: both;
+  }
+
+  /* wrapper clean */
+  .badge-table-wrapper {
+    border: none;
+    background: transparent;
+    max-height: none;
+
+     max-height: 70vh;          /* jitna visible rakhna ho */
+    overflow-y: auto;          /* vertical scroll ON */
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .exhibitor-heading-extra-badge-btn {
+    margin-top: 10px;
+  }
+
+
+
+  .ExhibitorDashboard-instruction-box,
+  .ExhibitorDashboard-billing-summary-wrapper {
+  background: none;
+  border: none;
+  border-radius: var(--radius);
+  padding: 0px;
 }
+
+
 }
 
 /* ================= 🔥 VERY SMALL MOBILE (≤400px) ================= */

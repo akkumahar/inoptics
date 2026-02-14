@@ -1,6 +1,5 @@
 import React from "react";
-import "./ExhibitorPowerRequirement.css"
-
+import "./ExhibitorPowerRequirement.css";
 
 const PowerRequirementSection = ({
   currentExhibitor,
@@ -42,17 +41,12 @@ const PowerRequirementSection = ({
       {/* ================= TOP WRAPPER ================= */}
 
       <div className="Exhibitor-power-requirement-wrapper">
-
         {/* ---------- LEFT FORM ---------- */}
 
         <div className="Exhibitor-power-requirement-form-left">
-
           <ul id="Exhibitor-progressbar">
             {["SETUP DAYS", "EXHIBITION DAYS"].map((type, index) => (
-              <li
-                key={type}
-                className={index <= powerFormStep ? "active" : ""}
-              >
+              <li key={type} className={index <= powerFormStep ? "active" : ""}>
                 {type}
               </li>
             ))}
@@ -72,13 +66,11 @@ const PowerRequirementSection = ({
             onPrevious={handlePowerFormPrevious}
             onAdd={handlePowerFormAdd}
           />
-
         </div>
 
         {/* ---------- RIGHT INSTRUCTION ---------- */}
 
         <div className="Exhibitor-power-requirement-instruction-box">
-
           <div className="Exhibitor-power-requirement-top-buttons-inside-box">
             {!isViewOnly ? (
               <button
@@ -100,83 +92,84 @@ const PowerRequirementSection = ({
           <h3>Power Requirement Guidelines</h3>
 
           <ul>
-            <li>Power requirements for setup days and exhibition days must be submitted separately.</li>
+            <li>
+              Power requirements for setup days and exhibition days must be
+              submitted separately.
+            </li>
             <li>Power will be arranged as per the requirement form.</li>
             <li>Requests after deadline may incur additional charges.</li>
             <li>If unsure, consult your fabricator.</li>
             <li>Ensure proper wiring is used.</li>
             <li>Thank you for your cooperation.</li>
           </ul>
-
         </div>
       </div>
 
       {/* ================= TABLE + BILLING ================= */}
 
       <div className="Exhibitor-power-requirement-below-section">
-
         {/* ---------- TABLE ---------- */}
 
         <div className="Exhibitor-power-requirement-table-container">
-          <table className="Exhibitor-power-requirement-table">
-            <thead>
-              <tr>
-                <th>Days</th>
-                <th>Price per KW</th>
-                <th>Power Required</th>
-                <th>Phase</th>
-                <th>Total Amount</th>
-                {!isViewOnly && <th>Action</th>}
-              </tr>
-            </thead>
-
-            <tbody>
-              {previewTableList.length > 0 && !isViewOnly ? (
-                previewTableList.map((item, index) => (
-                  <tr key={index}>
-                    <td>{item.day}</td>
-                    <td>{item.pricePerKw}</td>
-                    <td>{item.powerRequired}</td>
-                    <td>{item.phase}</td>
-                    <td>{item.totalAmount}</td>
-
-                    {index === 0 && (
-                      <td rowSpan={previewTableList.length}>
-                        <button
-                          onClick={handleResetPowerData}
-                          className="Exhibitor-Power-remove-btn"
-                        >
-                          Remove
-                        </button>
-                      </td>
-                    )}
-                  </tr>
-                ))
-              ) : powerData.length > 0 ? (
-                powerData.map((item, i) => (
-                  <tr key={i}>
-                    <td>{item.day}</td>
-                    <td>{item.price_per_kw}</td>
-                    <td>{item.power_required}</td>
-                    <td>{item.phase}</td>
-                    <td>{item.total_amount}</td>
-                  </tr>
-                ))
-              ) : (
+          <div className="Exhibitor-power-table-scroll">
+            <table className="Exhibitor-power-requirement-table">
+              <thead>
                 <tr>
-                  <td colSpan="6" style={{ textAlign: "center" }}>
-                    No data to display
-                  </td>
+                  <th>Days</th>
+                  <th>Price per KW</th>
+                  <th>Power Required</th>
+                  <th>Phase</th>
+                  <th>Total Amount</th>
+                  {!isViewOnly && <th>Action</th>}
                 </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+              </thead>
 
+              <tbody>
+                {previewTableList.length > 0 && !isViewOnly ? (
+                  previewTableList.map((item, index) => (
+                    <tr key={index}>
+                      <td>{item.day}</td>
+                      <td>{item.pricePerKw}</td>
+                      <td>{item.powerRequired}</td>
+                      <td>{item.phase}</td>
+                      <td>{item.totalAmount}</td>
+
+                      {index === 0 && (
+                        <td rowSpan={previewTableList.length}>
+                          <button
+                            onClick={handleResetPowerData}
+                            className="Exhibitor-Power-remove-btn"
+                          >
+                            Remove
+                          </button>
+                        </td>
+                      )}
+                    </tr>
+                  ))
+                ) : powerData.length > 0 ? (
+                  powerData.map((item, i) => (
+                    <tr key={i}>
+                      <td>{item.day}</td>
+                      <td>{item.price_per_kw}</td>
+                      <td>{item.power_required}</td>
+                      <td>{item.phase}</td>
+                      <td>{item.total_amount}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="6" style={{ textAlign: "center" }}>
+                      No data to display
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
         {/* ---------- BILLING ---------- */}
 
         <div className="Exhibitor-power-requirement-billing">
-
           <h3>Power Requirement Billing</h3>
 
           <div className="Exhibitor-power-requirement-stalls-forms-group">
@@ -217,9 +210,7 @@ const PowerRequirementSection = ({
             <span>Grand Total:</span>
             <strong>{grandTotal.toFixed(2)} ₹</strong>
           </div>
-
         </div>
-
       </div>
     </>
   );

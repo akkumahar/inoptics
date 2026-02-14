@@ -7,7 +7,7 @@ import {
   FaUpload,
 } from "react-icons/fa";
 
-// import "./ExhibitorContractors.css"
+import "./ExhibitorContractors.css"
 const ExhibitorContractors = (props) => {
   const {
     importantPage,
@@ -275,7 +275,7 @@ const ExhibitorContractors = (props) => {
               >
                 <span className="btn-icon">
                   <FaEye className="btn-icon" />
-                  View Contractor List
+                  Contractor List
                 </span>
               </button>
 

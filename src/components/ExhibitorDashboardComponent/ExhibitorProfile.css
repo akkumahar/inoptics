@@ -1,50 +1,478 @@
 /* =========================================
-   PROFILE + BRANDS RESPONSIVE PATCH ONLY
-   (paste at END of your CSS)
+   PROFILE LAYOUT
    ========================================= */
 
-/* prevent right overflow */
-.profile-layout,
-.profile-right,
-.profile-left,
-.profile-card {
-  min-width: 0;
-  padding: 8px 4px;
-  max-width: 98%;
-}
-
-/* remove right empty space issue */
 .profile-layout {
-  grid-template-columns: 35% 65%;
+  display: grid;
+  grid-template-columns: 35% 35%;
   gap: 24px;
-}
-
-/* make grids shrink-safe */
-.brands-input-row,
-.brands-view-grid {
   width: 100%;
   min-width: 0;
+  padding: 0 25px;
 }
 
-/* inputs never overflow */
+.profile-left,
+.profile-right {
+  min-width: 0;
+}
+
+.profile-left {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.profile-card {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 16px;
+  border-radius: 12px;
+}
+
+
+/* =========================================
+   TEXT + DETAILS
+   ========================================= */
+
+.profile-section-title {
+  font-family: "Montserrat";
+  font-weight: 300;
+  font-size: 26px;
+  margin-bottom: 12px;
+  color: #201d1d;
+}
+
+.profile-empty {
+  color: #888;
+  font-style: italic;
+}
+
+.profile-details-grid {
+  display: grid;
+  grid-template-columns: 100%;
+  gap: 0px;
+}
+
+.profile-details-row {
+  display: grid;
+  grid-template-columns: 35% 65%;
+  padding: 4px 2px;
+  border-radius: 6px;
+}
+
+.profile-details-row label {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.profile-details-row span {
+  font-size: 15px;
+  word-break: break-word;
+}
+
+
+/* =========================================
+   BRANDS FORM
+   ========================================= */
+
+.brands-form {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.brands-heading {
+  font-family: "Montserrat";
+  font-weight: 300;
+  font-size: 32px;
+  margin-bottom: 16px;
+  color: #201d1d;
+}
+
+.brands-input-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  width: 100%;
+}
+
+.brands-field-group {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.brands-field-group label {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
 .brands-field-group input,
 .brands-field-group select {
   width: 100%;
   min-width: 0;
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 40px;
+  font-size: 14px;
+  box-sizing: border-box;
 }
 
-/* long values wrap */
-.view-pill,
+
+/* products chips */
+
+.selected-products-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.selected-product {
+  padding: 6px 10px;
+  border-radius: 20px;
+  font-size: 13px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.remove-icon {
+  cursor: pointer;
+}
+
+/* =========================================
+   BRANDS — RESPONSIVE GRID PATCH
+   (append at end only)
+   ========================================= */
+
+.brands-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  width: 100%;
+}
+
+.brands-col {
+  min-width: 0;
+}
+
+.brands-col-full {
+  grid-column: span 2;
+}
+
+/* buttons row spacing */
+.brands-btn-row {
+  margin-top: 16px;
+}
+
+
+/* =========================================
+   TABLET — STACK TO SINGLE COLUMN
+   ========================================= */
+
+@media (max-width: 900px) {
+
+  .brands-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .brands-col-full {
+    grid-column: span 1;
+  }
+
+  /* ensure form never shrinks */
+  .brands-form,
+  .brands-view-card {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+
+
+/* =========================================
+   BRANDS — IMAGE STYLE (NO ICON VERSION)
+   ========================================= */
+
+.brands-card-root {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* heading */
+
+.brands-heading {
+  font-size: 38px;
+  font-weight: 700;
+  margin-bottom: 22px;
+  color: #1f2937;
+}
+
+/* grid layout */
+
+.brands-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  width: 100%;
+}
+
+.brands-col {
+  min-width: 0;
+}
+
+.brands-col-full {
+  grid-column: span 2;
+}
+
+/* labels */
+
+.brands-field-group label {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* inputs */
+
+.brands-field-group input,
+.brands-field-group select {
+  width: 100%;
+  padding: 16px 18px;
+  border-radius: 22px;
+  border: 1px solid #9ec5e8;
+  font-size: 16px;
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(4px);
+  outline: none;
+  transition: all .2s ease;
+  box-sizing: border-box;
+}
+
+.brands-field-group input:focus,
+.brands-field-group select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59,130,246,.15);
+  background: rgba(255,255,255,0.85);
+}
+
+/* products chips */
+
+.selected-products-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.selected-product {
+  padding: 6px 12px;
+  border-radius: 18px;
+  background: rgba(59,130,246,.12);
+  font-size: 13px;
+}
+
+.remove-icon {
+  cursor: pointer;
+  margin-left: 6px;
+}
+
+/* submit button */
+
+.brands-details-add-brands-btn {
+  width: 100%;
+  margin-top: 26px;
+  padding: 18px;
+  border-radius: 24px;
+  border: none;
+  font-size: 20px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+
+  background: linear-gradient(90deg,#2b6cb0,#3b82f6);
+  box-shadow: 0 12px 30px rgba(59,130,246,.35);
+  transition: .25s ease;
+}
+
+.brands-details-add-brands-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px rgba(59,130,246,.45);
+}
+
+/* =========================================
+   VIEW MODE
+   ========================================= */
+
+.brands-view-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+}
+
 .view-box {
+  padding: 16px;
+  border-radius: 18px;
+  border: 2px solid #9ec5e8;
+  background: rgba(255,255,255,0.6);
+  font-size: 15px;
   word-break: break-word;
 }
 
-/* detail rows wrap safely */
-.profile-details-row span {
-  word-break: break-word;
+.brands-view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.brands-edit-btn {
+  padding: 12px 18px;
+  border-radius: 14px;
+  border: 2px solid #3b82f6;
+  background: transparent;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 
+
+.view-pill {
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  border-radius: 20px;
+  border: 1px solid #d7dde5;
+  background: transparent;
+  font-size: 14px;
+  color: #475569;
+  word-break: break-all;
+}
+
+.view-box {
+  border-radius: 14px;
+  border: 1px solid #e1e6ee;
+  padding: 10px 16px;
+  background: transparent;
+  font-size: 14px;
+  color: #334155;
+  line-height: 1.7;
+  min-height: 46px;
+  border: 1px solid #9ec5e8;
+
+}
+
+/* ================= EDIT BUTTON ================= */
+
+.brands-edit-btn {
+  background: #eef2f7;
+  border: 1px solid #dbe2ea;
+  color: #2563eb;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.brands-edit-btn:hover {
+  background: #e6edf7;
+}
+
+/* =========================================
+   TABLET
+   ========================================= */
+
+@media (max-width: 900px) {
+
+  .brands-grid,
+  .brands-view-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .brands-col-full {
+    grid-column: span 1;
+  }
+
+  .brands-heading {
+    font-size: 28px;
+  }
+}
+
+/* =========================================
+   BRANDS — MOBILE CARD COMPACT FIX
+   ========================================= */
+
+@media (max-width: 600px) {
+
+  /* form becomes compact card */
+  .brands-form,
+  .brands-view-card {
+    max-width: 100%;
+    border-radius: 18px;
+    margin-bottom: 160px;
+  }
+
+  /* heading smaller */
+  .brands-heading {
+    font-size: 20px !important;
+    margin-bottom: 12px;
+  }
+
+  /* grid = 2 per row */
+  .brands-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 4px;
+  }
+
+  /* 🔥 WEBSITE + PRODUCTS + INTERNATIONAL = full width */
+  .brands-grid .brands-col:first-child,
+  .brands-grid .brands-field-group:nth-child(2),
+  .brands-grid .brands-col-full {
+    grid-column: span 2 !important;
+  }
+
+  /* inputs compact */
+  .brands-field-group input,
+  .brands-field-group select {
+    padding: 12px 14px;
+    font-size: 14px;
+    border-radius: 16px;
+  }
+
+  /* button compact */
+  .brands-details-add-brands-btn {
+    margin-top: 16px;
+    padding: 14px;
+    font-size: 16px;
+    border-radius: 18px;
+  }
+
+  .brands-edit-btn {
+    width: 100%;
+  }
+}
+
+/* =========================================
+   EXTRA SMALL — STACK
+   ========================================= */
+
+@media (max-width: 380px) {
+
+  .brands-grid,
+  .brands-view-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .brands-col-full {
+    grid-column: span 1;
+  }
+}
 
 /* =========================================
    TABLET
@@ -54,71 +482,93 @@
 
   .profile-layout {
     grid-template-columns: 1fr;
-    margin-bottom: 170px;
+    padding: 0;
   }
 
-  .profile-left {
-    order: 1;
+  /* brands 2 column on tablet */
+  .brands-input-row {
+    grid-template-columns: 1fr 1fr;
   }
 
-  .profile-right {
-    order: 2;
+  .brands-full {
+    grid-column: span 2;
   }
 
+  .brands-view-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 
-
 /* =========================================
-   MOBILE — COMPANY + STALL DETAILS COMPACT
+   MOBILE — 2 PROFILE CARDS FLEX
    ========================================= */
 
 @media (max-width: 640px) {
 
-  /* section titles smaller */
+  .profile-left {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .profile-left .profile-card {
+    width: 100%;
+    padding: 0 16px;
+  }
+
+  .profile-right .profile-card {
+    width: 100%;
+  }
+
   .profile-section-title {
-    font-size: 18px !important;
-    margin-bottom: 8px;
+    font-size: 18px;
   }
 
-  /* grid already 2fr 2fr — keep your rule */
   .profile-details-row {
-    padding: 4px 6px !important;
-    border-radius: 5px;
+    grid-template-columns: 45% 55%;
   }
 
-  /* label smaller */
-  .profile-details-row label {
-    font-size: 13px !important;
-    font-weight: 600;
-  }
-
-  /* value smaller */
+  .profile-details-row label,
   .profile-details-row span {
-    font-size: 13px !important;
-    font-weight: 500;
+    font-size: 13px;
   }
 
-  /* reduce section spacing */
-  .profile-details-grid {
-    gap: 6px;
+  /* brands mobile single column */
+  .brands-input-row {
+    grid-template-columns: 1fr;
   }
 
+  .brands-view-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .brands-heading {
+    font-size: 20px;
+  }
+
+  .brands-edit-btn,
+  .brands-details-add-brands-btn {
+    width: 100%;
+  }
 }
 
+
 /* =========================================
-   EXTRA SMALL MOBILE — MORE COMPACT
+   EXTRA SMALL MOBILE
    ========================================= */
 
 @media (max-width: 380px) {
 
+  .profile-left {
+    flex-direction: column;
+  }
+
+  .profile-left .profile-card {
+    width: 100%;
+  }
+
   .profile-details-row label,
   .profile-details-row span {
-    font-size: 12px !important;
+    font-size: 12px;
   }
-
-  .profile-details-row {
-    padding: 3px 5px !important;
-  }
-
 }

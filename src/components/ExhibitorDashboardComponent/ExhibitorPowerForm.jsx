@@ -1,5 +1,7 @@
 import React from "react";
 
+import "./ExhibitorPowerForm.css"
+
 const ExhibitorPowerForm = ({
   exhibitorPricePerKw,
   isViewOnly,

@@ -120,73 +120,43 @@
 /* =====================================================
    MOBILE (≤600px)
    ===================================================== */
+/* ================================
+   ONLY POWER TABLE — MOBILE SCROLL
+   ================================ */
 
 @media (max-width: 600px) {
 
-  /* progress vertical style */
-  #Exhibitor-progressbar {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 18px !important;
+  /* sirf is wrapper par */
+  .Exhibitor-power-requirement-table-container {
+    overflow: hidden !important;
   }
 
-  #Exhibitor-progressbar li:after {
-    display: none;
-  }
-
-  #Exhibitor-progressbar li {
-    font-size: 13px;
-  }
-
-  /* form padding tighter */
-  .Exhibitor-power-requirement-stalls-form-group {
-    padding: 12px;
-  }
-
-  .Exhibitor-power-requirement-stalls-form-group label {
-    font-size: 13px;
-  }
-
-  .Exhibitor-power-requirement-stalls-form-group input,
-  .Exhibitor-power-requirement-stalls-form-group select {
-    font-size: 14px;
-    padding: 8px 10px;
-  }
-
-  /* buttons full width */
-  .Exhibitor-power-btn,
-  .Exhibitor-power-requirement-add-button-inline button {
+  .Exhibitor-power-table-scroll {
     width: 100%;
+    overflow-x: scroll !important;   /* force scrollbar */
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
   }
 
-  .Exhibitor-power-requirement-top-buttons-inside-box {
-    flex-direction: column;
-    gap: 10px;
+  /* table ko wide rakho so scroll aaye */
+  .Exhibitor-power-table-scroll > table {
+    min-width: 720px;
   }
 
-  /* instruction text */
-  .Exhibitor-power-requirement-instruction-box h3 {
-    font-size: 20px;
+  /* wrap mat hone do */
+  .Exhibitor-power-table-scroll th,
+  .Exhibitor-power-table-scroll td {
+    white-space: nowrap;
   }
 
-  .Exhibitor-power-requirement-instruction-box li {
-    font-size: 14px;
+  /* scrollbar visible styling */
+  .Exhibitor-power-table-scroll::-webkit-scrollbar {
+    height: 8px;
   }
 
-  /* table font */
-  .Exhibitor-power-requirement-table th,
-  .Exhibitor-power-requirement-table td {
-    font-size: 12px;
-    padding: 8px;
-  }
-
-  /* billing text */
-  .Exhibitor-power-requirement-stalls-forms-group {
-    font-size: 13px;
-  }
-
-  .Exhibitor-power-requirement-stalls-forms-group.total {
-    font-size: 14px;
+  .Exhibitor-power-table-scroll::-webkit-scrollbar-thumb {
+    background: #9ca3af;
+    border-radius: 8px;
   }
 
 }

@@ -115,145 +115,173 @@ const BrandsCard = ({
   handleEditBrands,
 }) => {
   return (
-    <div className="profile-card">
+    <div className="profile-card brands-card-root">
 
-      {/* ================= FORM MODE ================= */}
-      {!showBrandsEditForm && (
-        <div className="brands-form slide-up-form">
-          <h2 className="brands-heading">Brands</h2>
+  {/* ================= FORM MODE ================= */}
+  {!showBrandsEditForm && (
+    <div className="brands-form slide-up-form brands-form-responsive">
+      <h2 className="brands-heading">Brands</h2>
 
-          <div className="brands-input-row">
+      <div className="brands-input-row brands-grid">
 
-            <Field
-              label="Website"
-              value={brandsData.website}
-              onChange={(v) =>
-                setBrandsData((p) => ({ ...p, website: v }))
-              }
-            />
+        <div className="brands-col">
+          <Field
+            label="Website"
+            value={brandsData.website}
+            onChange={(v) =>
+              setBrandsData((p) => ({ ...p, website: v }))
+            }
+          />
+        </div>
 
-            {/* PRODUCTS */}
-            <div className="brands-field-group">
-              <label>Products:</label>
+        {/* PRODUCTS */}
+        <div className="brands-field-group ">
+          <label>Products:</label>
 
-              <div className="selected-products-container">
-                {(brandsData.products || []).map((p, i) => (
-                  <div key={p + i} className="selected-product">
-                    {p}
-                    <span
-                      className="remove-icon"
-                      onClick={() =>
-                        setBrandsData((prev) => ({
-                          ...prev,
-                          products: prev.products.filter(x => x !== p),
-                        }))
-                      }
-                    >
-                      ✖
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              <select
-                value=""
-                onChange={(e) => {
-                  const v = e.target.value;
-                  if (
-                    v &&
-                    !(brandsData.products || []).includes(v)
-                  ) {
-                    setBrandsData((p) => ({
-                      ...p,
-                      products: [...(p.products || []), v],
-                    }));
+          <div >
+            {(brandsData.products || []).map((p, i) => (
+              <div key={p + i} className="selected-product">
+                {p}
+                <span
+                  className="remove-icon"
+                  onClick={() =>
+                    setBrandsData((prev) => ({
+                      ...prev,
+                      products: prev.products.filter(x => x !== p),
+                    }))
                   }
-                }}
-              >
-                <option value="">-- Select Product --</option>
-                {products.map((p, i) => (
-                  <option key={i} value={p.name}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+                >
+                  ✖
+                </span>
+              </div>
+            ))}
+          </div>
 
-            <Field
-              label="Home Brands"
-              value={brandsData.home_brands}
-              onChange={(v) =>
-                setBrandsData((p) => ({ ...p, home_brands: v }))
-              }
-            />
-
-            <Field
-              label="Distributors"
-              value={brandsData.distributors}
-              onChange={(v) =>
-                setBrandsData((p) => ({ ...p, distributors: v }))
-              }
-            />
-
-            <Field
-              label="International Brands"
-              full
-              value={brandsData.international_brands}
-              onChange={(v) =>
+          <select
+            value=""
+            onChange={(e) => {
+              const v = e.target.value;
+              if (
+                v &&
+                !(brandsData.products || []).includes(v)
+              ) {
                 setBrandsData((p) => ({
                   ...p,
-                  international_brands: v,
-                }))
+                  products: [...(p.products || []), v],
+                }));
               }
-            />
-          </div>
-
-          <div className="brands-button-section">
-            <button
-              className="brands-details-add-brands-btn"
-              onClick={handleSubmitBrands}
-            >
-              Submit
-            </button>
-          </div>
+            }}
+          >
+            <option value="">-- Select Product --</option>
+            {products.map((p, i) => (
+              <option key={i} value={p.name}>
+                {p.name}
+              </option>
+            ))}
+          </select>
         </div>
-      )}
 
-      {/* ================= VIEW MODE ================= */}
-      {showBrandsEditForm && (
-        <div className="brands-view-card slide-up-form">
-          <div className="brands-view-header">
-            <h2>Brands</h2>
-            <button
-              className="brands-edit-btn"
-              onClick={handleEditBrands}
-              type="button"
-            >
-              ✏ Edit
-            </button>
-          </div>
-
-          <div className="brands-view-grid">
-            <View label="Website" value={brandsData?.website} />
-            <View
-              label="Products"
-              value={
-                Array.isArray(brandsData.products)
-                  ? brandsData.products.join(", ")
-                  : brandsData.products
-              }
-            />
-            <View label="Home Brands" value={brandsData?.home_brands} />
-            <View label="Distributors" value={brandsData?.distributors} />
-            <View
-              label="International Brands"
-              value={brandsData?.international_brands}
-              full
-            />
-          </div>
+        <div className="brands-col">
+          <Field
+            label="Home Brands"
+            value={brandsData.home_brands}
+            onChange={(v) =>
+              setBrandsData((p) => ({ ...p, home_brands: v }))
+            }
+          />
         </div>
-      )}
+
+        <div className="brands-col">
+          <Field
+            label="Distributors"
+            value={brandsData.distributors}
+            onChange={(v) =>
+              setBrandsData((p) => ({ ...p, distributors: v }))
+            }
+          />
+        </div>
+
+        <div className="brands-col brands-col-full">
+          <Field
+            label="International Brands"
+            full
+            value={brandsData.international_brands}
+            onChange={(v) =>
+              setBrandsData((p) => ({
+                ...p,
+                international_brands: v,
+              }))
+            }
+          />
+        </div>
+
+      </div>
+
+      <div className="brands-button-section brands-btn-row">
+        <button
+          className="brands-details-add-brands-btn"
+          onClick={handleSubmitBrands}
+        >
+          Submit
+        </button>
+      </div>
     </div>
+  )}
+
+  {/* ================= VIEW MODE ================= */}
+  {showBrandsEditForm && (
+    <div className="brands-view-card slide-up-form brands-view-responsive">
+
+      <div className="brands-view-header brands-view-header-responsive">
+        <h2>Brands</h2>
+        <button
+          className="brands-edit-btn"
+          onClick={handleEditBrands}
+          type="button"
+        >
+          ✏ Edit
+        </button>
+      </div>
+
+      <div className="brands-view-grid brands-grid">
+
+        <div className="brands-col">
+          <View label="Website" value={brandsData?.website} />
+        </div>
+
+        <div className="brands-col brands-col-full">
+          <View
+            label="Products"
+            value={
+              Array.isArray(brandsData.products)
+                ? brandsData.products.join(", ")
+                : brandsData.products
+            }
+          />
+        </div>
+
+        <div className="brands-col">
+          <View label="Home Brands" value={brandsData?.home_brands} />
+        </div>
+
+        <div className="brands-col">
+          <View label="Distributors" value={brandsData?.distributors} />
+        </div>
+
+        <div className="brands-col brands-col-full">
+          <View
+            label="International Brands"
+            value={brandsData?.international_brands}
+            full
+          />
+        </div>
+
+      </div>
+    </div>
+  )}
+
+</div>
+
   );
 };
 

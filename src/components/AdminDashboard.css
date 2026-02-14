@@ -4024,59 +4024,8 @@ font-family: "Montserrat";
 }
 
 /* Brands Form Container */
-/* .brands-form {
-  background-color: #fff;
-  padding: 30px 25px;
-  max-width: 600px;
-  margin: 20px auto;
-  border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-} */
 
-.brands-form {
-  border-radius: 8px;
-  max-width: calc(100% - 260px);
-  margin-left: 12px;
-  position: relative;
-  z-index: 1;
-  width: 35vw;
-  padding: 20px;
-  /* background-color: #f9f9f9;  */
-}
 
-.brands-heading {
- font-family: "Montserrat";
-    font-weight: 300;
-    font-size: 35px;
-    margin-bottom: 16px;
-    color: #201d1d;
-    letter-spacing: -1.5px;
-}
-
-.brands-input-row {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.brands-field-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.brands-field-group label {
-  font-weight: 600;
-  margin: 0px 0px 2px 15px;
-}
-
-.brands-field-group input,
-.brands-field-group select {
-  padding: 10px 10px 10px 15px;
-  border: 1px solid #ccc;
-  border-radius: 50px;
-  font-size: 14px;
-  outline: none;
-}
 .selected-products-container {
   display: flex;
   flex-wrap: wrap;

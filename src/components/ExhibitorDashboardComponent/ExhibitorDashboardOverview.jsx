@@ -47,8 +47,56 @@ const ExhibitorDashboardOverview = ({
       <div className="exhibitordashboard-row">
         {/* ================= LEFT COLUMN ================= */}
         <div className="exhibitordashboard-left-container-desktop">
+          <div className="only-for-mobile-version">
+            <div className="exhibitordashboard-card">
+              <h3>Exhibitor Checklist</h3>
+
+              <div className="checklist-list">
+                {activities.map((a) => (
+                  <div
+                    key={a.id}
+                    className={`checklist-row ${a.done ? "completed" : "pending"}`}
+                  >
+                    <div className="checklist-left">
+                      <span className="checklist-icon">
+                        {a.done ? "✓" : "!"}
+                      </span>
+                      {a.name}
+                    </div>
+                    <span className="checklist-status">
+                      {a.done ? "Completed" : "Pending"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="exhibitordashboard-card-flex">
+              <div className="exhibitordashboard-card">
+                <h3>Latest News</h3>
+                {latestNewsData.map((n, i) => (
+                  <div key={i} className="news-item">
+                    <h4>{n.title}</h4>
+                    <p>{n.text}</p>
+                    {n.news_link && <a href={n.news_link}>Read more →</a>}
+                  </div>
+                ))}
+              </div>
+
+              {/* EVENT */}
+              <div className="exhibitordashboard-card">
+                <h3>Event Schedule</h3>
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: eventScheduleData?.[0]?.description || "",
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+
           {/* ================= STALL ================= */}
-          <div className="exhibitordashboard-card">
+          <div className="exhibitordashboard-card table-scroll-wrap">
             <h2 className="particular-heading">
               Exhibitor Stalls Payments Review
             </h2>
@@ -92,7 +140,7 @@ const ExhibitorDashboardOverview = ({
           </div>
 
           {/* ================= POWER ================= */}
-          <div className="exhibitordashboard-card">
+          <div className="exhibitordashboard-card table-scroll-wrap">
             <h2 className="particular-heading">
               Exhibitor Power Payments Review
             </h2>
@@ -137,7 +185,7 @@ const ExhibitorDashboardOverview = ({
           </div>
 
           {/* ================= BADGES ================= */}
-          <div className="exhibitordashboard-card">
+          <div className="exhibitordashboard-card table-scroll-wrap">
             <h2 className="particular-heading">
               Exhibitor Badges Payments Review
             </h2>
@@ -185,7 +233,7 @@ const ExhibitorDashboardOverview = ({
           </div>
 
           {/* EVENT */}
-          <div className="exhibitordashboard-card">
+          <div className="exhibitordashboard-card only-for-desktop-version">
             <h3>Event Schedule</h3>
             <div
               dangerouslySetInnerHTML={{
@@ -193,13 +241,12 @@ const ExhibitorDashboardOverview = ({
               }}
             />
           </div>
-          
         </div>
 
         {/* ================= RIGHT COLUMN ================= */}
         <div className="exhibitordashboard-right-col">
           {/* CHECKLIST */}
-          <div className="exhibitordashboard-card">
+          <div className="exhibitordashboard-card only-for-desktop-version">
             <h3>Exhibitor Checklist</h3>
 
             <div className="checklist-list">
@@ -220,10 +267,8 @@ const ExhibitorDashboardOverview = ({
             </div>
           </div>
 
-          
-
           {/* NEWS */}
-          <div className="exhibitordashboard-card">
+          <div className="exhibitordashboard-card only-for-desktop-version">
             <h3>Latest News</h3>
             {latestNewsData.map((n, i) => (
               <div key={i} className="news-item">

@@ -16,7 +16,7 @@ const ExhibitorPaymentCards = ({
   getExhibitorBadgeBilling,
 }) => {
   return (
-    <div className="exhibitordashboard-content">
+    <div className="exhibitordashboard-content exhibitordashboard-content-payments ">
       <div className="payment-cards-container">
 
         {/* ================= BANK DETAILS ================= */}

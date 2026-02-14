@@ -15,6 +15,7 @@
   grid-template-columns: minmax(0, 1fr) minmax(320px, 460px);
   gap: clamp(14px, 2vw, 24px);
   align-items: start;
+  margin-bottom: 160px;
 }
 
 /* ================= LEFT STACK ================= */
@@ -37,6 +38,11 @@
 
 /* ================= CARDS ================= */
 
+.exhibitordashboard-card-flex{
+  display: flex;
+  justify-content: center;
+}
+
 .exhibitordashboard-card {
   padding: clamp(12px, 1.6vw, 18px);
   width: 100%;
@@ -45,6 +51,15 @@
   overflow: visible;
   border-radius: 14px;
 }
+
+
+
+
+.only-for-mobile-version{
+  display: none;
+}
+
+
 
 /* ================= HEADINGS ================= */
 
@@ -66,13 +81,7 @@
   font-size: clamp(12px, 1vw, 14px);
 }
 
-.exhibitordashboard-card table {
-  display: block;
-  width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-}
+
 
 .stall-payment-table th {
   background: #f2f5fa;
@@ -183,6 +192,37 @@
   word-break: break-word;
 }
 
+
+
+/* ================= TABLE ================= */
+
+.stall-payment-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: clamp(12px, 1vw, 14px);
+  min-width: 700px; /* force horizontal scroll when needed */
+}
+
+/* 🔥 SCROLL WRAPPER — ONLY HERE SCROLL */
+.table-scroll-wrap {
+  width: 100%;
+  overflow-x: scroll;   /* always show */
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* scrollbar visible styling */
+.table-scroll-wrap::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-scroll-wrap::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 6px;
+}
+
+
 /* ================= STICKY RIGHT SAFE ================= */
 
 @media (min-width: 1200px) {
@@ -204,18 +244,23 @@
     position: static;
   }
 
-  /* Ensure table doesn't overflow card */
-  .exhibitordashboard-card:has(.stall-payment-table) {
-    overflow-y: hidden;
-  }
+ 
+
+  .only-for-mobile-version{
+  display: block;
+}
+
+.only-for-desktop-version{
+  display: none;
+}
+
+
 }
 
 /* ================= MOBILE LARGE (600px - 768px) ================= */
 
 @media (max-width: 768px) {
-  .exhibitordashboard-content {
-    padding: clamp(8px, 3vw, 16px);
-  }
+  
 
   .exhibitordashboard-card {
     padding: clamp(10px, 2.5vw, 16px);
@@ -233,7 +278,6 @@
   }
 
   .checklist-row {
-    padding: clamp(12px, 3vw, 16px);
     flex-direction: row;
     gap: clamp(10px, 2.5vw, 12px);
   }
@@ -261,7 +305,6 @@
 
   .checklist-row {
     align-items: stretch;
-    padding: clamp(14px, 4vw, 18px);
     gap: clamp(8px, 2vw, 12px);
   }
 

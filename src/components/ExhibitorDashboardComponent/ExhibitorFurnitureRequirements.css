@@ -323,11 +323,17 @@
     padding: 0 12px;
   }
 
+  .furniture-billing-section {
+margin-bottom: 160px;
+  }
+
   .furniture-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 
 }
+
+
 
 
 /* -------- Mobile -------- */
@@ -370,6 +376,7 @@
 
   .furniture-billing-section {
     padding: 14px;
+    margin-bottom: 200px;
   }
 
   .furniture-modal-content {
@@ -378,3 +385,38 @@
   }
 
 }
+
+
+/* =====================================
+   MOBILE — TABLE SCROLLBAR ALWAYS SHOW
+   ===================================== */
+
+@media (max-width: 600px) {
+
+  .furniture-table-scroll {
+    overflow-x: scroll !important;   /* 🔥 always show */
+    overflow-y: hidden !important;
+  }
+
+  /* force width so scroll track visible rahe */
+  .furniture-table {
+    min-width: 760px !important;
+  }
+
+  /* scrollbar styling (mobile webkit browsers) */
+  .furniture-table-scroll::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .furniture-table-scroll::-webkit-scrollbar-track {
+    background: #e5e7eb;
+    border-radius: 10px;
+  }
+
+  .furniture-table-scroll::-webkit-scrollbar-thumb {
+    background: #9ca3af;
+    border-radius: 10px;
+  }
+}
+
+
