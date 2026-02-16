@@ -149,6 +149,7 @@ img, iframe, video {
 }
 
 
+
 .exhibitor-panel-main-content-containner{
   display: flex;
 }
@@ -1102,88 +1103,6 @@ font-weight: 500;
 
 
 
-.furniture-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.furniture-table th,
-.furniture-table td {
-  border: 1px solid #ddd;
-  padding: 10px;
-  text-align: center;
-}
-
-.furniture-table th {
-  background-color: #f5f5f5;
-  font-weight: 600;
-}
-
-.furniture-table-img {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-}
-
-.furniture-qty-input {
-  width: 60px;
-  padding: 5px;
-  text-align: center;
-}
-
-.furniture-empty-msg {
-  text-align: center;
-  padding: 20px;
-  color: #666;
-}
-
-.btn-delete {
-  background: #ff4d4f;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.btn-delete:hover {
-  background: #d9363e;
-}
-
-.furniture-action-btn {
-  margin-bottom: 15px;
-  text-align: center;
-}
-
-.furniture-action-btn button {
-  background: #007bff;
-  color: white;
-  border: none;
-  padding: 8px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.furniture-action-btn button:hover {
-  background: #0056b3;
-}
-
-.furniture-billing-details > div {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 8px;
-}
-
-.furniture-grand-total {
-  font-weight: bold;
-  font-size: 16px;
-  margin-top: 10px;
-}
-
-.furniture-instruction {
-  margin-top: 20px;
-}
-
 .vendor-heading {
   margin-top: 15px;
   font-weight: bold;
@@ -1680,7 +1599,6 @@ html, body {
 .ExhibitorContractors-root {
   width: 100%;
   display: block;
-  padding-left: 20px;
 }
 
 
@@ -2053,7 +1971,7 @@ iframe img {
   height: 100%; 
   transition: transform 0.45s cubic-bezier(.2,.9,.2,1), opacity 0.35s ease;
   will-change: transform, opacity;
-  padding: 5px 20px;
+  /* padding: 5px 20px; */
 }
 
 
@@ -2616,7 +2534,9 @@ iframe img {
 
 .ExhibitorContractors-root {
   width: 100%;
-  padding-left: 20px;
+  font-family: 'Inter', 'Segoe UI', sans-serif !important;
+  color: var(--ec-foreground) !important;
+  background: var(--ec-bg) !important;
 }
 
 
@@ -2701,7 +2621,6 @@ iframe img {
 .exhibitor-instruction-box,
 .mandatory-form-container,
 .contractor-mandatory-panel {
-  border: 1px solid #ccc;
   border-radius: 20px;
   padding: 10px 25px 15px 15px;
 }
@@ -2899,14 +2818,7 @@ iframe img {
   color: #111;
 }
 
-/* Grand Total Row */
-.billing-row.total {
-  font-size: 16px;
-  font-weight: 600;
-  color: #000;
-  margin-top: 6px;
-  border-bottom: 1px solid #ddd;
-}
+
 
 /* Pending amount text */
 .billing-row.pending {
@@ -3332,12 +3244,6 @@ iframe img {
   width: 100%;
 }
 
-/* Card */
-.exhibitordashboard-card {
-  border-radius: 14px;
-  padding: 16px;
-  width: 100%;
-}
 
 /* Headings */
 .exhibitordashboard-card h2,
@@ -3431,9 +3337,7 @@ iframe img {
 @media (max-width: 600px) {
 
   /* Cards tighter */
-  .exhibitordashboard-card {
-    padding: 14px;
-  }
+
 
   /* Headings smaller */
   .exhibitordashboard-card h2 {
@@ -3911,10 +3815,7 @@ iframe img {
 
   
 
-  /* content neeche se cut na ho */
-  .exhibitordashboard-main-content {
-    padding-bottom: 140px !important;
-  }
+  
 
   .mobile-toggle-btn-desktop{
     display: none;

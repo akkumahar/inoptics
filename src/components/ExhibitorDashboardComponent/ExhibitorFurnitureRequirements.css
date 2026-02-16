@@ -6,7 +6,6 @@
   width: 100%;
 }
 
-
 /* =========================
    MAIN LAYOUT
    ========================= */
@@ -19,61 +18,13 @@
 }
 
 /* =========================
-   Furniture Table Mobile Scroll Fix
-   ========================= */
-
-.furniture-table-section {
-  width: 100%;
-  min-width: 0;
-  overflow: hidden;              /* parent y-scroll off */
-}
-
-.furniture-table-scroll {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: auto;              /* ✅ horizontal scroll ON */
-  overflow-y: hidden;            /* ❌ vertical scroll OFF */
-  -webkit-overflow-scrolling: touch;
-}
-
-/* table width force so scroll triggers */
-.furniture-table {
-  min-width: 720px;              /* adjust if needed */
-  width: 100%;
-  border-collapse: collapse;
-}
-
-/* mobile tighter cells */
-@media (max-width: 600px) {
-
-  .furniture-table th,
-  .furniture-table td {
-    font-size: 12px;
-    padding: 6px;
-    white-space: nowrap;         /* prevent wrap → enables scroll */
-  }
-
-  .furniture-table-img {
-    width: 48px;
-    height: 48px;
-  }
-
-  .furniture-qty-input {
-    width: 46px;
-  }
-
-}
-
-
-
-/* =========================
    MODAL
    ========================= */
 
 .furniture-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -119,7 +70,6 @@
   overflow-y: auto;
 }
 
-
 /* =========================
    GRID
    ========================= */
@@ -129,7 +79,6 @@
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
 }
-
 
 /* =========================
    CARD
@@ -141,12 +90,12 @@
   padding: 12px;
   text-align: center;
   background: #fafafa;
-  transition: .2s ease;
+  transition: 0.2s ease;
 }
 
 .furniture-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
 }
 
 .furniture-card-img {
@@ -170,7 +119,6 @@
   color: #1976d2;
   margin-bottom: 8px;
 }
-
 
 /* =========================
    BUTTONS
@@ -213,28 +161,32 @@
   background: #d9363e;
 }
 
-
 /* =========================
-   TABLE
+   TABLE (Desktop)
    ========================= */
+
+.furniture-table-section {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
 
 .furniture-table-scroll {
   width: 100%;
-  overflow-x: auto;
+  max-width: 100%;
+  overflow-x: hidden;
   overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 .furniture-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 650px;
-  overflow-y: hidden;
+  min-width: 720px;
 }
 
 .furniture-table th,
 .furniture-table td {
-  border: 1px solid #ddd;
-  padding: 10px;
   text-align: center;
   font-size: 14px;
 }
@@ -261,7 +213,6 @@
   padding: 20px;
   color: #666;
 }
-
 
 /* =========================
    BILLING + ACTIONS
@@ -302,15 +253,23 @@
   margin-top: 10px;
 }
 
-
 /* =========================
-   RESPONSIVE
+   DESKTOP/MOBILE TOGGLE
    ========================= */
 
-/* -------- Tablet -------- */
+.ft-m {
+  display: none;
+}
+
+.ft-d {
+  display: table-cell;
+}
+
+/* ===============================
+   TABLET RESPONSIVE (1024px)
+   =============================== */
 
 @media (max-width: 1024px) {
-
   .furniture-main-layout {
     flex-direction: column;
     gap: 20px;
@@ -319,27 +278,24 @@
   .furniture-table-section,
   .furniture-billing-section {
     flex: 1 1 100%;
-    padding-left: 0;
-    padding: 0 12px;
+    padding: 0;
   }
 
   .furniture-billing-section {
-margin-bottom: 160px;
+    margin-bottom: 160px;
   }
 
   .furniture-grid {
     grid-template-columns: repeat(3, 1fr);
   }
-
 }
 
-
-
-
-/* -------- Mobile -------- */
+/* ===============================
+   MOBILE RESPONSIVE (600px)
+   =============================== */
 
 @media (max-width: 600px) {
-
+  /* Grid */
   .furniture-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -349,24 +305,9 @@ margin-bottom: 160px;
     height: 80px;
   }
 
-  .furniture-table th,
-  .furniture-table td {
-    font-size: 12px;
-    padding: 6px;
-  }
-
-  .furniture-table-img {
-    width: 50px;
-    height: 50px;
-  }
-
-  .furniture-qty-input {
-    width: 48px;
-  }
-
+  /* Action Buttons */
   .furniture-action-btn-group {
     display: flex;
-    flex-direction: column;
     gap: 10px;
   }
 
@@ -384,39 +325,340 @@ margin-bottom: 160px;
     max-height: 92vh;
   }
 
-}
-
-
-/* =====================================
-   MOBILE — TABLE SCROLLBAR ALWAYS SHOW
-   ===================================== */
-
-@media (max-width: 600px) {
-
-  .furniture-table-scroll {
-    overflow-x: scroll !important;   /* 🔥 always show */
-    overflow-y: hidden !important;
+  /* ===== HIDE DESKTOP TABLE ===== */
+  .furniture-table thead {
+    display: none;
   }
 
-  /* force width so scroll track visible rahe */
-  .furniture-table {
-    min-width: 760px !important;
+  .ft-d {
+    display: none !important;
   }
 
-  /* scrollbar styling (mobile webkit browsers) */
-  .furniture-table-scroll::-webkit-scrollbar {
-    height: 8px;
+  .ft-m {
+    display: table-cell !important;
   }
 
-  .furniture-table-scroll::-webkit-scrollbar-track {
+  /* ===== TABLE ROW → CARD ===== */
+  .ft-row {
+    width: 100%;
+  }
+
+  /* ===== CARD CONTAINER ===== */
+  .ft-card {
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 12px;
+    text-align: left;
+    max-width: 56%;
+    box-sizing: border-box;
+  }
+
+  /* ===== TOP BADGE ===== */
+  .ft-badge {
+    display: inline-block;
     background: #e5e7eb;
-    border-radius: 10px;
+    color: #111827;
+    font-weight: 800;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
   }
 
-  .furniture-table-scroll::-webkit-scrollbar-thumb {
-    background: #9ca3af;
+  /* ===== MAIN FLEX (Image + Content + Delete) ===== */
+  .ft-card-main {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* ===== IMAGE ===== */
+  .ft-card-img {
+    width: 75px;
+    height: 75px;
     border-radius: 10px;
+    object-fit: cover;
+    background: #dbeafe;
+    border: 1px solid #e5e7eb;
+    flex-shrink: 0;
+  }
+
+  /* ===== RIGHT CONTENT BODY ===== */
+  .ft-card-body {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .ft-card-body-details-card{
+    display: flex;
+    gap: 20px;
+  }
+
+  /* Name */
+  .ft-name {
+    font-weight: 800;
+    font-size: 14px;
+    color: #111827;
+    line-height: 1.3;
+    margin-bottom: 10px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;
+    max-width: 100%;
+  }
+
+  /* Label */
+  .ft-label {
+    font-size: 11px;
+    color: #6b7280;
+    margin-bottom: 3px;
+    font-weight: 600;
+  }
+
+  /* Price */
+  .ft-price {
+    font-size: 15px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 10px;
+  }
+
+  /* ===== DELETE BUTTON ===== */
+  .ft-delete {
+    background: #ef4444;
+    color: #fff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    height: fit-content;
+  }
+
+  /* ===== QUANTITY WRAPPER ===== */
+  .ft-qty-wrap {
+    margin-top: 0;
+  }
+
+  /* ===== QUANTITY BOX ===== */
+  .ft-qty-box {
+    display: inline-flex;
+    border: 1px solid #9ca3af;
+    border-radius: 8px;
+    overflow: hidden;
+    height: 36px;
+    align-items: center;
+  }
+
+  .ft-qty-box button {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: #e5e7eb;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #374151;
+  }
+
+  .ft-qty-box button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .ft-qty-box input {
+    width: 45px;
+    height: 36px;
+    border: none;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    background: #f9fafb;
+    flex-shrink: 0;
+    -moz-appearance: textfield;
+  }
+
+  .ft-qty-box input::-webkit-outer-spin-button,
+  .ft-qty-box input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .ft-qty-box input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* ===== TOTAL ROW ===== */
+  .ft-total-row {
+    border-top: 1px solid #d1d5db;
+    margin-top: 12px;
+    padding-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: #111827;
+    width: 100%;
   }
 }
 
+/* ===============================
+   SMALL PHONES (360px)
+   =============================== */
 
+@media (max-width: 420px) {
+  .ft-card {
+    padding: 10px;
+    border-radius: 14px;
+
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 12px;
+    text-align: left;
+    max-width: 49%;
+    box-sizing: border-box;
+  }
+
+  .ft-badge {
+    font-size: 11px;
+    padding: 3px 8px;
+    margin-bottom: 8px;
+  }
+
+  .ft-card-main {
+    gap: 8px;
+  }
+
+  .ft-card-img {
+    width: 65px;
+    height: 65px;
+    border-radius: 8px;
+  }
+
+  .ft-name {
+    font-size: 11px;
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+
+  .ft-label {
+    font-size: 10px;
+  }
+
+  .ft-price {
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+
+  .ft-delete {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+
+  .ft-qty-box {
+    height: 32px;
+  }
+
+  .ft-qty-box button {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
+
+  .ft-qty-box input {
+    width: 38px;
+    height: 32px;
+    font-size: 13px;
+  }
+
+  .ft-total-row {
+    font-size: 13px;
+    margin-top: 10px;
+    padding-top: 8px;
+  }
+}
+
+/* ===============================
+   EXTRA SMALL PHONES (320px)
+   =============================== */
+
+@media (max-width: 320px) {
+  .ft-card {
+    padding: 8px;
+    max-width: 41%;
+    border-radius: 12px;
+  }
+
+  .ft-badge {
+    font-size: 10px;
+    padding: 3px 6px;
+    margin-bottom: 6px;
+  }
+
+  .ft-card-main {
+    gap: 6px;
+  }
+
+  .ft-card-img {
+    width: 60px;
+    height: 60px;
+  }
+
+  .ft-name {
+    font-size: 12px;
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+
+  .ft-label {
+    font-size: 9px;
+  }
+
+  .ft-price {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+
+  .ft-delete {
+    padding: 5px 8px;
+    font-size: 10px;
+    border-radius: 8px;
+  }
+
+  .ft-qty-box {
+    height: 30px;
+  }
+
+  .ft-qty-box button {
+    width: 30px;
+    height: 30px;
+    font-size: 15px;
+  }
+
+  .ft-qty-box input {
+    width: 35px;
+    height: 30px;
+    font-size: 12px;
+  }
+
+  .ft-total-row {
+    font-size: 12px;
+    margin-top: 8px;
+    padding-top: 6px;
+  }
+}

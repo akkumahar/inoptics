@@ -48,7 +48,7 @@ export default ExhibitorProfile;
 const PersonalDetailsCard = ({ exhibitors }) => (
   <div className="profile-card">
     <div className="profile-section">
-      <h3 className="profile-section-title">Personal Details</h3>
+      <h3 className="brands-heading">Personal Details</h3>
 
       {exhibitors.length === 0 ? (
         <p className="profile-empty">No exhibitors found.</p>
@@ -77,7 +77,7 @@ const PersonalDetailsCard = ({ exhibitors }) => (
 const StallDetailsCard = ({ stallList }) => (
   <div className="profile-card">
     <div className="profile-section">
-      <h3 className="profile-section-title">Stall Details</h3>
+      <h3 className="brands-heading">Stall Details</h3>
 
       {stallList.length === 0 ? (
         <p className="profile-empty">No stall details found.</p>

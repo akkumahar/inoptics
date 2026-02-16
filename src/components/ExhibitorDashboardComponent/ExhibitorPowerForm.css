@@ -2,8 +2,6 @@
    POWER FORM — SLIDE SAFE BASE (ALL DEVICES)
    ===================================================== */
 
-   
-
 /* Power Requirement Css */
 
 /* ===================== Exhibitor Power Requirement Styles ===================== */
@@ -22,6 +20,7 @@
 /* Left section */
 .Exhibitor-power-requirement-form-left {
   flex: 1;
+  margin-top: 12px;
   min-width: 500px;
 }
 
@@ -143,7 +142,7 @@
 }
 
 .Exhibitor-power-requirement-stalls-form-group label {
-  font-family: "Montserrat";
+  font-family: "Montserrat", sans-serif;
   font-weight: 400;
   font-size: 15px;
   margin-bottom: 6px;
@@ -151,7 +150,7 @@
 }
 
 .Exhibitor-phase-options input[type="radio"] {
-    margin-right: 6px;
+  margin-right: 6px;
 }
 
 .Exhibitor-power-requirement-stalls-form-group input,
@@ -159,7 +158,7 @@
 .Exhibitor-power-requirement-stalls-form-group textarea {
   padding: 10px 12px;
   color: #4a4e54;
-  font-family: "Montserrat";
+  font-family: "Montserrat", sans-serif;
   font-size: 15px;
   border: 1px solid #d7cfcf00;
   background-color: #fff;
@@ -169,7 +168,7 @@
   display: flex;
   gap: 20px;
   margin-top: 5px;
-  font-family: "Montserrat";
+  font-family: "Montserrat", sans-serif;
   font-size: 15px;
 }
 
@@ -233,7 +232,7 @@
 }
 
 .Exhibitor-power-requirement-instruction-box h3 {
-  font-weight: 300;
+  font-weight: 500;
   font-size: 35px;
   margin-bottom: 6px;
   color: #201d1d;
@@ -317,8 +316,6 @@ button[disabled] {
   cursor: not-allowed;
 }
 
-
-
 /* Billing */
 .Exhibitor-power-requirement-billing {
   flex: 0 0 30%;
@@ -337,8 +334,6 @@ button[disabled] {
   display: flex;
   justify-content: space-between;
   font-size: 15px;
-  margin-bottom: 10px;
-  padding: 4px 0;
 }
 
 .Exhibitor-power-requirement-stalls-forms-group .Exhibitor-power-label {
@@ -358,10 +353,6 @@ button[disabled] {
   padding-top: 10px;
   border-top: 1px solid #bbb;
 }
-
-
-
-
 
 .Exhibitor-power-requirement-stalls-form-wrapper {
   position: relative;
@@ -403,82 +394,467 @@ button[disabled] {
 }
 
 /* =====================================================
-   POWER FORM — MOBILE IMAGE STYLE GRID
-   only mobile, desktop untouched
+   TABLET RESPONSIVE (1024px and below)
+   ===================================================== */
+
+@media (max-width: 1024px) {
+  .Exhibitor-power-requirement-wrapper {
+    width: 100%;
+    margin-left: 0;
+    padding: 0 20px;
+    gap: 30px;
+  }
+
+  .Exhibitor-power-requirement-form-left {
+    min-width: 100%;
+  }
+
+  #Exhibitor-progressbar {
+    gap: 100px;
+    justify-content: center;
+  }
+
+  .Exhibitor-power-requirement-below-section {
+    width: 100%;
+    margin-left: 0;
+    padding: 0 20px;
+    flex-direction: column;
+  }
+
+  .Exhibitor-power-requirement-table-container {
+    flex: 1;
+  }
+
+  .Exhibitor-power-requirement-billing {
+    flex: 1;
+    min-width: 100%;
+  }
+}
+
+/* =====================================================
+   MOBILE RESPONSIVE (768px and below)
+   ===================================================== */
+
+@media (max-width: 768px) {
+  .Exhibitor-power-requirement-wrapper {
+    padding: 0 15px;
+    gap: 20px;
+  }
+
+  #Exhibitor-progressbar {
+    gap: 60px;
+    font-size: 14px;
+    margin: 15px 0 30px 0;
+  }
+
+  #Exhibitor-progressbar li:before {
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    font-size: 14px;
+  }
+
+  #Exhibitor-progressbar li:after {
+    top: 14px;
+  }
+
+  .Exhibitor-power-requirement-stalls-form-row {
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 15px;
+  }
+
+  .Exhibitor-power-requirement-stalls-form-group {
+    min-width: 100%;
+    padding: 12px;
+  }
+
+  .Exhibitor-power-requirement-add-button-inline {
+    min-width: 100%;
+    padding: 0;
+    margin-bottom: 0;
+    justify-content: flex-start;
+  }
+
+  .Exhibitor-power-requirement-instruction-box h3 {
+    font-size: 24px;
+  }
+
+  .Exhibitor-power-requirement-instruction-box li {
+    font-size: 14px;
+  }
+
+  .Exhibitor-power-requirement-below-section {
+    padding: 0 15px;
+    gap: 20px;
+    margin-top: 30px;
+  }
+}
+
+/* =====================================================
+   POWER FORM — MOBILE 2-COLUMN GRID (600px and below)
+   ===================================================== */
+/* =====================================================
+   POWER FORM — MOBILE SINGLE COLUMN LAYOUT (600px and below)
+   Desktop remains unchanged
+   ===================================================== */
+/* =====================================================
+   POWER FORM — MOBILE SINGLE COLUMN LAYOUT (600px and below)
+   Desktop remains unchanged
    ===================================================== */
 
 @media (max-width: 600px) {
-
-  /* hide progress bar */
+  /* Hide progress bar on mobile */
   #Exhibitor-progressbar {
     display: none !important;
   }
 
-  /* compact wrapper */
+  /* Wrapper - full width, no padding */
+  .Exhibitor-power-requirement-wrapper {
+    padding: 0;
+    margin-left: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .Exhibitor-power-requirement-form-left {
+    min-width: 100%;
+    width: 100%;
+  }
+
+  /* Form wrapper - full width, no padding */
   .Exhibitor-power-requirement-stalls-form-wrapper {
-    padding: 8px !important;
+    padding: 0 !important;
+    width: 100%;
+    max-width: 100%;
   }
 
-  /* 🔥 GRID = 2 COLUMN */
+  /* Form grid - full width */
+  .Exhibitor-power-requirement-stalls-form-grid {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* 🔥 SINGLE COLUMN LAYOUT - full width */
   .Exhibitor-power-requirement-stalls-form-row {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 10px;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+    margin-bottom: 0 !important;
+    width: 100%;
   }
 
-  /* remove desktop card bg */
+  /* Remove all background and padding - full width */
   .Exhibitor-power-requirement-stalls-form-group {
     background: none !important;
     padding: 0 !important;
     min-width: 0;
+    width: 100%;
+    flex: none;
+    margin-bottom: 16px;
   }
 
-  /* labels tight */
+  /* Labels - match image style */
   .Exhibitor-power-requirement-stalls-form-group label {
-    font-size: 13px;
-    margin-bottom: 3px;
+    font-size: 16px;
+    margin-bottom: 8px;
     font-weight: 600;
+    color: #1f2937;
+    display: block;
   }
 
-  /* inputs compact equal */
+  /* Inputs - full width */
   .Exhibitor-power-requirement-stalls-form-group input,
   .Exhibitor-power-requirement-stalls-form-group select {
     width: 100%;
-    height: 38px;
-    padding: 6px 10px;
-    font-size: 14px;
-    border-radius: 10px;
-    border: 1px solid #cbd5e1;
+    max-width: 100%;
+    height: 40px;
+    padding: 14px 16px;
+    font-size: 16px;
+    border-radius: 12px;
+    border: 2px solid #e5e7eb;
+    background: #f9fafb;
+    box-sizing: border-box;
+    color: #6b7280;
+    font-weight: 400;
+  }
+
+  /* Input focus state */
+  .Exhibitor-power-requirement-stalls-form-group input:focus,
+  .Exhibitor-power-requirement-stalls-form-group select:focus {
+    outline: none;
+    border-color: #3b82f6;
     background: #fff;
   }
 
-  /* PHASE block fits right column */
+  /* Phase options - full width */
   .Exhibitor-phase-options {
     display: flex;
-    gap: 16px;
-    align-items: center;
-    margin-top: 6px;
-    font-size: 14px;
+    gap: 12px;
+    align-items: stretch;
+    margin-top: 0;
+    font-size: 16px;
+    width: 100%;
   }
 
-  /* ---------- BUTTON COLUMN ---------- */
+  .Exhibitor-phase-options label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #374151;
+    padding: 5px 16px;
+    border-radius: 12px;
+    border: 2px solid #e5e7eb;
+    background: #f9fafb;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
+  }
 
+  .Exhibitor-phase-options label:has(input:checked) {
+    border-color: #3b82f6;
+    background: #eff6ff;
+  }
+
+  .Exhibitor-phase-options input[type="radio"] {
+    margin-right: 0;
+    width: 20px;
+    height: 20px;
+    accent-color: #3b82f6;
+  }
+
+  /* Button section - full width */
   .Exhibitor-power-requirement-add-button-inline {
-    display: contents !important; /* 🔥 becomes grid cell */
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 12px !important;
     padding: 0 !important;
-    margin: 0 !important;
+    margin: 24px 0 0 0 !important;
+    min-width: 0;
+    width: 100%;
+    background: none;
+    align-items: stretch;
+    justify-content: stretch;
   }
 
   .Exhibitor-power-requirement-add-button-inline button {
-    width: 100%;
-    height: 38px;
-    border-radius: 18px;
-    font-size: 15px;
+    flex: 1;
+    height: 56px;
+    border-radius: 12px;
+    font-size: 16px;
     font-weight: 600;
-    background: linear-gradient(90deg,#2f6ea5,#3b82f6);
-    color: #fff;
     border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
   }
 
+  /* Previous button - black */
+  .Exhibitor-power-requirement-add-button-inline button:first-child {
+    background: #1f2937;
+    color: #fff;
+  }
+
+  .Exhibitor-power-requirement-add-button-inline button:first-child:hover {
+    background: #374151;
+  }
+
+  /* Next/Add button - blue */
+  .Exhibitor-power-requirement-add-button-inline button:last-child {
+    background: #3b82f6;
+    color: #fff;
+  }
+
+  .Exhibitor-power-requirement-add-button-inline button:last-child:hover {
+    background: #2563eb;
+  }
+
+  /* If only one button (no Previous) */
+  .Exhibitor-power-requirement-add-button-inline button:only-child {
+    background: #3b82f6;
+    color: #fff;
+  }
+
+  /* Instruction box mobile - full width */
+  .Exhibitor-power-requirement-instruction-box {
+    margin-top: 20px;
+    padding: 0;
+    width: 100%;
+  }
+
+  .Exhibitor-power-requirement-instruction-box h3 {
+    font-size: 20px;
+  }
+
+  .Exhibitor-power-requirement-instruction-box li {
+    font-size: 14px;
+  }
+
+  /* Below section - full width */
+  .Exhibitor-power-requirement-below-section {
+    padding: 0;
+    margin-top: 20px;
+    margin-left: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* Table mobile - full width */
+  .Exhibitor-power-requirement-table-container {
+    width: 100%;
+  }
+
+  .Exhibitor-power-requirement-table {
+    min-width: 100%;
+    width: 100%;
+    font-size: 13px;
+  }
+
+  .Exhibitor-power-requirement-table th,
+  .Exhibitor-power-requirement-table td {
+    padding: 10px 8px;
+    font-size: 13px;
+  }
+
+  /* Billing mobile - full width */
+  .Exhibitor-power-requirement-billing {
+    width: 100%;
+    min-width: 100%;
+  }
+
+  .Exhibitor-power-requirement-billing h3 {
+    font-size: 18px;
+  }
+
+  .Exhibitor-power-requirement-stalls-forms-group {
+    font-size: 14px;
+  }
+
+  .Exhibitor-power-btn {
+    padding: 10px 16px;
+    font-size: 14px;
+    border-radius: 8px;
+  }
+
+  .Exhibitor-power-requirement-top-buttons-inside-box {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+}
+
+/* =====================================================
+   VERY SMALL MOBILE (400px and below)
+   ===================================================== */
+
+@media (max-width: 400px) {
+  .Exhibitor-power-requirement-stalls-form-group label {
+    font-size: 15px;
+    margin-bottom: 6px;
+  }
+
+  .Exhibitor-power-requirement-stalls-form-group input,
+  .Exhibitor-power-requirement-stalls-form-group select {
+    height: 50px;
+    padding: 12px 14px;
+    font-size: 15px;
+    border-radius: 10px;
+  }
+
+  .Exhibitor-phase-options label {
+    font-size: 15px;
+    padding: 12px 14px;
+    border-radius: 10px;
+  }
+
+  .Exhibitor-phase-options input[type="radio"] {
+    width: 18px;
+    height: 18px;
+  }
+
+  .Exhibitor-power-requirement-add-button-inline {
+    gap: 10px !important;
+    margin-top: 20px !important;
+  }
+
+  .Exhibitor-power-requirement-add-button-inline button {
+    height: 50px;
+    font-size: 15px;
+    border-radius: 10px;
+  }
+
+  .Exhibitor-power-requirement-instruction-box h3 {
+    font-size: 18px;
+  }
+
+  .Exhibitor-power-requirement-instruction-box li {
+    font-size: 13px;
+  }
+
+  .Exhibitor-power-requirement-table th,
+  .Exhibitor-power-requirement-table td {
+    padding: 8px 6px;
+    font-size: 12px;
+  }
+
+  .Exhibitor-power-btn {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+
+  .Exhibitor-power-requirement-billing h3 {
+    font-size: 16px;
+  }
+
+  .Exhibitor-power-requirement-stalls-forms-group {
+    font-size: 13px;
+  }
+}
+
+/* =====================================================
+   EXTRA SMALL MOBILE (350px and below)
+   ===================================================== */
+
+@media (max-width: 350px) {
+  .Exhibitor-power-requirement-stalls-form-group label {
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+
+  .Exhibitor-power-requirement-stalls-form-group input,
+  .Exhibitor-power-requirement-stalls-form-group select {
+    height: 46px;
+    padding: 10px 12px;
+    font-size: 14px;
+    border-radius: 8px;
+  }
+
+  .Exhibitor-phase-options label {
+    font-size: 14px;
+    padding: 10px 12px;
+    border-radius: 8px;
+  }
+
+  .Exhibitor-phase-options input[type="radio"] {
+    width: 16px;
+    height: 16px;
+  }
+
+  .Exhibitor-power-requirement-add-button-inline {
+    gap: 8px !important;
+    margin-top: 16px !important;
+  }
+
+  .Exhibitor-power-requirement-add-button-inline button {
+    height: 46px;
+    font-size: 14px;
+    border-radius: 8px;
+  }
+
+  .Exhibitor-power-requirement-table th,
+  .Exhibitor-power-requirement-table td {
+    padding: 6px 4px;
+    font-size: 11px;
+  }
 }

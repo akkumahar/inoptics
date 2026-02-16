@@ -5,9 +5,14 @@ import {
   FaCloudUploadAlt,
   FaDownload,
   FaUpload,
+  FaUser,
+  FaBuilding,
+  FaPhoneAlt,
+  FaEnvelope,
 } from "react-icons/fa";
+import { MdNumbers } from "react-icons/md";
 
-import "./ExhibitorContractors.css"
+import "./ExhibitorContractors.css";
 const ExhibitorContractors = (props) => {
   const {
     importantPage,
@@ -128,58 +133,120 @@ const ExhibitorContractors = (props) => {
             <div className="ExhibitorContractors-appointed-contractor-wrapper overlay-table-wrapper">
               <div className="ExhibitorContractors-exhibitor-cont-table-container">
                 <table className="ExhibitorContractors-appointed-contractor-table">
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Name</th>
-                      <th>Company Name</th>
-                      <th>City</th>
-                      <th>Phn/Mob No</th>
-                      <th>Email</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Company Name</th>
+      <th>City</th>
+      <th>Phn/Mob No</th>
+      <th>Email</th>
+      {/* <th>Action</th> */}
+    </tr>
+  </thead>
 
-                  <tbody>
-                    {contractorData.map((contractor, index) => (
-                      <tr key={contractor.id}>
-                        <td>{index + 1}</td>
-                        <td>{contractor.name}</td>
-                        <td>{contractor.company_name}</td>
-                        <td>{contractor.city}</td>
-                        <td>
-                          {contractor.mobile_numbers}
-                          {contractor.phone_numbers
-                            ? `, ${contractor.phone_numbers}`
-                            : ""}
-                        </td>
-                        <td>{contractor.email}</td>
+  <tbody>
+    {contractorData.map((contractor, index) => (
+      <tr key={contractor.id}>
 
-                        <td>
-                          {selectedContractorId === contractor.id ? (
-                            <button
-                              className="ExhibitorContractors-unselect-btn"
-                              onClick={unselectContractor}
-                            >
-                              Unselect
-                            </button>
-                          ) : (
-                            <button
-                              className="ExhibitorContractors-select-btn"
-                              onClick={() => {
-                                setSelectedContractorTemp(contractor);
-                                setShowPopup(true);
-                              }}
-                              disabled={!!selectedContractorId}
-                            >
-                              Select
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+        {/* ===== DESKTOP / TABLET ===== */}
+        <td className="d-only">{index + 1}</td>
+        <td className="d-only">{contractor.name}</td>
+        <td className="d-only">{contractor.company_name}</td>
+        <td className="d-only">{contractor.city}</td>
+
+        <td className="d-only">
+          {contractor.mobile_numbers}
+          {contractor.phone_numbers
+            ? `, ${contractor.phone_numbers}`
+            : ""}
+        </td>
+
+        <td className="d-only">{contractor.email}</td>
+
+        {/* <td className="d-only">
+          {selectedContractorId === contractor.id ? (
+            <button
+              className="ExhibitorContractors-unselect-btn"
+              onClick={unselectContractor}
+            >
+              Unselect
+            </button>
+          ) : (
+            <button
+              className="ExhibitorContractors-select-btn"
+              onClick={() => {
+                setSelectedContractorTemp(contractor);
+                setShowPopup(true);
+              }}
+              disabled={!!selectedContractorId}
+            >
+              Select
+            </button>
+          )}
+        </td> */}
+
+        {/* ===== MOBILE CARD ===== */}
+        <td className="m-only" colSpan="7">
+          <div className="cm-card">
+
+            <div className="cm-top">
+              <div className="cm-id">{index + 1}</div>
+
+              <div className="cm-name">{contractor.name}</div>
+
+              {/* {selectedContractorId === contractor.id ? (
+                <button
+                  className="cm-btn"
+                  onClick={unselectContractor}
+                >
+                  Unselect
+                </button>
+              ) : (
+                <button
+                  className="cm-btn"
+                  onClick={() => {
+                    setSelectedContractorTemp(contractor);
+                    setShowPopup(true);
+                  }}
+                  disabled={!!selectedContractorId}
+                >
+                  Select
+                </button>
+              )} */}
+            </div>
+
+            <div className="cm-company">
+              <FaUser className="cm-icon" />
+              {contractor.company_name}
+            </div>
+
+            {/* <div className="cm-company">
+              <FaMapMarkerAlt className="cm-icon" />
+              {contractor.city}
+            </div> */}
+
+            <div className="cm-company">
+              <FaPhoneAlt className="cm-icon-phone" />
+              {contractor.mobile_numbers}
+              {contractor.phone_numbers
+                ? `, ${contractor.phone_numbers}`
+                : ""}
+            </div>
+
+            {/* <div className="cm-email">
+              <FaEnvelope className="cm-icon-mail" />
+              {contractor.email}
+            </div> */}
+
+          </div>
+        </td>
+
+      </tr>
+    ))}
+  </tbody>
+</table>
+
               </div>
             </div>
           </div>
@@ -519,24 +586,20 @@ const ExhibitorContractors = (props) => {
                 <tbody>
                   {contractorData.map((contractor, index) => (
                     <tr key={contractor.id}>
-                      <td>{index + 1}</td>
-                      <td>{contractor.company_name}</td>
-                      <td>{contractor.name}</td>
-                      <td>{contractor.city}</td>
-                      <td>
+                      {/* ===== DESKTOP / TABLET NORMAL TABLE ===== */}
+                      <td className="d-only">{index + 1}</td>
+                      <td className="d-only">{contractor.company_name}</td>
+                      <td className="d-only">{contractor.name}</td>
+                      <td className="d-only">{contractor.city}</td>
+                      <td className="d-only">
                         {contractor.mobile_numbers}
-                        {contractor.phone_numbers
-                          ? `, ${contractor.phone_numbers}`
-                          : ""}
+                        {contractor.phone_numbers &&
+                          `, ${contractor.phone_numbers}`}
                       </td>
-                      <td>{contractor.email}</td>
-
-                      <td>
+                      <td className="d-only">{contractor.email}</td>
+                      <td className="d-only">
                         {selectedContractorId === contractor.id ? (
-                          <button
-                            className="ExhibitorContractors-unselect-btn"
-                            onClick={unselectContractor}
-                          >
+                          <button className="ExhibitorContractors-unselect-btn">
                             Unselect
                           </button>
                         ) : (
@@ -551,6 +614,43 @@ const ExhibitorContractors = (props) => {
                             Select
                           </button>
                         )}
+                      </td>
+
+                      {/* ===== MOBILE CARD ===== */}
+                      <td className="m-only" colSpan="7">
+                        <div className="cm-card">
+                          <div className="cm-top">
+                            <div className="cm-id">{index + 1}</div>
+
+                            <div className="cm-name">{contractor.name}</div>
+
+                            <button
+                              className="cm-btn"
+                              onClick={() => {
+                                setSelectedContractorTemp(contractor);
+                                setShowPopup(true);
+                              }}
+                              disabled={!!selectedContractorId}
+                            >
+                              Select
+                            </button>
+                          </div>
+
+                          <div className="cm-company">
+                            <FaUser className="cm-icon" />
+                            {contractor.company_name}
+                          </div>
+
+                          <div className="cm-company">
+                            <FaPhoneAlt className="cm-icon-phone" />
+                            {contractor.mobile_numbers}
+                          </div>
+
+                          {/* <div className="cm-email">
+                            <FaEnvelope className="cm-icon" />
+                            {contractor.email}
+                          </div> */}
+                        </div>
                       </td>
                     </tr>
                   ))}

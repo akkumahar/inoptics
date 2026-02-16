@@ -10,7 +10,7 @@
 
 .payment-card {
   height: 100%;
-
+padding: 5px;
   display: flex;
   flex-direction: column;
 }
@@ -64,7 +64,6 @@
   font-size: 16px;
   font-weight: 600;
   color: #000;
-  margin-top: 6px;
   border-bottom: 1px solid #ddd;
 }
 
@@ -173,7 +172,6 @@
   font-size: 16px;
   font-weight: 600;
   color: #000;
-  margin-top: 6px;
   border-bottom: 1px solid #ddd;
 }
 
@@ -272,7 +270,9 @@
    }
 
   .payment-card {
-    padding: 14px;
+    background:none;
+    border: none;
+
   }
 
   .payment-card h4 {
@@ -281,6 +281,7 @@
 
   .billing-row {
     font-size: 13px;
+    margin: 0;
   }
 }
 
@@ -330,11 +331,8 @@
   }
 
   .bank-column {
-    padding: 12px;
     font-size: 13px;
     border-radius: 12px;
-    background-color: #ffff;
-    border: 1px solid #e5e7eb;
   }
 
   .bank-column p {

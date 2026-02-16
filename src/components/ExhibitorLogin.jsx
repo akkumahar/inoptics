@@ -57,7 +57,7 @@ const ExhibitorLogin = () => {
       if (result.success) {
         localStorage.setItem("isExhibitorLoggedIn", "true");
         localStorage.setItem("exhibitorInfo", JSON.stringify(result.data));
-        navigate("/exhibitor-dashboard");
+       navigate("/exhibitor-dashboard", { replace: true });
       } else {
         setError(result.message || "Exhibitor login failed.");
       }
@@ -66,6 +66,24 @@ const ExhibitorLogin = () => {
       setError("Something went wrong. Please try again.");
     }
   };
+
+
+  useEffect(() => {
+  if (localStorage.getItem("isExhibitorLoggedIn")) {
+    navigate("/exhibitor-dashboard", { replace: true });
+  }
+}, [navigate]);
+
+  
+      useEffect(() => {
+      const loggedIn = localStorage.getItem("isExhibitorLoggedIn");
+  
+      if (!loggedIn) {
+        navigate("/exhibitor-login", { replace: true });
+      }
+    }, []);
+
+
 
   return (
     <div className="exhibitorlogin-page">

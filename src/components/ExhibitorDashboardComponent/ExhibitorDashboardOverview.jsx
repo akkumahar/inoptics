@@ -58,12 +58,17 @@ const ExhibitorDashboardOverview = ({
                     className={`checklist-row ${a.done ? "completed" : "pending"}`}
                   >
                     <div className="checklist-left">
-                      <span className="checklist-icon">
+                      <div className="checklist-flex-both-icon">
+                        <span className="checklist-icon">
                         {a.done ? "✓" : "!"}
                       </span>
+                      <span className="checklist-status only-mobile-version">
+                      {a.done ? "Completed" : "Pending"}
+                    </span>
+                      </div>
                       {a.name}
                     </div>
-                    <span className="checklist-status">
+                    <span className="checklist-status only-desktop-version">
                       {a.done ? "Completed" : "Pending"}
                     </span>
                   </div>

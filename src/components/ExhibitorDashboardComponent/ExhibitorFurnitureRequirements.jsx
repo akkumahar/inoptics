@@ -113,10 +113,11 @@ const FurnitureRequirements = ({
               <tbody>
                 {selectedFurniture.length > 0 ? (
                   selectedFurniture.map((item, index) => (
-                    <tr key={item.id}>
-                      <td>{index + 1}</td>
+                    <tr key={item.id} className="ft-row">
+                      {/* ===== DESKTOP ===== */}
+                      <td className="ft-d">{index + 1}</td>
 
-                      <td>
+                      <td className="ft-d">
                         <img
                           src={`https://www.inoptics.in/api/uploads/${item.image}`}
                           alt={item.name}
@@ -124,10 +125,10 @@ const FurnitureRequirements = ({
                         />
                       </td>
 
-                      <td>{item.name}</td>
-                      <td>₹{item.price}</td>
+                      <td className="ft-d">{item.name}</td>
+                      <td className="ft-d">₹{item.price}</td>
 
-                      <td>
+                      <td className="ft-d">
                         <input
                           type="number"
                           min="1"
@@ -140,7 +141,7 @@ const FurnitureRequirements = ({
                         />
                       </td>
 
-                      <td>
+                      <td className="ft-d">
                         ₹
                         {item.quantity
                           ? (item.quantity * item.price).toFixed(2)
@@ -148,7 +149,7 @@ const FurnitureRequirements = ({
                       </td>
 
                       {!isFurnitureSaved && (
-                        <td>
+                        <td className="ft-d">
                           <button
                             className="btn-delete"
                             onClick={() =>
@@ -161,6 +162,104 @@ const FurnitureRequirements = ({
                           </button>
                         </td>
                       )}
+
+                      {/* ===== MOBILE CARD ===== */}
+                      <td className="ft-m" colSpan={isFurnitureSaved ? 6 : 7}>
+                        <div className="ft-card">
+                          {/* top badge */}
+                          <div className="ft-badge">#{index + 1}</div>
+
+                          <div className="ft-card-main">
+                            {/* image */}
+                            <img
+                              src={`https://www.inoptics.in/api/uploads/${item.image}`}
+                              alt={item.name}
+                              className="ft-card-img"
+                            />
+
+                            {/* right content */}
+                            <div className="ft-card-body">
+                              <div className="ft-name">{item.name}</div>
+
+                              <div className="ft-card-body-details-card">
+                                <div>
+                                  <div className="ft-label">Price</div>
+                                  <div className="ft-price">₹{item.price}</div>
+                                </div>
+
+                                <div className="ft-qty-wrap">
+                                  <div className="ft-label">Quantity</div>
+                                  <div className="ft-qty-box">
+                                    <button
+                                      onClick={() => {
+                                        const newQty = Math.max(
+                                          1,
+                                          (item.quantity || 1) - 1,
+                                        );
+                                        handleQuantityChange(index, newQty);
+                                      }}
+                                      disabled={
+                                        isFurnitureSaved ||
+                                        (item.quantity || 1) <= 1
+                                      }
+                                    >
+                                      −
+                                    </button>
+                                    <input
+                                      type="number"
+                                      min="1"
+                                      value={item.quantity || 1}
+                                      disabled={isFurnitureSaved}
+                                      onChange={(e) =>
+                                        handleQuantityChange(
+                                          index,
+                                          e.target.value,
+                                        )
+                                      }
+                                    />
+                                    <button
+                                      onClick={() => {
+                                        const newQty = (item.quantity || 1) + 1;
+                                        handleQuantityChange(index, newQty);
+                                      }}
+                                      disabled={isFurnitureSaved}
+                                    >
+                                      +
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* delete button */}
+                            {!isFurnitureSaved && (
+                              <button
+                                className="ft-delete"
+                                onClick={() =>
+                                  setSelectedFurniture(
+                                    selectedFurniture.filter(
+                                      (_, i) => i !== index,
+                                    ),
+                                  )
+                                }
+                              >
+                                Delete
+                              </button>
+                            )}
+                          </div>
+
+                          {/* bottom total */}
+                          <div className="ft-total-row">
+                            <span>Total</span>
+                            <span>
+                              ₹
+                              {item.quantity
+                                ? (item.quantity * item.price).toFixed(2)
+                                : "0.00"}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
                     </tr>
                   ))
                 ) : (
