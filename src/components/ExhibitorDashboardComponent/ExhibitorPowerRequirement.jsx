@@ -122,7 +122,7 @@ onFinalSubmit,
                   <th>Power Required</th>
                   <th>Phase</th>
                   <th>Total Amount</th>
-                  {!isViewOnly && <th>Action</th>}
+                  {/* {!isViewOnly && <th>Action</th>} */}
                 </tr>
               </thead>
 
@@ -136,7 +136,7 @@ onFinalSubmit,
                       <td>{item.phase}</td>
                       <td>{item.totalAmount}</td>
 
-                      {index === 0 && (
+                      {/* {index === 0 && (
                         <td rowSpan={previewTableList.length}>
                           <button
                             onClick={handleResetPowerData}
@@ -145,7 +145,7 @@ onFinalSubmit,
                             Remove
                           </button>
                         </td>
-                      )}
+                      )} */}
                     </tr>
                   ))
                 ) : powerData.length > 0 ? (

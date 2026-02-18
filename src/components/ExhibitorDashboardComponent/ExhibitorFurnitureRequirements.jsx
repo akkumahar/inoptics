@@ -175,67 +175,63 @@ const FurnitureRequirements = ({
                           <div className="ft-card-main">
                             {/* image */}
                             <div className="ft-card-body-details-card">
-                            <img
-                              src={`https://www.inoptics.in/api/uploads/${item.image}`}
-                              alt={item.name}
-                              className="ft-card-img"
-                            />
-                                <div>
-                                  <div className="ft-label">Price</div>
-                                  <div className="ft-price">₹{item.price}</div>
-                                </div>
-
-                                
+                              <img
+                                src={`https://www.inoptics.in/api/uploads/${item.image}`}
+                                alt={item.name}
+                                className="ft-card-img"
+                              />
+                              <div>
+                                <div className="ft-label">Price</div>
+                                <div className="ft-price">₹{item.price}</div>
                               </div>
+                            </div>
 
                             {/* right content */}
                             <div className="ft-card-body">
-                              <div className="ft-name"><div className="ft-badge">{index + 1}</div> {item.name}</div>
+                              <div className="ft-name">
+                                <div className="ft-badge">{index + 1}</div>{" "}
+                                {item.name}
+                              </div>
 
-<div className="ft-qty-wrap">
-                                  <div className="ft-label">Quantity</div>
-                                  <div className="ft-qty-box">
-                                    <button
-                                      onClick={() => {
-                                        const newQty = Math.max(
-                                          1,
-                                          (item.quantity || 1) - 1,
-                                        );
-                                        handleQuantityChange(index, newQty);
-                                      }}
-                                      disabled={
-                                        isFurnitureSaved ||
-                                        (item.quantity || 1) <= 1
-                                      }
-                                    >
-                                      −
-                                    </button>
-                                    <input
-                                      type="number"
-                                      min="1"
-                                      value={item.quantity || 1}
-                                      disabled={isFurnitureSaved}
-                                      onChange={(e) =>
-                                        handleQuantityChange(
-                                          index,
-                                          e.target.value,
-                                        )
-                                      }
-                                    />
-                                    <button
-                                      onClick={() => {
-                                        const newQty = (item.quantity || 1) + 1;
-                                        handleQuantityChange(index, newQty);
-                                      }}
-                                      disabled={isFurnitureSaved}
-                                    >
-                                      +
-                                    </button>
-                                  </div>
+                              <div className="ft-qty-wrap">
+                                <div className="ft-label">Quantity</div>
+                                <div className="ft-qty-box">
+                                  <button
+                                    onClick={() => {
+                                      const newQty = Math.max(
+                                        1,
+                                        (item.quantity || 1) - 1,
+                                      );
+                                      handleQuantityChange(index, newQty);
+                                    }}
+                                   
+                                  >
+                                    −
+                                  </button>
+                                  <input
+                                    type="number"
+                                    min="1"
+                                    value={item.quantity || 1}
+                                    disabled={isFurnitureSaved}
+                                    onChange={(e) =>
+                                      handleQuantityChange(
+                                        index,
+                                        e.target.value,
+                                      )
+                                    }
+                                  />
+                                  <button
+                                    onClick={() => {
+                                      const newQty = (item.quantity || 1) + 1;
+                                      handleQuantityChange(index, newQty);
+                                    }}
+                                    
+                                  >
+                                    +
+                                  </button>
                                 </div>
-                              
+                              </div>
                             </div>
-
                           </div>
 
                           {/* bottom total */}
@@ -345,73 +341,72 @@ const FurnitureRequirements = ({
           {/* ================= VENDOR INSTRUCTIONS ================= */}
 
           <div className="instruction-card">
-  {furnitureVendorDetails.map((vendor) => {
-    const clean = vendor.description
-      .replace(/<[^>]+>/g, "")
-      .replace(/&amp;/g, "&");
+            {furnitureVendorDetails.map((vendor) => {
+              const clean = vendor.description
+                .replace(/<[^>]+>/g, "")
+                .replace(/&amp;/g, "&");
 
-    let parts = clean.split(/(?<=\.)\s*/);
+              let parts = clean.split(/(?<=\.)\s*/);
 
-    const rows = [];
+              const rows = [];
 
-    parts.forEach((text) => {
-      if (!text.trim()) return;
+              parts.forEach((text) => {
+                if (!text.trim()) return;
 
-      // 🔥 split Instructions line
-      if (/^instructions:/i.test(text)) {
-        const after = text.split(/instructions:/i)[1];
+                // 🔥 split Instructions line
+                if (/^instructions:/i.test(text)) {
+                  const after = text.split(/instructions:/i)[1];
 
-        rows.push({ type: "heading", text: "Instructions:" });
+                  rows.push({ type: "heading", text: "Instructions:" });
 
-        if (after?.trim()) {
-          rows.push({ type: "li", text: after.trim() });
-        }
-        return;
-      }
+                  if (after?.trim()) {
+                    rows.push({ type: "li", text: after.trim() });
+                  }
+                  return;
+                }
 
-      // 🔥 split Vendor heading line
-if (/official vendor/i.test(text)) {
-  const [head, rest] = text.split(/official vendor/i);
+                // 🔥 split Vendor heading line
+                if (/official vendor/i.test(text)) {
+                  const [head, rest] = text.split(/official vendor/i);
 
-  rows.push({
-    type: "heading",
-    text: (head + "OFFICIAL VENDOR").trim(),
-  });
+                  rows.push({
+                    type: "heading",
+                    text: (head + "OFFICIAL VENDOR").trim(),
+                  });
 
-  if (rest?.trim()) {
-    const vendorParts = rest
-      .split(/(?=Address:|Email:|Phone:)/i)   // 👈 magic split
-      .filter(x => x.trim());
+                  if (rest?.trim()) {
+                    const vendorParts = rest
+                      .split(/(?=Address:|Email:|Phone:)/i) // 👈 magic split
+                      .filter((x) => x.trim());
 
-    vendorParts.forEach(v =>
-      rows.push({ type: "li", text: v.trim() })
-    );
-  }
+                    vendorParts.forEach((v) =>
+                      rows.push({ type: "li", text: v.trim() }),
+                    );
+                  }
 
-  return;
-}
+                  return;
+                }
 
-      rows.push({ type: "li", text });
-    });
+                rows.push({ type: "li", text });
+              });
 
-    return (
-      <div key={vendor.id}>
-        {rows.map((row, i) =>
-          row.type === "heading" ? (
-            <div key={i} className="instruction-big-heading">
-              {row.text}
-            </div>
-          ) : (
-            <li key={i} className="instruction-li">
-              {row.text}
-            </li>
-          )
-        )}
-      </div>
-    );
-  })}
-</div>
-
+              return (
+                <div key={vendor.id}>
+                  {rows.map((row, i) =>
+                    row.type === "heading" ? (
+                      <div key={i} className="instruction-big-heading">
+                        {row.text}
+                      </div>
+                    ) : (
+                      <li key={i} className="instruction-li">
+                        {row.text}
+                      </li>
+                    ),
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>

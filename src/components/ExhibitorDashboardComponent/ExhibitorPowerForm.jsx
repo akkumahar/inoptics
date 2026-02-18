@@ -1,11 +1,11 @@
 import React from "react";
 
-import "./ExhibitorPowerForm.css"
+import "./ExhibitorPowerForm.css";
 
 const ExhibitorPowerForm = ({
   exhibitorPricePerKw,
   isViewOnly,
-  powerFormStep,          // ✅ renamed
+  powerFormStep, // ✅ renamed
   exhibitorPowerRequired,
   exhibitorPhase,
   exhibitorTotalAmount,
@@ -57,7 +57,7 @@ const ExhibitorPowerForm = ({
               <label>
                 <input
                   type="radio"
-                  name={`phase-${safeStep}`}   // ✅ stable
+                  name={`phase-${safeStep}`} // ✅ stable
                   value="Single Phase"
                   checked={exhibitorPhase === "Single Phase"}
                   onChange={onPhaseChange}
@@ -88,34 +88,27 @@ const ExhibitorPowerForm = ({
             <input type="text" value={exhibitorTotalAmount} readOnly />
           </div>
 
-         <div className="Exhibitor-power-requirement-add-button-inline">
-
-  {!isViewOnly ? (
-
-    safeStep < 1 ? (
-      <button type="button" onClick={onNext}>
-        Next
-      </button>
-    ) : (
-      <button type="button" onClick={onFinalSubmit}>
-        Submit
-      </button>
-    )
-
-  ) : (
-
-    <button
-      type="button"
-      className="unlock-request-btn"
-      onClick={handlePowerUnlockRequest}
-    >
-      Request to Unlock
-    </button>
-
-  )}
-
-</div>
-
+          <div className="Exhibitor-power-requirement-add-button-inline">
+            {!isViewOnly ? (
+              safeStep < 1 ? (
+                <button type="button" onClick={onNext}>
+                  Next
+                </button>
+              ) : (
+                <button type="button" onClick={onFinalSubmit}>
+                  Submit
+                </button>
+              )
+            ) : (
+              <button
+                type="button"
+                className="unlock-request-btn"
+                onClick={handlePowerUnlockRequest}
+              >
+                Request to Unlock
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </form>

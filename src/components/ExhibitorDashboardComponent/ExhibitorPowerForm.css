@@ -349,6 +349,8 @@ button[disabled] {
 .Exhibitor-power-requirement-stalls-forms-group.total {
   font-size: 16px;
   font-weight: bold;
+  margin-top: 16px;
+  padding-top: 10px;
   border-top: 1px solid #bbb;
 }
 
@@ -677,8 +679,8 @@ button[disabled] {
 
   /* If only one button (no Previous) */
   .Exhibitor-power-requirement-add-button-inline button:only-child {
-    background: #3b82f6;
-    color: #fff;
+    background: #f5d234;
+    color: #000000;
   }
 
   /* Instruction box mobile - full width */
@@ -694,7 +696,6 @@ button[disabled] {
 
   .Exhibitor-power-requirement-instruction-box li {
     font-size: 14px;
-    margin-bottom:0;
   }
 
   /* Below section - full width */
