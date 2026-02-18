@@ -15,7 +15,7 @@
   grid-template-columns: minmax(0, 1fr) minmax(320px, 460px);
   gap: clamp(14px, 2vw, 24px);
   align-items: start;
-  margin-bottom: 160px;
+  margin-bottom: 110px;
 }
 
 /* ================= LEFT STACK ================= */
@@ -40,6 +40,8 @@
 
 .exhibitordashboard-card-flex{
   display: flex;
+  gap: 12px;
+  margin-top: 15px;
   justify-content: center;
 }
 
@@ -62,7 +64,7 @@
 
 /* ================= HEADINGS ================= */
 
-.particular-heading,
+
 .exhibitordashboard-card h3 {
   font-size: clamp(16px, 1.3vw, 20px);
   font-weight: 600;
@@ -168,7 +170,6 @@
 
 .news-item {
   padding: 10px 0;
-  border-bottom: 1px solid #edf0f6;
 }
 
 .news-item h4 {
@@ -225,6 +226,23 @@
 .only-mobile-version{
   display: none;
 }
+
+/* mobile cards hidden by default */
+.stall-mobile-cards {
+  display: none;
+}
+
+/* hide mobile card by default */
+.power-mobile-only {
+  display: none;
+}
+
+
+.badge-mobile-only {
+  display: none;
+}
+
+
 /* ================= STICKY RIGHT SAFE ================= */
 
 @media (min-width: 1200px) {
@@ -325,10 +343,7 @@
     font-size: clamp(15px, 4vw, 18px);
   }
 
-    .exhibitordashboard-card {
-    padding:  0 0 14px 0;
-  }
-
+  
 
 
 
@@ -423,6 +438,149 @@
   .checklist-row:not(.completed) .checklist-status {
     background: #636362;
     color: #f9fbff;
+  }
+
+
+
+
+
+  /* stall payments table into card for mobile version start */
+
+  .stall-payment-table {
+    display: none; /* hide table */
+  }
+
+  .stall-mobile-cards {
+    display: block;
+  }
+
+  .stall-m-card {
+    border-radius: 14px;
+    font-size: 14px;
+  }
+
+  .sm-head {
+    font-size: 16x;
+    font-weight: 700;
+    color: #0f2a44;
+  }
+
+  .sm-row {
+    display: flex;
+    justify-content: space-between;
+    margin: 0;
+  }
+
+  .sm-row-right{
+
+    font-weight: 400 !important;
+  }
+
+  .sm-row span {
+    color: #555;
+  }
+
+  .sm-divider {
+    height: 1px;
+    background: #e5e7eb;
+  }
+
+  .sm-grand {
+    display: flex;
+    justify-content: space-between;
+    font-size: 16px;
+    font-weight: 500;
+    color: #0f2a44;
+  }
+
+
+  /* stall payments table into card for mobile version end */
+
+
+  /* power payments table into card for mobile version start */
+
+
+  .stall-payment-table {
+    display: none;
+  }
+
+  .power-mobile-only {
+    display: block;
+  }
+
+  .pm-card {
+    border-radius: 16px;
+  }
+
+  .pm-card-block + .pm-card-block {
+    padding-top: 12px;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .pm-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f2a44;
+  }
+
+  .pm-row {
+    display: flex;
+    justify-content: space-between;
+    margin: 0;
+    font-size: 14px;
+  }
+
+  .pm-divider {
+    height: 1px;
+    background: #e5e7eb;
+  }
+
+  .pm-grand {
+    display: flex;
+    justify-content: space-between;
+    font-size: 16px;
+    font-weight: 500;
+    color: #0f2a44;
+  }
+  /* power payments table into card for mobile version end */
+
+
+   /* hide table on mobile */
+  .stall-payment-table {
+    display: none;
+  }
+
+  .badge-mobile-only {
+    display: block;
+  }
+
+  .badge-m-card {
+    border-radius: 14px;
+    font-size: 14px;
+  }
+
+  .bm-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f2a44;
+  }
+
+  .bm-row {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .bm-divider {
+    height: 1px;
+    background: #e5e7eb;
+  }
+
+  .bm-grand {
+    display: flex;
+    justify-content: space-between;
+    font-size: 16px;
+    font-weight: 500;
+    color: #0f2a44;
   }
 }
 

@@ -105,6 +105,98 @@ padding: 5px;
 /* payment card style section end */
 
 
+.power-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 18px;
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+/* ===== table ===== */
+
+.power-table {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.power-table-head,
+.power-table-row {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1.2fr 1.2fr 1.4fr;
+  gap: 10px;
+  padding: 0 0 ;
+}
+
+.power-table-head {
+  font-weight: 600;
+  font-size: 13px;
+  color: #555;
+}
+
+.power-table-row {
+  font-size: 14px;
+}
+
+.power-table-row .amt {
+  font-weight: 600;
+}
+
+/* ===== summary ===== */
+
+.modern-summary {
+  border-top: 1px dashed #e5e5e5;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* wrapper → columns */
+.stall-detail-wrapper {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+/* each stall card */
+.stall-mini-card {
+  background: #f3f4f6;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+/* inner label/value grid */
+.stall-detail-grid {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  row-gap: 0px;
+  column-gap: 0px;
+  font-size: 14px;
+}
+
+.sd-label {
+  font-weight: 600;
+  color: #374151;
+}
+
+.sd-value {
+  color: #111827;
+}
+
+
 
 
 /* payment card style section start */
@@ -212,6 +304,16 @@ padding: 5px;
 
 /* payment card style section end */
 
+.hightlist-details {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #dc2626 ;
+  background: #fee2e2;
+  border-radius: 8px;
+  padding: 4px 12px;
+  margin: 0;
+  line-height: 1.5;
+}
 
 
 /* ======================================
@@ -277,6 +379,8 @@ padding: 5px;
 
   .payment-card h4 {
     font-size: 17px;
+    display: flex;
+    text-transform: uppercase;
   }
 
   .billing-row {

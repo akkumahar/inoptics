@@ -3603,7 +3603,6 @@ font-family: "Montserrat";
   min-height: 100px; /* set a lower min-height if needed */
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
 }
 
 .payment-card h4 {

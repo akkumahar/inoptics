@@ -83,7 +83,7 @@
 }
 
 /* title area */
-.card-title{
+/* .card-title{
   padding: 16px;
   font-family:"Playfair Display", serif;
   font-weight: 600;
@@ -91,7 +91,7 @@
   text-align: left;
   color: #fff;
   background: linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.06));
-}
+} */
 /* ---------- Active gallery header bar ---------- */
 .active-header {
   display: flex;

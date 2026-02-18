@@ -14,6 +14,8 @@ const ExhibitorPowerForm = ({
   onNext,
   onPrevious,
   onAdd,
+  onFinalSubmit,
+  handlePowerUnlockRequest,
 }) => {
   const steps = ["SETUP DAYS", "EXHIBITION DAYS"];
 
@@ -22,6 +24,7 @@ const ExhibitorPowerForm = ({
 
   return (
     <form className="Exhibitor-power-requirement-stalls-form-wrapper">
+      <h5>Additional Power Requirement</h5>
       <div className="Exhibitor-power-requirement-stalls-form-grid slide-active">
         {/* ROW 1 */}
         <div className="Exhibitor-power-requirement-stalls-form-row">
@@ -37,7 +40,7 @@ const ExhibitorPowerForm = ({
         </div>
 
         {/* ROW 2 */}
-        <div className="Exhibitor-power-requirement-stalls-form-row">
+        <div className="Exhibitor-power-requirement-stalls-form-row-power">
           <div className="Exhibitor-power-requirement-stalls-form-group">
             <label>POWER REQUIRED:</label>
             <input
@@ -79,37 +82,40 @@ const ExhibitorPowerForm = ({
         </div>
 
         {/* ROW 3 */}
-        <div className="Exhibitor-power-requirement-stalls-form-row">
+        <div className="Exhibitor-power-requirement-stalls-form-row-power">
           <div className="Exhibitor-power-requirement-stalls-form-group">
             <label>TOTAL AMOUNT:</label>
             <input type="text" value={exhibitorTotalAmount} readOnly />
           </div>
 
-          <div className="Exhibitor-power-requirement-add-button-inline">
-            {safeStep > 0 && (
-              <button type="button" onClick={onPrevious}>
-                Previous
-              </button>
-            )}
+         <div className="Exhibitor-power-requirement-add-button-inline">
 
-            {safeStep < 1 ? (
-              <button
-                type="button"
-                onClick={onNext}
-                disabled={isViewOnly}
-              >
-                Next
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={onAdd}
-                disabled={isViewOnly}
-              >
-                Add
-              </button>
-            )}
-          </div>
+  {!isViewOnly ? (
+
+    safeStep < 1 ? (
+      <button type="button" onClick={onNext}>
+        Next
+      </button>
+    ) : (
+      <button type="button" onClick={onFinalSubmit}>
+        Submit
+      </button>
+    )
+
+  ) : (
+
+    <button
+      type="button"
+      className="unlock-request-btn"
+      onClick={handlePowerUnlockRequest}
+    >
+      Request to Unlock
+    </button>
+
+  )}
+
+</div>
+
         </div>
       </div>
     </form>

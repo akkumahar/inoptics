@@ -513,9 +513,10 @@
 
   .profile-left .profile-card {
     width: 100%;
-    padding: 0 16px;
   }
-
+.profile-card {
+  padding: 0;
+}
   .profile-right .profile-card {
     width: 100%;
   }
@@ -526,6 +527,7 @@
 
   .profile-details-row {
     grid-template-columns: 45% 55%;
+    padding: 0;
   }
 
   .profile-details-row label,

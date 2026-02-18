@@ -17,6 +17,37 @@
   margin-top: 20px;
 }
 
+
+/* ===== Container ===== */
+
+.instruction-card {
+  max-width: 760px;
+}
+
+/* ===== Big Headings ===== */
+
+.instruction-big-heading {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 12px 0 0;
+}
+/* ===== List Items ===== */
+
+.instruction-li {
+  list-style: disc;
+  margin-left: 22px;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ===== Loading ===== */
+
+.instruction-loading {
+  font-style: italic;
+  color: #666;
+}
+
 /* =========================
    MODAL
    ========================= */
@@ -243,7 +274,6 @@
 .furniture-billing-details > div {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 8px;
   font-size: 14px;
 }
 
@@ -316,8 +346,8 @@
   }
 
   .furniture-billing-section {
-    padding: 14px;
-    margin-bottom: 200px;
+    padding: 0px;
+    margin-bottom: 120px;
   }
 
   .furniture-modal-content {
@@ -338,6 +368,9 @@
     display: table-cell !important;
   }
 
+  
+  
+  
   /* ===== TABLE ROW → CARD ===== */
   .ft-row {
     width: 100%;
@@ -361,8 +394,8 @@
     color: #111827;
     font-weight: 800;
     font-size: 12px;
-    padding: 4px 10px;
-    border-radius: 8px;
+    padding: 4px 7px;
+    border-radius: 4px;
     margin-bottom: 10px;
   }
 
@@ -395,7 +428,8 @@
 
   .ft-card-body-details-card{
     display: flex;
-    gap: 20px;
+    flex-direction: column;
+    gap: 0px;
   }
 
   /* Name */
@@ -430,8 +464,8 @@
 
   /* ===== DELETE BUTTON ===== */
   .ft-delete {
-    background: #ef4444;
-    color: #fff;
+    background: #fee2e2;
+    color: #dc2626;
     border: none;
     padding: 8px 14px;
     border-radius: 10px;
@@ -514,7 +548,12 @@
     color: #111827;
     width: 100%;
   }
+
+  
 }
+
+
+
 
 /* ===============================
    SMALL PHONES (360px)
@@ -523,16 +562,21 @@
 @media (max-width: 420px) {
   .ft-card {
     padding: 10px;
-    border-radius: 14px;
-
     background: #f3f4f6;
     border: 1px solid #e5e7eb;
-    border-radius: 16px;
-    padding: 12px;
+    border-radius: 10px !important;
+    padding: 4px !important;
     text-align: left;
     max-width: 49%;
     box-sizing: border-box;
   }
+
+ .furniture-table tbody {
+    display: grid;
+    grid-template-columns: repeat(2, 175px) !important;
+    gap: 5px;
+  }
+
 
   .ft-badge {
     font-size: 11px;
@@ -541,7 +585,7 @@
   }
 
   .ft-card-main {
-    gap: 8px;
+    gap: 0;
   }
 
   .ft-card-img {
@@ -567,7 +611,7 @@
 
   .ft-delete {
     padding: 6px 10px;
-    font-size: 11px;
+    font-size: 16px;
   }
 
   .ft-qty-box {
@@ -604,6 +648,22 @@
     border-radius: 12px;
   }
 
+   .furniture-table tbody {
+    display: grid;
+    grid-template-columns: repeat(2, 148px) !important;
+    gap: 5px;
+  }
+
+.ft-qty-box button {
+        width: 24px !important;
+        height: 30px;
+        font-size: 14px;
+    }
+    .ft-qty-box input {
+        width: 20px !important;
+        font-size: 12px;
+    }
+
   .ft-badge {
     font-size: 10px;
     padding: 3px 6px;
@@ -611,7 +671,7 @@
   }
 
   .ft-card-main {
-    gap: 6px;
+    gap: 0px !important;
   }
 
   .ft-card-img {
@@ -662,3 +722,98 @@
     padding-top: 6px;
   }
 }
+
+
+
+
+
+/* =========================================
+   MOBILE 2-CARD GRID — TABLE FIX
+   ========================================= */
+
+@media (max-width: 600px) {
+
+  /* hide desktop cells */
+  .ft-d {
+    display: none !important;
+  }
+
+  /* make table row a grid */
+  .furniture-table tbody {
+    display: grid;
+    grid-template-columns: repeat(2, 200px);
+    gap: 5px;
+  }
+
+  /* each mobile td becomes card wrapper */
+  .ft-m {
+    display: block !important;
+    width: 100%;
+  }
+
+  /* remove table behavior */
+  .furniture-table tr {
+    display: contents;
+  }
+
+  /* ===== CARD ===== */
+
+  .ft-card {
+    width: 100%;
+    max-width: 100% !important;
+    padding: 12px;
+    border-radius: 16px;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+  }
+
+  .ft-card-main {
+    display: flex;
+    gap: 8px;
+  }
+
+  .ft-card-img {
+    width: 64px;
+    height: 64px;
+    border-radius: 10px;
+    object-fit: cover;
+  }
+
+  .ft-name {
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .ft-label {
+    font-size: 10px;
+  }
+
+  .ft-price {
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  /* qty compact */
+  .ft-qty-box {
+    height: 30px;
+  }
+
+  .ft-qty-box button {
+    width: 28px;
+    height: 30px;
+    font-size: 14px;
+  }
+
+  .ft-qty-box input {
+    width: 32px;
+    font-size: 12px;
+  }
+
+  .ft-total-row {
+    font-size: 12px;
+    margin-top: 8px;
+  }
+}
+

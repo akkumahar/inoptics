@@ -6,19 +6,12 @@ import {
   FaBars,
   FaTachometerAlt,
   FaUser,
-  FaWpforms,
   FaClipboardList,
   FaHardHat,
-  FaBullhorn,
   FaMoneyBill,
   FaSignOutAlt,
   FaEnvelope,
-  FaEye,
-  FaDownload,
-  FaUpload,
-  FaLockOpen,
   FaLongArrowAltLeft,
-  FaCloudUploadAlt,
 } from "react-icons/fa";
 import "./ExhibitorDashboard.css";
 import ExhibitorBadgeForm from "./ExhibitorBadgeForm";
@@ -65,8 +58,7 @@ const ExhibitorDashboard = () => {
   const [activeMenu, setActiveMenu] = useState("Dashboard");
   // const [isBrandsSubmitted, setIsBrandsSubmitted] = useState(false);
 
-
-  
+  const [powerPreviewRows, setPowerPreviewRows] = useState([]);
 
   // Fetch Products
   const fetchProducts = async () => {
@@ -1202,6 +1194,17 @@ const ExhibitorDashboard = () => {
         setIsSavedToDB(true);
         setIsViewOnly(isLocked ? true : false); // if unlocked => false
 
+        const rows = data.entries.map((item) => ({
+          day: item.day,
+          pricePerKw: item.price_per_kw,
+          powerRequired: item.power_required,
+          phase: item.phase,
+          totalAmount: item.total_amount,
+        }));
+
+        // ✅ always set — display ke liye
+        setPowerPreviewRows(rows);
+
         // 🔹 If unlocked, load current table into editable preview
         if (!isLocked) {
           const editableRows = data.entries.map((item) => ({
@@ -1418,6 +1421,90 @@ const ExhibitorDashboard = () => {
       alert("An error occurred while submitting.");
     }
   };
+
+
+
+  const handleAddAndSubmitPower = async () => {
+
+  // ✅ same validation as Add
+  if (!exhibitorPowerRequired || !exhibitorPhase) {
+    alert("Please fill all required fields.");
+    return;
+  }
+
+  const totalAmount = (
+    parseFloat(exhibitorPowerRequired || 0) *
+    parseFloat(exhibitorPricePerKw || 0)
+  ).toFixed(2);
+
+  const newRow = {
+    day: "Exhibition Days",
+    pricePerKw: exhibitorPricePerKw,
+    powerRequired: exhibitorPowerRequired,
+    phase: exhibitorPhase,
+    totalAmount,
+  };
+
+  const updatedList = [...previewTableList, newRow];
+
+  // ✅ update preview table
+  setPreviewTableList(updatedList);
+
+  // ✅ reset fields
+  setExhibitorPowerRequired("");
+  setExhibitorPhase("");
+  setExhibitorTotalAmount("");
+
+  // ✅ NOW — submit immediately using same payload logic
+  try {
+    const payload = updatedList.map((item) => ({
+      company_name: currentExhibitor.company_name,
+      day: item.day,
+      price_per_kw: item.pricePerKw,
+      power_required: item.powerRequired,
+      phase: item.phase,
+      total_amount: item.totalAmount,
+      total_price: totalPrice.toFixed(2),
+      cgst: cgst.toFixed(2),
+      sgst: sgst.toFixed(2),
+      igst: igst.toFixed(2),
+      grand_total: grandTotal.toFixed(2),
+      is_locked: 1,
+    }));
+
+    const response = await fetch(
+      "https://inoptics.in/api/add_Exhibitor_power_requirement.php",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ entries: payload }),
+      }
+    );
+
+    const result = await response.json();
+
+    if (response.ok) {
+      alert("Power data added & submitted!");
+
+      await sendPowerMailToAdmin(currentExhibitor.company_name);
+
+      setIsSavedToDB(true);
+      setIsViewOnly(true);
+      fetchPowerBilling(currentExhibitor.company_name);
+
+    } else {
+      alert("Submit failed: " + (result.error || "Error"));
+    }
+
+  } catch (err) {
+    console.error(err);
+    alert("Submit error");
+  }
+};
+
+
+
+
 
   // ===== Handle Power Unlock Request =====
   const handlePowerUnlockRequest = async () => {
@@ -2471,13 +2558,27 @@ const ExhibitorDashboard = () => {
 
   const stallSummary = stallList?.reduce(
     (summary, stall) => {
+      // 💰 payment totals
       summary.total += parseFloat(stall.total || 0);
       summary.discounted_amount += parseFloat(stall.discounted_amount || 0);
       summary.sgst += parseFloat(stall.sgst_9_percent || 0);
       summary.cgst += parseFloat(stall.cgst_9_percent || 0);
       summary.igst += parseFloat(stall.igst_18_percent || 0);
       summary.grand_total += parseFloat(stall.grand_total || 0);
-      if (!summary.currency) summary.currency = stall.currency || "";
+
+      // 💱 currency
+      if (!summary.currency) {
+        summary.currency = stall.currency || "";
+      }
+
+      // 🧾 stall detail list push
+      summary.stalls.push({
+        stall_number: stall.stall_number,
+        stall_category: stall.stall_category,
+        stall_area: stall.stall_area,
+        stall_price: stall.stall_price,
+      });
+
       return summary;
     },
     {
@@ -2488,6 +2589,7 @@ const ExhibitorDashboard = () => {
       igst: 0,
       grand_total: 0,
       currency: "",
+      stalls: [], // 👈 new field
     },
   );
 
@@ -3097,10 +3199,13 @@ const ExhibitorDashboard = () => {
             </button>
           </div>
           <div id="mail-back-btn">
-            {(activeMenu === "Mails Inbox") && (
-              <button className="mail-back-btn" onClick={() => setSelectedMail()}>
-              <FaLongArrowAltLeft />
-            </button>
+            {activeMenu === "Mails Inbox" && (
+              <button
+                className="mail-back-btn"
+                onClick={() => setSelectedMail()}
+              >
+                <FaLongArrowAltLeft />
+              </button>
             )}
             <h1>{activeMenu}</h1>
           </div>
@@ -3288,7 +3393,7 @@ const ExhibitorDashboard = () => {
                   mailsList={mailsList}
                   loadingMails={loadingMails}
                   selectedMail={selectedMail}
-                 onSelectMail={handleMailClick}
+                  onSelectMail={handleMailClick}
                   onBackToList={() => setSelectedMail(null)}
                 />
               )}
@@ -3344,8 +3449,6 @@ const ExhibitorDashboard = () => {
                                   instructionsList[0].created_at,
                                 ).toLocaleString("en-IN")}
                               </div>
-
-                            
                             </div>
                           </label>
                         </div>
@@ -3480,6 +3583,7 @@ const ExhibitorDashboard = () => {
                     handlePowerFormPrevious={handlePowerFormPrevious}
                     handlePowerFormAdd={handlePowerFormAdd}
                     handleExhibitorPowerSubmit={handleExhibitorPowerSubmit}
+                    onFinalSubmit={handleAddAndSubmitPower}
                     showExhibitorEditForm={showExhibitorEditForm}
                     handlePowerUnlockRequest={handlePowerUnlockRequest}
                     previewTableList={previewTableList}
@@ -3497,7 +3601,6 @@ const ExhibitorDashboard = () => {
 
               <div className="contractor-ui-root">
                 {!importantPage && activeMenu === "Contractors" && (
-                  
                   <ExhibitorContractors
                     importantPage={importantPage}
                     activeMenu={activeMenu}
@@ -3575,6 +3678,7 @@ const ExhibitorDashboard = () => {
                   igst={igst}
                   grandTotal={grandTotal}
                   powerCleared={powerCleared}
+                  powerPreviewRows={powerPreviewRows}
                   getExhibitorBadgeBilling={getExhibitorBadgeBilling}
                 />
               )}

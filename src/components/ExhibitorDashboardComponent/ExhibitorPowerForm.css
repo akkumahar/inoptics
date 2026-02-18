@@ -349,8 +349,6 @@ button[disabled] {
 .Exhibitor-power-requirement-stalls-forms-group.total {
   font-size: 16px;
   font-weight: bold;
-  margin-top: 16px;
-  padding-top: 10px;
   border-top: 1px solid #bbb;
 }
 
@@ -459,7 +457,6 @@ button[disabled] {
   }
 
   .Exhibitor-power-requirement-stalls-form-row {
-    flex-direction: column;
     gap: 12px;
     margin-bottom: 15px;
   }
@@ -538,11 +535,19 @@ button[disabled] {
   /* 🔥 SINGLE COLUMN LAYOUT - full width */
   .Exhibitor-power-requirement-stalls-form-row {
     display: flex !important;
+    gap: 10px;
+    margin-bottom: 0 !important;
+    width: 100%;
+  }
+  .Exhibitor-power-requirement-stalls-form-row-power {
+    display: flex !important;
     flex-direction: column !important;
     gap: 0 !important;
     margin-bottom: 0 !important;
     width: 100%;
   }
+
+  
 
   /* Remove all background and padding - full width */
   .Exhibitor-power-requirement-stalls-form-group {
@@ -557,7 +562,6 @@ button[disabled] {
   /* Labels - match image style */
   .Exhibitor-power-requirement-stalls-form-group label {
     font-size: 16px;
-    margin-bottom: 8px;
     font-weight: 600;
     color: #1f2937;
     display: block;
@@ -690,6 +694,7 @@ button[disabled] {
 
   .Exhibitor-power-requirement-instruction-box li {
     font-size: 14px;
+    margin-bottom:0;
   }
 
   /* Below section - full width */

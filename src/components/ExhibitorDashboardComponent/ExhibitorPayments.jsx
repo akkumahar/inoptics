@@ -1,5 +1,5 @@
 import React from "react";
-import "./ExhibitorPayments.css"
+import "./ExhibitorPayments.css";
 const ExhibitorPaymentCards = ({
   stallSummary,
   stallPaymentCleared,
@@ -12,17 +12,20 @@ const ExhibitorPaymentCards = ({
   igst,
   grandTotal,
   powerCleared,
+  powerPreviewRows,
 
   getExhibitorBadgeBilling,
 }) => {
+
+
+  
   return (
     <div className="exhibitordashboard-content exhibitordashboard-content-payments ">
       <div className="payment-cards-container">
-
         {/* ================= BANK DETAILS ================= */}
         <div className="bank-details">
+          <h3>Our Bank Details</h3>
           <div className="bank-row">
-
             {[
               {
                 bank: "Kotak Mahindra Bank",
@@ -50,20 +53,28 @@ const ExhibitorPaymentCards = ({
               },
             ].map((b, i) => (
               <div className="bank-column" key={i}>
-                <p><strong>A/C Name:</strong> RSD EXPOSITIONS</p>
-                <p><strong>Bank Name:</strong> {b.bank}</p>
-                <p><strong>Bank A/c No.:</strong> {b.acc}</p>
-                <p><strong>Address:</strong> {b.addr}</p>
-                <p><strong>IFSC Code:</strong> {b.ifsc}</p>
+                <p>
+                  <strong>A/C Name:</strong> RSD EXPOSITIONS
+                </p>
+                <p>
+                  <strong>Bank Name:</strong> {b.bank}
+                </p>
+                <p>
+                  <strong>Bank A/c No.:</strong> {b.acc}
+                </p>
+                <p>
+                  <strong>Address:</strong> {b.addr}
+                </p>
+                <p>
+                  <strong>IFSC Code:</strong> {b.ifsc}
+                </p>
               </div>
             ))}
-
           </div>
         </div>
 
         {/* ================= PAYMENT CARDS ================= */}
         <div className="payment-card-grid">
-
           {/* ===== Stall Card ===== */}
           {(() => {
             const s = stallSummary || {};
@@ -82,7 +93,35 @@ const ExhibitorPaymentCards = ({
               <div className="payment-card">
                 <h4>Stall Particulars</h4>
 
+                {/* ✅ NEW — Stall detail rows */}
+                {s.stalls?.length > 0 && (
+  <div className="stall-detail-card">
+    {s.stalls.map((stall, i) => (
+      <div key={i} className="stall-detail-grid">
+
+        <div className="sd-label">Stall Number:</div>
+        <div className="sd-value">{stall.stall_number || "-"}</div>
+
+        <div className="sd-label">Stall Category:</div>
+        <div className="sd-value">{stall.stall_category || "-"}</div>
+
+        <div className="sd-label">Stall Area:</div>
+        <div className="sd-value">
+          {stall.stall_area ? `${stall.stall_area} sq. mtr.` : "-"}
+        </div>
+
+        <div className="sd-label">Stall Price:</div>
+        <div className="sd-value">
+          {stall.stall_price ? `₹${stall.stall_price}` : "-"}
+        </div>
+
+      </div>
+    ))}
+  </div>
+)}
+
                 <div className="billing-summary">
+                  {/* ✅ existing rows */}
                   <Row label="Total" value={safeTotal} />
 
                   {safeDiscount > 0 && (
@@ -103,7 +142,7 @@ const ExhibitorPaymentCards = ({
 
                   <Row label="Grand Total" value={safeGrand} total />
 
-                  <Row label="Cleared Amount" value={safeCleared} />
+                  <Row label="Amount Received" value={safeCleared} />
 
                   <StatusRow pending={pending} />
                 </div>
@@ -113,70 +152,109 @@ const ExhibitorPaymentCards = ({
 
           {/* ===== Power Card ===== */}
           {(() => {
-            const total = Number(grandTotal || 0);
-            const cleared = Number(powerCleared || 0);
-            const pending = Math.max(0, total - cleared);
+  const total = Number(grandTotal || 0);
+  const cleared = Number(powerCleared || 0);
+  const pending = Math.max(0, total - cleared);
 
-            return (
-              <div className="payment-card">
-                <h4>Power Requirement</h4>
+  return (
+    <div className="payment-card power-card">
+      <h4 className="card-title">Power Requirement</h4>
 
-                <div className="billing-summary">
-                  <Row label="Total" value={totalPrice} />
+      {/* ✅ Detail Table */}
+      {powerPreviewRows?.length > 0 && (
+        <div className="power-table">
+          <div className="power-table-head">
+            <span>Days</span>
+            <span>Phase</span>
+            <span>Price/KW</span>
+            <span>Power/KW</span>
+            <span>Amount</span>
+          </div>
 
-                  {isDelhi ? (
-                    <>
-                      <Row label="CGST (9%)" value={cgst} />
-                      <Row label="SGST (9%)" value={sgst} />
-                    </>
-                  ) : (
-                    <Row label="IGST (18%)" value={igst} />
-                  )}
+          {powerPreviewRows.map((row, i) => (
+            <div key={i} className="power-table-row">
+              <span> {row.day?.replace(/days?/i, "").trim()}</span>
+              <span>{row.phase?.replace(/phase?/i, "").trim()}</span>
+              <span>{row.pricePerKw}</span>
+              <span>{row.powerRequired}</span>
+              <span className="amt">{row.totalAmount}</span>
+            </div>
+          ))}
+        </div>
+      )}
 
-                  <Row label="Grand Total" value={total} total />
-                  <Row label="Cleared Amount" value={cleared} />
+      {/* ✅ Billing Summary */}
+      <div className="billing-summary modern-summary">
+        <Row label="Total" value={totalPrice} />
 
-                  <StatusRow pending={pending} />
-                </div>
-              </div>
-            );
-          })()}
+        {isDelhi ? (
+          <>
+            <Row label="CGST (9%)" value={cgst} />
+            <Row label="SGST (9%)" value={sgst} />
+          </>
+        ) : (
+          <Row label="IGST (18%)" value={igst} />
+        )}
+
+        <Row label="Grand Total" value={total} total />
+        <Row label="Amount Received" value={cleared} />
+
+        <StatusRow pending={pending} />
+      </div>
+    </div>
+  );
+})()}
+
+
 
           {/* ===== Badge Card ===== */}
           {(() => {
-            const b = getExhibitorBadgeBilling() || {};
+  const b = getExhibitorBadgeBilling() || {};
 
-            return (
-              <div className="payment-card">
-                <h4>Exhibitor Badges</h4>
+  // ✅ date based badge price
+  const cutoff = new Date("2026-02-28T23:59:59");
+  const now = new Date();
+  const amountPerBadge = now <= cutoff ? 100 : 200;
 
-                <div className="billing-summary">
-                  <div className="billing-row">
-                    <span>Extra Badges</span>
-                    <strong>{b.count || 0}</strong>
-                  </div>
+  return (
+    <div className="payment-card">
+      <h4>Exhibitor Paid Badges</h4>
 
-                  <Row label="Total Amount" value={b.total} />
+      <div className="billing-summary">
 
-                  {b.isDelhi ? (
-                    <>
-                      <Row label="CGST (9%)" value={b.cgst} />
-                      <Row label="SGST (9%)" value={b.sgst} />
-                    </>
-                  ) : (
-                    <Row label="IGST (18%)" value={b.igst} />
-                  )}
+        {/* ✅ NEW ROW — Amount per badge */}
+        <div className="billing-row highlight-row">
+          <span>Amount Per Badge</span>
+          <strong>₹ {amountPerBadge}</strong>
+        </div>
 
-                  <Row label="Grand Total" value={b.grandTotal} total />
-                  <Row label="Cleared Amount" value={b.cleared} />
+        <div className="billing-row">
+          <span>Total Extra Badges</span>
+          <strong>{b.count || 0}</strong>
+        </div>
 
-                  {b.pending > 0 && (
-                    <Row label="Pending Amount" value={b.pending} />
-                  )}
-                </div>
-              </div>
-            );
-          })()}
+        <Row label="Total Amount" value={b.total} />
+
+        {b.isDelhi ? (
+          <>
+            <Row label="CGST (9%)" value={b.cgst} />
+            <Row label="SGST (9%)" value={b.sgst} />
+          </>
+        ) : (
+          <Row label="IGST (18%)" value={b.igst} />
+        )}
+
+        <Row label="Grand Total" value={b.grandTotal} total />
+        <Row label="Amount Received" value={b.cleared} />
+
+        {b.pending > 0 && (
+          <Row label="Balance Amount" value={b.pending} />
+        )}
+
+      </div>
+    </div>
+  );
+})()}
 
         </div>
       </div>
@@ -202,7 +280,7 @@ const StatusRow = ({ pending }) => (
       marginTop: 10,
     }}
   >
-    <span>{pending <= 0 ? "PAYMENT CLEARED" : "PENDING AMOUNT"}</span>
+    <span>{pending <= 0 ? "Amount Paid" : "Balance Amount"}</span>
     <strong>₹ {pending.toFixed(2)}</strong>
   </div>
 );

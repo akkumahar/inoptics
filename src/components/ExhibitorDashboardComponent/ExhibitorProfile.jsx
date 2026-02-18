@@ -230,27 +230,29 @@ const BrandsCard = ({
 
   {/* ================= VIEW MODE ================= */}
   {showBrandsEditForm && (
-    <div className="brands-view-card slide-up-form brands-view-responsive">
+  <div className="profile-card">
+    <div className="profile-section">
 
-      <div className="brands-view-header brands-view-header-responsive">
-        <h2>Brands</h2>
+      <div className="brands-view-header">
+        <h3 className="brands-heading">Brands</h3>
+
         <button
           className="brands-edit-btn"
           onClick={handleEditBrands}
           type="button"
         >
-          ✏ Edit
+          ✏ Edit Unlock Request
         </button>
       </div>
 
-      <div className="brands-view-grid brands-grid">
+      {!brandsData ? (
+        <p className="profile-empty">No brand details found.</p>
+      ) : (
+        <div className="profile-details-grid">
 
-        <div className="brands-col">
-          <View label="Website" value={brandsData?.website} />
-        </div>
+          <Detail label="Website" value={brandsData.website} />
 
-        <div className="brands-col brands-col-full">
-          <View
+          <Detail
             label="Products"
             value={
               Array.isArray(brandsData.products)
@@ -258,27 +260,29 @@ const BrandsCard = ({
                 : brandsData.products
             }
           />
-        </div>
 
-        <div className="brands-col">
-          <View label="Home Brands" value={brandsData?.home_brands} />
-        </div>
-
-        <div className="brands-col">
-          <View label="Distributors" value={brandsData?.distributors} />
-        </div>
-
-        <div className="brands-col brands-col-full">
-          <View
-            label="International Brands"
-            value={brandsData?.international_brands}
-            full
+          <Detail
+            label="Home Brands"
+            value={brandsData.home_brands}
           />
-        </div>
 
-      </div>
+          <Detail
+            label="Distributors"
+            value={brandsData.distributors}
+          />
+
+          <Detail
+            label="International Brands"
+            value={brandsData.international_brands}
+          />
+
+        </div>
+      )}
+
     </div>
-  )}
+  </div>
+)}
+
 
 </div>
 

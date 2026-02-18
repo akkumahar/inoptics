@@ -15,11 +15,11 @@ img, iframe, video {
 }
 
 /* Container */
-.exhibitordashboard-container {
+/* .exhibitordashboard-container {
   display: flex;
   height: 100vh;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-}
+} */
 
 /* Sidebar */
 .exhibitordashboard-sidebar {
@@ -321,17 +321,7 @@ img, iframe, video {
   background: #0055aa;
 }
 
-.exhibitordashboard-declaration-content{
- 
-  flex: 1;
-  overflow-y: auto;
 
-}
-
-
-.exhibitordashboard-declaration-content::-webkit-scrollbar{
-  display: none;
-}
 /* Main container */
 .exhibitordashboard-content {
   flex: 1;
@@ -1635,12 +1625,12 @@ html, body {
 }
 
 
-.ExhibitorContractors-left-top-item {
+/* .ExhibitorContractors-left-top-item {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   height: 100%;
-}
+} */
 
 .ExhibitorContractors-heading {
   font-family: "Montserrat", sans-serif;
@@ -2223,7 +2213,6 @@ iframe img {
 
 
 @media (max-width: 980px) {
-  .ExhibitorContractors-main-split { flex-direction: column; }
   .ExhibitorContractors-leftContainer, .ExhibitorContractors-rightContainer { flex: 0 0 100%; }
   .Workflow-iframeBox { height: 360px; }
 }
@@ -2382,7 +2371,6 @@ iframe img {
   box-shadow: none;
   border-radius: 20px;
   overflow: hidden;
-  border: 1px solid #ccc;
 }
 .exhibitor-instruction-header{
   font-family: "Montserrat", sans-serif;
@@ -2602,7 +2590,6 @@ iframe img {
 .ExhibitorContractors-leftContainer,
 .ExhibitorContractors-rightContainer,
 .contractor-ui-body,
-.ExhibitorContractors-left-top-item,
 .selected-contractor-container,
 .exhibitor-instruction-box,
 .mandatory-form-container,
@@ -2616,7 +2603,6 @@ iframe img {
 }
 
 /* Left side cards bottom border */
-.ExhibitorContractors-left-top-item,
 .selected-contractor-container,
 .exhibitor-instruction-box,
 .mandatory-form-container,
@@ -2635,9 +2621,7 @@ iframe img {
 
 
 @media (max-width: 1024px) {
-  .ExhibitorContractors-main-split {
-    flex-direction: column;
-  }
+ 
 
   .ExhibitorContractors-leftContainer,
   .ExhibitorContractors-rightContainer {
@@ -3339,10 +3323,7 @@ iframe img {
   /* Cards tighter */
 
 
-  /* Headings smaller */
-  .exhibitordashboard-card h2 {
-    font-size: 18px;
-  }
+  
 
   .exhibitordashboard-card h3 {
     font-size: 16px;

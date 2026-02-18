@@ -24,12 +24,12 @@ img {
 }
 
 /* ================= PAGE ================= */
-.exhibitordashboard-declaration-content {
+/* .exhibitordashboard-declaration-content {
   min-height: 100vh;
   background: var(--bg);
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   color: var(--text);
-}
+} */
 
 /* ================= HEADER ================= */
 .exhibitor-heading {
@@ -289,7 +289,7 @@ img {
     justify-content: center;
     transition: all 0.2s ease;
 }
-.lock-buttons-cell :hover {
+.lock-buttons-cell:hover {
   background: #cfe0f1;
   transform: translateY(-1px);
     
@@ -305,6 +305,18 @@ img {
 }
 
 .actions .danger:hover {
+  background: #ffcccc;
+}
+
+
+.lock-buttons-cell.danger {
+  background: #ffe5e5;
+  color: #b10000;
+  border: 1px solid #ffb3b3;
+  font-weight: 600;
+}
+
+.lock-buttons-cell.danger:hover {
   background: #ffcccc;
 }
 
@@ -689,18 +701,34 @@ img {
 
   /* ===== action button ===== noted */
 
-  .badge-row-card td.actions {
+ .badge-row-card td.actions {
     position: absolute;
-    right: 12px;
-    top: 12px;
+    right: 10px;
+    top: 10px;
+    display: flex;
+    gap: 6px;
+    flex-direction: column;
+    align-items: flex-end;
   }
 
+  /* icon buttons */
   .lock-buttons-cell {
-    width: 36px;
+    min-width: 36px;
     height: 36px;
-    border-radius: 10px;
     padding: 0 !important;
+    border-radius: 10px;
     background: #eef2f7;
+  }
+
+
+    /* 🔥 TEXT BUTTON (danger) — auto width */
+  .lock-buttons-cell.danger {
+    min-width: auto;
+    height: auto;
+    padding: 4px 10px !important;
+    font-size: 11px;
+    border-radius: 8px;
+    white-space: nowrap;
   }
 
   /* clear float */

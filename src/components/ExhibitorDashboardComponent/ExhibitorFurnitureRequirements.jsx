@@ -1,6 +1,8 @@
 import React from "react";
 
 import "./ExhibitorFurnitureRequirements.css";
+import { FaTrashAlt } from "react-icons/fa";
+
 const FurnitureRequirements = ({
   furnitureData,
   selectedFurniture,
@@ -96,6 +98,7 @@ const FurnitureRequirements = ({
         {/* ================= TABLE ================= */}
 
         <div className="furniture-table-section">
+          <h4>Additional Furniture </h4>
           <div className="furniture-table-scroll">
             <table className="furniture-table">
               <thead>
@@ -167,27 +170,29 @@ const FurnitureRequirements = ({
                       <td className="ft-m" colSpan={isFurnitureSaved ? 6 : 7}>
                         <div className="ft-card">
                           {/* top badge */}
-                          <div className="ft-badge">#{index + 1}</div>
+                          {/* <div className="ft-badge">{index + 1}</div> */}
 
                           <div className="ft-card-main">
                             {/* image */}
+                            <div className="ft-card-body-details-card">
                             <img
                               src={`https://www.inoptics.in/api/uploads/${item.image}`}
                               alt={item.name}
                               className="ft-card-img"
                             />
-
-                            {/* right content */}
-                            <div className="ft-card-body">
-                              <div className="ft-name">{item.name}</div>
-
-                              <div className="ft-card-body-details-card">
                                 <div>
                                   <div className="ft-label">Price</div>
                                   <div className="ft-price">₹{item.price}</div>
                                 </div>
 
-                                <div className="ft-qty-wrap">
+                                
+                              </div>
+
+                            {/* right content */}
+                            <div className="ft-card-body">
+                              <div className="ft-name"><div className="ft-badge">{index + 1}</div> {item.name}</div>
+
+<div className="ft-qty-wrap">
                                   <div className="ft-label">Quantity</div>
                                   <div className="ft-qty-box">
                                     <button
@@ -228,24 +233,9 @@ const FurnitureRequirements = ({
                                     </button>
                                   </div>
                                 </div>
-                              </div>
+                              
                             </div>
 
-                            {/* delete button */}
-                            {!isFurnitureSaved && (
-                              <button
-                                className="ft-delete"
-                                onClick={() =>
-                                  setSelectedFurniture(
-                                    selectedFurniture.filter(
-                                      (_, i) => i !== index,
-                                    ),
-                                  )
-                                }
-                              >
-                                Delete
-                              </button>
-                            )}
                           </div>
 
                           {/* bottom total */}
@@ -354,24 +344,74 @@ const FurnitureRequirements = ({
 
           {/* ================= VENDOR INSTRUCTIONS ================= */}
 
-          <div className="furniture-instruction">
-            {furnitureVendorDetails.length > 0 ? (
-              furnitureVendorDetails.map((vendor) => (
-                <div
-                  key={vendor.id}
-                  dangerouslySetInnerHTML={{ __html: vendor.description }}
-                  style={{
-                    fontSize: 15,
-                    lineHeight: 1.8,
-                    marginTop: 10,
-                    color: "#333",
-                  }}
-                />
-              ))
-            ) : (
-              <p style={{ fontStyle: "italic" }}>Loading vendor details...</p>
-            )}
-          </div>
+          <div className="instruction-card">
+  {furnitureVendorDetails.map((vendor) => {
+    const clean = vendor.description
+      .replace(/<[^>]+>/g, "")
+      .replace(/&amp;/g, "&");
+
+    let parts = clean.split(/(?<=\.)\s*/);
+
+    const rows = [];
+
+    parts.forEach((text) => {
+      if (!text.trim()) return;
+
+      // 🔥 split Instructions line
+      if (/^instructions:/i.test(text)) {
+        const after = text.split(/instructions:/i)[1];
+
+        rows.push({ type: "heading", text: "Instructions:" });
+
+        if (after?.trim()) {
+          rows.push({ type: "li", text: after.trim() });
+        }
+        return;
+      }
+
+      // 🔥 split Vendor heading line
+if (/official vendor/i.test(text)) {
+  const [head, rest] = text.split(/official vendor/i);
+
+  rows.push({
+    type: "heading",
+    text: (head + "OFFICIAL VENDOR").trim(),
+  });
+
+  if (rest?.trim()) {
+    const vendorParts = rest
+      .split(/(?=Address:|Email:|Phone:)/i)   // 👈 magic split
+      .filter(x => x.trim());
+
+    vendorParts.forEach(v =>
+      rows.push({ type: "li", text: v.trim() })
+    );
+  }
+
+  return;
+}
+
+      rows.push({ type: "li", text });
+    });
+
+    return (
+      <div key={vendor.id}>
+        {rows.map((row, i) =>
+          row.type === "heading" ? (
+            <div key={i} className="instruction-big-heading">
+              {row.text}
+            </div>
+          ) : (
+            <li key={i} className="instruction-li">
+              {row.text}
+            </li>
+          )
+        )}
+      </div>
+    );
+  })}
+</div>
+
         </div>
       </div>
     </div>

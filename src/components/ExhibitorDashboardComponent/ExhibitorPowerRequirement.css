@@ -60,6 +60,11 @@
   flex: 1 1 48%;
 }
 
+/* hide mobile cards by default */
+.power-mobile-only {
+  display: none;
+}
+
 /* =====================================================
    TABLET (≤1024px)
    ===================================================== */
@@ -153,4 +158,79 @@
     border-radius: 8px;
   }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  .Exhibitor-power-requirement-below-section {
+    gap: 0px;
+    margin-bottom: 150px;
+  }
+
+
+.Exhibitor-power-requirement-table{
+  display: none;
+}
+
+  .power-mobile-only {
+    display: block;
+  }
+
+  .power-m-card {
+    border-radius: 14px;
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+
+  .pmc-title {
+    font-size: 16px;
+    font-weight: 500;
+    color: #0f2a44;
+  }
+
+  .pmc-row {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .pmc-row-details{
+    font-weight: 500;
+    color: #0f2a44;
+  }
+
+  .pmc-divider {
+    height: 1px;
+    background: #e5e7eb;
+  }
+
+  .pmc-total {
+    display: flex;
+    justify-content: space-between;
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  .pmc-remove-btn {
+    margin-top: 10px;
+    width: 100%;
+    height: 40px;
+    border-radius: 10px;
+    border: none;
+    background: #ef4444;
+    color: #fff;
+    font-weight: 600;
+  }
 }

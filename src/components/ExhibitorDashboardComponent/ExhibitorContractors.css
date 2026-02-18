@@ -30,7 +30,7 @@
 /* ─── Reset & Root ─── */
 .ExhibitorContractors-root {
   min-height: 100vh;
-  background: var(--ec-bg);
+  /* background: var(--ec-bg); */
   font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
   color: var(--ec-foreground);
   box-sizing: border-box;
@@ -43,10 +43,11 @@
 /* ═══════════════════════════════════════
    MAIN SPLIT LAYOUT
    ═══════════════════════════════════════ */
-.ExhibitorContractors-main-split {
+.ExhibitorContractors-main-container-split {
   display: flex;
   gap: 24px;
   max-width: 1600px;
+  margin-bottom: 0;
   margin: 0 auto;
 }
 .ExhibitorContractors-leftContainer {
@@ -125,7 +126,10 @@
   animation: ec-slideInLeft 0.5s ease forwards;
 }
 
-
+.ExhibitorContractors-left-top-item{
+  background: none !important;
+  padding: 10px 25px 15px 15px;
+}
 
 .workflow-layer.hidden {
   transform: translateX(-110%);
@@ -139,16 +143,18 @@
 }
 
 
-.original-layer,
+/* .original-layer,
 .workflow-layer {
   position: absolute;
   top: 0;
   left: 0;
   width: 50%;
   height: 100%; 
+} */
+
+.mobile-step-spacer{
+  display:none;
 }
-
-
 /* ═══════════════════════════════════════
    LEFT PANEL — ORIGINAL (Selection Info)
    ═══════════════════════════════════════ */
@@ -357,9 +363,7 @@
 
 /* Selected Contractor Card */
 .selected-contractor-container {
-  background: var(--ec-card);
   border-radius: var(--ec-radius);
-  box-shadow: var(--ec-shadow-md);
 }
 .selected-contractor-container .ExhibitorContractors-heading {
   font-size: 1rem;
@@ -385,7 +389,6 @@
 }
 /* Checklist */
 .exhibitor-instruction-box-checklist {
-  background: var(--ec-card);
   border-radius: var(--ec-radius);
   width: 100%;
 }
@@ -471,7 +474,7 @@
 
 
 .wf-step.active:not(:last-child)::after {
-  background: var(--ec-primary);
+  background: #000000;
 }
 /* Step Content Labels */
 .exhibitorinsructionchecklist-box {
@@ -523,8 +526,8 @@
   text-align: left;
   font-size: 0.7rem;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  text-transform: capitalize !important;
+  letter-spacing: 0.05em; 
   background: linear-gradient(135deg, var(--ec-primary), var(--ec-primary-dark));
   color: #fff;
   white-space: nowrap;
@@ -583,6 +586,8 @@
 .ExhibitorContractors-unselect-btn:hover {
   background: #fecaca;
 }
+
+
 /* ═══════════════════════════════════════
    POPUP — Confirm Contractor
    ═══════════════════════════════════════ */
@@ -739,9 +744,7 @@
   transform: translateX(100%);
 }
 .ExhibitorStep1-grid {
-  background: var(--ec-card);
   border-radius: var(--ec-radius);
-  border: 1px solid #CCCCCC;
   padding: 24px;
   animation: ec-fadeIn 0.3s ease;
 }
@@ -1072,9 +1075,9 @@
    RESPONSIVE — TABLET (≤1024px)
    ═══════════════════════════════════════ */
 @media (max-width: 1024px) {
-  .ExhibitorContractors-main-split {
+  .ExhibitorContractors-main-container-split {
     flex-direction: column;
-    margin-bottom: 100px;
+    margin-bottom: auto ;
   }
   .ExhibitorContractors-leftContainer,
   .ExhibitorContractors-rightContainer {
@@ -1130,10 +1133,11 @@
   margin-bottom: 65px;
 }
  
-  .ExhibitorContractors-main-split {
+  .ExhibitorContractors-main-container-split {
     gap: 12px;
   }
 
+    
   .ExhibitorStep1-grid {
     padding: 16px;
   }
@@ -1161,6 +1165,12 @@
     padding: 8px 10px;
     font-size: 0.8rem;
   }
+
+  .ExhibitorContractors-left-top-item{
+  background: #F5F6FA !important;
+  padding: 0;
+  box-shadow: none;
+}
   /* Popup */
   .ContractorPopup-box {
     padding: 20px;
@@ -1250,16 +1260,30 @@
 }
 
 
- .ExhibitorContractors-root {
-    min-height: auto !important;
-    height: auto !important;
+.ExhibitorContractors-root {
+  min-height: auto !important;
+  height: auto !important;
+}
+
+.ExhibitorContractors-exhibitor-cont-table-container{
+
+  padding: 12px;
+}
+  
+  .mobile-step-spacer{
+    display:block;
+    height:180px;
   }
 
-  .exhibitordashboard-declaration-content {
-    min-height: auto !important;
+  .mobile-step-spacer.step-0{
+height: 120px;
   }
-
-
+  .mobile-step-spacer.step-1,
+  .mobile-step-spacer.step-2,
+  .mobile-step-spacer.step-3,
+  .mobile-step-spacer.step-4{
+    height:300px;
+  }
 
 
 /* hide table head */
@@ -1272,7 +1296,6 @@
 /* ===== CARD ===== */
 
 .cm-card{
-  background:#f8fafc;
   border-radius:18px;
   margin-bottom:14px;
 }
@@ -1282,6 +1305,7 @@
 .cm-top{
   display:flex;
   align-items:center;
+  justify-content: space-between;
   gap:10px;
 }
 
@@ -1290,7 +1314,7 @@
 .cm-id{
   display:flex;
   align-items:center;
-  font-weight:800;
+  font-weight:500;
   font-size:16px;
   color:#6b7280;
   width:28px;
@@ -1304,8 +1328,9 @@
   display:flex;
   align-items:center;
   gap:8px;
-  font-weight:800;
-  font-size:16px;
+  font-weight:500;
+  font-size:14px;
+  text-transform: capitalize !important;
   color:#111827;
   line-height:1.2;
 }
@@ -1332,13 +1357,12 @@
 
 .cm-company,
 .cm-email{
-  margin-top:8px;
   display:flex;
   align-items:center;     /* icon + text vertical center */
   gap:10px;
   font-size:14px;
   color:#374151;
-  font-weight:600;
+  font-weight:500;
   line-height:1.35;
 }
 

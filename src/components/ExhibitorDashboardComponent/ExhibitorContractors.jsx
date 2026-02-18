@@ -76,7 +76,20 @@ const ExhibitorContractors = (props) => {
     showBoothDesignPreview,
     setShowBoothDesignPreview,
     handleBoothDesignUpload,
+
+
+    
   } = props;
+
+const getStepMobileMarginClass = () => {
+  switch (currentStep) {
+    case 1: return "mb-step-1";
+    case 2: return "mb-step-2";
+    case 3: return "mb-step-3";
+    case 4: return "mb-step-4";
+    default: return "";
+  }
+};
 
   if (importantPage || activeMenu !== "Contractors") return null;
 
@@ -133,38 +146,37 @@ const ExhibitorContractors = (props) => {
             <div className="ExhibitorContractors-appointed-contractor-wrapper overlay-table-wrapper">
               <div className="ExhibitorContractors-exhibitor-cont-table-container">
                 <table className="ExhibitorContractors-appointed-contractor-table">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Name</th>
-      <th>Company Name</th>
-      <th>City</th>
-      <th>Phn/Mob No</th>
-      <th>Email</th>
-      {/* <th>Action</th> */}
-    </tr>
-  </thead>
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Name</th>
+                      <th>Company Name</th>
+                      <th>City</th>
+                      <th>Phn/Mob No</th>
+                      <th>Email</th>
+                      {/* <th>Action</th> */}
+                    </tr>
+                  </thead>
 
-  <tbody>
-    {contractorData.map((contractor, index) => (
-      <tr key={contractor.id}>
+                  <tbody>
+                    {contractorData.map((contractor, index) => (
+                      <tr key={contractor.id}>
+                        {/* ===== DESKTOP / TABLET ===== */}
+                        <td className="d-only">{index + 1}</td>
+                        <td className="d-only">{contractor.name}</td>
+                        <td className="d-only">{contractor.company_name}</td>
+                        <td className="d-only">{contractor.city}</td>
 
-        {/* ===== DESKTOP / TABLET ===== */}
-        <td className="d-only">{index + 1}</td>
-        <td className="d-only">{contractor.name}</td>
-        <td className="d-only">{contractor.company_name}</td>
-        <td className="d-only">{contractor.city}</td>
+                        <td className="d-only">
+                          {contractor.mobile_numbers}
+                          {contractor.phone_numbers
+                            ? `, ${contractor.phone_numbers}`
+                            : ""}
+                        </td>
 
-        <td className="d-only">
-          {contractor.mobile_numbers}
-          {contractor.phone_numbers
-            ? `, ${contractor.phone_numbers}`
-            : ""}
-        </td>
+                        <td className="d-only">{contractor.email}</td>
 
-        <td className="d-only">{contractor.email}</td>
-
-        {/* <td className="d-only">
+                        {/* <td className="d-only">
           {selectedContractorId === contractor.id ? (
             <button
               className="ExhibitorContractors-unselect-btn"
@@ -186,16 +198,15 @@ const ExhibitorContractors = (props) => {
           )}
         </td> */}
 
-        {/* ===== MOBILE CARD ===== */}
-        <td className="m-only" colSpan="7">
-          <div className="cm-card">
+                        {/* ===== MOBILE CARD ===== */}
+                        <td className="m-only" colSpan="7">
+                          <div className="cm-card">
+                            <div className="cm-top">
+                              <div className="cm-id">{index + 1}</div>
 
-            <div className="cm-top">
-              <div className="cm-id">{index + 1}</div>
+                              <div className="cm-name">{contractor.name}</div>
 
-              <div className="cm-name">{contractor.name}</div>
-
-              {/* {selectedContractorId === contractor.id ? (
+                              {/* {selectedContractorId === contractor.id ? (
                 <button
                   className="cm-btn"
                   onClick={unselectContractor}
@@ -214,46 +225,43 @@ const ExhibitorContractors = (props) => {
                   Select
                 </button>
               )} */}
-            </div>
+                            </div>
 
-            <div className="cm-company">
-              <FaUser className="cm-icon" />
-              {contractor.company_name}
-            </div>
+                            <div className="cm-company">
+                              <FaUser className="cm-icon" />
+                              {contractor.company_name}
+                            </div>
 
-            {/* <div className="cm-company">
+                            {/* <div className="cm-company">
               <FaMapMarkerAlt className="cm-icon" />
               {contractor.city}
             </div> */}
 
-            <div className="cm-company">
-              <FaPhoneAlt className="cm-icon-phone" />
-              {contractor.mobile_numbers}
-              {contractor.phone_numbers
-                ? `, ${contractor.phone_numbers}`
-                : ""}
-            </div>
+                            <div className="cm-company">
+                              <FaPhoneAlt className="cm-icon-phone" />
+                              {contractor.mobile_numbers}
+                              {contractor.phone_numbers
+                                ? `, ${contractor.phone_numbers}`
+                                : ""}
+                            </div>
 
-            {/* <div className="cm-email">
+                            {/* <div className="cm-email">
               <FaEnvelope className="cm-icon-mail" />
               {contractor.email}
             </div> */}
-
-          </div>
-        </td>
-
-      </tr>
-    ))}
-  </tbody>
-</table>
-
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      <div className="ExhibitorContractors-main-split">
+      <div className="ExhibitorContractors-main-container-split">
         <div className="ExhibitorContractors-leftContainer">
           <div
             className={`left-layer original-left-layer ${
@@ -562,10 +570,11 @@ const ExhibitorContractors = (props) => {
           </div>
         </div>
 
-        <div className="ExhibitorContractors-rightContainer">
+        <div className={`ExhibitorContractors-rightContainer ${getStepMobileMarginClass()}`}>
           {/* Original Layer - Register Unlisted Contractor */}
+          <div className="only-mobile-version-contractor">
           <div
-            className={`right-layer original-layer ${
+            className={`right-layer original-layer  ${
               workflowActive ? "slide-out-right" : "visible"
             }`}
           >
@@ -621,9 +630,6 @@ const ExhibitorContractors = (props) => {
                         <div className="cm-card">
                           <div className="cm-top">
                             <div className="cm-id">{index + 1}</div>
-
-                            <div className="cm-name">{contractor.name}</div>
-
                             <button
                               className="cm-btn"
                               onClick={() => {
@@ -636,9 +642,18 @@ const ExhibitorContractors = (props) => {
                             </button>
                           </div>
 
-                          <div className="cm-company">
+                          <div className="cm-name">
                             <FaUser className="cm-icon" />
-                            {contractor.company_name}
+                            {contractor.name
+                              ?.toLowerCase()
+                              .replace(/\b\w/g, (c) => c.toUpperCase())}
+                          </div>
+
+                          <div className="cm-company">
+                            <FaBuilding className="cm-icon" />
+                            {contractor.company_name
+                              ?.toLowerCase()
+                              .replace(/\b\w/g, (c) => c.toUpperCase())}
                           </div>
 
                           <div className="cm-company">
@@ -646,10 +661,10 @@ const ExhibitorContractors = (props) => {
                             {contractor.mobile_numbers}
                           </div>
 
-                          {/* <div className="cm-email">
+                          <div className="cm-email">
                             <FaEnvelope className="cm-icon" />
                             {contractor.email}
-                          </div> */}
+                          </div>
                         </div>
                       </td>
                     </tr>
@@ -657,6 +672,8 @@ const ExhibitorContractors = (props) => {
                 </tbody>
               </table>
             </div>
+          </div>
+
           </div>
 
           {/* Workflow Layer */}
@@ -851,7 +868,7 @@ const ExhibitorContractors = (props) => {
             <div
               className={`Workflow-panel panel-step-2 ${
                 currentStep === 2 ? "show" : "hide-right"
-              }`}
+              }  ${getStepMobileMarginClass()}`}
             >
               <div className="ExhibitorStep1-grid">
                 {/* LEFT — Instructions */}
@@ -960,7 +977,7 @@ const ExhibitorContractors = (props) => {
             <div
               className={`Workflow-panel panel-step-2 ${
                 currentStep === 3 ? "show" : "hide-right"
-              }`}
+              }  ${getStepMobileMarginClass()}`}
             >
               <div className="ExhibitorStep1-grid">
                 {/* LEFT — Instructions */}
@@ -1079,7 +1096,12 @@ const ExhibitorContractors = (props) => {
             </div>
           </div>
         </div>
+
+        
+
+         <div className={`mobile-step-spacer step-${currentStep}`} />
       </div>
+      
     </div>
   );
 };

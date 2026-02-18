@@ -21,7 +21,7 @@ const PowerRequirementSection = ({
   handleExhibitorPowerSubmit,
   showExhibitorEditForm,
   handlePowerUnlockRequest,
-
+onFinalSubmit,
   previewTableList,
   powerData,
   handleResetPowerData,
@@ -65,13 +65,15 @@ const PowerRequirementSection = ({
             onNext={handlePowerFormNext}
             onPrevious={handlePowerFormPrevious}
             onAdd={handlePowerFormAdd}
+            onFinalSubmit={onFinalSubmit}
+            handlePowerUnlockRequest={handlePowerUnlockRequest}
           />
         </div>
 
         {/* ---------- RIGHT INSTRUCTION ---------- */}
 
         <div className="Exhibitor-power-requirement-instruction-box">
-          <div className="Exhibitor-power-requirement-top-buttons-inside-box">
+          {/* <div className="Exhibitor-power-requirement-top-buttons-inside-box">
             {!isViewOnly ? (
               <button
                 className="Exhibitor-power-btn submit-btn"
@@ -87,7 +89,7 @@ const PowerRequirementSection = ({
                 Request to Unlock
               </button>
             )}
-          </div>
+          </div> */}
 
           <h3>Power Requirement Guidelines</h3>
 
@@ -165,6 +167,64 @@ const PowerRequirementSection = ({
                 )}
               </tbody>
             </table>
+
+            {/* ===== MOBILE ONLY — POWER CARDS ===== */}
+            <div className="power-mobile-only">
+              {(previewTableList.length > 0 && !isViewOnly
+                ? previewTableList
+                : powerData
+              ).map((item, index) => {
+                const row =
+                  previewTableList.length > 0 && !isViewOnly
+                    ? item
+                    : {
+                        day: item.day,
+                        pricePerKw: item.price_per_kw,
+                        powerRequired: item.power_required,
+                        phase: item.phase,
+                        totalAmount: item.total_amount,
+                      };
+
+                return (
+                  <div key={index} className="power-m-card">
+                    <div className="pmc-title">{row.day}</div>
+
+                    <div className="pmc-row">
+                      <span>Price per KW</span>
+                      <b className="pmc-row-details">{row.pricePerKw}</b>
+                    </div>
+
+                    <div className="pmc-row">
+                      <span>Power Required</span>
+                      <b className="pmc-row-details">{row.powerRequired}</b>
+                    </div>
+
+                    <div className="pmc-row">
+                      <span>Phase</span>
+                      <b className="pmc-row-details">{row.phase}</b>
+                    </div>
+
+                    <div className="pmc-divider" />
+
+                    <div className="pmc-total">
+                      Total Amount
+                      <strong className="pmc-total">{row.totalAmount}</strong>
+                    </div>
+
+                    {/* {!isViewOnly &&
+                      previewTableList.length > 0 &&
+                      index === 0 && (
+                        <button
+                          onClick={handleResetPowerData}
+                          className="pmc-remove-btn"
+                        >
+                          Remove
+                        </button>
+                      )} */}
+                  </div>  
+                );
+              })}
+            </div>
           </div>
         </div>
         {/* ---------- BILLING ---------- */}
