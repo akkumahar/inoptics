@@ -26,6 +26,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { LuFileBadge2 } from "react-icons/lu";
 
+import { FaFileImage, FaExternalLinkAlt, FaRegTrashAlt   } from "react-icons/fa";
+
 import { FaCircleCheck } from "react-icons/fa6";
 import { IoMdCloseCircle } from "react-icons/io";
 
@@ -72,6 +74,25 @@ const AdminDashboard = () => {
 
   const [boothDesignStatus, setBoothDesignStatus] = useState("pending");
   const [boothRejectReason, setBoothRejectReason] = useState("");
+
+  const [showTermsDeclaration, setShowTermsDeclaration] = useState(false);
+  const [hideMainDashboard, setHideMainDashboard] = useState(false);
+  const [hasAcceptedTerms, setHasAcceptedTerms] = useState(false);
+  const [undertakingStatus, setUndertakingStatus] = useState(null);
+const [selectedCompanyName, setSelectedCompanyName] = useState(null);
+
+const [selectedImage, setSelectedImage] = useState(null);
+const [selectedImagePreview, setSelectedImagePreview] = useState(null);
+const [mediaImages, setMediaImages] = useState([]);
+
+
+const handleImageSelect = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  setSelectedImage(file);
+  setSelectedImagePreview(URL.createObjectURL(file));
+};
 
   // const [selectedMail, setSelectedMail] = useState(null);
   // const [loadingMails, setLoadingMails] = useState(false);
@@ -12842,6 +12863,191 @@ const AdminDashboard = () => {
     }
   };
 
+
+
+
+  const fetchUndertakingStatus = async (companyName) => {
+  try {
+    const res = await fetch(
+      `https://inoptics.in/api/get_undertaking_status.php?company_name=${encodeURIComponent(companyName)}`
+    );
+
+    const data = await res.json();
+
+    if (data.success) {
+      setUndertakingStatus(Number(data.undertaking_accepted));
+    } else {
+      setUndertakingStatus(0);
+    }
+
+  } catch (error) {
+    console.error(error);
+    setUndertakingStatus(0);
+  }
+};
+
+
+
+useEffect(() => {
+  if (showTermsDeclaration && selectedCompanyName) {
+    fetchUndertakingStatus(selectedCompanyName);
+  }
+}, [showTermsDeclaration, selectedCompanyName]);
+
+
+
+  const handleUnlockUndertaking = async (companyName) => {
+    if (!companyName) {
+      alert("Company name missing");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "https://inoptics.in/api/unlock_undertaking.php",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            company_name: companyName,
+          }),
+        },
+      );
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        alert("Undertaking unlocked successfully");
+
+        // 🔥 Important — Update UI state
+        setUndertakingStatus(0);   // 🔥 correct state update
+      } else {
+        alert(result.message || "Failed to unlock");
+      }
+    } catch (error) {
+      console.error("Unlock error:", error);
+      alert("Server error while unlocking");
+    }
+  };
+
+
+
+  // ================= FETCH IMAGES =================
+
+  const fetchMediaImages = async () => {
+  try {
+    const res = await fetch(
+      "https://inoptics.in/api/get_email_media_images.php"
+    );
+
+    const data = await res.json();
+
+    console.log("Fetched Images:", data); // 🔥 Debug
+
+    if (Array.isArray(data)) {
+      setMediaImages(data);
+    } else if (data.success) {
+      setMediaImages(data.data || []);
+    } else {
+      setMediaImages([]);
+    }
+
+  } catch (err) {
+    console.error("Fetch error:", err);
+  }
+};
+
+
+useEffect(() => {
+  fetchMediaImages();
+}, []);
+
+
+// ================= COPY URL =================
+
+const handleCopyUrl = async (url) => {
+  try {
+    await navigator.clipboard.writeText(url);
+    alert("URL copied successfully!");
+  } catch (err) {
+    console.error("Copy failed:", err);
+    alert("Failed to copy URL");
+  }
+};
+
+
+// ================= DELETE IMAGE =================
+
+const handleDeleteImage = async (id) => {
+  if (!window.confirm("Delete this image?")) return;
+
+  try {
+    const res = await fetch(
+      "https://inoptics.in/api/delete_email_media_image.php",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      }
+    );
+
+    const data = await res.json();
+
+    if (data.success) {
+      setMediaImages((prev) => prev.filter((img) => img.id !== id));
+      alert("Image deleted successfully");
+    } else {
+      alert(data.message || "Delete failed");
+    }
+  } catch (error) {
+    console.error("Delete error:", error);
+    alert("Server error while deleting");
+  }
+};
+
+
+// ================= UPLOAD IMAGE =================
+
+const handleUploadImage = async () => {
+  if (!selectedImage) {
+    alert("Select image first");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("image", selectedImage);
+
+  try {
+    const res = await fetch(
+      "https://inoptics.in/api/upload_email_media_image.php",
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+
+    const data = await res.json();
+
+    if (data.success) {
+      alert("Image uploaded successfully");
+
+      setSelectedImage(null);
+      setSelectedImagePreview(null);
+
+      await fetchMediaImages(); // 🔥 IMPORTANT
+    } else {
+      alert("Upload failed");
+    }
+
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+
+
   return (
     <div className="dashboard-container">
       <aside className={`sidebar ${collapsed ? "collapsed" : ""}`}>
@@ -12877,16 +13083,15 @@ const AdminDashboard = () => {
               <li onClick={() => openOverlay("Additional Requirement")}>
                 › Additional Requirement
               </li>
-              
             </ul>
           )}
           <li onClick={() => openOverlay("Exhibitor Forms")}>
-            <FaWpforms  /> {!collapsed && "Exhibitor Forms"}
+            <FaWpforms /> {!collapsed && "Exhibitor Forms"}
           </li>
           <li onClick={() => openOverlay("Exhibitor Badges")}>
-            <LuFileBadge2  /> {!collapsed && "Exhibitor Badges"}
+            <LuFileBadge2 /> {!collapsed && "Exhibitor Badges"}
           </li>
-           <li onClick={() => openOverlay("Payments")}>
+          <li onClick={() => openOverlay("Payments")}>
             <FaMoneyBill /> {!collapsed && "Payments"}
           </li>
           <li onClick={() => openOverlay("Communication")}>
@@ -12933,6 +13138,9 @@ const AdminDashboard = () => {
           </li>
           <li onClick={() => openOverlay("Contact Support")}>
             <FaEnvelope /> {!collapsed && "Contact Support"}
+          </li>
+          <li onClick={() => openOverlay("Media")}>
+            <FaFileImage /> {!collapsed && "Media"}
           </li>
 
           <li onClick={() => openOverlay("Export")}>
@@ -13365,14 +13573,14 @@ const AdminDashboard = () => {
                         + Add Exhibition Image
                       </button>
                     )}
-                    {/* {overlayContent === "Exhibitor Dashboard Instruction" && (
-              <button
-                className="Exhibitor-top-bar-button"
-                onClick={() => setShowExhibitorInstructionForm(true)}
-              >
-                + Add Instruction
-              </button>
-            )} */}
+                    {overlayContent === "Exhibitor Dashboard Instruction" && (
+                      <button
+                        className="Exhibitor-top-bar-button"
+                        onClick={() => setShowExhibitorInstructionForm(true)}
+                      >
+                        + Add Instruction
+                      </button>
+                    )}
                     {overlayContent === "Exhibitor Schedule" && (
                       <button
                         className="Exhibitor-top-bar-button"
@@ -14997,6 +15205,80 @@ const AdminDashboard = () => {
             </div>
           )}
 
+
+          {overlayContent === "Media" && (
+  <div className="overlay-section">
+
+    {/* ===== Upload Form ===== */}
+    <div className="media-upload-section">
+
+      <div className="upload-left">
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleImageSelect}
+        />
+
+        <button
+          className="upload-btn"
+          onClick={handleUploadImage}
+        >
+          Upload Image
+        </button>
+      </div>
+
+      {/* Minimal Preview */}
+      {selectedImagePreview && (
+        <div className="upload-preview">
+          <img src={selectedImagePreview} alt="preview" />
+        </div>
+      )}
+    </div>
+
+    {/* ===== Uploaded Images Grid ===== */}
+    <div className="media-grid">
+      {mediaImages.map((img, index) => (
+        <div className="media-card" key={img.id}>
+
+          <img
+            src={img.image_url}
+            alt="media"
+          />
+
+          <div className="media-actions">
+
+            <button
+              className="icon-btn delete"
+              onClick={() => handleDeleteImage(img.id)}
+            >
+              <FaRegTrashAlt  />
+            </button>
+
+            <button
+              className="icon-btn copy"
+              onClick={() =>
+                handleCopyUrl(
+                  img.image_url
+                )
+              }
+            >
+              <FaExternalLinkAlt />
+            </button>
+
+          </div>
+
+        </div>
+      ))}
+    </div>
+
+  </div>
+)}
+
+
+
+
+
+
           {overlayContent === "Stall Numbers" && (
             <>
               <div className="table-scroll-wrapper">
@@ -15600,6 +15882,11 @@ const AdminDashboard = () => {
                                 </button>
 
                                 <button
+                                  onClick={() => {
+                                    setSelectedCompanyName(item.company_name); // ✅ company store karo
+                                    setShowTermsDeclaration(true);
+                                    setHideMainDashboard(true);
+                                  }}
                                   className="action-btn terms-btn"
                                   title="Terms"
                                 >
@@ -15646,6 +15933,107 @@ const AdminDashboard = () => {
                   </table>
                 </div>
               </div>
+
+              {(showTermsDeclaration || showTermsDeclaration) && (
+                <div
+                  className={`full-modal-overlay ${modalVisible ? "show" : ""}`}
+                >
+                  <div
+                    className="modal-container"
+                    style={{ flexDirection: "column" }}
+                  >
+                    {/* Top Header */}
+                    <div className="form-overlay-header">
+                      <span>
+                        {isViewOnly
+                          ? `View: ${formData.company_name}${
+                              formData.state ? `, ${formData.state}` : ""
+                            }`
+                          : showExhibitorEditForm
+                            ? `${formData.company_name}${
+                                formData.state ? `, ${formData.state}` : ""
+                              }`
+                            : "New Exhibitor Request"}
+                      </span>
+                      <button
+                        className="cancel-button-top"
+                        onClick={() => {
+                          setModalVisible(false);
+                          setTimeout(() => {
+                            setShowExhibitorAddForm(false);
+                            setShowTermsDeclaration(false);
+                          }, 300); // wait for animation to finish
+                        }}
+                      >
+                        ← Back
+                      </button>
+                    </div>
+
+                    {/* View Mode (READ-ONLY) */}
+
+                    <div className="declaration-overlay">
+  <div className="declaration-container">
+
+    <div className="declaration-header-flex">
+      <h3 className="declaration-heading">
+        Terms & Declaration
+      </h3>
+
+      <button
+        onClick={() => setShowTermsDeclaration(false)}
+        className="close-btn"
+      >
+        ×
+      </button>
+    </div>
+
+    {/* ================= STATUS BASED RENDER ================= */}
+
+    {undertakingStatus === null ? (
+
+  <div>Loading...</div>
+
+) : undertakingStatus === 0 ? (
+
+  <div className="not-accepted-box">
+    ❗ {selectedCompanyName} has NOT accepted Undertaking.
+  </div>
+
+) : (
+
+  <>
+    <ol className="declaration-list">
+      {declarationUndertakingData.map((point, index) => (
+        <li key={index}>
+          <strong>{point.title}:</strong> {point.text}
+        </li>
+      ))}
+    </ol>
+
+    <div style={{ marginTop: "20px", textAlign: "right" }}>
+      <button
+        type="button"
+        onClick={() => handleUnlockUndertaking(selectedCompanyName)}
+        className="unlock-btn"
+      >
+        Unlock Undertaking
+      </button>
+    </div>
+  </>
+
+)}
+
+
+
+
+    {/* ================= END ================= */}
+
+  </div>
+</div>
+
+                  </div>
+                </div>
+              )}
 
               {(showExhibitorAddForm || showExhibitorEditForm) && (
                 <div
@@ -17942,9 +18330,13 @@ const AdminDashboard = () => {
                                     <div className="contractor-instruction-box-modal">
                                       <h4>Instruction</h4>
                                       <ol>
-                                        {/* <li>
-                Click here to <strong>Send the Undertaking Form</strong> to your selected contractor.
-              </li> */}
+                                        <li>
+                                          Click here to{" "}
+                                          <strong>
+                                            Send the Undertaking Form
+                                          </strong>{" "}
+                                          to your selected contractor.
+                                        </li>
                                         <li>
                                           FOR SMOOTH AND QUICK FUNCTIONALITY
                                           PLEASE FORWARD THIS UNDERTAKING FORM
@@ -17989,17 +18381,17 @@ const AdminDashboard = () => {
 
                                       {/* Email Input + Preview */}
                                       {/* <div className="appointedcontractor-form-line">
-              <label className="appointedcontractor-form-label">
-                Please enter your contractor email address:
-              </label>
-              <input
-                type="email"
-                className="appointedcontractor-line-input"
-                placeholder="Enter contractor email"
-                value={contractorEmail}
-                onChange={(e) => setContractorEmail(e.target.value)}
-              />
-            </div> */}
+                                        <label className="appointedcontractor-form-label">
+                                          Please enter your contractor email address:
+                                        </label>
+                                        <input
+                                          type="email"
+                                          className="appointedcontractor-line-input"
+                                          placeholder="Enter contractor email"
+                                          value={contractorEmail}
+                                          onChange={(e) => setContractorEmail(e.target.value)}
+                                        />
+                                      </div> */}
 
                                       <div className="appointedcontractor-mail-preview">
                                         <h4>📧 Mail Preview</h4>
@@ -24027,7 +24419,6 @@ const AdminDashboard = () => {
 
           {/* testing */}
 
-
           {overlayContent === "Exhibitor Forms" && (
             <>
               <div className="admin-sub-navbar">
@@ -24040,7 +24431,6 @@ const AdminDashboard = () => {
                   >
                     Exhibitor Forms
                   </li>
-                  
                 </ul>
               </div>
 
@@ -24050,7 +24440,6 @@ const AdminDashboard = () => {
                   <ExhibitorForms />
                 </div>
               )}
-              
             </>
           )}
 
@@ -25852,7 +26241,7 @@ const AdminDashboard = () => {
                         }
                       >
                         <p>
-                          Me{" "}
+                          {" "}
                           <span className="entypo-down-open scnd-font-color"></span>
                         </p>
                         <div className="profile-picture small-profile-picture">
@@ -27263,6 +27652,8 @@ const AdminDashboard = () => {
                                   "Successfully Badges Unlocked Request",
                                   "Exhibitor Badges Requirement",
                                   "Exhibitor Contractor Unlock Request",
+                                  "Electrical Vendor Power Requirement",
+                                  "Stall Balance Payment",
                                 ].map((place) => (
                                   <label key={place}>
                                     <input
@@ -27382,6 +27773,8 @@ const AdminDashboard = () => {
                                   "Successfully Badges Unlocked Request",
                                   "Exhibitor Badges Requirement",
                                   "Exhibitor Contractor Unlock Request",
+                                  "Electrical Vendor Power Requirement",
+                                  "Stall Balance Payment",
                                 ].map((place) => (
                                   <label key={place}>
                                     <input

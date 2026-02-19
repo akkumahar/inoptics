@@ -204,7 +204,6 @@ const FurnitureRequirements = ({
                                       );
                                       handleQuantityChange(index, newQty);
                                     }}
-                                   
                                   >
                                     −
                                   </button>
@@ -225,11 +224,26 @@ const FurnitureRequirements = ({
                                       const newQty = (item.quantity || 1) + 1;
                                       handleQuantityChange(index, newQty);
                                     }}
-                                    
                                   >
                                     +
                                   </button>
                                 </div>
+                                {/* delete button */}{" "}
+                                {!isFurnitureSaved && (
+                                  <button
+                                    className="ft-delete"
+                                    onClick={() =>
+                                      setSelectedFurniture(
+                                        selectedFurniture.filter(
+                                          (_, i) => i !== index,
+                                        ),
+                                      )
+                                    }
+                                  >
+                                    {" "}
+                                    <FaTrashAlt />{" "}
+                                  </button>
+                                )}
                               </div>
                             </div>
                           </div>

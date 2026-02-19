@@ -1370,6 +1370,47 @@ const ExhibitorDashboard = () => {
     }
   };
 
+
+
+  const handleSendPowerDetailsMail = async (companyName) => {
+  if (!companyName) {
+    alert("Company name missing");
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      "https://inoptics.in/api/YOUR_API_FILE_NAME.php", // 👈 yaha apni file ka naam daalo
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          company_name: companyName,
+        }),
+      }
+    );
+
+    const result = await response.json();
+
+    if (response.ok && result.success) {
+      alert("✅ Power Details mail sent successfully");
+    } else {
+      alert(result.message || "❌ Failed to send mail");
+    }
+
+  } catch (error) {
+    console.error("Mail API Error:", error);
+    alert("Server error while sending mail");
+  }
+};
+
+
+
+
+
+
   const handleExhibitorPowerSubmit = async () => {
     if (previewTableList.length === 0) {
       alert("No data to submit.");
@@ -1487,6 +1528,7 @@ const ExhibitorDashboard = () => {
       alert("Power data added & submitted!");
 
       await sendPowerMailToAdmin(currentExhibitor.company_name);
+      await handleSendPowerDetailsMail(currentExhibitor.company_name)
 
       setIsSavedToDB(true);
       setIsViewOnly(true);
