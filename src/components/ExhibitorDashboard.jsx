@@ -851,16 +851,24 @@ const ExhibitorDashboard = () => {
   }, []);
 
   const fetchFurnitureVendorDetails = async () => {
-    try {
-      const res = await fetch(
-        "https://inoptics.in/api/get_furniture_vendor.php",
-      );
-      const data = await res.json();
-      setFurnitureVendorDetails(data || []);
-    } catch (err) {
-      console.error("Failed to fetch Furniture Vendor details", err);
+  try {
+    const res = await fetch(
+      "https://inoptics.in/api/get_furniture_vendor.php"
+    );
+
+    const data = await res.json();
+    console.log("Furniture API Response:", data);
+
+    if (data.success && Array.isArray(data.data)) {
+      setFurnitureVendorDetails(data.data); // ✅ correct
+    } else {
+      setFurnitureVendorDetails([]); // fallback
     }
-  };
+  } catch (err) {
+    console.error("Failed to fetch Furniture Vendor details", err);
+    setFurnitureVendorDetails([]);
+  }
+};
 
   useEffect(() => {
     fetchEmailMessages();
@@ -1370,46 +1378,41 @@ const ExhibitorDashboard = () => {
     }
   };
 
-
-
   const handleSendPowerDetailsMail = async (companyName) => {
-  if (!companyName) {
-    alert("Company name missing");
-    return;
-  }
-
-  try {
-    const response = await fetch(
-      "https://inoptics.in/api/YOUR_API_FILE_NAME.php", // 👈 yaha apni file ka naam daalo
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          company_name: companyName,
-        }),
-      }
-    );
-
-    const result = await response.json();
-
-    if (response.ok && result.success) {
-      alert("✅ Power Details mail sent successfully");
-    } else {
-      alert(result.message || "❌ Failed to send mail");
+    if (!companyName) {
+      alert("Company name missing");
+      return;
     }
 
-  } catch (error) {
-    console.error("Mail API Error:", error);
-    alert("Server error while sending mail");
-  }
-};
+    try {
+      const response = await fetch(
+        "https://inoptics.in/api/send_power_mail_to_vendor.php",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            company_name: companyName,
+            template_name: "Power Requirement by Exhibitor",
+          }),
+        },
+      );
 
+      const result = await response.json();
 
+      console.log("API RESPONSE:", result);
 
-
-
+      if (response.ok && result.success) {
+        alert("✅ Mail Sent Successfully");
+      } else {
+        alert("❌ ERROR:\n" + JSON.stringify(result, null, 2));
+      }
+    } catch (error) {
+      console.error("Mail API Error:", error);
+      alert("🚨 Network / Server Crash:\n" + error.message);
+    }
+  };
 
   const handleExhibitorPowerSubmit = async () => {
     if (previewTableList.length === 0) {
@@ -1463,90 +1466,81 @@ const ExhibitorDashboard = () => {
     }
   };
 
-
-
   const handleAddAndSubmitPower = async () => {
-
-  // ✅ same validation as Add
-  if (!exhibitorPowerRequired || !exhibitorPhase) {
-    alert("Please fill all required fields.");
-    return;
-  }
-
-  const totalAmount = (
-    parseFloat(exhibitorPowerRequired || 0) *
-    parseFloat(exhibitorPricePerKw || 0)
-  ).toFixed(2);
-
-  const newRow = {
-    day: "Exhibition Days",
-    pricePerKw: exhibitorPricePerKw,
-    powerRequired: exhibitorPowerRequired,
-    phase: exhibitorPhase,
-    totalAmount,
-  };
-
-  const updatedList = [...previewTableList, newRow];
-
-  // ✅ update preview table
-  setPreviewTableList(updatedList);
-
-  // ✅ reset fields
-  setExhibitorPowerRequired("");
-  setExhibitorPhase("");
-  setExhibitorTotalAmount("");
-
-  // ✅ NOW — submit immediately using same payload logic
-  try {
-    const payload = updatedList.map((item) => ({
-      company_name: currentExhibitor.company_name,
-      day: item.day,
-      price_per_kw: item.pricePerKw,
-      power_required: item.powerRequired,
-      phase: item.phase,
-      total_amount: item.totalAmount,
-      total_price: totalPrice.toFixed(2),
-      cgst: cgst.toFixed(2),
-      sgst: sgst.toFixed(2),
-      igst: igst.toFixed(2),
-      grand_total: grandTotal.toFixed(2),
-      is_locked: 1,
-    }));
-
-    const response = await fetch(
-      "https://inoptics.in/api/add_Exhibitor_power_requirement.php",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ entries: payload }),
-      }
-    );
-
-    const result = await response.json();
-
-    if (response.ok) {
-      alert("Power data added & submitted!");
-
-      await sendPowerMailToAdmin(currentExhibitor.company_name);
-      await handleSendPowerDetailsMail(currentExhibitor.company_name)
-
-      setIsSavedToDB(true);
-      setIsViewOnly(true);
-      fetchPowerBilling(currentExhibitor.company_name);
-
-    } else {
-      alert("Submit failed: " + (result.error || "Error"));
+    // ✅ same validation as Add
+    if (!exhibitorPowerRequired || !exhibitorPhase) {
+      alert("Please fill all required fields.");
+      return;
     }
 
-  } catch (err) {
-    console.error(err);
-    alert("Submit error");
-  }
-};
+    const totalAmount = (
+      parseFloat(exhibitorPowerRequired || 0) *
+      parseFloat(exhibitorPricePerKw || 0)
+    ).toFixed(2);
 
+    const newRow = {
+      day: "Exhibition Days",
+      pricePerKw: exhibitorPricePerKw,
+      powerRequired: exhibitorPowerRequired,
+      phase: exhibitorPhase,
+      totalAmount,
+    };
 
+    const updatedList = [...previewTableList, newRow];
 
+    // ✅ update preview table
+    setPreviewTableList(updatedList);
 
+    // ✅ reset fields
+    setExhibitorPowerRequired("");
+    setExhibitorPhase("");
+    setExhibitorTotalAmount("");
+
+    // ✅ NOW — submit immediately using same payload logic
+    try {
+      const payload = updatedList.map((item) => ({
+        company_name: currentExhibitor.company_name,
+        day: item.day,
+        price_per_kw: item.pricePerKw,
+        power_required: item.powerRequired,
+        phase: item.phase,
+        total_amount: item.totalAmount,
+        total_price: totalPrice.toFixed(2),
+        cgst: cgst.toFixed(2),
+        sgst: sgst.toFixed(2),
+        igst: igst.toFixed(2),
+        grand_total: grandTotal.toFixed(2),
+        is_locked: 1,
+      }));
+
+      const response = await fetch(
+        "https://inoptics.in/api/add_Exhibitor_power_requirement.php",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ entries: payload }),
+        },
+      );
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert("Power data added & submitted!");
+
+        await sendPowerMailToAdmin(currentExhibitor.company_name);
+        await handleSendPowerDetailsMail(currentExhibitor.company_name);
+
+        setIsSavedToDB(true);
+        setIsViewOnly(true);
+        fetchPowerBilling(currentExhibitor.company_name);
+      } else {
+        alert("Submit failed: " + (result.error || "Error"));
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Submit error");
+    }
+  };
 
   // ===== Handle Power Unlock Request =====
   const handlePowerUnlockRequest = async () => {
@@ -3624,7 +3618,6 @@ const ExhibitorDashboard = () => {
                     handlePowerFormNext={handlePowerFormNext}
                     handlePowerFormPrevious={handlePowerFormPrevious}
                     handlePowerFormAdd={handlePowerFormAdd}
-                    handleExhibitorPowerSubmit={handleExhibitorPowerSubmit}
                     onFinalSubmit={handleAddAndSubmitPower}
                     showExhibitorEditForm={showExhibitorEditForm}
                     handlePowerUnlockRequest={handlePowerUnlockRequest}

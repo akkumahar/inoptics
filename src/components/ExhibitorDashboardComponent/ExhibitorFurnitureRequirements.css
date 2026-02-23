@@ -817,3 +817,58 @@
   }
 }
 
+
+
+/* vendor details css start */
+/* ================= WRAPPER ================= */
+.furniture-vendor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+/* ================= CARD ================= */
+.vendor-card {
+  /* padding: 18px; */
+  border-radius: 12px;
+  transition: 0.2s ease;
+}
+
+.vendor-card:hover {
+  transform: translateY(-3px);
+}
+
+/* ================= ROW ================= */
+.vendor-row {
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+/* ================= LABEL ================= */
+.vendor-label {
+  font-weight: 600;
+  color: #333;
+  min-width: 140px;
+}
+
+/* ================= VALUE ================= */
+.vendor-value {
+  color: #555;
+  word-break: break-word;
+}
+
+/* ================= MOBILE ================= */
+@media (max-width: 600px) {
+  .vendor-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .vendor-label {
+    margin-bottom: 3px;
+  }
+}
+
+/* vendor details css end */

@@ -5,9 +5,7 @@ import {
   Route,
   useLocation,
 } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
+import { Toaster } from "react-hot-toast";
 import { AnimatePresence } from "framer-motion";
 
 import Navbar from "./components/Navbar";
@@ -159,7 +157,8 @@ function App() {
   return (
     <Router>
       <NavbarAndRoutes />
-      <ToastContainer position="top-right" autoClose={3000} />
+      <Toaster position="top-center" reverseOrder={false}
+      />
     </Router>
   );
 }

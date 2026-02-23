@@ -671,6 +671,25 @@ margin-top: 10px;
 }
 
 
+.table-wrapper {
+  max-height: 500px;      /* jitni height chaho */
+  overflow-y: auto;
+  position: relative;
+}
+
+.grand-total-row {
+  position: sticky;
+  bottom: 15px;
+  background: #fff;
+  z-index: 5;
+  box-shadow: 0 -2px 6px rgba(0,0,0,0.08);
+  font-weight: 600;
+}
+
+.grand-total-row td {
+  background: #f8f9fb;
+}
+
 
 
 
@@ -10218,3 +10237,57 @@ margin-top: -720px;
 
 
 /* exhibitor accept undertaking & terms/conditions end */
+
+
+/* furniture vendor css start */
+
+/* ================= SINGLE VENDOR CARD ================= */
+
+.admin-vendor-card {
+  border-radius: 12px;
+}
+
+/* ================= ROW ================= */
+
+.admin-vendor-row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.admin-vendor-label {
+  font-weight: 600;
+  color: #444;
+  min-width: 140px;
+}
+
+.admin-vendor-value {
+  color: #222;
+  word-break: break-word;
+}
+
+/* ================= EMPTY MESSAGE ================= */
+
+.admin-vendor-empty {
+  font-style: italic;
+  color: #777;
+  padding: 10px 0;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+  .admin-vendor-card {
+    padding: 15px;
+  }
+
+  .admin-vendor-row {
+    flex-direction: column;
+    margin-bottom: 10px;
+  }
+
+  .admin-vendor-label {
+    min-width: auto;
+    margin-bottom: 2px;
+  }
+}
+/* furniture vendor css end */

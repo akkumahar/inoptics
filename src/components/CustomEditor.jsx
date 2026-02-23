@@ -22,6 +22,13 @@ const CustomEditor = ({ value = '', onChange, placeholder = '' }) => {
   const [sourceContent, setSourceContent] = useState('');
   const [internalHtml, setInternalHtml] = useState(value || '');
 
+
+  const [imageWidth, setImageWidth] = useState('');
+const [imageHeight, setImageHeight] = useState('');
+const [selectedImage, setSelectedImage] = useState(null);
+
+
+
   const debouncedOnChange = useCallback(
     throttle((html) => {
       console.log('onChange triggered with:', html);
@@ -518,6 +525,74 @@ const CustomEditor = ({ value = '', onChange, placeholder = '' }) => {
     }
   }, [saveHistory, format]);
 
+
+  // image rezise in px function handle 
+  const handleImageClick = useCallback((e) => {
+  if (e.target.tagName === "IMG") {
+    setSelectedImage(e.target);
+    setImageWidth(e.target.style.width?.replace('px', '') || e.target.width || '');
+    setImageHeight(e.target.style.height?.replace('px', '') || e.target.height || '');
+  }
+}, []);
+
+
+const applyImageResize = () => {
+  if (!selectedImage) {
+    alert("Please select an image first.");
+    return;
+  }
+
+  if (imageWidth) {
+    selectedImage.style.width = `${imageWidth}px`;
+  }
+
+  if (imageHeight) {
+    selectedImage.style.height = `${imageHeight}px`;
+  } else {
+    selectedImage.style.height = "auto";
+  }
+
+  handleInput(true);
+
+    // ✅ RESET EVERYTHING (panel hide ho jayega)
+  setSelectedImage(null);
+  setImageWidth('');
+  setImageHeight('');
+};
+
+
+  // image rezise function handle
+  const resizeSelectedImage = useCallback(() => {
+  const selection = window.getSelection();
+  if (!selection.rangeCount) return;
+
+  const node = selection.anchorNode?.parentElement;
+  if (!node) return;
+
+  let img = null;
+
+  if (node.tagName === "IMG") {
+    img = node;
+  } else {
+    img = node.querySelector("img");
+  }
+
+  if (!img) {
+    alert("Please select an image first.");
+    return;
+  }
+
+  const width = prompt("Enter width (px or %):", img.style.width || img.width);
+  const height = prompt("Enter height (px or auto):", img.style.height || "auto");
+
+  if (width) img.style.width = width;
+  if (height) img.style.height = height;
+
+  handleInput(true);
+}, [handleInput]);
+
+
+
   const handleLinkInsert = useCallback(() => {
     const url = prompt('Enter URL:');
     if (url) {
@@ -799,6 +874,32 @@ const CustomEditor = ({ value = '', onChange, placeholder = '' }) => {
           <button onClick={handleFindReplace}>Replace</button>
         </div>
       )}
+
+      {/* image resize area in px */}
+      {selectedImage && (
+  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+    <input
+      type="number"
+      placeholder="Width (px)"
+      value={imageWidth}
+      onChange={(e) => setImageWidth(e.target.value)}
+      style={{ width: "90px" }}
+    />
+
+    <input
+      type="number"
+      placeholder="Height (px)"
+      value={imageHeight}
+      onChange={(e) => setImageHeight(e.target.value)}
+      style={{ width: "90px" }}
+    />
+
+    <button onClick={applyImageResize}>
+      Apply Size
+    </button>
+  </div>
+)}
+
       {showEmojiPanel && (
         <div className="find-replace-bar">
           {['😀', '😁', '😂', '🤣', '😎', '😍', '😘', '🤔', '👍', '🙏', '🔥', '🎉', '💡', '❤️'].map((emoji) => (
@@ -866,6 +967,7 @@ const CustomEditor = ({ value = '', onChange, placeholder = '' }) => {
         onInput={handleInput}
         onBlur={() => handleInput(true)}
         onPaste={handlePastePlainText}
+        onClick={handleImageClick}
         onKeyDown={(e) => {
           if (e.key === 'Tab') {
             e.preventDefault();

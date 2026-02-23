@@ -26,7 +26,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { LuFileBadge2 } from "react-icons/lu";
 
-import { FaFileImage, FaExternalLinkAlt, FaRegTrashAlt   } from "react-icons/fa";
+import { FaFileImage, FaExternalLinkAlt, FaRegTrashAlt } from "react-icons/fa";
 
 import { FaCircleCheck } from "react-icons/fa6";
 import { IoMdCloseCircle } from "react-icons/io";
@@ -56,9 +56,11 @@ import {
 import TemplateLogo from "../assets/RSD_invoice_logo.png";
 import html2pdf from "html2pdf.js";
 import jsPDF from "jspdf";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import AdminBadges from "./List/AdminBadges";
 import ExhibitorForms from "./List/ExhibitorForms";
+import PowerVendor from "./List/PowerVendor";
+import FurnitureVendor from "./List/FurnitureVendor";
 // import { useMemo } from 'react';
 
 const AdminDashboard = () => {
@@ -79,20 +81,19 @@ const AdminDashboard = () => {
   const [hideMainDashboard, setHideMainDashboard] = useState(false);
   const [hasAcceptedTerms, setHasAcceptedTerms] = useState(false);
   const [undertakingStatus, setUndertakingStatus] = useState(null);
-const [selectedCompanyName, setSelectedCompanyName] = useState(null);
+  const [selectedCompanyName, setSelectedCompanyName] = useState(null);
 
-const [selectedImage, setSelectedImage] = useState(null);
-const [selectedImagePreview, setSelectedImagePreview] = useState(null);
-const [mediaImages, setMediaImages] = useState([]);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedImagePreview, setSelectedImagePreview] = useState(null);
+  const [mediaImages, setMediaImages] = useState([]);
 
+  const handleImageSelect = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-const handleImageSelect = (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  setSelectedImage(file);
-  setSelectedImagePreview(URL.createObjectURL(file));
-};
+    setSelectedImage(file);
+    setSelectedImagePreview(URL.createObjectURL(file));
+  };
 
   // const [selectedMail, setSelectedMail] = useState(null);
   // const [loadingMails, setLoadingMails] = useState(false);
@@ -4241,6 +4242,8 @@ const handleImageSelect = (e) => {
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
+          console.log("exhibitor stall payment", data);
+          
           const normalized = data.records.map((pay) => ({
             type: pay.payment_type || pay.type || "",
             date: pay.payment_date || pay.date || "",
@@ -4362,6 +4365,8 @@ const handleImageSelect = (e) => {
     const data = await res.json();
 
     if (data.success) {
+      console.log("exhibitor second methos api fetch data", data);
+      
       const normalized = data.records.map((pay) => ({
         type: pay.payment_type || "",
         date: pay.payment_date || "",
@@ -5310,29 +5315,41 @@ const handleImageSelect = (e) => {
       const data = await res.json();
 
       if (data.success) {
+        console.log('fetch all payment', data)
         // Map the backend data to frontend structure
-        const normalized = data.records.map((r, idx) => ({
-          id: idx + 1,
-          company_name: r.company_name || "N/A",
-          state: r.state || "",
-          stall: parseFloat(r.stall_total ?? 0),
-          power: parseFloat(r.power_total ?? 0),
-          exhibitorBadgesCount: parseInt(r.badge_count ?? 0),
-          exhibitorBadgesBase: parseFloat(r.badge_price_base ?? 0),
-          exhibitorBadgesTax: parseFloat(r.badges_tax ?? 0),
-          exhibitorBadgesTotal: parseFloat(r.badges_total ?? 0),
-          paid_exhibitor: parseFloat(r.paid_exhibitor ?? 0),
-          paid_power: parseFloat(r.paid_power ?? 0),
-          paid_badge: parseFloat(r.paid_badge ?? 0),
-          total: parseFloat(r.total ?? 0),
-          paid_total: parseFloat(r.paid_total ?? 0),
-          pending: parseFloat(r.pending ?? 0),
+        const safeNum = (val) => Number(val) || 0;
 
-          // ✅ add these three new fields
-          stall_payments: r.stall_payments || "-",
-          power_payments: r.power_payments || "-",
-          badge_payments: r.badge_payments || "-",
-        }));
+const normalized = data.records.map((r, idx) => ({
+  id: idx + 1,
+  company_name: r.company_name || "N/A",
+  state: r.state || "",
+
+  stall: safeNum(r.stall_total),
+  power: safeNum(r.power_total),
+  exhibitorBadgesTotal: safeNum(r.badges_total),
+
+  // ✅ Paid
+  stallPaid: safeNum(r.paid_exhibitor),
+  powerPaid: safeNum(r.paid_power),
+  badgePaid: safeNum(r.paid_badge),
+
+  paid_total: safeNum(r.paid_total),
+  total: safeNum(r.total),
+  pending: safeNum(r.pending),
+
+  // ✅ TDS
+  stall_tds: safeNum(r.stall_tds_total),
+  power_tds: safeNum(r.power_tds_total),
+  badge_tds: safeNum(r.badge_tds_total),
+  total_tds: safeNum(r.total_tds),
+
+  stall_payments: r.stall_payments || "-",
+  power_payments: r.power_payments || "-",
+  badge_payments: r.badge_payments || "-",
+}));
+
+
+
         setPaymentsData(normalized);
       } else {
         console.error("API returned error:", data.message);
@@ -10647,10 +10664,18 @@ const handleImageSelect = (e) => {
       const res = await fetch(
         "https://inoptics.in/api/get_furniture_vendor.php",
       );
+
       const data = await res.json();
-      setFurnitureVendorDetails(data || []);
+      console.log("Admin Furniture API Response:", data);
+
+      if (data.success && Array.isArray(data.data)) {
+        setFurnitureVendorDetails(data.data); // ✅ only array
+      } else {
+        setFurnitureVendorDetails([]); // fallback
+      }
     } catch (err) {
       console.error("Failed to fetch Furniture Vendor details", err);
+      setFurnitureVendorDetails([]);
     }
   };
 
@@ -12863,38 +12888,30 @@ const handleImageSelect = (e) => {
     }
   };
 
-
-
-
   const fetchUndertakingStatus = async (companyName) => {
-  try {
-    const res = await fetch(
-      `https://inoptics.in/api/get_undertaking_status.php?company_name=${encodeURIComponent(companyName)}`
-    );
+    try {
+      const res = await fetch(
+        `https://inoptics.in/api/get_undertaking_status.php?company_name=${encodeURIComponent(companyName)}`,
+      );
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (data.success) {
-      setUndertakingStatus(Number(data.undertaking_accepted));
-    } else {
+      if (data.success) {
+        setUndertakingStatus(Number(data.undertaking_accepted));
+      } else {
+        setUndertakingStatus(0);
+      }
+    } catch (error) {
+      console.error(error);
       setUndertakingStatus(0);
     }
+  };
 
-  } catch (error) {
-    console.error(error);
-    setUndertakingStatus(0);
-  }
-};
-
-
-
-useEffect(() => {
-  if (showTermsDeclaration && selectedCompanyName) {
-    fetchUndertakingStatus(selectedCompanyName);
-  }
-}, [showTermsDeclaration, selectedCompanyName]);
-
-
+  useEffect(() => {
+    if (showTermsDeclaration && selectedCompanyName) {
+      fetchUndertakingStatus(selectedCompanyName);
+    }
+  }, [showTermsDeclaration, selectedCompanyName]);
 
   const handleUnlockUndertaking = async (companyName) => {
     if (!companyName) {
@@ -12922,7 +12939,7 @@ useEffect(() => {
         alert("Undertaking unlocked successfully");
 
         // 🔥 Important — Update UI state
-        setUndertakingStatus(0);   // 🔥 correct state update
+        setUndertakingStatus(0); // 🔥 correct state update
       } else {
         alert(result.message || "Failed to unlock");
       }
@@ -12932,121 +12949,162 @@ useEffect(() => {
     }
   };
 
-
-
   // ================= FETCH IMAGES =================
 
   const fetchMediaImages = async () => {
-  try {
-    const res = await fetch(
-      "https://inoptics.in/api/get_email_media_images.php"
-    );
+    try {
+      const res = await fetch(
+        "https://inoptics.in/api/get_email_media_images.php",
+      );
 
-    const data = await res.json();
+      const data = await res.json();
 
-    console.log("Fetched Images:", data); // 🔥 Debug
+      console.log("Fetched Images:", data); // 🔥 Debug
 
-    if (Array.isArray(data)) {
-      setMediaImages(data);
-    } else if (data.success) {
-      setMediaImages(data.data || []);
-    } else {
-      setMediaImages([]);
+      if (Array.isArray(data)) {
+        setMediaImages(data);
+      } else if (data.success) {
+        setMediaImages(data.data || []);
+      } else {
+        setMediaImages([]);
+      }
+    } catch (err) {
+      console.error("Fetch error:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchMediaImages();
+  }, []);
+
+  // ================= COPY URL =================
+
+  const handleCopyUrl = async (url) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      alert("URL copied successfully!");
+    } catch (err) {
+      console.error("Copy failed:", err);
+      alert("Failed to copy URL");
+    }
+  };
+
+  // ================= DELETE IMAGE =================
+
+  const handleDeleteImage = async (id) => {
+    if (!window.confirm("Delete this image?")) return;
+
+    try {
+      const res = await fetch(
+        "https://inoptics.in/api/delete_email_media_image.php",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id }),
+        },
+      );
+
+      const data = await res.json();
+
+      if (data.success) {
+        setMediaImages((prev) => prev.filter((img) => img.id !== id));
+        alert("Image deleted successfully");
+      } else {
+        alert(data.message || "Delete failed");
+      }
+    } catch (error) {
+      console.error("Delete error:", error);
+      alert("Server error while deleting");
+    }
+  };
+
+  // ================= UPLOAD IMAGE =================
+
+  const handleUploadImage = async () => {
+    if (!selectedImage) {
+      alert("Select image first");
+      return;
     }
 
-  } catch (err) {
-    console.error("Fetch error:", err);
-  }
-};
+    const formData = new FormData();
+    formData.append("image", selectedImage);
 
+    try {
+      const res = await fetch(
+        "https://inoptics.in/api/upload_email_media_image.php",
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
 
-useEffect(() => {
-  fetchMediaImages();
-}, []);
+      const data = await res.json();
 
+      if (data.success) {
+        alert("Image uploaded successfully");
 
-// ================= COPY URL =================
+        setSelectedImage(null);
+        setSelectedImagePreview(null);
 
-const handleCopyUrl = async (url) => {
-  try {
-    await navigator.clipboard.writeText(url);
-    alert("URL copied successfully!");
-  } catch (err) {
-    console.error("Copy failed:", err);
-    alert("Failed to copy URL");
-  }
-};
+        await fetchMediaImages(); // 🔥 IMPORTANT
+      } else {
+        alert("Upload failed");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-
-// ================= DELETE IMAGE =================
-
-const handleDeleteImage = async (id) => {
-  if (!window.confirm("Delete this image?")) return;
-
-  try {
-    const res = await fetch(
-      "https://inoptics.in/api/delete_email_media_image.php",
-      {
+  const sendPowerMailToAdmin = async (companyName) => {
+    try {
+      await fetch("https://inoptics.in/api/send_power_mail_to_admin.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id }),
-      }
-    );
-
-    const data = await res.json();
-
-    if (data.success) {
-      setMediaImages((prev) => prev.filter((img) => img.id !== id));
-      alert("Image deleted successfully");
-    } else {
-      alert(data.message || "Delete failed");
+        body: JSON.stringify({
+          template_name:
+            "InOptics 2026 @ Exhibitor Power Requirement Confirmation",
+          company_name: companyName,
+        }),
+      });
+    } catch (error) {
+      console.error("Failed to send power mail to admin:", error);
     }
-  } catch (error) {
-    console.error("Delete error:", error);
-    alert("Server error while deleting");
-  }
-};
+  };
 
-
-// ================= UPLOAD IMAGE =================
-
-const handleUploadImage = async () => {
-  if (!selectedImage) {
-    alert("Select image first");
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append("image", selectedImage);
-
-  try {
-    const res = await fetch(
-      "https://inoptics.in/api/upload_email_media_image.php",
-      {
-        method: "POST",
-        body: formData,
-      }
-    );
-
-    const data = await res.json();
-
-    if (data.success) {
-      alert("Image uploaded successfully");
-
-      setSelectedImage(null);
-      setSelectedImagePreview(null);
-
-      await fetchMediaImages(); // 🔥 IMPORTANT
-    } else {
-      alert("Upload failed");
+  const handleSendPowerDetailsMail = async (companyName) => {
+    if (!companyName) {
+      alert("Company name missing");
+      return;
     }
 
-  } catch (error) {
-    console.error(error);
-  }
-};
+    try {
+      const response = await fetch(
+        "https://inoptics.in/api/send_power_mail_to_vendor.php",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            company_name: companyName,
+            template_name: "Power Requirement by Exhibitor",
+          }),
+        },
+      );
 
+      const result = await response.json();
 
+      console.log("API RESPONSE:", result);
+
+      if (response.ok && result.success) {
+      } else {
+        alert("❌ ERROR:\n" + JSON.stringify(result, null, 2));
+      }
+    } catch (error) {
+      console.error("Mail API Error:", error);
+      alert("🚨 Network / Server Crash:\n" + error.message);
+    }
+  };
 
   return (
     <div className="dashboard-container">
@@ -15205,79 +15263,56 @@ const handleUploadImage = async () => {
             </div>
           )}
 
-
           {overlayContent === "Media" && (
-  <div className="overlay-section">
+            <div className="overlay-section">
+              {/* ===== Upload Form ===== */}
+              <div className="media-upload-section">
+                <div className="upload-left">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageSelect}
+                  />
 
-    {/* ===== Upload Form ===== */}
-    <div className="media-upload-section">
+                  <button className="upload-btn" onClick={handleUploadImage}>
+                    Upload Image
+                  </button>
+                </div>
 
-      <div className="upload-left">
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleImageSelect}
-        />
+                {/* Minimal Preview */}
+                {selectedImagePreview && (
+                  <div className="upload-preview">
+                    <img src={selectedImagePreview} alt="preview" />
+                  </div>
+                )}
+              </div>
 
-        <button
-          className="upload-btn"
-          onClick={handleUploadImage}
-        >
-          Upload Image
-        </button>
-      </div>
+              {/* ===== Uploaded Images Grid ===== */}
+              <div className="media-grid">
+                {mediaImages.map((img, index) => (
+                  <div className="media-card" key={img.id}>
+                    <img src={img.image_url} alt="media" />
 
-      {/* Minimal Preview */}
-      {selectedImagePreview && (
-        <div className="upload-preview">
-          <img src={selectedImagePreview} alt="preview" />
-        </div>
-      )}
-    </div>
+                    <div className="media-actions">
+                      <button
+                        className="icon-btn delete"
+                        onClick={() => handleDeleteImage(img.id)}
+                      >
+                        <FaRegTrashAlt />
+                      </button>
 
-    {/* ===== Uploaded Images Grid ===== */}
-    <div className="media-grid">
-      {mediaImages.map((img, index) => (
-        <div className="media-card" key={img.id}>
-
-          <img
-            src={img.image_url}
-            alt="media"
-          />
-
-          <div className="media-actions">
-
-            <button
-              className="icon-btn delete"
-              onClick={() => handleDeleteImage(img.id)}
-            >
-              <FaRegTrashAlt  />
-            </button>
-
-            <button
-              className="icon-btn copy"
-              onClick={() =>
-                handleCopyUrl(
-                  img.image_url
-                )
-              }
-            >
-              <FaExternalLinkAlt />
-            </button>
-
-          </div>
-
-        </div>
-      ))}
-    </div>
-
-  </div>
-)}
-
-
-
-
-
+                      <button
+                        className="icon-btn copy"
+                        onClick={() => handleCopyUrl(img.image_url)}
+                      >
+                        <FaExternalLinkAlt />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {overlayContent === "Stall Numbers" && (
             <>
@@ -15972,65 +16007,60 @@ const handleUploadImage = async () => {
                     {/* View Mode (READ-ONLY) */}
 
                     <div className="declaration-overlay">
-  <div className="declaration-container">
+                      <div className="declaration-container">
+                        <div className="declaration-header-flex">
+                          <h3 className="declaration-heading">
+                            Terms & Declaration
+                          </h3>
 
-    <div className="declaration-header-flex">
-      <h3 className="declaration-heading">
-        Terms & Declaration
-      </h3>
+                          <button
+                            onClick={() => setShowTermsDeclaration(false)}
+                            className="close-btn"
+                          >
+                            ×
+                          </button>
+                        </div>
 
-      <button
-        onClick={() => setShowTermsDeclaration(false)}
-        className="close-btn"
-      >
-        ×
-      </button>
-    </div>
+                        {/* ================= STATUS BASED RENDER ================= */}
 
-    {/* ================= STATUS BASED RENDER ================= */}
+                        {undertakingStatus === null ? (
+                          <div>Loading...</div>
+                        ) : undertakingStatus === 0 ? (
+                          <div className="not-accepted-box">
+                            ❗ {selectedCompanyName} has NOT accepted
+                            Undertaking.
+                          </div>
+                        ) : (
+                          <>
+                            <ol className="declaration-list">
+                              {declarationUndertakingData.map(
+                                (point, index) => (
+                                  <li key={index}>
+                                    <strong>{point.title}:</strong> {point.text}
+                                  </li>
+                                ),
+                              )}
+                            </ol>
 
-    {undertakingStatus === null ? (
+                            <div
+                              style={{ marginTop: "20px", textAlign: "right" }}
+                            >
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleUnlockUndertaking(selectedCompanyName)
+                                }
+                                className="unlock-btn"
+                              >
+                                Unlock Undertaking
+                              </button>
+                            </div>
+                          </>
+                        )}
 
-  <div>Loading...</div>
-
-) : undertakingStatus === 0 ? (
-
-  <div className="not-accepted-box">
-    ❗ {selectedCompanyName} has NOT accepted Undertaking.
-  </div>
-
-) : (
-
-  <>
-    <ol className="declaration-list">
-      {declarationUndertakingData.map((point, index) => (
-        <li key={index}>
-          <strong>{point.title}:</strong> {point.text}
-        </li>
-      ))}
-    </ol>
-
-    <div style={{ marginTop: "20px", textAlign: "right" }}>
-      <button
-        type="button"
-        onClick={() => handleUnlockUndertaking(selectedCompanyName)}
-        className="unlock-btn"
-      >
-        Unlock Undertaking
-      </button>
-    </div>
-  </>
-
-)}
-
-
-
-
-    {/* ================= END ================= */}
-
-  </div>
-</div>
-
+                        {/* ================= END ================= */}
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -17695,16 +17725,24 @@ const handleUploadImage = async () => {
 
                                   <div className="power-requirement-top-buttons-inside-box">
                                     {/* Send Mail button always visible */}
-                                    <button
-                                      className="power-btn send-mail-btn"
-                                      onClick={() =>
-                                        handleSendMail(
-                                          "InOptics 2026 @ Power Requirement Confirmation",
-                                        )
-                                      }
-                                    >
-                                      Send Mail
-                                    </button>
+                                   <button
+  className="power-btn send-mail-btn"
+  onClick={() =>
+    toast.promise(
+      (async () => {
+        await sendPowerMailToAdmin(formData.company_name);
+        await handleSendPowerDetailsMail(formData.company_name);
+      })(),
+      {
+        loading: "Sending mail...",
+        success: "Mail sent successfully",
+        error: "Failed to send mail",
+      }
+    )
+  }
+>
+  Send Mail
+</button>
 
                                     {!isViewOnly && (
                                       <>
@@ -18805,31 +18843,56 @@ const handleUploadImage = async () => {
 
                                   <div className="Extra-Furniture-Instruction">
                                     {/* === Dynamically fetched Furniture Vendor Description === */}
-                                    {furnitureVendorDetails.length > 0 ? (
-                                      furnitureVendorDetails.map((vendor) => (
-                                        <div
-                                          key={vendor.id}
-                                          dangerouslySetInnerHTML={{
-                                            __html: vendor.description,
-                                          }}
-                                          style={{
-                                            fontSize: "15px",
-                                            lineHeight: "1.8",
-                                            fontFamily: "Segoe UI",
-                                            textAlign: "left",
-                                          }}
-                                        />
-                                      ))
-                                    ) : (
-                                      <p
-                                        style={{
-                                          fontStyle: "italic",
-                                          marginBottom: "10px",
-                                        }}
-                                      >
-                                        Loading vendor details...
-                                      </p>
-                                    )}
+                                    <div className="admin-vendor-wrapper">
+                                      {furnitureVendorDetails.length > 0 ? (
+                                        furnitureVendorDetails.map((vendor) => (
+                                          <div
+                                            key={vendor.id}
+                                            className="admin-vendor-card"
+                                          >
+                                            <div className="admin-vendor-row">
+                                              <div className="admin-vendor-label">
+                                                Vendor Name :
+                                              </div>
+                                              <div className="admin-vendor-value">
+                                                {vendor.vendor_name}
+                                              </div>
+                                            </div>
+
+                                            <div className="admin-vendor-row">
+                                              <div className="admin-vendor-label">
+                                                Company Name :
+                                              </div>
+                                              <div className="admin-vendor-value">
+                                                {vendor.company_name}
+                                              </div>
+                                            </div>
+
+                                            <div className="admin-vendor-row">
+                                              <div className="admin-vendor-label">
+                                                Email :
+                                              </div>
+                                              <div className="admin-vendor-value">
+                                                {vendor.email}
+                                              </div>
+                                            </div>
+
+                                            <div className="admin-vendor-row">
+                                              <div className="admin-vendor-label">
+                                                Contact No :
+                                              </div>
+                                              <div className="admin-vendor-value">
+                                                {vendor.contact_number}
+                                              </div>
+                                            </div>
+                                          </div>
+                                        ))
+                                      ) : (
+                                        <p className="admin-vendor-empty">
+                                          No vendors found
+                                        </p>
+                                      )}
+                                    </div>
 
                                     {/* === Send Email Button === */}
                                     <div className="billing-button-container">
@@ -24495,11 +24558,15 @@ const handleUploadImage = async () => {
                       <th>Power</th>
                       <th>Ex Badge</th>
                       <th>Stall Pay Received</th>
+                      <th>TDS</th>
                       <th>Power Pay Received</th>
+                      <th>TDS</th>
                       <th>Ex Badge Pay Received</th>
+                      <th>TDS</th>
                       <th>Total</th>
                       <th>Received Amount</th>
                       <th>Pending Amount</th>
+                      
                       <th>Action</th>
                     </tr>
                   </thead>
@@ -24514,13 +24581,26 @@ const handleUploadImage = async () => {
                           // ✅ Find the original index from the full data array
                           const originalIndex = index + 1;
 
-                          const stall = item.stall ?? 0;
-                          const power = item.power ?? 0;
-                          const exhibitorBadgesCost =
-                            item.exhibitorBadgesTotal ?? 0;
-                          const total = stall + power + exhibitorBadgesCost;
-                          const paid = item.paid_total ?? 0;
-                          const pending = total - paid;
+                          const stall = Number(item.stall) || 0;
+const power = Number(item.power) || 0;
+const badge = Number(item.exhibitorBadgesTotal) || 0;
+
+const total = stall + power + badge;
+
+const stallPaid = Number(item.stallPaid) || 0;
+const powerPaid = Number(item.powerPaid) || 0;
+const badgePaid = Number(item.badgePaid) || 0;
+
+const stallTds = Number(item.stall_tds) || 0;
+const powerTds = Number(item.power_tds) || 0;
+const badgeTds = Number(item.badge_tds) || 0;
+
+const received =
+  stallPaid + stallTds +
+  powerPaid + powerTds +
+  badgePaid + badgeTds;
+
+const pending = total - received;
 
                           // Format multiline payments
                           // const formatPayments = (payments) => {
@@ -24548,14 +24628,17 @@ const handleUploadImage = async () => {
                               <td className="overlay-multiline">
                                 {Math.round(item.stallPaid || 0)}
                               </td>
+                              <td>{Math.round(item.stall_tds || 0)}</td>
                               <td className="overlay-multiline">
                                 {Math.round(item.powerPaid || 0)}
                               </td>
+                              <td>{Math.round(item.power_tds || 0)}</td>
                               <td className="overlay-multiline">
                                 {Math.round(item.badgePaid || 0)}
                               </td>
+                              <td>{Math.round(item.badge_tds || 0)}</td>
                               <td>{Math.round(total)}</td>
-                              <td>{Math.round(paid)}</td>
+                              <td>{Math.round(received)}</td>
                               <td>{Math.round(pending)}</td>
                               <td className="overlay-action">
                                 <button
@@ -24570,16 +24653,11 @@ const handleUploadImage = async () => {
                         })}
 
                         {/* Blank row */}
-                        <tr>
-                          <td
-                            colSpan="12"
-                            style={{ backgroundColor: "#fff", height: "20px" }}
-                          ></td>
-                        </tr>
+                       
 
                         {/* Totals Row */}
                         <tr className="grand-total-row sticky-row">
-                          <td colSpan="8" style={{ textAlign: "right" }}>
+                          <td colSpan="11" style={{ textAlign: "right" }}>
                             Grand Total
                           </td>
                           <td>
@@ -24620,23 +24698,9 @@ const handleUploadImage = async () => {
                               )}
                             </strong>
                           </td>
-                          <td></td>
                         </tr>
 
-                        {/* Labels Row */}
-                        {/* <tr className="grand-total-labels">
-                          <td colSpan="8"></td>
-                          <td>
-                            <em>Total</em>
-                          </td>
-                          <td>
-                            <em>Received</em>
-                          </td>
-                          <td>
-                            <em>Pending</em>
-                          </td>
-                          <td></td>
-                        </tr> */}
+                       
                       </>
                     ) : (
                       <tr>
@@ -27494,7 +27558,12 @@ const handleUploadImage = async () => {
               {/* Communication Sub-Navigation */}
               <div className="modal-navbar">
                 <ul className="navbar-list">
-                  {["Emails Master", "Send Bulk Emails"].map((tab) => (
+                  {[
+                    "Emails Master",
+                    "Send Bulk Emails",
+                    "Power Vendor",
+                    "Furniture Vendor",
+                  ].map((tab) => (
                     <li
                       key={tab}
                       className={`navbar-item ${
@@ -27867,6 +27936,18 @@ const handleUploadImage = async () => {
                     <h3>SMS Communication</h3>
                     <p>Compose and manage SMS messages.</p>
                   </div>
+                )}
+
+                {activeCommunicationTab === "Power Vendor" && (
+                  <PowerVendor
+                    activeCommunicationTab={activeCommunicationTab}
+                  />
+                )}
+
+                {activeCommunicationTab === "Furniture Vendor" && (
+                  <FurnitureVendor
+                    activeCommunicationTab={activeCommunicationTab}
+                  />
                 )}
               </div>
             </>
@@ -32761,6 +32842,7 @@ const handleUploadImage = async () => {
                                   "Stall Price",
                                   "Stall Area",
                                   "Total",
+                                  "TDS",
                                   "Discount(%)",
                                   "Discount Amount",
                                   "Total After Discount",
@@ -32789,6 +32871,7 @@ const handleUploadImage = async () => {
                                   "Grand Total",
                                   "Received Payment",
                                   "Pending Payment",
+                                  "TDS",
                                 ];
 
                       return (

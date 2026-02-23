@@ -1,0 +1,126 @@
+
+.power-vendor-wrapper {
+  padding: 20px;
+}
+
+.power-vendor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.power-vendor-header h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #222;
+}
+
+.power-vendor-body {
+  display: flex;
+  gap: 25px;
+}
+
+/* ================= TABLE ================= */
+.vendor-table-section {
+  flex: 3;
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.vendor-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.vendor-table th {
+  background: #f1f4f9;
+  padding: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  text-align: left;
+}
+
+.vendor-table td {
+  padding: 12px;
+  font-size: 14px;
+  border-bottom: 1px solid #eee;
+}
+
+.vendor-table tr:hover {
+  background: #fafafa;
+}
+
+/* ================= ACTION BUTTONS ================= */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-btn {
+  background: #3e8e41;
+  border: none;
+  padding: 6px 12px;
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.delete-btn {
+  background: #f44336;
+  border: none;
+  padding: 6px 12px;
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.edit-btn:hover { background: #3e8e41; }
+.delete-btn:hover { background: #d32f2f; }
+
+/* ================= FORM CARD ================= */
+.vendor-form-card {
+  flex: 1;
+  background: #ffffff;
+  padding: 18px;
+  border-radius: 12px;
+  height: fit-content;
+}
+
+.vendor-form-card h4 {
+  margin-bottom: 15px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.vendor-form-card input {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  font-size: 13px;
+}
+
+.vendor-form-card input:focus {
+  outline: none;
+  border-color: #4c87af;
+}
+
+.save-btn {
+  width: 100%;
+  background: #2196f3;
+  border: none;
+  padding: 10px;
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.save-btn:hover {
+  background: #1976d2;
+}

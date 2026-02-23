@@ -354,73 +354,36 @@ const FurnitureRequirements = ({
 
           {/* ================= VENDOR INSTRUCTIONS ================= */}
 
-          <div className="instruction-card">
-            {furnitureVendorDetails.map((vendor) => {
-              const clean = vendor.description
-                .replace(/<[^>]+>/g, "")
-                .replace(/&amp;/g, "&");
+         <div className="furniture-vendor-list">
+  {Array.isArray(furnitureVendorDetails) &&
+  furnitureVendorDetails.length > 0 ? (
+    furnitureVendorDetails.map((vendor) => (
+      <div className="vendor-card" key={vendor.id}>
+        <div className="vendor-row">
+          <span className="vendor-label">Vendor Name :</span>
+          <span className="vendor-value">{vendor.vendor_name}</span>
+        </div>
 
-              let parts = clean.split(/(?<=\.)\s*/);
+        <div className="vendor-row">
+          <span className="vendor-label">Company Name :</span>
+          <span className="vendor-value">{vendor.company_name}</span>
+        </div>
 
-              const rows = [];
+        <div className="vendor-row">
+          <span className="vendor-label">Email :</span>
+          <span className="vendor-value">{vendor.email}</span>
+        </div>
 
-              parts.forEach((text) => {
-                if (!text.trim()) return;
-
-                // 🔥 split Instructions line
-                if (/^instructions:/i.test(text)) {
-                  const after = text.split(/instructions:/i)[1];
-
-                  rows.push({ type: "heading", text: "Instructions:" });
-
-                  if (after?.trim()) {
-                    rows.push({ type: "li", text: after.trim() });
-                  }
-                  return;
-                }
-
-                // 🔥 split Vendor heading line
-                if (/official vendor/i.test(text)) {
-                  const [head, rest] = text.split(/official vendor/i);
-
-                  rows.push({
-                    type: "heading",
-                    text: (head + "OFFICIAL VENDOR").trim(),
-                  });
-
-                  if (rest?.trim()) {
-                    const vendorParts = rest
-                      .split(/(?=Address:|Email:|Phone:)/i) // 👈 magic split
-                      .filter((x) => x.trim());
-
-                    vendorParts.forEach((v) =>
-                      rows.push({ type: "li", text: v.trim() }),
-                    );
-                  }
-
-                  return;
-                }
-
-                rows.push({ type: "li", text });
-              });
-
-              return (
-                <div key={vendor.id}>
-                  {rows.map((row, i) =>
-                    row.type === "heading" ? (
-                      <div key={i} className="instruction-big-heading">
-                        {row.text}
-                      </div>
-                    ) : (
-                      <li key={i} className="instruction-li">
-                        {row.text}
-                      </li>
-                    ),
-                  )}
-                </div>
-              );
-            })}
-          </div>
+        <div className="vendor-row">
+          <span className="vendor-label">Contact No :</span>
+          <span className="vendor-value">{vendor.contact_number}</span>
+        </div>
+      </div>
+    ))
+  ) : (
+    <p>No vendors found</p>
+  )}
+</div>
         </div>
       </div>
     </div>

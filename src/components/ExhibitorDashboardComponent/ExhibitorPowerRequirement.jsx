@@ -18,7 +18,6 @@ const PowerRequirementSection = ({
   handlePowerFormPrevious,
   handlePowerFormAdd,
 
-  handleExhibitorPowerSubmit,
   showExhibitorEditForm,
   handlePowerUnlockRequest,
 onFinalSubmit,
