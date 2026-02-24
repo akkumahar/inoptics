@@ -87,6 +87,12 @@ const AdminDashboard = () => {
   const [selectedImagePreview, setSelectedImagePreview] = useState(null);
   const [mediaImages, setMediaImages] = useState([]);
 
+  const [remarkText, setRemarkText] = useState("");
+  const [remarkSaved, setRemarkSaved] = useState(false);
+  const [companyRemarks, setCompanyRemarks] = useState([]);
+  const [editingRemarkId, setEditingRemarkId] = useState(null);
+
+
   const handleImageSelect = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -13106,6 +13112,149 @@ const normalized = data.records.map((r, idx) => ({
     }
   };
 
+
+  const handleDeleteCompanyRemark = async (id) => {
+  if (!window.confirm("Delete this remark?")) return;
+
+  try {
+    const res = await fetch(
+      "https://inoptics.in/api/delete_exhibitor_remark.php",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      }
+    );
+
+    const data = await res.json();
+
+    if (data.success) {
+      fetchCompanyRemarks();
+    }
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+
+
+
+const handleUpdateCompanyRemark = async () => {
+  if (!editingRemarkId || !remarkText.trim()) return;
+
+  try {
+    const res = await fetch(
+      "https://inoptics.in/api/update_exhibitor_remark.php",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: editingRemarkId,
+          remark: remarkText,
+        }),
+      }
+    );
+
+    const data = await res.json();
+
+    if (data.success) {
+      fetchCompanyRemarks();
+
+      // 🔥 RESET AFTER UPDATE
+      setRemarkText("");
+      setEditingRemarkId(null);
+      setRemarkSaved(false);
+    }
+
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+
+
+const handleSaveRemark = async () => {
+  if (!remarkText.trim()) return;
+
+  try {
+    const res = await fetch(
+      "https://inoptics.in/api/add_exhibitor_remark.php",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          company_name: formData.company_name,
+          remark: remarkText,
+        }),
+      }
+    );
+
+    const data = await res.json();
+
+    if (data.success) {
+      setRemarkSaved(true);
+      setRemarkText("");
+      fetchCompanyRemarks();
+    }
+
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+
+
+
+const handleSendEmail = () => {
+  alert("Send Email logic here");
+};
+
+const handleEditCompanyRemark = (item) => {
+  setRemarkText(item.remark);      // textarea me remark
+  setEditingRemarkId(item.id);     // kis id ko update karna hai
+  setRemarkSaved(true);            // update button show karega
+};
+
+
+
+
+useEffect(() => {
+  if (!formData.company_name) return;
+
+  fetchCompanyRemarks();
+  setRemarkText("");
+  setRemarkSaved(false);
+  setEditingRemarkId(null);
+
+}, [formData.company_name]);
+
+
+const fetchCompanyRemarks = async () => {
+  try {
+    const res = await fetch(
+      `https://inoptics.in/api/get_exhibitor_remarks.php?company_name=${formData.company_name}`
+    );
+
+    const data = await res.json();
+
+    if (data.success) {
+      setCompanyRemarks(data.records);
+    } else {
+      setCompanyRemarks([]);
+    }
+
+  } catch (err) {
+    console.error(err);
+    setCompanyRemarks([]);
+  }
+};
+
+
+
+
+
+
+
   return (
     <div className="dashboard-container">
       <aside className={`sidebar ${collapsed ? "collapsed" : ""}`}>
@@ -20064,6 +20213,85 @@ const normalized = data.records.map((r, idx) => ({
                                                       )}
                                                     </div>
                                                   </div>
+
+
+                                                  <div className="remark-section">
+
+  {/* TEXT AREA */}
+  <textarea
+    style={{ width: "100%" }}
+    className="remark-textarea"
+    placeholder="Enter remark here..."
+    disabled={!editingRemarkId && remarkSaved}
+  value={remarkText}
+  onChange={(e) => setRemarkText(e.target.value)}
+    rows={2}
+  />
+
+  <div className="remark-button-row">
+
+    {remarkSaved && (
+  <button
+    className="remark-send-btn"
+    onClick={handleSendEmail}
+  >
+    Send Email
+  </button>
+)}
+
+{!remarkSaved ? (
+  <button
+    className="remark-save-btn"
+    onClick={handleSaveRemark}
+  >
+    Save Remark
+  </button>
+) : (
+  <button
+    className="remark-edit-btn"
+    onClick={handleUpdateCompanyRemark}
+  >
+    update Remark
+  </button>
+)}
+
+  </div>
+
+  {/* 🔥 ALL COMPANY REMARKS BELOW */}
+  {companyRemarks.length > 0 && (
+  <div className="company-remarks-list">
+    <h3 style={{ marginTop: "15px" }}>Previous Remarks</h3>
+
+    {companyRemarks.map((item) => (
+      <div key={item.id} className="remark-history-box">
+
+        <div className="remark-content">
+          <p>{item.remark}</p>
+          
+        </div>
+
+        <div className="remark-actions">
+          <span
+            className="remark-edit-icon"
+            onClick={() => handleEditCompanyRemark(item)}
+          >
+            <FaEdit />
+          </span>
+
+          <span
+            className="remark-delete-icon"
+            onClick={() => handleDeleteCompanyRemark(item.id)}
+          >
+            <FaTrash />
+          </span>
+        </div>
+
+      </div>
+    ))}
+  </div>
+)}
+
+</div>
                                                 </div>
                                               </div>
                                             </div>

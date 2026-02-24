@@ -3459,7 +3459,7 @@ font-family: "Montserrat";
 .new-payment-form-grid {
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
+  /* gap: 1.2rem; */
   background: #e5e9ee96;
   margin-right: 180px;
   margin-top: 12px;
@@ -10291,3 +10291,149 @@ margin-top: -720px;
   }
 }
 /* furniture vendor css end */
+
+
+/* remark fetch area css start */
+/* ================= REMARK SECTION ================= */
+
+.remark-section {
+  background: #ffffff;
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  margin-top: 20px;
+}
+
+/* ================= TEXTAREA ================= */
+
+.remark-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  resize: vertical;
+  outline: none;
+  transition: all 0.2s ease;
+  background: #fafafa;
+}
+
+.remark-textarea:focus {
+  border-color: #2563eb;
+  background: #ffffff;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+/* ================= BUTTON ROW ================= */
+
+.remark-button-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+/* ================= BUTTONS ================= */
+
+.remark-save-btn,
+.remark-edit-btn,
+.remark-send-btn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+/* Save Button */
+.remark-save-btn {
+  background-color: #2563eb;
+  color: #fff;
+}
+
+.remark-save-btn:hover {
+  background-color: #1e4fd6;
+}
+
+/* Update Button */
+.remark-edit-btn {
+  background-color: #f59e0b;
+  color: #fff;
+}
+
+.remark-edit-btn:hover {
+  background-color: #d97706;
+}
+
+/* Send Email Button */
+.remark-send-btn {
+  background-color: #16a34a;
+  color: #fff;
+}
+
+.remark-send-btn:hover {
+  background-color: #15803d;
+}
+
+/* ================= PREVIOUS REMARK LIST ================= */
+
+.company-remarks-list {
+  margin-top: 15px;
+}
+
+.company-remarks-list h3 {
+  font-size: 15px;
+  margin-bottom: 10px;
+  color: #374151;
+}
+
+/* ================= HISTORY BOX ================= */
+
+.remark-history-box {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.remark-content p {
+  margin: 0;
+  font-size: 14px;
+  color: #374151;
+}
+
+/* ================= ACTION ICONS ================= */
+
+.remark-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.remark-edit-icon,
+.remark-delete-icon {
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s ease;
+}
+
+.remark-edit-icon {
+  color: #2563eb;
+}
+
+.remark-edit-icon:hover {
+  color: #1e40af;
+}
+
+.remark-delete-icon {
+  color: #dc2626;
+}
+
+.remark-delete-icon:hover {
+  color: #991b1b;
+}
+/* remark fetch area css end */
