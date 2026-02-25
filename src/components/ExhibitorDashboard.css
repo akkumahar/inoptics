@@ -1203,7 +1203,7 @@ font-weight: 500;
   height: 83vh;
   display: flex;
   flex-direction: column;
-  padding-left: 40px;
+  /* padding-left: 40px; */
   box-sizing: border-box;
 }
 

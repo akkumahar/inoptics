@@ -60,6 +60,13 @@ const ExhibitorDashboard = () => {
 
   const [powerPreviewRows, setPowerPreviewRows] = useState([]);
 
+
+  const [companyRemarks, setCompanyRemarks] = useState([]);
+const [loadingRemarks, setLoadingRemarks] = useState(false);
+const [remarkError, setRemarkError] = useState(null);
+const [isEditMode, setIsEditMode] = useState(false);
+
+
   // Fetch Products
   const fetchProducts = async () => {
     try {
@@ -419,6 +426,12 @@ const ExhibitorDashboard = () => {
     setImportantPage(page);
     setActiveMenu("");
   };
+
+  const handleImportantPaymentClick = (menu) => {
+  setActiveMenu(menu);
+  setImportantPage(false);
+};
+
 
   // poll unread mails count for sidebar badge
   useEffect(() => {
@@ -3063,59 +3076,131 @@ const ExhibitorDashboard = () => {
     setShowBrandsEditForm(false);
   };
 
+
+
   const handleSubmitBrands = async () => {
-    const payload = {
-      Company_name: currentExhibitor.company_name,
-      website: brandsData.website,
-      products: (brandsData.products || []).join(","), // ✅ FIX
-      home_brands: brandsData.home_brands,
-      distributors: brandsData.distributors,
-      international_brands: brandsData.international_brands,
-    };
+  const payload = {
+    Company_name: currentExhibitor.company_name,
+    website: brandsData.website,
+    products: (brandsData.products || []).join(","),
+    home_brands: brandsData.home_brands,
+    distributors: brandsData.distributors,
+    international_brands: brandsData.international_brands,
+  };
 
-    console.log("SUBMIT:", payload);
+  console.log("SUBMIT / UPDATE:", payload);
 
-    await fetch("https://inoptics.in/api/add_exhibitor_brands.php", {
+  try {
+    const endpoint = hasBrandsData
+      ? "https://inoptics.in/api/update_exhibitor_brands.php"
+      : "https://inoptics.in/api/add_exhibitor_brands.php";
+
+    const res = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
 
-    setHasBrandsData(true);
-    setShowBrandsEditForm(true);
+    const data = await res.json();
+    console.log("API Response:", data);
+
+    if (data.success || data.status === "success") {
+      setHasBrandsData(true);
+      setIsEditMode(false);  // back to view mode
+      setShowBrandsEditForm(true);
+    }
+
+  } catch (err) {
+    console.error("Brand submit/update error:", err);
+  }
+};
+
+
+
+ useEffect(() => {
+  if (!formData.company_name) return;
+
+  const companyName = formData.company_name;
+
+  const fetchAll = async () => {
+    try {
+      /* ================= BRANDS API ================= */
+      const brandRes = await fetch(
+        `https://inoptics.in/api/get_exhibitor_brands.php?Company_name=${encodeURIComponent(
+          companyName
+        )}`
+      );
+
+      const brandData = await brandRes.json();
+      console.log("BRAND API:", brandData);
+
+      if (brandData.status === "success" && brandData.data) {
+        const brand = brandData.data;
+
+        setBrandsData({
+          website: brand.website || "",
+          products: brand.products
+            ? brand.products.split(",").map((x) => x.trim())
+            : [],
+          home_brands: brand.home_brands || "",
+          distributors: brand.distributors || "",
+          international_brands:
+            brand.international_brands || "",
+        });
+
+        setHasBrandsData(true);
+        setIsEditMode(false);
+
+        const brandLocked = Number(brand.is_locked) === 1;
+
+        // Update Brands Activity (ID 9)
+        setActivities((prev) =>
+          prev.map((a) =>
+            a.id === 9 ? { ...a, done: brandLocked } : a
+          )
+        );
+
+      } else {
+        setHasBrandsData(false);
+        setIsEditMode(true);
+
+        setActivities((prev) =>
+          prev.map((a) =>
+            a.id === 9 ? { ...a, done: false } : a
+          )
+        );
+      }
+
+      /* ================= CONTRACTOR API ================= */
+
+      const contractorRes = await fetch(
+        `https://inoptics.in/api/get_selected_exhibitors_contractors.php?exhibitor_company_name=${encodeURIComponent(
+          companyName
+        )}`
+      );
+
+      const contractorData = await contractorRes.json();
+      console.log("CONTRACTOR API:", contractorData);
+
+      const contractorLocked =
+        contractorData?.is_locked === 1;
+
+      // Update Contractor Activity (ID 8)
+      setActivities((prev) =>
+        prev.map((a) =>
+          a.id === 8 ? { ...a, done: contractorLocked } : a
+        )
+      );
+
+    } catch (err) {
+      console.error("Fetch error:", err);
+    }
   };
 
-  useEffect(() => {
-    if (!formData.company_name) return;
+  fetchAll();
+}, [formData.company_name]);
 
-    fetch(
-      `https://inoptics.in/api/get_exhibitor_brands.php?Company_name=${encodeURIComponent(
-        formData.company_name,
-      )}`,
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        console.log("brandsData:", data);
-        if (data.status === "success") {
-          setBrandsData({
-            website: data.Website || "",
-            products: Array.isArray(data.Products)
-              ? data.Products
-              : (data.Products || "")
-                  .split(",")
-                  .map((x) => x.trim())
-                  .filter(Boolean),
 
-            home_brands: data.Home_brands || "",
-            distributors: data.Distributors || "",
-            international_brands: data.International_brands || "",
-          });
-
-          setHasBrandsData(true);
-          setShowBrandsEditForm(true);
-        }
-      });
-  }, [formData.company_name]);
 
   const handleUpdateBrands = async () => {
     try {
@@ -3145,6 +3230,45 @@ const ExhibitorDashboard = () => {
       alert("Something went wrong.");
     }
   };
+
+
+  useEffect(() => {
+  if (!formData.company_name) return;
+
+  fetchCompanyRemarks();
+
+}, [formData.company_name]);
+
+
+const fetchCompanyRemarks = async () => {
+  setLoadingRemarks(true);
+  setRemarkError(null);
+
+  try {
+    const res = await fetch(
+      `https://inoptics.in/api/get_exhibitor_remarks.php?company_name=${encodeURIComponent(formData.company_name)}`
+    );
+
+    const data = await res.json();
+
+    if (data.success) {
+      setCompanyRemarks(data.records);
+    } else {
+      setCompanyRemarks([]);
+    }
+
+  } catch (err) {
+    console.error("Error fetching remarks:", err);
+    setRemarkError("Failed to load remarks");
+    setCompanyRemarks([]);
+  } finally {
+    setLoadingRemarks(false);
+  }
+};
+
+
+
+  
 
   return (
     <div className="exhibitordashboard-container">
@@ -3278,7 +3402,7 @@ const ExhibitorDashboard = () => {
         {/* Overlay Panel */}
         {(activeMenu === "Dashboard" ||
           activeMenu === "Profile" ||
-          ["Instructions", "Rules", "Exhibition Map", "Guidelines"].includes(
+          ["Instructions", "Rules", "Exhibition Map", "Guidelines", "Payments"].includes(
             importantPage,
           )) && (
           <div className="exhibitordashboard-dashboard-overlay-panel open">
@@ -3289,9 +3413,9 @@ const ExhibitorDashboard = () => {
                     className="exhibitordashboard-header-menu-tab"
                     onClick={() => handleImportantClick("Instructions")}
                   >
-                    Important
+                    Important Instructions
                   </button>
-                  <ul className="exhibitordashboard-dropdown-submenu">
+                  {/* <ul className="exhibitordashboard-dropdown-submenu">
                     <li>
                       <button
                         onClick={() => handleImportantClick("Instructions")}
@@ -3304,8 +3428,17 @@ const ExhibitorDashboard = () => {
                         Rules & Policy
                       </button>
                     </li>
-                  </ul>
+                  </ul> */}
                 </li>
+                <li>
+                  <button
+                    className="exhibitordashboard-header-menu-tab"
+                    onClick={() => handleImportantClick("Rules")}
+                  >
+                    Rules & Policy
+                  </button>
+                </li>
+
                 <li>
                   <button
                     className="exhibitordashboard-header-menu-tab"
@@ -3322,6 +3455,15 @@ const ExhibitorDashboard = () => {
                     Guidelines
                   </button>
                 </li>
+                <li>
+                  <button
+                    className="exhibitordashboard-header-menu-tab"  
+                    onClick={() => handleImportantPaymentClick("Payment")}
+                  >
+                    Payments
+                  </button>
+                </li>
+                
               </ul>
             </header>
           </div>
@@ -3419,6 +3561,9 @@ const ExhibitorDashboard = () => {
                     activities={activities}
                     stallList={stallList}
                     powerData={powerData}
+                    companyRemarks={companyRemarks}
+                    loadingRemarks={loadingRemarks}
+                    remarkError={remarkError}
                     getExhibitorBadgeBilling={getExhibitorBadgeBilling}
                     currentExhibitor={currentExhibitor}
                   />
@@ -3572,15 +3717,17 @@ const ExhibitorDashboard = () => {
 
               {!importantPage && activeMenu === "Profile" && (
                 <ExhibitorProfile
-                  exhibitors={exhibitors}
-                  stallList={stallList}
-                  brandsData={brandsData}
-                  setBrandsData={setBrandsData}
-                  products={products}
-                  showBrandsEditForm={showBrandsEditForm}
-                  handleSubmitBrands={handleSubmitBrands}
-                  handleEditBrands={handleEditBrands}
-                />
+  exhibitors={exhibitors}
+  stallList={stallList}
+  brandsData={brandsData}
+  setBrandsData={setBrandsData}
+  products={products}
+  hasBrandsData={hasBrandsData}
+  isEditMode={isEditMode}
+  setIsEditMode={setIsEditMode}
+  handleSubmitBrands={handleSubmitBrands}
+  handleEditBrands={() => setIsEditMode(true)}
+/>
               )}
 
               {importantPage === "Furniture Requirements" && (

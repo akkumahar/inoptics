@@ -8398,49 +8398,79 @@ const normalized = data.records.map((r, idx) => ({
   };
 
   const saveExhibitorInstruction = async () => {
-    if (!instructionEditorData.trim()) {
-      alert("Instruction content cannot be empty.");
+  if (!instructionEditorData.trim()) {
+    alert("Instruction content cannot be empty.");
+    return;
+  }
+
+  const isEditing = editInstructionId !== null;
+
+  const endpoint = isEditing
+    ? "https://inoptics.in/api/update_exhibitor_instruction.php"
+    : "https://inoptics.in/api/add_exhibitor_instruction.php";
+
+  const payload = isEditing
+    ? { id: editInstructionId, content: instructionEditorData }
+    : { content: instructionEditorData };
+
+  try {
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+    console.log("API Response:", data);
+
+    if (!data.success && isEditing) {
+      alert(data.message || "Update failed");
       return;
     }
 
-    const endpoint =
-      editingIndex !== null
-        ? "https://inoptics.in/api/update_exhibitor_instruction.php"
-        : "https://inoptics.in/api/add_exhibitor_instruction.php";
+    setInstructionModalOpen(false);
+    setInstructionEditorData("");
+    setEditingIndex(null);
+    setEditInstructionId(null);
+    fetchExhibitorInstructions();
 
-    try {
-      await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: instructionEditorData }),
-      });
-      setInstructionModalOpen(false);
-      setInstructionEditorData("");
-      setEditingIndex(null);
-      setEditInstructionId(null);
-      fetchExhibitorInstructions();
-    } catch (err) {
-      console.error("Failed to save instruction", err);
-    }
-  };
+  } catch (err) {
+    console.error("Failed to save instruction", err);
+  }
+};
 
   const deleteExhibitorInstruction = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this instruction?",
-    );
-    if (!confirmDelete) return;
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this instruction?"
+  );
+  if (!confirmDelete) return;
 
-    try {
-      await fetch("https://inoptics.in/api/delete_exhibitor_instruction.php", {
+  try {
+    const res = await fetch(
+      "https://inoptics.in/api/delete_exhibitor_instruction.php",
+      {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "delete_latest" }),
-      });
-      fetchExhibitorInstructions();
-    } catch (err) {
-      console.error("Failed to delete instruction", err);
+        body: JSON.stringify({ id }),   // ✅ correct
+      }
+    );
+
+    const data = await res.json();
+    console.log("Delete Response:", data);
+
+    if (!data.success) {
+      alert(data.message || "Delete failed");
+      return;
     }
-  };
+
+    fetchExhibitorInstructions();
+
+  } catch (err) {
+    console.error("Failed to delete instruction", err);
+  }
+};
+
+
 
   useEffect(() => {
     fetchExhibitorRules();
@@ -16129,15 +16159,20 @@ const fetchCompanyRemarks = async () => {
                     {/* Top Header */}
                     <div className="form-overlay-header">
                       <span>
-                        {isViewOnly
-                          ? `View: ${formData.company_name}${
-                              formData.state ? `, ${formData.state}` : ""
-                            }`
-                          : showExhibitorEditForm
-                            ? `${formData.company_name}${
+                        {showTermsDeclaration
+                          ? ` ${selectedCompanyName}`
+                          : isViewOnly
+
+                            ? `View: ${formData.company_name}${
                                 formData.state ? `, ${formData.state}` : ""
                               }`
-                            : "New Exhibitor Request"}
+                            : showExhibitorEditForm
+                              ? `${formData.company_name}${
+                                  formData.state ? `, ${formData.state}` : ""
+                                }`
+                              : "New Exhibitor Request"}
+
+                            
                       </span>
                       <button
                         className="cancel-button-top"
@@ -26472,6 +26507,12 @@ const pending = total - received;
                           Mails
                         </a>
                       </li>
+
+
+
+
+
+
                       <li className="dropdown-parent">
                         <a
                           className="header-menu-tab"
@@ -26482,9 +26523,9 @@ const pending = total - received;
                           }}
                         >
                           <span className="icon fontawesome-envelope scnd-font-color"></span>
-                          Important
+                          Important Instructions
                         </a>
-                        <ul className="dropdown-submenu">
+                        {/* <ul className="dropdown-submenu">
                           <li>
                             <button
                               onClick={() =>
@@ -26501,7 +26542,19 @@ const pending = total - received;
                               Rules & Policy
                             </button>
                           </li>
-                        </ul>
+                        </ul> */}
+                      </li>
+
+
+                      <li>
+                        <a
+                          className="header-menu-tab"
+                          href="#2"
+                          onClick={() => handleImportantClick("Rules")}
+                        >
+                          <span className="icon fontawesome-user scnd-font-color"></span>{" "}
+                          Rules & Policy
+                        </a>
                       </li>
                       <li>
                         <a
@@ -27951,6 +28004,7 @@ const pending = total - received;
                                   "Exhibitor Contractor Unlock Request",
                                   "Electrical Vendor Power Requirement",
                                   "Stall Balance Payment",
+                                  "Remark Mail",
                                 ].map((place) => (
                                   <label key={place}>
                                     <input
@@ -28072,6 +28126,7 @@ const pending = total - received;
                                   "Exhibitor Contractor Unlock Request",
                                   "Electrical Vendor Power Requirement",
                                   "Stall Balance Payment",
+                                  "Remark Mail",
                                 ].map((place) => (
                                   <label key={place}>
                                     <input
@@ -33014,6 +33069,7 @@ const pending = total - received;
                             "Email",
                             "Secondary Email",
                             "GST",
+                            "Password",
                           ]
                         : showStallExport
                           ? [

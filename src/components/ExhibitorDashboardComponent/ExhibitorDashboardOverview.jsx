@@ -11,6 +11,9 @@ const ExhibitorDashboardOverview = ({
   activities,
   stallList,
   powerData,
+  companyRemarks,
+  loadingRemarks,
+  remarkError,
 }) => {
   if (importantPage || activeMenu !== "Dashboard" || !exhibitorData) {
     return null;
@@ -41,6 +44,12 @@ const ExhibitorDashboardOverview = ({
 
     return { amount, sgst, cgst, igst, grand };
   };
+
+  
+
+
+
+
 
   return (
     <div className="exhibitordashboard-content">
@@ -77,7 +86,7 @@ const ExhibitorDashboardOverview = ({
             </div>
 
             <div className="exhibitordashboard-card-flex">
-              <div className="exhibitordashboard-card">
+              {/* <div className="exhibitordashboard-card">
                 <h3>Latest News</h3>
                 {latestNewsData.map((n, i) => (
                   <div key={i} className="news-item">
@@ -86,9 +95,9 @@ const ExhibitorDashboardOverview = ({
                     {n.news_link && <a href={n.news_link}>Read more →</a>}
                   </div>
                 ))}
-              </div>
+              </div> */}
 
-              {/* EVENT */}
+            
               <div className="exhibitordashboard-card">
                 <h3>Event Schedule</h3>
                 <div
@@ -98,10 +107,40 @@ const ExhibitorDashboardOverview = ({
                 />
               </div>
             </div>
+
+
+            <div className="remarks-container ">
+              <p>Remarks</p>
+
+  {loadingRemarks && <p className="remarks-loading">Loading remarks...</p>}
+
+  {remarkError && (
+    <p className="remarks-error">{remarkError}</p>
+  )}
+
+  {!loadingRemarks && companyRemarks.length === 0 && (
+    <p className="remarks-empty">No remarks available.</p>
+  )}
+
+  {companyRemarks.length > 0 && (
+    <ul className="remarks-list">
+      {companyRemarks.map((remark) => (
+        <li key={remark.id} className="remark-card">
+          <p className="remark-text">{remark.remark}</p>
+        </li>
+      ))}
+    </ul>
+  )}
+
+</div>
+
+
+
+
           </div>
 
           {/* ================= STALL ================= */}
-          <div className="exhibitordashboard-card table-scroll-wrap">
+          {/* <div className="exhibitordashboard-card table-scroll-wrap">
             <h3 className="particular-heading-center">Stalls Payments Review</h3>
 
             <table className="stall-payment-table">
@@ -141,7 +180,7 @@ const ExhibitorDashboardOverview = ({
               </tbody>
             </table>
 
-            {/* ✅ Mobile Stall Cards */}
+            
             <div className="stall-mobile-cards">
               {stallList.map((stall, i) => (
                 <div key={i} className="stall-m-card">
@@ -201,10 +240,10 @@ const ExhibitorDashboardOverview = ({
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
 
           {/* ================= POWER ================= */}
-          <div className="exhibitordashboard-card table-scroll-wrap">
+          {/* <div className="exhibitordashboard-card table-scroll-wrap">
             <h3 className="particular-heading-center">Power Payments Review</h3>
 
             <table className="stall-payment-table">
@@ -245,7 +284,7 @@ const ExhibitorDashboardOverview = ({
               </tbody>
             </table>
 
-            {/* ✅ MOBILE ONLY POWER CARD */}
+            
             <div className="power-mobile-only">
               {(() => {
                 const setupRows = powerData.filter((p) =>
@@ -338,10 +377,10 @@ const ExhibitorDashboardOverview = ({
                 );
               })()}
             </div>
-          </div>
+          </div> */}
 
           {/* ================= BADGES ================= */}
-          <div className="exhibitordashboard-card table-scroll-wrap">
+          {/* <div className="exhibitordashboard-card table-scroll-wrap">
             <h3 className="particular-heading-center">Badges Payments Review</h3>
 
             {(() => {
@@ -354,7 +393,7 @@ const ExhibitorDashboardOverview = ({
 
               return (
                 <>
-                  {/* ===== DESKTOP TABLE ===== */}
+                 
                   <table className="stall-payment-table">
                     <thead>
                       <tr>
@@ -385,7 +424,7 @@ const ExhibitorDashboardOverview = ({
                     </tbody>
                   </table>
 
-                  {/* ===== MOBILE CARD ===== */}
+                  
                   <div className="badge-mobile-only">
                     <div className="badge-m-card">
                       <div className="bm-row">
@@ -430,7 +469,7 @@ const ExhibitorDashboardOverview = ({
                 </>
               );
             })()}
-          </div>
+          </div> */}
 
           {/* EVENT */}
           <div className="exhibitordashboard-card only-for-desktop-version">
@@ -468,7 +507,7 @@ const ExhibitorDashboardOverview = ({
           </div>
 
           {/* NEWS */}
-          <div className="exhibitordashboard-card only-for-desktop-version">
+          {/* <div className="exhibitordashboard-card only-for-desktop-version">
             <h3>Latest News</h3>
             {latestNewsData.map((n, i) => (
               <div key={i} className="news-item">
@@ -477,7 +516,32 @@ const ExhibitorDashboardOverview = ({
                 {n.news_link && <a href={n.news_link}>Read more →</a>}
               </div>
             ))}
-          </div>
+          </div> */}
+
+          <div className="remarks-container only-for-desktop-version">
+            <p>Remarks</p>
+
+  {loadingRemarks && <p className="remarks-loading">Loading remarks...</p>}
+
+  {remarkError && (
+    <p className="remarks-error">{remarkError}</p>
+  )}
+
+  {!loadingRemarks && companyRemarks.length === 0 && (
+    <p className="remarks-empty">No remarks available.</p>
+  )}
+
+  {companyRemarks.length > 0 && (
+    <ul className="remarks-list">
+      {companyRemarks.map((remark) => (
+        <li key={remark.id} className="remark-card">
+          <p className="remark-text">{remark.remark}</p>
+        </li>
+      ))}
+    </ul>
+  )}
+
+</div>
         </div>
       </div>
     </div>

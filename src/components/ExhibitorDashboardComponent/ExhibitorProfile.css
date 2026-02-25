@@ -74,234 +74,117 @@
 /* =========================================
    BRANDS FORM
    ========================================= */
+/* ================= FORM WRAPPER ================= */
 
 .brands-form {
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
+  background: #f9fafc;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 500px;
+  margin: 0 auto;
 }
 
-.brands-heading {
-  font-family: "Montserrat";
-  font-weight: 300;
-  font-size: 32px;
-  margin-bottom: 16px;
-  color: #201d1d;
-}
+/* ================= GRID ================= */
 
-.brands-input-row {
+.brands-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 14px;
-  width: 100%;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 16px;
 }
+
+/* ================= FIELD GROUP ================= */
 
 .brands-field-group {
   display: flex;
   flex-direction: column;
-  width: 100%;
 }
 
 .brands-field-group label {
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-
-.brands-field-group input,
-.brands-field-group select {
-  width: 100%;
-  min-width: 0;
-  padding: 10px 14px;
-  border: 1px solid #ccc;
-  border-radius: 40px;
-  font-size: 14px;
-  box-sizing: border-box;
-}
-
-
-/* products chips */
-
-.selected-products-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.selected-product {
-  padding: 6px 10px;
-  border-radius: 20px;
   font-size: 13px;
-  display: flex;
-  gap: 6px;
-  align-items: center;
+  font-weight: 500;
+  margin-bottom: 5px;
+  color: #333;
 }
-
-.remove-icon {
-  cursor: pointer;
-}
-
-/* =========================================
-   BRANDS — RESPONSIVE GRID PATCH
-   (append at end only)
-   ========================================= */
-
-.brands-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  width: 100%;
-}
-
-.brands-col {
-  min-width: 0;
-}
-
-.brands-col-full {
-  grid-column: span 2;
-}
-
-/* buttons row spacing */
-.brands-btn-row {
-  margin-top: 16px;
-}
-
-
-/* =========================================
-   TABLET — STACK TO SINGLE COLUMN
-   ========================================= */
-
-@media (max-width: 900px) {
-
-  .brands-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .brands-col-full {
-    grid-column: span 1;
-  }
-
-  /* ensure form never shrinks */
-  .brands-form,
-  .brands-view-card {
-    width: 100%;
-    max-width: 100%;
-  }
-}
-
-
-
-/* =========================================
-   BRANDS — IMAGE STYLE (NO ICON VERSION)
-   ========================================= */
-
-.brands-card-root {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-
-/* heading */
-
-.brands-heading {
-  font-size: 38px;
-  font-weight: 700;
-  margin-bottom: 22px;
-  color: #1f2937;
-}
-
-/* grid layout */
-
-.brands-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 22px;
-  width: 100%;
-}
-
-.brands-col {
-  min-width: 0;
-}
-
-.brands-col-full {
-  grid-column: span 2;
-}
-
-/* labels */
-
-.brands-field-group label {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  display: block;
-}
-
-/* inputs */
 
 .brands-field-group input,
 .brands-field-group select {
-  width: 100%;
-  padding: 16px 18px;
-  border-radius: 22px;
-  border: 1px solid #9ec5e8;
-  font-size: 16px;
-  background: rgba(255,255,255,0.6);
-  backdrop-filter: blur(4px);
-  outline: none;
-  transition: all .2s ease;
-  box-sizing: border-box;
+  padding: 7px 9px;
+  border-radius: 6px;
+  border: 1px solid #d6d6d6;
+  font-size: 13px;
+  background: #fff;
 }
 
 .brands-field-group input:focus,
 .brands-field-group select:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 4px rgba(59,130,246,.15);
-  background: rgba(255,255,255,0.85);
+  border-color: #1976d2;
+  outline: none;
 }
 
-/* products chips */
-
-.selected-products-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 10px;
-}
+/* ================= PRODUCTS TAG STYLE ================= */
 
 .selected-product {
-  padding: 6px 12px;
-  border-radius: 18px;
-  background: rgba(59,130,246,.12);
-  font-size: 13px;
+  background: #eef3f8;
+  padding: 5px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  margin-bottom: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  width: fit-content;
+  gap: 6px;
 }
 
 .remove-icon {
   cursor: pointer;
-  margin-left: 6px;
+  font-size: 11px;
+  color: #d11a2a;
 }
 
-/* submit button */
+/* ================= BUTTONS ================= */
+
+.brands-btn-row {
+  margin-top: 18px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
 
 .brands-details-add-brands-btn {
-  width: 100%;
-  margin-top: 26px;
-  padding: 18px;
-  border-radius: 24px;
+  padding: 7px 18px;
+  font-size: 13px;
+  border-radius: 6px;
   border: none;
-  font-size: 20px;
-  font-weight: 600;
+  background: #1976d2;
   color: #fff;
   cursor: pointer;
-
-  background: linear-gradient(90deg,#2b6cb0,#3b82f6);
-  box-shadow: 0 12px 30px rgba(59,130,246,.35);
-  transition: .25s ease;
 }
 
-.brands-details-add-brands-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 40px rgba(59,130,246,.45);
+.cancel-btn {
+  padding: 7px 14px;
+  font-size: 13px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #fff;
+  cursor: pointer;
 }
 
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+  .brands-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .brands-form {
+    padding: 16px;
+  }
+
+  .brands-btn-row {
+    justify-content: center;
+  }
+}
 /* =========================================
    VIEW MODE
    ========================================= */
