@@ -7,11 +7,14 @@ import {
   FaTachometerAlt,
   FaUser,
   FaClipboardList,
-  FaHardHat,
   FaMoneyBill,
   FaSignOutAlt,
   FaEnvelope,
   FaLongArrowAltLeft,
+  FaRegIdBadge,
+  FaRegHandshake,
+  FaIdCard,
+  FaBolt,
 } from "react-icons/fa";
 import "./ExhibitorDashboard.css";
 import ExhibitorBadgeForm from "./ExhibitorBadgeForm";
@@ -23,6 +26,7 @@ import ExhibitorMailbox from "./ExhibitorDashboardComponent/ExhibitorMailBox";
 import ExhibitorFurnitureRequirements from "./ExhibitorDashboardComponent/ExhibitorFurnitureRequirements";
 import ExhibitorPowerRequirement from "./ExhibitorDashboardComponent/ExhibitorPowerRequirement";
 import ExhibitorContractors from "./ExhibitorDashboardComponent/ExhibitorContractors";
+import ContractorBadgeForm from "./ExhibitorDashboardComponent/ContractorBadgeForm";
 
 const ExhibitorDashboard = () => {
   const navigate = useNavigate();
@@ -320,9 +324,11 @@ const [isEditMode, setIsEditMode] = useState(false);
     { name: "Dashboard", icon: <FaTachometerAlt /> },
     { name: "Profile", icon: <FaUser /> },
     { name: "Mails Inbox", icon: <FaEnvelope /> },
-    { name: "Additional Requirements", icon: <FaClipboardList /> },
-    { name: "Contractors", icon: <FaHardHat /> },
-    { name: "Exhibitor Badges", icon: <FaHardHat /> },
+    { name: "Additional Furniture", icon: <FaClipboardList /> },
+    { name: "Additional Power", icon: <FaBolt /> },
+    { name: "Contractors", icon: <FaRegHandshake  /> },
+    { name: "Exhibitor Badges", icon: <FaRegIdBadge  /> },
+    { name: "Contractor Badges", icon: <FaIdCard   /> },
     { name: "Payment", icon: <FaMoneyBill /> },
   ];
 
@@ -3579,6 +3585,8 @@ const fetchCompanyRemarks = async () => {
                 />
               )}
 
+              
+
               {importantPage === "Instructions" && (
                 <div className="ExhibitorInstruction-instruction-container">
                   <div className="ExhibitorInstruction-instruction-header">
@@ -3730,7 +3738,7 @@ const fetchCompanyRemarks = async () => {
 />
               )}
 
-              {importantPage === "Furniture Requirements" && (
+              {activeMenu === "Additional Furniture" && (
                 <ExhibitorFurnitureRequirements
                   furnitureData={furnitureData}
                   selectedFurniture={selectedFurniture}
@@ -3749,9 +3757,9 @@ const fetchCompanyRemarks = async () => {
                 />
               )}
 
-              {importantPage === "Power Requirement" && currentExhibitor && (
+               {activeMenu === "Additional Power"  && currentExhibitor && (
                 <>
-                  <ExhibitorPowerRequirement
+                  <ExhibitorPowerRequirement  
                     currentExhibitor={currentExhibitor}
                     exhibitorPricePerKw={exhibitorPricePerKw}
                     isViewOnly={isViewOnly}
@@ -3847,6 +3855,16 @@ const fetchCompanyRemarks = async () => {
                   setHasUnlockedBadge={setHasUnlockedBadge}
                 />
               )}
+
+              {activeMenu === "Contractor Badges" && currentExhibitor &&(
+                <ContractorBadgeForm
+                exhibitorCompany={currentExhibitor.company_name}
+                  setIsInExhibitorBadges={setIsInExhibitorBadges}
+                  setHasGeneratedBadge={setHasGeneratedBadge}
+                  setHasUnlockedBadge={setHasUnlockedBadge}
+                />
+              )}
+
 
               {!importantPage && activeMenu === "Payment" && (
                 <ExhibitorPayments

@@ -103,8 +103,12 @@ onFinalSubmit,
             <li>Ensure proper wiring is used.</li>
             <li>Thank you for your cooperation.</li>
           </ul>
-        </div>
-      </div>
+       
+
+
+
+
+
 
       {/* ================= TABLE + BILLING ================= */}
 
@@ -271,6 +275,11 @@ onFinalSubmit,
           </div>
         </div>
       </div>
+
+       </div>
+
+      </div>
+
     </>
   );
 };

@@ -11,7 +11,7 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 170px;
+  gap: 20px;
   flex-wrap: wrap;
   width: 70vw;
   margin-left: 50px;
@@ -250,6 +250,7 @@
 /* Table Section */
 .Exhibitor-power-requirement-below-section {
   display: flex;
+  flex-direction: column;
   gap: 45px;
   margin-top: 40px;
   width: 62vw;

@@ -154,7 +154,7 @@ const getStepMobileMarginClass = () => {
                       <th>City</th>
                       <th>Phn/Mob No</th>
                       <th>Email</th>
-                      {/* <th>Action</th> */}
+                      <th>Action</th>
                     </tr>
                   </thead>
 
@@ -176,7 +176,7 @@ const getStepMobileMarginClass = () => {
 
                         <td className="d-only">{contractor.email}</td>
 
-                        {/* <td className="d-only">
+                        <td className="d-only">
           {selectedContractorId === contractor.id ? (
             <button
               className="ExhibitorContractors-unselect-btn"
@@ -196,7 +196,7 @@ const getStepMobileMarginClass = () => {
               Select
             </button>
           )}
-        </td> */}
+        </td>
 
                         {/* ===== MOBILE CARD ===== */}
                         <td className="m-only" colSpan="7">

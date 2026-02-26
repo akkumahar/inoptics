@@ -61,6 +61,7 @@ import AdminBadges from "./List/AdminBadges";
 import ExhibitorForms from "./List/ExhibitorForms";
 import PowerVendor from "./List/PowerVendor";
 import FurnitureVendor from "./List/FurnitureVendor";
+import ContractorBadgeAdmin from "./List/ContractorBadgeAdmin";
 // import { useMemo } from 'react';
 
 const AdminDashboard = () => {
@@ -16094,18 +16095,31 @@ const fetchCompanyRemarks = async () => {
                                 >
                                   <FontAwesomeIcon icon={faTrash} />
                                 </button>
-
                                 <button
-                                  onClick={() => {
-                                    setSelectedCompanyName(item.company_name); // ✅ company store karo
-                                    setShowTermsDeclaration(true);
-                                    setHideMainDashboard(true);
-                                  }}
-                                  className="action-btn terms-btn"
-                                  title="Terms"
-                                >
-                                  <FontAwesomeIcon icon={faFileAlt} />
-                                </button>
+  onClick={() => {
+    setSelectedCompanyName(item.company_name);
+    setShowTermsDeclaration(true);
+    setHideMainDashboard(true);
+  }}
+  title="Terms"
+  style={{
+    backgroundColor:
+      Number(item.undertaking_accepted) === 1
+        ? "#fbc02d"   // Yellow (Accepted)
+        : "#1976d2",  // Blue (Not Accepted)
+    color:
+      Number(item.undertaking_accepted) === 1
+        ? "#000"
+        : "#fff",
+    padding: "6px 12px",
+    border: "none",
+    borderRadius: "4px",
+    cursor: "pointer",
+    transition: "all 0.3s ease"
+  }}
+>
+  <FontAwesomeIcon icon={faFileAlt} />
+</button>
 
                                 <button
                                   className="action-btn view-btn"
@@ -25567,6 +25581,7 @@ const pending = total - received;
                     "Undertaking & Registration Fees",
                     "Guidelines For Construction",
                     "Unlock Exhibitors",
+                    'Contractor Badges',
                   ].map((tab) => (
                     <li
                       key={tab}
@@ -25583,6 +25598,12 @@ const pending = total - received;
 
               {/* Contractor Content */}
               <div className="contractor-tab-content">
+                {activeContractorTab === "Contractor Badges" && (
+                  <>
+                    <ContractorBadgeAdmin />
+                  </>
+                )}
+
                 {activeContractorTab === "Unlock Exhibitors" && (
                   <>
                     <div className="table-scroll-wrapper">

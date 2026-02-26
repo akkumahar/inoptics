@@ -1,0 +1,120 @@
+/* ================= WRAPPER ================= */
+.table-scroll-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  padding: 10px 0;
+}
+
+/* ================= CONTAINER CARD ================= */
+.contractor-table-container {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 20px;
+  min-width: 900px;
+}
+
+/* ================= TABLE ================= */
+.contractor-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.contractor-table thead {
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  color: #fff;
+}
+
+.contractor-table th {
+  padding: 14px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.contractor-table td {
+  padding: 12px;
+  font-size: 14px;
+  color: #333;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* ================= ROW HOVER ================= */
+.contractor-table tbody tr:hover {
+  background: #f8fbff;
+  transition: 0.2s ease;
+}
+
+/* ================= STATUS BADGES ================= */
+.status-locked {
+  background: #ffe5e5;
+  color: #d10000;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-unlocked {
+  background: #e6f9f0;
+  color: #009e60;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ================= BUTTON ================= */
+.unlock-btn {
+  background: #1e3c72;
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: 0.2s ease;
+}
+
+.unlock-btn:hover {
+  background: #16325c;
+}
+
+.unlock-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 1024px) {
+  .contractor-table-container {
+    padding: 15px;
+    min-width: 700px;
+  }
+}
+
+@media (max-width: 768px) {
+  .contractor-table-container {
+    padding: 12px;
+    min-width: 600px;
+  }
+
+  .contractor-table th,
+  .contractor-table td {
+    font-size: 13px;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .contractor-table-container {
+    padding: 10px;
+    min-width: 550px;
+  }
+
+  .contractor-table th,
+  .contractor-table td {
+    font-size: 12px;
+    padding: 8px;
+  }
+}

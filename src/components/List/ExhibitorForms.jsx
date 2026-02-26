@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
-import { FaEye, FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { FaEye, FaChevronDown, FaChevronUp, FaTrash  } from "react-icons/fa";
 import "./ExhibitorForms.css";
 
 const SITE = "https://inoptics.in";
@@ -13,24 +13,67 @@ const ExhibitorForms = () => {
 
   /* ================= FETCH ================= */
   useEffect(() => {
-    fetch(`${SITE}/api/get_contractor_form_history.php`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.success && Array.isArray(data.data)) {
-          setRows(data.data);
+  fetchHistory();
+}, []);
 
-          if (data.data.length) {
-            setOpenCompany({
-              [data.data[0].company_name]: true
-            });
-          }
-        } else {
-          toast.error("History load failed");
-        }
-      })
-      .catch(() => toast.error("Server error"))
-      .finally(() => setLoading(false));
-  }, []);
+  const fetchHistory = async () => {
+  try {
+    setLoading(true);
+
+    const res = await fetch(
+      `${SITE}/api/get_contractor_form_history.php`
+    );
+
+    const data = await res.json();
+
+    if (data.success && Array.isArray(data.data)) {
+      setRows(data.data);
+
+      if (data.data.length) {
+        setOpenCompany({
+          [data.data[0].company_name]: true,
+        });
+      }
+    } else {
+      toast.error("History load failed");
+    }
+  } catch (error) {
+    toast.error("Server error");
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
+
+  const handleDelete = async (id) => {
+  if (!window.confirm("Are you sure you want to delete this form?"))
+    return;
+
+  try {
+    const res = await fetch(
+      "https://inoptics.in/api/delete_contractor_form_history.php",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      }
+    );
+
+    const data = await res.json();
+
+    if (data.status === "success") {
+      alert("Deleted successfully");
+      fetchHistory(); // 🔥 TABLE REFRESH
+    } else {
+      alert("Delete failed");
+    }
+  } catch (err) {
+    console.error("Delete error:", err);
+  }
+};
+
 
   /* ================= GROUP ================= */
   const grouped = useMemo(() => {
@@ -52,6 +95,9 @@ const ExhibitorForms = () => {
       [name]: !prev[name]
     }));
   };
+
+
+
 
   /* ================= FILE URL ================= */
 const buildFileUrl = (path) => {
@@ -109,6 +155,7 @@ const buildFileUrl = (path) => {
                     <th>Status</th>
                     <th>Reject Reason</th>
                     <th>Created</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
 
@@ -120,45 +167,57 @@ const buildFileUrl = (path) => {
 
                     return (
                       <tr key={r.id}>
-                        <td>{r.company_name || "—"}</td>
+  <td>{r.company_name || "—"}</td>
 
-                        <td style={{ textTransform: "capitalize" }}>
-                          {(r.form_type || "").replace("_"," ")}
-                        </td>
+  <td style={{ textTransform: "capitalize" }}>
+    {(r.form_type || "").replace("_", " ")}
+  </td>
 
-                        <td className="mono">{fileName}</td>
+  <td className="mono">{fileName}</td>
 
-                        <td>
-                          {r.file_path ? (
-                            <a
-                              href={fileUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="view-link"
-                            >
-                              <FaEye /> View
-                            </a>
-                          ) : "—"}
-                        </td>
+  <td>
+    {r.file_path ? (
+      <a
+        href={fileUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="view-link"
+      >
+        <FaEye /> View
+      </a>
+    ) : "—"}
+  </td>
 
-                        <td>
-                          <span className={
-                            r.approval_status === "approved"
-                              ? "status-approved"
-                              : "status-rejected"
-                          }>
-                            {r.approval_status || "—"}
-                          </span>
-                        </td>
+  <td>
+    <span
+      className={
+        r.approval_status === "approved"
+          ? "status-approved"
+          : "status-rejected"
+      }
+    >
+      {r.approval_status || "—"}
+    </span>
+  </td>
 
-                        <td>{r.reject_reason || "—"}</td>
+  <td>{r.reject_reason || "—"}</td>
 
-                        <td>
-                          {r.created_at
-                            ? new Date(r.created_at).toLocaleString()
-                            : "—"}
-                        </td>
-                      </tr>
+  <td>
+    {r.created_at
+      ? new Date(r.created_at).toLocaleString()
+      : "—"}
+  </td>
+
+  {/* 🔥 ACTION COLUMN */}
+  <td>
+    <button
+      className="delete-btn"
+      onClick={() => handleDelete(r.id)}
+    >
+      <FaTrash />
+    </button>
+  </td>
+</tr>
                     );
                   })}
                 </tbody>
