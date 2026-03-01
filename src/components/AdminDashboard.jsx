@@ -64,6 +64,7 @@ import FurnitureVendor from "./List/FurnitureVendor";
 import ContractorBadgeAdmin from "./List/ContractorBadgeAdmin";
 import ContractorStepsUnlockAdmin from "./List/ContractorStepsUnlockAdmin";
 import FinalContractorListTable from "./List/FinalContractorListTable";
+import FasciaNameAdmin from "./List/FasciaNameAdmin";
 // import { useMemo } from 'react';
 
 const AdminDashboard = () => {
@@ -13335,6 +13336,9 @@ const AdminDashboard = () => {
           <li onClick={() => openOverlay("Promotes Your Brands")}>
             <FaBullhorn /> {!collapsed && "Promotes Your Brands"}{" "}
           </li>
+          <li onClick={() => openOverlay("Fascia Name")}>
+            <FaBullhorn /> {!collapsed && "Fascia Name"}{" "}
+          </li>
           <li onClick={() => setShowFormsMenu(!showFormsMenu)}>
             <FaWpforms /> {!collapsed && "Forms"}
           </li>
@@ -24352,6 +24356,11 @@ const AdminDashboard = () => {
                   </div>
                 </div>
               )}
+            </>
+          )}
+          {overlayContent === "Fascia Name" && (
+            <>
+             <FasciaNameAdmin />             
             </>
           )}
 

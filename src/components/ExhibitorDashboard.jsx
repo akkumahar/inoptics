@@ -332,7 +332,7 @@ const [unlockStatus, setUnlockStatus] = useState({});
     { name: "Mails Inbox", icon: <FaEnvelope /> },
     { name: "Additional Furniture", icon: <FaClipboardList /> },
     { name: "Additional Power", icon: <FaBolt /> },
-    { name: "Contractors", icon: <FaRegHandshake  /> },
+    { name: "Mandatory Forms", icon: <FaRegHandshake  /> },
     { name: "Exhibitor Badges", icon: <FaRegIdBadge  /> },
     { name: "Contractor Badges", icon: <FaIdCard   /> },
     { name: "Fascia Name", icon: <FaIdCard   /> },
@@ -341,61 +341,111 @@ const [unlockStatus, setUnlockStatus] = useState({});
 
   // ✅ Load login data
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isExhibitorLoggedIn");
+  const isLoggedIn = localStorage.getItem("isExhibitorLoggedIn");
 
-    if (!isLoggedIn) {
-      navigate("/exhibitor-login");
-    } else {
-      const data = localStorage.getItem("exhibitorInfo");
-      if (data && data !== "undefined" && data !== "null") {
-        try {
-          const parsedData = JSON.parse(data);
-          setExhibitorData(parsedData);
+  if (!isLoggedIn) {
+    navigate("/exhibitor-login");
+    return;
+  }
 
-          // 🔹 Check undertaking status
+  const data = localStorage.getItem("exhibitorInfo");
+
+  if (!data || data === "undefined" || data === "null") return;
+
+  try {
+    const parsedData = JSON.parse(data);
+    setExhibitorData(parsedData);
+
+    const companyName = parsedData.company_name;
+
+    /* ================= UNDERTAKING STATUS ================= */
+    fetch(
+      `https://inoptics.in/api/get_undertaking_status.php?company_name=${encodeURIComponent(
+        companyName
+      )}`
+    )
+      .then((res) => res.json())
+      .then((statusData) => {
+        if (!statusData.undertaking_accepted) {
+          setShowDeclaration(true);
+
           fetch(
-            `https://inoptics.in/api/get_undertaking_status.php?company_name=${encodeURIComponent(
-              parsedData.company_name,
-            )}`,
+            "https://inoptics.in/api/get_exhibitor_declaration_undertaking.php"
           )
             .then((res) => res.json())
-            .then((statusData) => {
-              if (!statusData.undertaking_accepted) {
-                setShowDeclaration(true);
-
-                // 🔹 Fetch declaration + undertaking points from backend
-                fetch(
-                  "https://inoptics.in/api/get_exhibitor_declaration_undertaking.php",
-                )
-                  .then((res) => res.json())
-                  .then((declData) => {
-                    if (Array.isArray(declData)) {
-                      setDeclarationUndertakingData(declData);
-                    }
-                  })
-                  .catch((err) =>
-                    console.error("Error fetching declaration:", err),
-                  );
-              } else {
-                // ✅ Mark activity as done if already accepted
-                setActivities((prev) =>
-                  prev.map((act) =>
-                    act.name === "UNDERTAKING AGREED"
-                      ? { ...act, done: true }
-                      : act,
-                  ),
-                );
+            .then((declData) => {
+              if (Array.isArray(declData)) {
+                setDeclarationUndertakingData(declData);
               }
             })
             .catch((err) =>
-              console.error("Error fetching undertaking status:", err),
+              console.error("Error fetching declaration:", err)
             );
-        } catch (err) {
-          console.error("Invalid JSON in exhibitorInfo:", err);
+        } else {
+          setActivities((prev) =>
+            prev.map((act) =>
+              act.name === "UNDERTAKING AGREED"
+                ? { ...act, done: true }
+                : act
+            )
+          );
         }
-      }
+      })
+      .catch((err) =>
+        console.error("Error fetching undertaking status:", err)
+      );
+
+    /* ================= BADGE STATUS ================= */
+    fetchcontractorBadgeStatus(companyName);
+
+  } catch (err) {
+    console.error("Invalid JSON in exhibitorInfo:", err);
+  }
+}, [navigate]);
+
+
+useEffect(() => {
+  if (exhibitorData?.company_name) {
+    fetchcontractorBadgeStatus(exhibitorData.company_name);
+  }
+}, [exhibitorData]);
+
+
+
+ const fetchcontractorBadgeStatus = async (companyName) => {
+  try {
+    const res = await fetch(
+      `https://inoptics.in/api/get_all_contractor_badges.php?exhibitor_company_name=${encodeURIComponent(
+        companyName
+      )}`
+    );
+
+    const badgeData = await res.json();
+
+    if (!badgeData.success) return;
+
+    const badgeSubmitted = badgeData.badge_submitted;
+    const isLocked = badgeData.is_locked;
+
+    // ✅ Condition: badge submitted OR unlocked
+    if (badgeSubmitted || isLocked === 0) {
+
+      setActivities((prev) =>
+        prev.map((act) =>
+          act.name === "APPOINTED CONTRACTOR & BADGES"
+            ? { ...act, done: true }
+            : act
+        )
+      );
+
     }
-  }, [navigate]);
+
+  } catch (err) {
+    console.error("Error fetching contractor badge status:", err);
+  }
+};
+
+
 
   // ✅ Accept undertaking
   const handleAgree = async () => {
@@ -434,6 +484,13 @@ const [unlockStatus, setUnlockStatus] = useState({});
     localStorage.removeItem("exhibitorInfo");
     navigate("/exhibitor-login");
   };
+
+
+
+  
+
+
+
 
   const handleImportantClick = (page) => {
     setImportantPage(page);
@@ -1850,6 +1907,7 @@ const [unlockStatus, setUnlockStatus] = useState({});
           );
         }
       })
+      
       .catch((err) =>
         console.error("❌ Failed to fetch exhibitor badges:", err),
       )
@@ -3842,7 +3900,7 @@ const fetchCompanyRemarks = async () => {
               )}
 
               <div className="contractor-ui-root">
-                {!importantPage && activeMenu === "Contractors" && (
+                {!importantPage && activeMenu === "Mandatory Forms" && (
                   <ExhibitorContractors
                     handleBoothDesignUpload={handleBoothDesignUpload}
   stepSubmitted={stepSubmitted}

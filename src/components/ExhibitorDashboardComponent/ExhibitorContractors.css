@@ -962,7 +962,7 @@
   box-shadow: 0 0 0 1px rgba(79,142,247,0.12);
 }
 
-.ec-step-panel.ec-panel-locked { opacity: 0.5; }
+.ec-step-panel.ec-panel-locked { opacity: 1; }
 
 .ec-step-panel-header {
   background: linear-gradient(135deg, rgba(79,142,247,0.08), rgba(245,166,35,0.04));
@@ -1237,6 +1237,47 @@ label.doc-btn {
   font-weight: 600;
 }
 
+
+/* ================= STEP NAV CONTAINER ================= */
+.ec-step-nav-btns {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* ================= COMMON BUTTON STYLE ================= */
+.ec-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Hover Effect */
+.ec-nav-btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+/* Disabled State */
+.ec-nav-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Icon Size */
+.ec-nav-btn svg {
+  font-size: 12px;
+}
+
 /* ════════════════════════════════════════
    LOCKED STATE — disabled buttons overlay
 ════════════════════════════════════════ */
@@ -1262,6 +1303,35 @@ label.doc-btn {
 .ec-upload-btn:not(.ec-btn-disabled):hover {
   background: rgba(79,142,247,0.18);
 }
+
+
+/* Locked button – bright but not clickable */
+.btn-locked {
+  pointer-events: none;   /* click block */
+  cursor: not-allowed;    /* show blocked cursor */
+  opacity: 1 !important;  /* prevent dull */
+  filter: none !important;
+}
+
+/* If anywhere disabled used accidentally */
+button:disabled {
+  opacity: 1 !important;
+  background-color: inherit !important;
+  color: inherit !important;
+}
+
+
+.locked-actions {
+  pointer-events: none;
+}
+
+.locked-actions .doc-btn {
+  opacity: 1 !important;
+  filter: none !important;
+  cursor: not-allowed;
+}
+
+
 
 /* ====================================================
    RESPONSIVE

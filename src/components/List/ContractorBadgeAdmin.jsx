@@ -6,9 +6,17 @@ const ContractorBadgeAdmin = () => {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(null);
+  const [openCompany, setOpenCompany] = useState(null);
+
+  const [showEditPopup, setShowEditPopup] = useState(false);
+  const [editData, setEditData] = useState(null);
 
   useEffect(() => {
     fetchBadges();
+
+    // 🔥 Auto refresh every 5 sec (optional but recommended)
+    const interval = setInterval(fetchBadges, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   const fetchBadges = async () => {
@@ -16,16 +24,18 @@ const ContractorBadgeAdmin = () => {
       const res = await fetch(
         "https://inoptics.in/api/get_all_contractor_badges.php"
       );
-
       const data = await res.json();
 
-      if (data.success && Array.isArray(data.records)) {
-        setRows(data.records);
+      console.log("ADMIN BADGE DATA:", data);
+
+      const records = data.records || data.data || [];
+
+      if (data.success && Array.isArray(records)) {
+        setRows(records);
       } else {
         setRows([]);
       }
-    } catch (err) {
-      console.error(err);
+    } catch {
       toast.error("Failed to load badge records");
       setRows([]);
     } finally {
@@ -33,108 +43,231 @@ const ContractorBadgeAdmin = () => {
     }
   };
 
+  /* 🔓 ACCEPT UNLOCK */
   const handleUnlock = async (id) => {
-  setProcessing(id);
+    setProcessing(id);
 
-  try {
-    const res = await fetch(
-      "https://inoptics.in/api/unlock_contractor_badge.php",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id }),
+    try {
+      const res = await fetch(
+        "https://inoptics.in/api/unlock_contractor_badge.php",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (data.success) {
+        toast.success("Badge unlocked successfully");
+        fetchBadges();
+      } else {
+        toast.error("Unlock failed");
       }
-    );
-
-    const data = await res.json();
-
-    if (data.success) {
-      toast.success("Badge unlocked successfully");
-      fetchBadges();
-    } else {
-      toast.error(data.message || "Unlock failed");
+    } catch {
+      toast.error("Server error");
+    } finally {
+      setProcessing(null);
     }
-  } catch (err) {
-    console.error(err);
-    toast.error("Server error while unlocking");
-  } finally {
-    setProcessing(null);
+  };
+
+  /* DELETE */
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this record?")) return;
+
+    try {
+      const res = await fetch(
+        "https://inoptics.in/api/delete_contractor_badge.php",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (data.success) {
+        toast.success("Deleted successfully");
+        fetchBadges();
+      }
+    } catch {
+      toast.error("Server error");
+    }
+  };
+
+  /* EDIT */
+  const handleEditClick = (row) => {
+    setEditData({ ...row });
+    setShowEditPopup(true);
+  };
+
+  const handleUpdate = async () => {
+    try {
+      const res = await fetch(
+        "https://inoptics.in/api/update_contractor_badge.php",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(editData),
+        }
+      );
+
+      const data = await res.json();
+
+      if (data.success) {
+        toast.success("Updated successfully");
+        setShowEditPopup(false);
+        fetchBadges();
+      } else {
+        toast.error("Update failed");
+      }
+    } catch {
+      toast.error("Server error");
+    }
+  };
+
+  const groupedData = rows.reduce((acc, row) => {
+    const company = row.exhibitor_company_name;
+    if (!acc[company]) acc[company] = [];
+    acc[company].push(row);
+    return acc;
+  }, {});
+
+  return (
+    <div className="admin-container">
+
+      {Object.keys(groupedData).map((company) => (
+        <div key={company} className="accordion-item">
+          <div
+  className="accordion-header"
+  onClick={() =>
+    setOpenCompany(openCompany === company ? null : company)
   }
-};
+>
+  <div className="header-left">
+    {company}
 
+    {/* 🔴 Show Only If Unlock Requested */}
+    {groupedData[company].some(
+      (row) => Number(row.is_locked) === 2
+    ) && (
+      <span className="unlock-badge">
+        Unlock Requested
+      </span>
+    )}
+  </div>
 
+  <span>{openCompany === company ? "▲" : "▼"}</span>
+</div>
 
-  return (
-    <div className="table-scroll-wrapper">
-      <div className="contractor-table-container">
-        <table className="contractor-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Exhibitor Company</th>
-              <th>Contractor Company</th>
-              <th>Badge Quantity</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
+          {openCompany === company && (
+            <table className="contractor-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Contractor</th>
+                  <th>Quantity</th>
+                  <th>Status</th>
+                  <th>Edit</th>
+                  <th>Delete</th>
+                  <th>Accept</th>
+                </tr>
+              </thead>
 
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan="6">Loading...</td>
-              </tr>
-            ) : !rows || rows.length === 0 ? (
-              <tr>
-                <td colSpan="6">No badge records</td>
-              </tr>
-            ) : (
-              rows.map((row, index) => {
-  const lockStatus = Number(row.is_locked);
+              <tbody>
+                {groupedData[company].map((row, index) => {
+                  const lockStatus = Number(row.is_locked);
 
-  return (
-    <tr key={row.id}>
-      <td>{index + 1}</td>
-      <td>{row.exhibitor_company_name}</td>
-      <td>{row.contractor_company_name}</td>
-      <td>{row.badge_quantity}</td>
+                  return (
+                    <tr key={row.id}>
+                      <td>{index + 1}</td>
+                      <td>{row.contractor_company_name}</td>
+                      <td>{row.badge_quantity}</td>
 
-      <td>
-        {lockStatus === 0 && (
-          <span className="status-unlocked">Unlocked</span>
-        )}
+                      <td>
+                        {lockStatus === 0 && "Unlocked"}
+                        {lockStatus === 1 && "Locked"}
+                        {lockStatus === 2 && "Unlock Requested"}
+                      </td>
 
-        {lockStatus === 1 && (
-          <span className="status-locked">Locked</span>
-        )}
+                      <td>
+                        <button
+                          className="btn edit"
+                          onClick={() => handleEditClick(row)}
+                        >
+                          Edit
+                        </button>
+                      </td>
 
-        {lockStatus === 2 && (
-          <span className="status-requested">
-            Unlock Requested
-          </span>
-        )}
-      </td>
+                      <td>
+                        <button
+                          className="btn delete"
+                          onClick={() => handleDelete(row.id)}
+                        >
+                          Delete
+                        </button>
+                      </td>
 
-      <td>
-        {lockStatus === 2 && (
-          <button
-            className="btn approve"
-            disabled={processing === row.id}
-            onClick={() => handleUnlock(row.id)}
-          >
-            {processing === row.id
-              ? "Processing..."
-              : "Approve Unlock"}
-          </button>
-        )}
-      </td>
-    </tr>
-  );
-})
-            )}
-          </tbody>
-        </table>
-      </div>
+                      <td>
+                        {lockStatus === 2 && (
+                          <button
+                            className="btn approve"
+                            onClick={() => handleUnlock(row.id)}
+                          >
+                            Accept
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
+      ))}
+
+      {/* EDIT POPUP */}
+      {showEditPopup && (
+        <div className="popup-overlay">
+          <div className="popup-card">
+            <h3>Edit Badge</h3>
+
+            <input
+              type="text"
+              value={editData.contractor_company_name}
+              onChange={(e) =>
+                setEditData({
+                  ...editData,
+                  contractor_company_name: e.target.value,
+                })
+              }
+            />
+
+            <input
+              type="number"
+              value={editData.badge_quantity}
+              onChange={(e) =>
+                setEditData({
+                  ...editData,
+                  badge_quantity: e.target.value,
+                })
+              }
+            />
+
+            <div className="popup-actions">
+              <button onClick={() => setShowEditPopup(false)} className="btn delete">
+                Cancel
+              </button>
+              <button onClick={handleUpdate} className="btn approve">
+                Update
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

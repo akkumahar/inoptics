@@ -5,17 +5,19 @@ import "./ContractorStepsUnlockAdmin.css";
 const ContractorStepsUnlockAdmin = () => {
 
   const [requests, setRequests] = useState({});
+  const [formsMap, setFormsMap] = useState({});
   const [loading, setLoading] = useState(false);
   const [openCompany, setOpenCompany] = useState(null);
 
-  const [rejectModal, setRejectModal] = useState({
-    show: false,
-    company: "",
-    step: null,
-    reason: ""
-  });
+  /* ================= STEP → FORM TYPE MAP ================= */
+  const stepFormMap = {
+    1: "appointed",
+    2: "undertaking",
+    3: "booth_design",
+    4: "contractor_badge",
+  };
 
-  /* ================= FETCH ================= */
+  /* ================= FETCH UNLOCK REQUESTS ================= */
   const fetchRequests = async () => {
     try {
       setLoading(true);
@@ -23,28 +25,52 @@ const ContractorStepsUnlockAdmin = () => {
         "https://inoptics.in/api/get_all_contractor_unlock_requests.php"
       );
       const data = await res.json();
-      if (data.success) {
-        setRequests(data.data);
-      }
-    } catch (err) {
-      toast.error("Fetch failed");
+      if (data.success) setRequests(data.data);
+    } catch {
+      toast.error("Unlock fetch failed");
     } finally {
       setLoading(false);
     }
   };
 
+  /* ================= FETCH ALL FORMS ================= */
+  const fetchUploadedForms = async () => {
+    try {
+      const res = await fetch(
+        "https://inoptics.in/api/get_all_uploaded_exhibitor_forms.php"
+      );
+      const json = await res.json();
+
+      if (!json.success || !Array.isArray(json.data)) return;
+
+      const grouped = {};
+
+      json.data.forEach((row) => {
+        const company = row.exhibitor_company_name?.trim();
+        if (!company) return;
+
+        if (!grouped[company]) grouped[company] = [];
+        grouped[company].push(row);
+      });
+
+      setFormsMap(grouped);
+    } catch {
+      toast.error("Forms fetch failed");
+    }
+  };
+
   useEffect(() => {
     fetchRequests();
+    fetchUploadedForms();
   }, []);
 
-  /* ================= UPDATE STATUS ================= */
-  const updateStatus = async (company, step, status, reason = "") => {
+  /* ================= APPROVE ================= */
+  const updateStatus = async (company, step) => {
     try {
       const fd = new FormData();
       fd.append("exhibitor_company_name", company);
       fd.append("step_number", step);
-      fd.append("status", status);
-      fd.append("reject_reason", reason);
+      fd.append("status", "approved");
 
       const res = await fetch(
         "https://inoptics.in/api/admin_contractor_step_unlock.php",
@@ -54,185 +80,119 @@ const ContractorStepsUnlockAdmin = () => {
       const data = await res.json();
 
       if (data.success) {
-        toast.success("Updated successfully");
+        toast.success("Approved successfully");
         fetchRequests();
-      } else {
-        toast.error(data.message);
       }
     } catch {
       toast.error("Update failed");
     }
   };
 
-  /* ================= REJECT SUBMIT ================= */
-  const submitReject = () => {
-    if (!rejectModal.reason.trim()) {
-      toast.error("Enter rejection reason");
-      return;
-    }
+ return (
+  <div className="admin-wrapper">
 
-    updateStatus(
-      rejectModal.company,
-      rejectModal.step,
-      "rejected",
-      rejectModal.reason
-    );
+    <h2 className="admin-title">Contractor Forms & Unlock</h2>
 
-    setRejectModal({ show: false, company: "", step: null, reason: "" });
-  };
+    {loading && <p>Loading...</p>}
 
-  return (
-    <div className="admin-wrapper">
+    {!loading && Object.keys(formsMap).length === 0 && (
+      <p>No forms found</p>
+    )}
 
-      <h2 className="admin-title">Contractor Unlock Requests</h2>
+    {Object.entries(formsMap).map(([company, forms]) => (
+      <div key={company} className="company-card">
 
-      {loading && <p>Loading...</p>}
+        {/* Accordion Header */}
+        <div
+          className="company-header"
+          onClick={() =>
+            setOpenCompany(openCompany === company ? null : company)
+          }
+        >
+          <span>{company}</span>
+          <span>{openCompany === company ? "▲" : "▼"}</span>
+        </div>
 
-      {!loading && Object.keys(requests).length === 0 && (
-        <p>No requests found</p>
-      )}
+        {openCompany === company && (
+          <div className="company-body">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Step</th>
+                  <th>Form Type</th>
+                  <th>View</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
 
-      {Object.entries(requests).map(([company, items]) => (
-        <div key={company} className="company-card">
+              <tbody>
+                {forms.map((form) => {
 
-          {/* Accordion Header */}
-          <div
-            className="company-header"
-            onClick={() =>
-              setOpenCompany(openCompany === company ? null : company)
-            }
-          >
-            <span>{company}</span>
-            <span>{openCompany === company ? "▲" : "▼"}</span>
-          </div>
+                  const stepNumber = Object.keys(stepFormMap).find(
+                    (key) => stepFormMap[key] === form.form_type
+                  );
 
-          {/* Table */}
-          {openCompany === company && (
-            <div className="company-body">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Step</th>
-                    <th>Status</th>
-                    <th>Reject Reason</th>
-                    <th>Updated</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
+                  const companyRequests = requests[company] || [];
 
-                <tbody>
-                  {items.map((req, i) => (
-                    <tr key={i}>
-                      <td>Step {req.step_number}</td>
+                  const matchedRequest = companyRequests.find(
+                    (r) => r.step_number == stepNumber
+                  );
+
+                  return (
+                    <tr key={form.id}>
 
                       <td>
-                        <span className={`status ${req.status}`}>
-                          {req.status}
-                        </span>
+                        {stepNumber ? `Step ${stepNumber}` : "—"}
+                      </td>
+
+                      <td>{form.form_type}</td>
+
+                      <td>
+                        <a
+                          href={
+                            form.file_preview_url ||
+                            `https://inoptics.in/api/${form.file_path}`
+                          }
+                          target="_blank"
+                          rel="noreferrer"
+                          className="btn view"
+                        >
+                          View
+                        </a>
                       </td>
 
                       <td>
-                        {req.reject_reason || "—"}
+                        {matchedRequest
+                          ? matchedRequest.status
+                          : "locked"}
                       </td>
 
-                      <td>{req.updated_at}</td>
-
                       <td>
-                        {req.status === "pending" && (
-                          <>
-                            <button
-                              className="btn approve"
-                              onClick={() =>
-                                updateStatus(
-                                  company,
-                                  req.step_number,
-                                  "approved"
-                                )
-                              }
-                            >
-                              Approve
-                            </button>
-
-                            <button
-                              className="btn reject"
-                              onClick={() =>
-                                setRejectModal({
-                                  show: true,
-                                  company,
-                                  step: req.step_number,
-                                  reason: ""
-                                })
-                              }
-                            >
-                              Reject
-                            </button>
-                          </>
-                        )}
-
-                        {req.status === "locked" && (
+                        {matchedRequest?.status === "pending" && (
                           <button
-                            className="btn force"
+                            className="btn approve"
                             onClick={() =>
-                              updateStatus(
-                                company,
-                                req.step_number,
-                                "approved"
-                              )
+                              updateStatus(company, stepNumber)
                             }
                           >
-                            Force Unlock
+                            Accept
                           </button>
                         )}
                       </td>
+
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      ))}
-
-      {/* ================= REJECT MODAL ================= */}
-      {rejectModal.show && (
-        <div className="modal-overlay">
-          <div className="modal-box">
-            <h3>Reject Step {rejectModal.step}</h3>
-
-            <textarea
-              placeholder="Enter rejection reason..."
-              value={rejectModal.reason}
-              onChange={(e) =>
-                setRejectModal({
-                  ...rejectModal,
-                  reason: e.target.value
-                })
-              }
-            />
-
-            <div className="modal-actions">
-              <button
-                className="btn cancel"
-                onClick={() =>
-                  setRejectModal({ show: false })
-                }
-              >
-                Cancel
-              </button>
-
-              <button
-                className="btn reject"
-                onClick={submitReject}
-              >
-                Submit
-              </button>
-            </div>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
-        </div>
-      )}
+        )}
 
-    </div>
-  );
+      </div>
+    ))}
+  </div>
+);
 };
 
 export default ContractorStepsUnlockAdmin;

@@ -17,43 +17,43 @@ const ContractorBadgeForm = ({
 
   /* ================= FETCH FUNCTION ================= */
   const fetchBadgeData = async () => {
-    try {
-      const res = await fetch(
-        `https://inoptics.in/api/get_contractor_badge.php?exhibitor_company_name=${encodeURIComponent(
-          exhibitorCompany,
-        )}`,
-      );
+  if (!exhibitorCompany?.trim()) return;
 
-      const data = await res.json();
+  try {
+    const res = await fetch(
+      `https://inoptics.in/api/get_contractor_badge.php?exhibitor_company_name=${encodeURIComponent(
+        exhibitorCompany
+      )}`
+    );
 
-      if (data.success && data.data) {
-        const badge = data.data;
+    const data = await res.json();
 
-        setContractorCompany(badge.contractor_company_name || "");
-        setQuantity(badge.badge_quantity || "");
-        setIsSubmitted(true);
+    console.log("Badge API Response:", data);
 
-        const status = Number(badge.is_locked);
-
-setLockStatus(status);
-
-if (status === 0) {
-  setHasUnlockedBadge(true);   // editable
-} else {
-  setHasUnlockedBadge(false);  // locked or requested
-}
-
-      } else {
-        setContractorCompany("");
-        setQuantity("");
-        setIsSubmitted(false);
-        setHasUnlockedBadge(true);
-      }
-    } catch (err) {
-      console.error("Fetch error:", err);
-      toast.error("Failed to fetch badge data");
+    if (!data.success) {
+      setContractorCompany("");
+      setQuantity("");
+      setIsSubmitted(false);
+      setLockStatus(0);
+      setHasUnlockedBadge(true);
+      return;
     }
-  };
+
+    const badge = data.data || data;
+
+    setContractorCompany(badge.contractor_company_name || "");
+    setQuantity(badge.badge_quantity || "");
+    setIsSubmitted(true);
+
+    const status = Number(badge.is_locked ?? 0);
+
+    setLockStatus(status);
+    setHasUnlockedBadge(status === 0);
+
+  } catch (err) {
+    console.error("Fetch error:", err);
+  }
+};
 
   useEffect(() => {
     if (exhibitorCompany) {
@@ -98,7 +98,7 @@ if (status === 0) {
 
         setIsSubmitted(true);
         setLockStatus(1); // Locked
-setHasUnlockedBadge(false);
+        setHasUnlockedBadge(false);
         fetchBadgeData();
       } else {
         toast.error(data.message || "Operation failed");
@@ -128,8 +128,8 @@ setHasUnlockedBadge(false);
 
       if (data.success) {
         toast.success("Unlock request sent to admin");
-setLockStatus(2); // Requested
-setHasUnlockedBadge(false);
+        setLockStatus(2); // Requested
+        setHasUnlockedBadge(false);
         fetchBadgeData();
       } else {
         toast.error("Unlock failed");
@@ -142,14 +142,11 @@ setHasUnlockedBadge(false);
 
   return (
     <div className="badge-card">
-      
-
       <div className="badge-header">
-        {isSubmitted && !hasUnlockedBadge && (
         <button
           className="go-contractor-btn"
           onClick={() => {
-            setActiveMenu("Contractors");
+            setActiveMenu("Mandatory Forms");
 
             // 👇 ek step peeche jao (Badge se Undertaking pe)
             setCurrentStep(2);
@@ -158,23 +155,21 @@ setHasUnlockedBadge(false);
         >
           ← Back
         </button>
-      )}
+
         <h2>Contractor Badge Request</h2>
 
-        {isSubmitted && !hasUnlockedBadge && (
-          <button
-            className="go-contractor-btn"
-            onClick={() => {
-              setActiveMenu("Contractors");
+        <button
+          className="go-contractor-btn"
+          onClick={() => {
+            setActiveMenu("Mandatory Forms");
 
-              // 🔥 Go directly to Upload Booth Design
-              setCurrentStep(4);
-              setContractorViewStep(4);
-            }}
-          >
-            Go to Contractor Page →
-          </button>
-        )}
+            // 🔥 Go directly to Upload Booth Design
+            setCurrentStep(4);
+            setContractorViewStep(4);
+          }}
+        >
+          Go to Contractor Page →
+        </button>
       </div>
 
       <div className="badge-form">
@@ -205,34 +200,31 @@ setHasUnlockedBadge(false);
 
         {/* ===== BUTTON LOGIC ===== */}
 
-{lockStatus === 0 && (
-  <button
-    className="primary-btn"
-    onClick={handleSubmit}
-    disabled={loading}
-  >
-    {loading
-      ? "Processing..."
-      : isSubmitted
-        ? "Update & Lock"
-        : "Submit & Lock"}
-  </button>
-)}
+        {lockStatus === 0 && (
+          <button
+            className="primary-btn"
+            onClick={handleSubmit}
+            disabled={loading}
+          >
+            {loading
+              ? "Processing..."
+              : isSubmitted
+                ? "Update & Lock"
+                : "Submit & Lock"}
+          </button>
+        )}
 
-{lockStatus === 1 && (
-  <button
-    className="unlock-btn"
-    onClick={handleUnlock}
-  >
-    Request Unlock
-  </button>
-)}
+        {lockStatus === 1 && (
+          <button className="unlock-btn" onClick={handleUnlock}>
+            Request Unlock
+          </button>
+        )}
 
-{lockStatus === 2 && (
-  <button className="unlock-btn pending" disabled>
-    Unlock Requested (Waiting for Admin)
-  </button>
-)}
+        {lockStatus === 2 && (
+          <button className="unlock-btn pending" disabled>
+            Unlock Requested (Waiting for Admin)
+          </button>
+        )}
       </div>
     </div>
   );

@@ -1,0 +1,21 @@
+.fascia-admin-container {
+  padding: 20px;
+}
+
+.fascia-dropdown {
+  padding: 8px 12px;
+  margin-bottom: 20px;
+  border-radius: 6px;
+}
+
+.fascia-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.fascia-table th,
+.fascia-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}

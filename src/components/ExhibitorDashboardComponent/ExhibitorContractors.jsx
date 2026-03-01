@@ -102,7 +102,7 @@ const SelectedContractorCard = ({ contractor }) => (
 ══════════════════════════════════════════ */
 const CHECKLIST = [
   "Contractor Selection",
-  "Exhibitor Registration",
+  "Appointed Contractor",
   "Contractor Undertaking Declaration",
   "Contractor Badges & Passes",
   "Upload Designs & Documents",
@@ -179,7 +179,11 @@ const StepPanel = ({
       >
         <div
           className={`ec-step-panel-badge ${
-            isCompleted ? "ec-badge-done" : isLocked || isSubmitted ? "ec-badge-locked" : ""
+            isCompleted
+              ? "ec-badge-done"
+              : isLocked || isSubmitted
+                ? "ec-badge-locked"
+                : ""
           }`}
         >
           {isCompleted ? "✓" : stepNumber}
@@ -193,7 +197,6 @@ const StepPanel = ({
 
         {/* 🔓 Header Right Section — only shown when step is submitted/locked */}
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-
           {/* Show Pending */}
           {stepSubmitted && unlockStatusData?.status === "pending" && (
             <span className="unlock-pending">⏳ Pending</span>
@@ -201,10 +204,7 @@ const StepPanel = ({
 
           {/* Show Request Again on Rejected */}
           {stepSubmitted && unlockStatusData?.status === "rejected" && (
-            <button
-              className="unlock-btn small"
-              onClick={onUnlock}
-            >
+            <button className="unlock-btn small" onClick={onUnlock}>
               🔓 Request Again
             </button>
           )}
@@ -213,19 +213,14 @@ const StepPanel = ({
           {stepSubmitted &&
             (unlockStatusData?.status === "locked" ||
               !unlockStatusData?.status) && (
-              <button
-                className="unlock-btn small"
-                onClick={onUnlock}
-              >
+              <button className="unlock-btn small" onClick={onUnlock}>
                 🔓 Request Unlock
               </button>
             )}
 
           {/* Lock icon when panel not yet reachable (not submitted, just locked) */}
           {!stepSubmitted && isLocked && (
-            <FaLock
-              style={{ color: "var(--muted)", fontSize: 14 }}
-            />
+            <FaLock style={{ color: "var(--muted)", fontSize: 14 }} />
           )}
         </div>
       </div>
@@ -241,11 +236,8 @@ const StepPanel = ({
           - isSubmitted → Next was clicked on THIS step → buttons disabled (pointer-events none + opacity)
           - neither    → active step, all buttons fully interactive
         */}
-        <div className="ec-step-actions">
-  {actions}
-</div>
+        <div className="ec-step-actions">{actions}</div>
       </div>
-      
     </div>
   );
 };
@@ -309,8 +301,6 @@ const ExhibitorContractors = (props) => {
     unlockStatus,
     setUnlockStatus,
     fetchUnlockStatus,
-
-    
   } = props;
 
   const [viewStep, setViewStep] = useState(contractorViewStep);
@@ -336,7 +326,6 @@ const ExhibitorContractors = (props) => {
   //       const steps = data.steps || {};
   //       setUnlockStatus(steps);
 
-        
   //       setStepSubmitted((prev) => {
   //         const updated = { ...prev };
   //         Object.keys(steps).forEach((stepKey) => {
@@ -384,11 +373,17 @@ const ExhibitorContractors = (props) => {
 
       const res = await fetch(
         "https://inoptics.in/api/request_step_unlock.php",
-        { method: "POST", body: formDataObj }
+        { method: "POST", body: formDataObj },
       );
-      if (!res.ok) { toast.error("Server error"); return; }
+      if (!res.ok) {
+        toast.error("Server error");
+        return;
+      }
       const text = await res.text();
-      if (!text) { toast.error("Empty response from server"); return; }
+      if (!text) {
+        toast.error("Empty response from server");
+        return;
+      }
       const data = JSON.parse(text);
       if (data.success) {
         toast.success("Unlock request sent");
@@ -435,16 +430,16 @@ const ExhibitorContractors = (props) => {
                     admin ne approve nahi kiya → LOCKED
        Condition 2: Previous step submit nahi hua → NOT REACHABLE
   ───────────────────────────────────────────────────────── */
-const panelLocked = (n) => {
-  // ✅ Sirf ye step submitted hai aur admin ne approve nahi kiya → lock
-  if (stepSubmitted[n]) {
-    const status = getUnlockStatus(n);
-    if (status === "approved") return false;
-    return true;
-  }
-  // ✅ currentStep < n check NAHI — Next button freely kaam kare
-  return false;
-};
+  const panelLocked = (n) => {
+    // ✅ Sirf ye step submitted hai aur admin ne approve nahi kiya → lock
+    if (stepSubmitted[n]) {
+      const status = getUnlockStatus(n);
+      if (status === "approved") return false;
+      return true;
+    }
+    // ✅ currentStep < n check NAHI — Next button freely kaam kare
+    return false;
+  };
 
   const panelCompleted = (n) => currentStep >= n + 1;
 
@@ -466,19 +461,18 @@ const panelLocked = (n) => {
      3. Advance currentStep
      4. Move view to next panel
   */
-const handleNext = (step) => {
-  if (currentStep === step) {
-    setCurrentStep(step + 1);
-  }
+  const handleNext = (step) => {
+    if (currentStep === step) {
+      setCurrentStep(step + 1);
+    }
 
-  setViewStep(Math.min(step + 1, TOTAL_STEPS));
-};
+    setViewStep(Math.min(step + 1, TOTAL_STEPS));
+  };
 
-  if (importantPage || activeMenu !== "Contractors") return null;
+  if (importantPage || activeMenu !== "Mandatory Forms") return null;
 
   return (
     <div className="ExhibitorContractors-root">
-
       {/* ══ ACTION BAR ══ */}
       {workflowActive && (
         <div className="ec-action-bar">
@@ -726,36 +720,39 @@ const handleNext = (step) => {
               <button
                 className="Workflow-pdf-submit-btn"
                 onClick={() =>
-  toast.promise(
-    (async () => {
-      await handleFinalUpload();
+                  toast.promise(
+                    (async () => {
+                      await handleFinalUpload();
 
-      const stepToLock = viewStep;  // ✅ sirf viewStep
+                      const stepToLock = viewStep; // ✅ sirf viewStep
 
-      const fd = new FormData();
-      fd.append("exhibitor_company_name", formData.company_name);
-      fd.append("step_number", stepToLock);
+                      const fd = new FormData();
+                      fd.append(
+                        "exhibitor_company_name",
+                        formData.company_name,
+                      );
+                      fd.append("step_number", stepToLock);
 
-      await fetch(
-        "https://inoptics.in/api/lock_contractor_step_status.php",
-        { method: "POST", body: fd }
-      );
+                      await fetch(
+                        "https://inoptics.in/api/lock_contractor_step_status.php",
+                        { method: "POST", body: fd },
+                      );
 
-      // ✅ SIRF EK setStepSubmitted — currentStep wala DELETE karo
-      setStepSubmitted((prev) => ({
-        ...prev,
-        [stepToLock]: true,
-      }));
+                      // ✅ SIRF EK setStepSubmitted — currentStep wala DELETE karo
+                      setStepSubmitted((prev) => ({
+                        ...prev,
+                        [stepToLock]: true,
+                      }));
 
-      fetchUnlockStatus();
-    })(),
-    {
-      loading: "Uploading form...",
-      success: "Form uploaded & locked successfully",
-      error: "Upload failed",
-    }
-  )
-}
+                      fetchUnlockStatus();
+                    })(),
+                    {
+                      loading: "Uploading form...",
+                      success: "Form uploaded & locked successfully",
+                      error: "Upload failed",
+                    },
+                  )
+                }
               >
                 Submit &amp; Upload
               </button>
@@ -827,18 +824,26 @@ const handleNext = (step) => {
             </h2>
             <ul className="ExhibitorContractors-points">
               <li>
-                Please select an approved contractor from the list available in the right-hand side panel.
+                Please select an approved contractor from the list available in
+                the right-hand side panel.
               </li>
               <li>
-                If you wish to appoint a contractor who is not listed, kindly share the contractor registration form with them and request that they complete it. The completed form must then be uploaded by the exhibitor online.
+                If you wish to appoint a contractor who is not listed, kindly
+                share the contractor registration form with them and request
+                that they complete it. The completed form must then be uploaded
+                by the exhibitor online.
               </li>
               <li>
-                Contractor appointment is subject to approval from the organiser. Upon approval, a one-time contractor registration fee of ₹10,000 per exhibitor will be applicable.
+                Contractor appointment is subject to approval from the
+                organiser. Upon approval, a one-time contractor registration fee
+                of ₹10,000 per exhibitor will be applicable.
               </li>
               <li>
-               Once a contractor is selected, the selection will be treated as final. Any request to change the selected contractor at a later stage will require submission of a formal unlock request and will be subject to approval
+                Once a contractor is selected, the selection will be treated as
+                final. Any request to change the selected contractor at a later
+                stage will require submission of a formal unlock request and
+                will be subject to approval
               </li>
-              
             </ul>
             <label className="ExhibitorContractors-email-label">
               Send Your Unregistered Contractor Email ID:
@@ -1018,7 +1023,7 @@ const handleNext = (step) => {
               {viewStep === 1 && (
                 <StepPanel
                   stepNumber={2}
-                  title="Step 2: Exhibitor Registration Form to be filled by Exhibitor"
+                  title="Step 2: Appointed Contractor Form to be filled by Exhibitor"
                   isActive={panelActive(1)}
                   isCompleted={panelCompleted(1)}
                   isLocked={panelLocked(1)}
@@ -1030,27 +1035,28 @@ const handleNext = (step) => {
                     <>
                       <button
                         className="doc-btn download-btn"
-  disabled={panelSubmitted(1)}
-  style={{ opacity: panelSubmitted(1) ? 0.4 : 1 }}
+                        disabled={panelSubmitted(1)}
+                        style={{ opacity: panelSubmitted(1) ? 1 : 1 }}
                         onClick={() =>
                           handleDownload(
                             `https://inoptics.in/api/uploads/1752656815_APPOINTED CONTRACTOR & CONTRACTOR BADGES-2.pdf`,
-                            "APPOINTED_CONTRACTOR_BADGES.pdf"
+                            "APPOINTED_CONTRACTOR_BADGES.pdf",
                           )
                         }
                       >
                         <FaDownload /> Download
                       </button>
 
-                      <label  className="doc-btn ec-upload-btn"
-  style={{ opacity: panelSubmitted(1) ? 0.4 : 1 }}>
+                      <label
+                        className="doc-btn ec-upload-btn"
+                        style={{ opacity: panelSubmitted(1) ? 1 : 1 }}
+                      >
                         <FaUpload /> Upload
                         <input
                           type="file"
                           accept="application/pdf"
-                          
-    disabled={panelSubmitted(1)}
-    style={{ display: "none" }}
+                          disabled={panelSubmitted(1)}
+                          style={{ display: "none" }}
                           onChange={(e) => {
                             const file = e.target.files[0];
                             if (!file) return;
@@ -1063,7 +1069,6 @@ const handleNext = (step) => {
 
                       <button
                         className="doc-btn Workflow-next-btn"
-                        
                         style={{ opacity: uploadedSteps?.step1 ? 1 : 1 }}
                         onClick={() => handleNext(1)}
                       >
@@ -1123,11 +1128,13 @@ const handleNext = (step) => {
                     <>
                       <button
                         className="doc-btn send-form-btn"
+                        disabled={panelSubmitted(2)}
                         onClick={() => sendFormToContractor()}
                       >
                         <FaPaperPlane /> Send to Contractor
                       </button>
                       <button
+                        disabled={panelSubmitted(2)}
                         className="doc-btn download-btn"
                         onClick={() =>
                           handleDownload(
@@ -1138,15 +1145,17 @@ const handleNext = (step) => {
                       >
                         <FaDownload /> Download
                       </button>
-                      <label  className="doc-btn ec-upload-btn"
-  style={{ opacity: panelSubmitted(2) ? 0.4 : 1 }}>
+                      <label
+                        className="doc-btn ec-upload-btn"
+                        disabled={panelSubmitted(2)}
+                        style={{ opacity: panelSubmitted(2) ? 1 : 1 }}
+                      >
                         <FaUpload /> Upload
                         <input
-                            type="file"
-    disabled={panelSubmitted(2)}
-    style={{ display: "none" }}
+                          type="file"
+                          disabled={panelSubmitted(2)}
+                          style={{ display: "none" }}
                           accept="application/pdf"
-                          
                           onChange={(e) => {
                             const file = e.target.files[0];
                             if (!file) return;
@@ -1158,7 +1167,6 @@ const handleNext = (step) => {
                       </label>
                       <button
                         className="doc-btn Workflow-next-btn"
-                        
                         style={{ opacity: uploadedSteps?.step2 ? 1 : 1 }}
                         onClick={() => handleNext(2)}
                       >
@@ -1226,6 +1234,7 @@ const handleNext = (step) => {
                       </button>
                       <button
                         className="doc-btn download-btn"
+                        disabled={panelSubmitted(3)}
                         onClick={() =>
                           handleDownload(
                             `https://inoptics.in/api/uploads/1752656839_CONTRACTOR UNDERTAKING-DECLARATION & REGISTRATION-3.pdf`,
@@ -1235,7 +1244,10 @@ const handleNext = (step) => {
                       >
                         <FaDownload /> Download
                       </button>
-                      <label className="doc-btn ec-upload-btn">
+                      <label
+                        className="doc-btn ec-upload-btn"
+                        disabled={panelSubmitted(3)}
+                      >
                         <FaUpload /> Upload
                         <input
                           type="file"
@@ -1252,7 +1264,6 @@ const handleNext = (step) => {
                       </label>
                       <button
                         className="doc-btn Workflow-next-btn"
-                        
                         style={{ opacity: uploadedSteps?.step2 ? 1 : 1 }}
                         onClick={() => {
                           handleNext(3);
@@ -1262,7 +1273,6 @@ const handleNext = (step) => {
                         Next →
                       </button>
                     </>
-                  
                   }
                 >
                   <ul>
@@ -1317,28 +1327,31 @@ const handleNext = (step) => {
                     onUnlock={() => requestUnlock(4)}
                     actions={
                       <>
-                        <label className="doc-btn ec-upload-btn">
+                        <label
+                          className="doc-btn ec-upload-btn"
+                          disabled={panelSubmitted(4)}
+                        >
                           <FaUpload /> Upload Design
                           <input
                             type="file"
                             accept="application/pdf"
+                            disabled={panelSubmitted(4)}
                             style={{ display: "none" }}
                             onChange={(e) => handleFileSelect(e)}
                           />
                         </label>
                         <button
                           className="doc-btn Workflow-next-btn"
-                         
                           style={{ opacity: uploadedSteps?.step3 ? 1 : 1 }}
                           onClick={() => {
-  if (uploadedSteps?.step3) {
-    handleNext(4);
-    setIsReuploading(false);
-    setBoothDesignStatus("pending");
-    setCurrentStep(5);
-    setViewStep(5);
-  }
-}}
+                            if (uploadedSteps?.step3) {
+                              handleNext(4);
+                              setIsReuploading(false);
+                              setBoothDesignStatus("pending");
+                              setCurrentStep(5);
+                              setViewStep(5);
+                            }
+                          }}
                         >
                           Submit →
                         </button>
