@@ -2,20 +2,26 @@ import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import "./ContractorBadgeForm.css";
 
-const ContractorBadgeForm = ({ exhibitorCompany }) => {
+const ContractorBadgeForm = ({
+  exhibitorCompany,
+  setContractorViewStep,
+  setActiveMenu,
+  setCurrentStep,
+}) => {
   const [contractorCompany, setContractorCompany] = useState("");
   const [quantity, setQuantity] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [hasUnlockedBadge, setHasUnlockedBadge] = useState(false);
+  const [lockStatus, setLockStatus] = useState(0);
 
   /* ================= FETCH FUNCTION ================= */
   const fetchBadgeData = async () => {
     try {
       const res = await fetch(
         `https://inoptics.in/api/get_contractor_badge.php?exhibitor_company_name=${encodeURIComponent(
-          exhibitorCompany
-        )}`
+          exhibitorCompany,
+        )}`,
       );
 
       const data = await res.json();
@@ -27,7 +33,16 @@ const ContractorBadgeForm = ({ exhibitorCompany }) => {
         setQuantity(badge.badge_quantity || "");
         setIsSubmitted(true);
 
-        setHasUnlockedBadge(Number(badge.is_locked) !== 1);
+        const status = Number(badge.is_locked);
+
+setLockStatus(status);
+
+if (status === 0) {
+  setHasUnlockedBadge(true);   // editable
+} else {
+  setHasUnlockedBadge(false);  // locked or requested
+}
+
       } else {
         setContractorCompany("");
         setQuantity("");
@@ -78,11 +93,12 @@ const ContractorBadgeForm = ({ exhibitorCompany }) => {
         toast.success(
           isSubmitted
             ? "Badge updated & locked successfully"
-            : "Badge submitted & locked successfully"
+            : "Badge submitted & locked successfully",
         );
 
         setIsSubmitted(true);
-        setHasUnlockedBadge(false);
+        setLockStatus(1); // Locked
+setHasUnlockedBadge(false);
         fetchBadgeData();
       } else {
         toast.error(data.message || "Operation failed");
@@ -98,21 +114,22 @@ const ContractorBadgeForm = ({ exhibitorCompany }) => {
   const handleUnlock = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/unlock_contractor_badge.php",
+        "https://inoptics.in/api/unlock_request_badge.php",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             exhibitor_company_name: exhibitorCompany,
           }),
-        }
+        },
       );
 
       const data = await res.json();
 
       if (data.success) {
-        toast.success("Badge unlocked successfully");
-        setHasUnlockedBadge(true);
+        toast.success("Unlock request sent to admin");
+setLockStatus(2); // Requested
+setHasUnlockedBadge(false);
         fetchBadgeData();
       } else {
         toast.error("Unlock failed");
@@ -125,7 +142,40 @@ const ContractorBadgeForm = ({ exhibitorCompany }) => {
 
   return (
     <div className="badge-card">
-      <h2>Contractor Badge Request</h2>
+      
+
+      <div className="badge-header">
+        {isSubmitted && !hasUnlockedBadge && (
+        <button
+          className="go-contractor-btn"
+          onClick={() => {
+            setActiveMenu("Contractors");
+
+            // 👇 ek step peeche jao (Badge se Undertaking pe)
+            setCurrentStep(2);
+            setContractorViewStep(2);
+          }}
+        >
+          ← Back
+        </button>
+      )}
+        <h2>Contractor Badge Request</h2>
+
+        {isSubmitted && !hasUnlockedBadge && (
+          <button
+            className="go-contractor-btn"
+            onClick={() => {
+              setActiveMenu("Contractors");
+
+              // 🔥 Go directly to Upload Booth Design
+              setCurrentStep(4);
+              setContractorViewStep(4);
+            }}
+          >
+            Go to Contractor Page →
+          </button>
+        )}
+      </div>
 
       <div className="badge-form">
         <div className="form-group">
@@ -153,23 +203,36 @@ const ContractorBadgeForm = ({ exhibitorCompany }) => {
           />
         </div>
 
-        {hasUnlockedBadge ? (
-          <button
-            className="primary-btn"
-            onClick={handleSubmit}
-            disabled={loading}
-          >
-            {loading
-              ? "Processing..."
-              : isSubmitted
-              ? "Update & Lock"
-              : "Submit & Lock"}
-          </button>
-        ) : (
-          <button className="unlock-btn" onClick={handleUnlock}>
-            Unlock
-          </button>
-        )}
+        {/* ===== BUTTON LOGIC ===== */}
+
+{lockStatus === 0 && (
+  <button
+    className="primary-btn"
+    onClick={handleSubmit}
+    disabled={loading}
+  >
+    {loading
+      ? "Processing..."
+      : isSubmitted
+        ? "Update & Lock"
+        : "Submit & Lock"}
+  </button>
+)}
+
+{lockStatus === 1 && (
+  <button
+    className="unlock-btn"
+    onClick={handleUnlock}
+  >
+    Request Unlock
+  </button>
+)}
+
+{lockStatus === 2 && (
+  <button className="unlock-btn pending" disabled>
+    Unlock Requested (Waiting for Admin)
+  </button>
+)}
       </div>
     </div>
   );

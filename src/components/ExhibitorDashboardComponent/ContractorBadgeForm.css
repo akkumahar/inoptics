@@ -2,7 +2,7 @@
 
 .badge-card {
   width: 100%;
-  max-width: 480px;
+  max-width: 600px;
   margin: 30px auto;
   padding: 24px;
   border-radius: 12px;
@@ -99,6 +99,66 @@
 
 .unlock-btn:hover {
   background: #15803d;
+}
+
+
+
+/* Header Container */
+.badge-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+  position: relative;
+}
+
+/* Title Center Alignment */
+.badge-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+  flex: 1;
+  text-align: center;
+}
+
+/* ⬅ Back Button */
+.badge-back-btn {
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  color: #444;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.badge-back-btn:hover {
+  background-color: #f2f4f7;
+  color: #007bff;
+}
+
+/* ➜ Go to Contractor Button */
+.go-contractor-btn {
+  background: #0d6efd;
+  border: none;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 7px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.go-contractor-btn:hover {
+  background: #0b5ed7;
+}
+
+/* Optional: keep spacing nice if both buttons visible */
+.badge-header > button {
+  min-width: fit-content;
 }
 
 /* ================= RESPONSIVE ================= */

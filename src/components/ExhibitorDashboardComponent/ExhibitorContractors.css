@@ -1,1449 +1,1304 @@
-/* ═══════════════════════════════════════════════════════════
-   ExhibitorContractors.css — Pure CSS3, Fully Responsive
-   ═══════════════════════════════════════════════════════════ */
-/* ─── CSS Variables ─── */
+/* ============================================================
+   ExhibitorContractors.css  –  Dark Portal Theme
+   Matches: InOptics 2026 Exhibitor Portal Design
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+/* ── CSS VARIABLES ── */
 :root {
-  --ec-primary: #2563eb;
-  --ec-primary-dark: #1d4ed8;
-  --ec-primary-light: #dbeafe;
-  --ec-accent: #0d9488;
-  --ec-accent-dark: #0f766e;
-  --ec-bg: #f5f6fa;
-  --ec-card: #ffffff;
-  --ec-foreground: #1e293b;
-  --ec-muted: #64748b;
-  --ec-muted-bg: #f1f5f9;
-  --ec-border: #e2e8f0;
-  --ec-success: #16a34a;
-  --ec-success-bg: #dcfce7;
-  --ec-warning: #d97706;
-  --ec-warning-bg: #fef3c7;
-  --ec-danger: #dc2626;
-  --ec-danger-bg: #fee2e2;
-  --ec-radius: 10px;
-  --ec-shadow-sm: 0 1px 3px rgba(30, 41, 59, 0.06);
-  --ec-shadow-md: 0 4px 12px -2px rgba(30, 41, 59, 0.08);
-  --ec-shadow-lg: 0 12px 32px -4px rgba(30, 41, 59, 0.12);
-  --ec-shadow-overlay: 0 20px 60px -8px rgba(30, 41, 59, 0.25);
-  --ec-transition: 0.3s ease;
+  --ec-bg:       #ffffff;
+  --ec-surface:  #ffffff;
+  --ec-card:     #ffffff;
+  --ec-card2:    #1e2330;
+  --ec-border:   #252a38;
+  --ec-accent:   #f5a623;
+  --ec-blue:     #4f8ef7;
+  --ec-green:    #2ecc7a;
+  --ec-red:      #e05c5c;
+  --ec-text:     #000000;
+  --ec-muted:    #6b7280;
+  --ec-sub:      #000000;
+  --font-head:   'Syne', sans-serif;
+  --font-body:   'DM Sans', sans-serif;
 }
-/* ─── Reset & Root ─── */
+
+/* ── ROOT ── */
 .ExhibitorContractors-root {
-  min-height: 100vh;
-  /* background: var(--ec-bg); */
-  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
-  color: var(--ec-foreground);
-  box-sizing: border-box;
-}
-.ExhibitorContractors-root *,
-.ExhibitorContractors-root *::before,
-.ExhibitorContractors-root *::after {
-  box-sizing: border-box;
-}
-/* ═══════════════════════════════════════
-   MAIN SPLIT LAYOUT
-   ═══════════════════════════════════════ */
-.ExhibitorContractors-main-container-split {
-  display: flex;
-  gap: 24px;
-  max-width: 1600px;
-  margin-bottom: 0;
-  margin: 0 auto;
-}
-.ExhibitorContractors-leftContainer {
-  width: 100%;
-  position: relative;
-  overflow: hidden;
-}
-.ExhibitorContractors-rightContainer {
-  width: 0%;
-  position: relative;
-  overflow: hidden;
-  min-height: 400px;
-}
-/* ═══════════════════════════════════════
-   SLIDE ANIMATIONS
-   ═══════════════════════════════════════ */
-@keyframes ec-slideInRight {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
-}
-@keyframes ec-slideInLeft {
-  from { transform: translateX(-100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
-}
-@keyframes ec-slideOutLeft {
-  from { transform: translateX(0); opacity: 1; }
-  to { transform: translateX(-100%); opacity: 0; }
-}
-@keyframes ec-slideOutRight {
-  from { transform: translateX(0); opacity: 1; }
-  to { transform: translateX(100%); opacity: 0; }
-}
-@keyframes ec-fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-@keyframes ec-scaleIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-}
-/* Layer Visibility */
-.left-layer,
-.right-layer {
-  transition: all 0.5s ease;
-}
-.left-layer.visible,
-.right-layer.visible {
-  opacity: 1;
-  width: 100%;
-  transform: translateX(0);
-}
-.left-layer.hidden,
-.right-layer.hidden {
-  opacity: 0;
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  transform: translateX(100%);
-}
-.original-left-layer.slide-out-left {
-  animation: ec-slideOutLeft 0.5s ease forwards;
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-.workflow-left-layer.slide-in-right {
-  animation: ec-slideInRight 0.5s ease forwards;
-}
-.original-layer.slide-out-right {
-  animation: ec-slideOutRight 0.5s ease forwards;
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-.workflow-layer.slide-in-left {
-  animation: ec-slideInLeft 0.5s ease forwards;
-}
-
-.ExhibitorContractors-left-top-item{
-  background: none !important;
-  padding: 10px 25px 15px 15px;
-}
-
-.workflow-layer.hidden {
-  transform: translateX(-110%);
-  opacity: 0;
-  pointer-events: none;
-}
-.workflow-layer.slide-in-left {
-  transform: translateX(0);
-  opacity: 1;
-  pointer-events: auto;
-}
-
-
-/* .original-layer,
-.workflow-layer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 50%;
-  height: 100%; 
-} */
-
-.mobile-step-spacer{
-  display:none;
-}
-/* ═══════════════════════════════════════
-   LEFT PANEL — ORIGINAL (Selection Info)
-   ═══════════════════════════════════════ */
-.ExhibitorContractors-left-top-row {
-  background: var(--ec-card);
-  border-radius: var(--ec-radius);
-  box-shadow: var(--ec-shadow-md);
-}
-.ExhibitorContractors-heading {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--ec-foreground);
-  margin: 0 0 16px 0;
-  line-height: 1.3;
-}
-.ExhibitorContractors-heading br + * {
-  color: var(--ec-primary);
-}
-.ExhibitorContractors-points {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 24px 0;
-}
-.ExhibitorContractors-points li {
-  position: relative;
-  padding-left: 16px;
-  margin-bottom: 12px;
-  font-size: 0.875rem;
-  color: var(--ec-foreground);
-  line-height: 1.6;
-}
-.ExhibitorContractors-points li::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 8px;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #000000;
-}
-/* Email Section */
-.ExhibitorContractors-email-label {
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--ec-foreground);
-  margin-bottom: 8px;
-}
-.ExhibitorContractors-email-row {
-  display: flex;
-  gap: 8px;
-}
-.ExhibitorContractors-email-input {
-  flex: 1;
-  width: 100%;
-  padding: 10px 16px;
-  border: 1px solid var(--ec-border);
-  border-radius: var(--ec-radius);
-  font-size: 0.875rem;
-  color: var(--ec-foreground);
   background: var(--ec-bg);
-  outline: none;
-  transition: border-color var(--ec-transition), box-shadow var(--ec-transition);
-}
-.ExhibitorContractors-email-input:focus {
-  border-color: var(--ec-primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-}
-.ExhibitorContractors-email-input::placeholder {
-  color: #94a3b8;
-}
-.ExhibitorContractors-email-submit-btn {
-  padding: 10px 20px;
-  background: linear-gradient(135deg, var(--ec-primary), var(--ec-primary-dark));
-  color: #fff;
-  border: none;
-  border-radius: var(--ec-radius);
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity var(--ec-transition);
-  white-space: nowrap;
-}
-.ExhibitorContractors-email-submit-btn:hover {
-  opacity: 0.9;
-}
-/* ═══════════════════════════════════════
-   LEFT PANEL — WORKFLOW (After Selection)
-   ═══════════════════════════════════════ */
-/* Top Action Buttons */
-.workflow-left-top-actions {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
-  position: relative;
-}
-/* .unlock-btn,
-.view-list-btn,
-.view-uploaded-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border: 1px solid var(--ec-border);
-  border-radius: var(--ec-radius);
-  background: var(--ec-card);
-  color: var(--ec-foreground);
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background var(--ec-transition);
-} */
-
-
-/* ===== Workflow Top Buttons ===== */
-
-.workflow-left-top-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-/* shared button */
-.unlock-btn,
-.view-list-btn,
-.view-uploaded-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-
-  padding: 8px 16px;
-  background: #ffffff;
-  border: 1px solid #d1d5db;
-  border-radius: 999px;
-
-  font-size: 13px;
-  font-weight: 600;
-  color: #374151;
-
-  cursor: pointer;
-  white-space: nowrap;
-
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
-  transition: background .2s ease, box-shadow .2s ease, transform .08s ease;
-}
-
-.unlock-btn:hover,
-.view-list-btn:hover,
-.view-uploaded-btn:hover {
-  background: #f9fafb;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  transform: translateY(-1px);
-}
-
-.unlock-btn:active,
-.view-list-btn:active,
-.view-uploaded-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
-}
-
-/* icon size fix */
-.btn-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-}
-
-
-
-
-.unlock-btn:hover,
-.view-list-btn:hover,
-.view-uploaded-btn:hover {
-  background: var(--ec-muted-bg);
-}
-.btn-icon {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.8rem;
-}
-/* Workflow Left Flex Row */
-
-
-
-
-/* .workflow-left-top-actions .unlock-btn,
-.workflow-left-top-actions .view-list-btn,
-.workflow-left-top-actions .view-uploaded-btn {
-  padding: 6px 23px;
-  background: #FFFFFF;
-  border: 1px solid #D1D5DB;
-  text-decoration: none;
-  color: #374151;
-  border-radius: 35px;
-  font-size: 10px;
-  cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-  transition: background 0.3s, box-shadow 0.3s;
-} */
-
-
-/* Selected Contractor Card */
-.selected-contractor-container {
-  border-radius: var(--ec-radius);
-}
-.selected-contractor-container .ExhibitorContractors-heading {
-  font-size: 1rem;
-  margin-bottom: 12px;
-}
-.selected-contractor-container-box {
-  display: flex;
-  border-radius: 8px;
-  padding: 2px ;
-  margin-bottom: 8px;
-}
-.selected-contractor-container-box p {
-  margin: 0;
-  font-size: 0.875rem;
-}
-.selected-contractor-container-box p:first-child {
-  font-size: 0.75rem;
-  color: var(--ec-muted);
-}
-.selected-contractor-container-box p:last-child {
-  font-weight: 500;
-  color: var(--ec-foreground);
-}
-/* Checklist */
-.exhibitor-instruction-box-checklist {
-  border-radius: var(--ec-radius);
-  width: 100%;
-}
-
-/* .exhibitor-instruction-box-checklist{
-  flex: 1;
-  background: none;
-  box-shadow: none;
-  border-radius: 20px;
-  overflow: hidden;
-  border: 1px solid #ccc;
-} */
-
-.wf-step {
-  display: inline-flex; 
-  align-items: center;
-  min-width: 92px;
-  transition: background 0.25s, color 0.25s, transform 0.25s;
-}
-
-.exhibitor-instruction-header{
-  font-family: "Montserrat", sans-serif;
-  display: flex;
-  width: 100%;
-  text-align: center;
-  align-items: center;
-  font-size: 16px;
-  padding: 12px 15px;
-  color: #000000;
-  text-transform: uppercase;
-}
-
-
-.exhibitor-instruction-header h4 {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--ec-foreground);
-  margin: 0 0 16px 0;
-}
-.exhibitorInstructions-container {
-  display: flex;
-}
-/* Step Progress */
-.Workflow-progress {
+  color: var(--ec-text);
+  font-family: var(--font-body);
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-}
-.wf-step {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  
-  min-width: 48px;
-}
-.wf-step-num {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.875rem;
-  font-weight: 700;
-  background: var(--ec-muted-bg);
-  color: var(--ec-muted);
-  transition: all var(--ec-transition);
-  flex-shrink: 0;
-}
-.wf-step.active .wf-step-num {
-  background: #000000;
-  color: #fff;
+  overflow-y: scroll;
 }
 
-
-.wf-step:not(:last-child)::after {
-  content: '';
-  width: 2px;
-  height: 8px;
-  background: var(--ec-border);
-  transition: background var(--ec-transition);
-}
-
-
-.wf-step.active:not(:last-child)::after {
-  background: #000000;
-}
-/* Step Content Labels */
-.exhibitorinsructionchecklist-box {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-}
-
-.exhibitorinsructionchecklist-box{
-  display: flex;
-  flex-direction: column;
-  text-align: left;
-  gap: 9px;
-  align-items: self-start;
-  margin-top: 6px;
-}
-.exhibitorInstructions-content-box {
-  display: flex;
-  align-items: center;
-  min-height: 32px;
-}
-.ExhibitorContractors-heading-checklist {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: #000000;
-  margin: 0;
-}
-/* ═══════════════════════════════════════
-   TABLE STYLES
-   ═══════════════════════════════════════ */
-.ExhibitorContractors-exhibitor-cont-table-container {
-  background: var(--ec-card);
-  border-radius: var(--ec-radius);
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-.ExhibitorContractors-appointed-contractor-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.875rem;
-}
-.ExhibitorContractors-appointed-contractor-table thead {
-  position: sticky;
-  top: 0;
-  z-index: 5;
-}
-.ExhibitorContractors-appointed-contractor-table th {
-  padding: 12px;
-  text-align: left;
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: capitalize !important;
-  letter-spacing: 0.05em; 
-  background: linear-gradient(135deg, var(--ec-primary), var(--ec-primary-dark));
-  color: #fff;
-  white-space: nowrap;
-}
-.ExhibitorContractors-appointed-contractor-table th:first-child {
-  border-radius: var(--ec-radius) 0 0 0;
-}
-.ExhibitorContractors-appointed-contractor-table th:last-child {
-  border-radius: 0 var(--ec-radius) 0 0;
-}
-.ExhibitorContractors-appointed-contractor-table td {
-  padding: 12px;
-  border-bottom: 1px solid var(--ec-border);
-  font-size: 0.85rem;
-  color: var(--ec-foreground);
-  vertical-align: middle;
-}
-.ExhibitorContractors-appointed-contractor-table tbody tr {
-  transition: background var(--ec-transition);
-}
-.ExhibitorContractors-appointed-contractor-table tbody tr:hover {
-  background: var(--ec-muted-bg);
-}
-/* Table Buttons */
-.ExhibitorContractors-select-btn {
-  padding: 6px 14px;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  background: linear-gradient(135deg, var(--ec-primary), var(--ec-primary-dark));
-  color: #fff;
-  transition: opacity var(--ec-transition);
-  white-space: nowrap;
-}
-.ExhibitorContractors-select-btn:hover {
-  opacity: 0.9;
-}
-.ExhibitorContractors-select-btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-.ExhibitorContractors-unselect-btn {
-  padding: 6px 14px;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  background: var(--ec-danger-bg);
-  color: var(--ec-danger);
-  transition: background var(--ec-transition);
-  white-space: nowrap;
-}
-.ExhibitorContractors-unselect-btn:hover {
-  background: #fecaca;
-}
-
-
-/* ═══════════════════════════════════════
-   POPUP — Confirm Contractor
-   ═══════════════════════════════════════ */
+/* ====================================================
+   CONFIRMATION POPUP
+   ==================================================== */
 .ContractorPopup-overlay {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(30, 41, 59, 0.4);
+  z-index: 1000;
   backdrop-filter: blur(4px);
-  padding: 16px;
-  animation: ec-fadeIn 0.3s ease;
 }
+
 .ContractorPopup-box {
   background: var(--ec-card);
-  border-radius: var(--ec-radius);
-  box-shadow: var(--ec-shadow-overlay);
-  width: 100%;
-  max-width: 440px;
-  padding: 24px;
-  animation: ec-scaleIn 0.3s ease;
+  border: 1px solid var(--ec-border);
+  border-radius: 16px;
+  padding: 28px 32px;
+  max-width: 480px;
+  width: 90%;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
 }
+
 .ContractorPopup-box h3 {
-  font-size: 1.125rem;
+  font-family: var(--font-head);
+  font-size: 18px;
   font-weight: 700;
-  color: var(--ec-foreground);
-  margin: 0 0 12px 0;
+  margin-bottom: 14px;
+  color: var(--ec-text);
 }
-.ContractorPopup-box > p {
-  font-size: 0.875rem;
-  color: var(--ec-muted);
+
+.ContractorPopup-box p {
+  font-size: 13px;
+  color: var(--ec-sub);
   line-height: 1.6;
-  margin: 0 0 8px 0;
+  margin-bottom: 10px;
 }
-.ContractorPopup-box p p {
-  font-size: 0.75rem;
-  color: var(--ec-warning);
-  background: var(--ec-warning-bg);
-  border-radius: 8px;
-  padding: 12px;
-  margin-top: 12px;
-  line-height: 1.5;
+
+.ContractorPopup-box strong {
+  color: var(--ec-accent);
 }
+
 .ContractorPopup-buttons {
   display: flex;
-  justify-content: flex-end;
   gap: 12px;
+  justify-content: flex-end;
   margin-top: 20px;
 }
+
 .PopupCancelBtn {
-  padding: 10px 20px;
-  border: 1px solid var(--ec-border);
-  border-radius: var(--ec-radius);
   background: transparent;
+  border: 1px solid var(--ec-border);
   color: var(--ec-muted);
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background var(--ec-transition);
-}
-.PopupCancelBtn:hover {
-  background: var(--ec-muted-bg);
-}
-.PopupOkBtn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: var(--ec-radius);
-  background: linear-gradient(135deg, var(--ec-primary), var(--ec-primary-dark));
-  color: #fff;
-  font-size: 0.875rem;
+  padding: 9px 22px;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: opacity var(--ec-transition);
+  transition: all 0.2s;
 }
-.PopupOkBtn:hover {
-  opacity: 0.9;
+.PopupCancelBtn:hover { border-color: var(--ec-muted); color: var(--ec-text); }
+
+.PopupOkBtn {
+  background: var(--ec-blue);
+  border: none;
+  color: #fff;
+  padding: 9px 22px;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
 }
-/* ═══════════════════════════════════════
-   OVERLAY — Contractor List
-   ═══════════════════════════════════════ */
+.PopupOkBtn:hover { background: #3a7de8; }
+
+/* ====================================================
+   CONTRACTOR LIST OVERLAY
+   ==================================================== */
 .ContractorListOverlay-overlay {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(30, 41, 59, 0.4);
+  z-index: 999;
   backdrop-filter: blur(4px);
-  padding: 16px;
-  animation: ec-fadeIn 0.3s ease;
 }
+
 .ContractorListOverlay-box {
   background: var(--ec-card);
-  border-radius: var(--ec-radius);
-  box-shadow: var(--ec-shadow-overlay);
-  width: 100%;
-  max-width: 1000px;
+  border: 1px solid var(--ec-border);
+  border-radius: 16px;
+  padding: 28px;
+  width: 90%;
+  max-width: 1100px;
   max-height: 85vh;
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-  animation: ec-scaleIn 0.3s ease;
+  overflow-y: auto;
   position: relative;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
 }
+
 .ContractorListOverlay-box h3 {
-  font-size: 1.125rem;
+  font-family: var(--font-head);
+  font-size: 18px;
   font-weight: 700;
-  margin: 0 0 16px 0;
+  margin-bottom: 20px;
+  color: var(--ec-text);
 }
+
 .ContractorListOverlay-close {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  background: none;
-  border: none;
-  font-size: 1.25rem;
-  color: var(--ec-muted);
-  cursor: pointer;
-  transition: color var(--ec-transition);
-  line-height: 1;
-}
-.ContractorListOverlay-close:hover {
-  color: var(--ec-foreground);
-}
-.overlay-table-wrapper {
-  overflow: auto;
-  flex: 1;
-}
-/* ═══════════════════════════════════════
-   WORKFLOW PANELS (Right Side Steps)
-   ═══════════════════════════════════════ */
-.Workflow-panel {
-  transition: all 0.4s ease;
-}
-.Workflow-panel.show {
-  opacity: 1;
-  transform: translateX(0);
-}
-.Workflow-panel.hide-left {
-  opacity: 0;
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  transform: translateX(-100%);
-}
-.Workflow-panel.hide-right {
-  opacity: 0;
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  transform: translateX(100%);
-}
-.ExhibitorStep1-grid {
-  border-radius: var(--ec-radius);
-  padding: 24px;
-  animation: ec-fadeIn 0.3s ease;
-}
-.ExhibitorInstructions h4 {
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: var(--ec-foreground);
-  margin: 0 0 16px 0;
-}
-.instruction-alignment {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 24px 0;
-}
-.instruction-alignment li {
-  position: relative;
-  padding-left: 16px;
-  margin-bottom: 10px;
-  font-size: 0.875rem;
-  color: var(--ec-muted);
-  line-height: 1.6;
-}
-.instruction-alignment li::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 8px;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #000000;
-}
-/* Action Buttons */
-.step-1-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-.doc-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 18px;
+  top: 20px;
+  right: 20px;
+  background: rgba(255,255,255,0.06);
   border: 1px solid var(--ec-border);
-  border-radius: var(--ec-radius);
-  background: var(--ec-card);
-  color: var(--ec-foreground);
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background var(--ec-transition);
-  white-space: nowrap;
-}
-.doc-btn:hover {
-  background: var(--ec-muted-bg);
-}
-.download-btn {
-  border-color: var(--ec-border);
-}
-.doc-icon-exhibitor {
-  font-size: 0.85rem;
-}
-.Workflow-next-btn {
-  background: linear-gradient(135deg, var(--ec-primary), var(--ec-primary-dark)) !important;
-  color: #fff !important;
-  border: none !important;
-  font-weight: 600 !important;
-}
-.Workflow-next-btn:hover:not(:disabled) {
-  opacity: 0.9;
-}
-.Workflow-next-btn:disabled {
-  opacity: 0.3 !important;
-  cursor: not-allowed !important;
-}
-.contractor-form-btn {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 8px;
-}
-/* Field Error */
-.field-error {
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--ec-danger);
-  background: var(--ec-danger-bg);
+  color: var(--ec-muted);
+  width: 32px;
+  height: 32px;
   border-radius: 8px;
-  padding: 12px;
-  margin: 0;
-  line-height: 1.5;
-}
-/* ═══════════════════════════════════════
-   PDF PREVIEW OVERLAY
-   ═══════════════════════════════════════ */
-.Workflow-warning-popup-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
+  font-size: 18px;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(30, 41, 59, 0.4);
-  backdrop-filter: blur(4px);
-  padding: 16px;
-  animation: ec-fadeIn 0.3s ease;
+  transition: all 0.2s;
 }
-.Workflow-pdf-preview-popup {
-  background: var(--ec-card);
-  border-radius: var(--ec-radius);
-  box-shadow: var(--ec-shadow-overlay);
-  width: 100%;
-  max-width: 680px;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-  animation: ec-scaleIn 0.3s ease;
-}
-.Workflow-pdf-header {
+.ContractorListOverlay-close:hover { color: var(--ec-text); }
+
+/* ====================================================
+   HEADER
+   ==================================================== */
+.ec-header {
+  background: linear-gradient(135deg, #0d0f14 0%, #141827 100%);
+  border-bottom: 1px solid var(--ec-border);
+  padding: 18px 32px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--ec-border);
+  gap: 16px;
+  flex-shrink: 0;
 }
-.Workflow-pdf-header h4 {
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0;
-}
-.Workflow-pdf-close-btn {
-  background: none;
-  border: none;
-  font-size: 1.1rem;
-  color: var(--ec-muted);
-  cursor: pointer;
-  transition: color var(--ec-transition);
-}
-.Workflow-pdf-close-btn:hover {
-  color: var(--ec-foreground);
-}
-.Workflow-pdf-body {
-  flex: 1;
-  min-height: 0;
-  padding: 16px;
-}
-.Workflow-pdf-body iframe {
-  width: 100%;
-  height: 50vh;
-  border: 1px solid var(--ec-border);
+
+.ec-header-logo {
+  width: 38px;
+  height: 38px;
+  background: var(--ec-accent);
   border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 16px;
+  color: #000;
+  flex-shrink: 0;
 }
-.Workflow-pdf-footer {
-  padding: 16px 20px;
-  border-top: 1px solid var(--ec-border);
+
+.ec-header-title {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 17px;
+  letter-spacing: 0.4px;
+  color: var(--ec-text);
 }
-.Workflow-pdf-submit-btn {
-  padding: 10px 20px;
-  background: linear-gradient(135deg, var(--ec-primary), var(--ec-primary-dark));
-  color: #fff;
-  border: none;
-  border-radius: var(--ec-radius);
-  font-size: 0.875rem;
+
+.ec-header-sub {
+  font-size: 12px;
+  color: var(--ec-muted);
+  margin-top: 2px;
+}
+
+.ec-header-badge {
+  margin-left: auto;
+  background: rgba(245, 166, 35, 0.12);
+  border: 1px solid rgba(245, 166, 35, 0.3);
+  color: var(--ec-accent);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 14px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-family: var(--font-head);
+}
+
+/* ====================================================
+   ACTION BAR  (workflow active)
+   ==================================================== */
+.ec-action-bar {
+  display: flex;
+  gap: 10px;
+  padding: 14px 32px;
+  border-bottom: 1px solid var(--ec-border);
+  background: var(--ec-surface);
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.ec-ab-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: opacity var(--ec-transition);
+  border: 1px solid;
+  transition: all 0.2s;
+  line-height: 1;
 }
-.Workflow-pdf-submit-btn:hover {
-  opacity: 0.9;
+
+.ec-ab-btn.unlock {
+  background: rgba(224, 92, 92, 0.12);
+  border-color: rgba(224, 92, 92, 0.35);
+  color: #e07a5c;
 }
-/* ═══════════════════════════════════════
-   UPLOADED FILES OVERLAY (small card)
-   ═══════════════════════════════════════ */
+.ec-ab-btn.unlock:hover { background: rgba(224, 92, 92, 0.2); }
+
+.ec-ab-btn.viewlist {
+  background: rgba(79, 142, 247, 0.1);
+  border-color: rgba(79, 142, 247, 0.3);
+  color: var(--ec-blue);
+}
+.ec-ab-btn.viewlist:hover { background: rgba(79, 142, 247, 0.18); }
+
+.ec-ab-btn.viewuploads {
+  background: rgba(46, 204, 122, 0.1);
+  border-color: rgba(46, 204, 122, 0.3);
+  color: var(--ec-green);
+}
+.ec-ab-btn.viewuploads:hover { background: rgba(46, 204, 122, 0.18); }
+
+/* ── PDF Preview Overlay (View Uploads) ── */
 .pdf-preview-overlay {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  background: rgba(0,0,0,0.65);
+  z-index: 998;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(30, 41, 59, 0.4);
   backdrop-filter: blur(4px);
-  padding: 16px;
-  animation: ec-fadeIn 0.3s ease;
 }
-.pdf-preview-card.small-card {
+
+.pdf-preview-card {
   background: var(--ec-card);
-  border-radius: var(--ec-radius);
-  box-shadow: var(--ec-shadow-overlay);
-  width: 100%;
-  max-width: 440px;
-  padding: 20px;
-  animation: ec-scaleIn 0.3s ease;
+  border: 1px solid var(--ec-border);
+  border-radius: 14px;
+  padding: 24px;
+  width: 420px;
+  max-height: 70vh;
+  overflow-y: auto;
 }
+
 .pdf-preview-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 16px;
 }
+
 .pdf-preview-header h5 {
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0;
+  font-family: var(--font-head);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ec-text);
 }
+
 .form-icon-close {
-  background: none;
-  border: none;
-  font-size: 1rem;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--ec-border);
   color: var(--ec-muted);
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: color var(--ec-transition);
-}
-.form-icon-close:hover {
-  color: var(--ec-foreground);
-}
-.uploaded-file-list {
+  font-size: 13px;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
 }
+.form-icon-close:hover { color: var(--ec-text); }
+
+.uploaded-file-list { display: flex; flex-direction: column; gap: 10px; }
+
 .uploaded-file-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: var(--ec-muted-bg);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--ec-border);
   border-radius: 8px;
-  padding: 12px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--ec-sub);
 }
-.uploaded-file-row span {
-  font-size: 0.85rem;
-  color: var(--ec-foreground);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  margin-right: 8px;
-}
-.file-actions {
-  flex-shrink: 0;
-}
+
+.file-actions { display: flex; gap: 8px; }
+
 .form-icon {
-  background: none;
-  border: none;
-  color: var(--ec-primary);
+  background: rgba(79,142,247,0.1);
+  border: 1px solid rgba(79,142,247,0.25);
+  color: var(--ec-blue);
+  padding: 5px 8px;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 0.9rem;
-  transition: opacity var(--ec-transition);
+  font-size: 12px;
+  transition: all 0.2s;
 }
-.form-icon:hover {
-  opacity: 0.7;
+.form-icon:hover { background: rgba(79,142,247,0.2); }
+
+/* ====================================================
+   MAIN SPLIT LAYOUT
+   ==================================================== */
+.ExhibitorContractors-main-container-split {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
-/* ═══════════════════════════════════════
-   STATUS CARDS (Step 4)
-   ═══════════════════════════════════════ */
-.contractor-thankyou-card {
-  background: var(--ec-card);
-  border-radius: var(--ec-radius);
-  box-shadow: var(--ec-shadow-md);
-  padding: 40px;
-  text-align: center;
-  animation: ec-fadeIn 0.3s ease;
+
+/* ====================================================
+   LEFT CONTAINER
+   ==================================================== */
+.ExhibitorContractors-leftContainer {
+  background: var(--ec-surface);
+  border-right: 1px solid var(--ec-border);
+  position: relative;
+  overflow: hidden;
+  height: calc(100vh - 130px);
 }
-.contractor-thankyou-card h3 {
-  font-size: 1.25rem;
+
+/* Layer animation helpers */
+.left-layer {
+  position: absolute;
+  inset: 0;
+  padding: 0 10px;
+  transition: transform 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.4s;
+}
+
+.left-layer.visible    { transform: translateX(0);    opacity: 1; }
+.left-layer.slide-out-left { transform: translateX(-110%); opacity: 0; pointer-events: none; }
+.left-layer.slide-in-right { transform: translateX(0);    opacity: 1; }
+.left-layer.hidden     { transform: translateX(110%);  opacity: 0; pointer-events: none; }
+
+/* ── ORIGINAL LEFT (Step 0 – Instructions & Email) ── */
+.ExhibitorContractors-heading {
+  font-family: var(--font-head);
+  font-size: 16px;
   font-weight: 700;
-  margin: 0 0 8px 0;
-}
-.contractor-thankyou-card p {
-  color: var(--ec-muted);
-  margin: 0;
-}
-.contractor-thankyou-card.warning {
-  border-left: 4px solid var(--ec-warning);
-}
-.contractor-thankyou-card.rejected {
-  border-left: 4px solid var(--ec-danger);
-}
-.contractor-thankyou-card.success {
-  border-left: 4px solid var(--ec-success);
-}
-.reject-reason-box {
-  background: var(--ec-danger-bg);
-  color: var(--ec-danger);
-  border-radius: 8px;
-  padding: 16px;
-  font-size: 0.875rem;
-  max-width: 400px;
-  margin: 16px auto;
-  line-height: 1.5;
-}
-.contractor-thankyou-card .doc-btn {
-  margin-top: 16px;
-  background: linear-gradient(135deg, var(--ec-primary), var(--ec-primary-dark));
-  color: #fff;
-  border: none;
-  font-weight: 600;
+  color: var(--ec-text);
+  margin-bottom: 14px;
+  line-height: 1.4;
 }
 
-
-
-.workflow-left-flex-row {
+.ExhibitorContractors-points {
+  list-style: none;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-  margin-top: 10px;
 }
 
+.ExhibitorContractors-points li {
+  font-size: 12.5px;
+  color: var(--ec-sub);
+  line-height: 1.55;
+  padding-left: 16px;
+  position: relative;
+}
+
+.ExhibitorContractors-points li::before {
+  content: '›';
+  position: absolute;
+  left: 0;
+  color: var(--ec-blue);
+  font-size: 16px;
+  top: -1px;
+  font-weight: 700;
+}
+
+.ExhibitorContractors-email-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ec-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.ExhibitorContractors-email-row {
+  display: flex;
+  gap: 8px;
+}
+
+.ExhibitorContractors-email-input {
+  flex: 1;
+  background: var(--ec-card);
+  border: 1px solid var(--ec-border);
+  border-radius: 8px;
+  padding: 9px 14px;
+  font-size: 13px;
+  color: var(--ec-text);
+  font-family: var(--font-body);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.ExhibitorContractors-email-input:focus { border-color: var(--ec-blue); }
+.ExhibitorContractors-email-input::placeholder { color: var(--ec-muted); }
+
+.ExhibitorContractors-email-submit-btn {
+  background: var(--ec-blue);
+  border: none;
+  color: #fff;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+.ExhibitorContractors-email-submit-btn:hover { background: #3a7de8; }
+
+/* ── WORKFLOW LEFT (Steps + Selected Contractor) ── */
+.workflow-left-top-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+/* Re-using action bar button styles via workflow-left-top-actions */
+.workflow-left-top-actions .unlock-btn,
+.workflow-left-top-actions .view-list-btn,
+.workflow-left-top-actions .view-uploaded-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.workflow-left-top-actions .unlock-btn {
+  background: rgba(224, 92, 92, 0.12);
+  border: 1px solid rgba(224, 92, 92, 0.35);
+  color: #e07a5c;
+}
+.workflow-left-top-actions .view-list-btn {
+  background: rgba(79, 142, 247, 0.1);
+  border: 1px solid rgba(79, 142, 247, 0.3);
+  color: var(--ec-blue);
+}
+.workflow-left-top-actions .view-uploaded-btn {
+  background: rgba(46, 204, 122, 0.1);
+  border: 1px solid rgba(46, 204, 122, 0.3);
+  color: var(--ec-green);
+}
+.workflow-left-top-actions .btn-icon {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ── SELECTED CONTRACTOR CARD ── */
+.ec-section-label {
+  font-family: var(--font-head);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ec-muted);
+  margin-bottom: 10px;
+  display: block;
+}
+
+.ec-contractor-card {
+  background: var(--ec-card);
+  border: 1px solid var(--ec-border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.ec-contractor-card-header {
+  background: linear-gradient(135deg, rgba(245,166,35,0.15), rgba(79,142,247,0.08));
+  border-bottom: 1px solid var(--ec-border);
+  padding: 13px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ec-contractor-avatar {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--ec-accent), #f7b733);
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 14px;
+  color: #000;
+  flex-shrink: 0;
+}
+
+.ec-contractor-cname {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--ec-text);
+}
+
+.ec-contractor-label {
+  font-size: 11px;
+  color: var(--ec-muted);
+  margin-top: 2px;
+}
+
+.ec-contractor-details {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.ec-detail-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.ec-detail-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: rgba(79, 142, 247, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--ec-blue);
+  font-size: 11px;
+}
+
+.ec-detail-key {
+  font-size: 10px;
+  color: var(--ec-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 1px;
+}
+
+.ec-detail-val {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ec-text);
+}
+
+/* ── CONTRACTOR CHECKLIST ── */
+.ec-checklist-card {
+  background: var(--ec-card);
+  border: 1px solid var(--ec-border);
+  border-radius: 12px;
+  padding: 18px 16px;
+}
+
+.ec-step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 9px 0;
+  position: relative;
+}
+
+.ec-step-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 13px;
+  top: 33px;
+  width: 2px;
+  height: calc(100% - 8px);
+  background: var(--ec-border);
+}
+
+.ec-step-item.ec-done::after   { background: var(--ec-green); }
+.ec-step-item.ec-active::after { background: linear-gradient(var(--ec-blue), var(--ec-border)); }
+
+.ec-step-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--ec-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 11px;
+  color: var(--ec-muted);
+  flex-shrink: 0;
+  background: var(--ec-surface);
+  z-index: 1;
+}
+
+.ec-step-item.ec-done   .ec-step-num { background: var(--ec-green); border-color: var(--ec-green); color: #000; }
+.ec-step-item.ec-active .ec-step-num { background: var(--ec-blue);  border-color: var(--ec-blue);  color: #fff; }
+
+.ec-step-text {
+  font-size: 12.5px;
+  color: var(--ec-muted);
+  padding-top: 4px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.ec-step-item.ec-done   .ec-step-text { text-decoration: line-through; }
+.ec-step-item.ec-active .ec-step-text { color: var(--ec-text); font-weight: 500; }
+
+/* ====================================================
+   RIGHT CONTAINER
+   ==================================================== */
+.ExhibitorContractors-rightContainer {
+  background: var(--ec-bg);
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  /* right side scrolls independently */
+  height: calc(100vh - 130px);
+}
+
+/* Layer animation helpers */
+.right-layer {
+  transition: transform 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.4s;
+}
+
+.right-layer.visible       { transform: translateX(0);    opacity: 1; }
+.right-layer.slide-out-right{ transform: translateX(110%); opacity: 0; display: none; }
+.right-layer.slide-in-left  { transform: translateX(0);    opacity: 1; }
+.right-layer.hidden         { display: none; }
+
+/* ── CONTRACTOR TABLE (original layer) ── */
+.only-mobile-version-contractor { width: 100%; }
 
 
-/* ===== responsive visibility ===== */
+.ExhibitorContractors-exhibitor-cont-table-container {
+  max-height: 1020px;
+  overflow-y: auto;
+  overflow-x: hidden !important;
+}
 
+.ExhibitorContractors-exhibitor-cont-table-container {
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 1px solid var(--ec-border);
+}
+
+.ExhibitorContractors-appointed-contractor-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ExhibitorContractors-appointed-contractor-table th {
+  font-family: var(--font-head);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--ec-muted);
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--ec-border);
+  text-align: left;
+  white-space: nowrap;
+  background: var(--ec-card);
+}
+
+.ExhibitorContractors-appointed-contractor-table td {
+  padding: 11px 14px;
+  font-size: 13px;
+  color: var(--ec-text);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  vertical-align: middle;
+}
+
+.ExhibitorContractors-appointed-contractor-table tr:hover td {
+  background: rgba(255,255,255,0.02);
+}
+
+.ExhibitorContractors-select-btn {
+  background: rgba(79, 142, 247, 0.1);
+  border: 1px solid rgba(79, 142, 247, 0.3);
+  color: var(--ec-blue);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: all 0.2s;
+}
+.ExhibitorContractors-select-btn:hover:not(:disabled) { background: rgba(79,142,247,0.2); }
+.ExhibitorContractors-select-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.ExhibitorContractors-unselect-btn {
+  background: rgba(46, 204, 122, 0.1);
+  border: 1px solid rgba(46, 204, 122, 0.3);
+  color: var(--ec-green);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+
+.ec-badge-city {
+  font-size: 11px;
+  background: rgba(245,166,35,0.1);
+  color: var(--ec-accent);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-weight: 500;
+}
+
+/* ── MOBILE CARDS (inside table) ── */
 .d-only { display: table-cell; }
 .m-only { display: none; }
 
-
-/* ═══════════════════════════════════════
-   RESPONSIVE — TABLET (≤1440px)
-   ═══════════════════════════════════════ */
-   @media (max-width: 1440px) {
-     .workflow-left-flex-row {
-    flex-direction: column;
-  }
-   }
-
-   /* ═══════════════════════════════════════
-   RESPONSIVE — TABLET (≤1024px)
-   ═══════════════════════════════════════ */
-@media (max-width: 1024px) {
-  .ExhibitorContractors-main-container-split {
-    flex-direction: column;
-    margin-bottom: auto ;
-  }
-  .ExhibitorContractors-leftContainer,
-  .ExhibitorContractors-rightContainer {
-    width: 100%;
-  }
-  .ExhibitorContractors-heading {
-    font-size: 1.25rem;
-  }
-
-  
- .workflow-left-flex-row {
-    flex-direction: row;
-  }
-
-
-  .workflow-layer{
-  width: 101%;
+.cm-card {
+  background: var(--ec-card);
+  border: 1px solid var(--ec-border);
+  border-radius: 10px;
+  padding: 14px;
+  margin: 4px 0;
 }
-
-.ExhibitorContractors-root{
-  margin-bottom: 50px;
+.cm-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.cm-id  { font-family: var(--font-head); font-size: 13px; font-weight: 700; color: var(--ec-muted); }
+.cm-name { font-size: 13px; font-weight: 600; color: var(--ec-text); display: flex; align-items: center; gap: 7px; margin-bottom: 7px; }
+.cm-company { font-size: 12px; color: var(--ec-sub); display: flex; align-items: center; gap: 7px; margin-bottom: 6px; }
+.cm-email   { font-size: 12px; color: var(--ec-muted); display: flex; align-items: center; gap: 7px; }
+.cm-icon       { color: var(--ec-blue); font-size: 11px; }
+.cm-icon-phone { color: var(--ec-green); font-size: 11px; }
+.cm-icon-mail  { color: var(--ec-accent); font-size: 11px; }
+.cm-btn {
+  background: rgba(79,142,247,0.1);
+  border: 1px solid rgba(79,142,247,0.3);
+  color: var(--ec-blue);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 13px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: var(--font-body);
 }
+.cm-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
-
-  .ExhibitorContractors-rightContainer {
-    height: auto !important;
-    overflow: visible !important;
-    width: 100% !important;
-  }
-
-  .Workflow-panel,
-  .ExhibitorStep1-grid {
-    height: auto !important;
-    max-height: none !important;
-  }
-
-
-  
-}
-/* ═══════════════════════════════════════
-   RESPONSIVE — MOBILE (≤640px)
-   ═══════════════════════════════════════ */
-@media (max-width: 640px) {
-
-  .d-only { display: none !important; }
-  .m-only { display: table-cell !important; }
-
-.workflow-layer{
-  width: 100%;
-}
-
-.ExhibitorStep1-grid{
-  margin-bottom: 65px;
-}
- 
-  .ExhibitorContractors-main-container-split {
-    gap: 12px;
-  }
-
-    
-  .ExhibitorStep1-grid {
-    padding: 16px;
-  }
-  .ExhibitorContractors-heading {
-    font-size: 1.15rem;
-  }
-  .ExhibitorContractors-email-row {
-    flex-direction: column;
-  }
-  .ExhibitorContractors-email-submit-btn {
-    width: 100%;
-    text-align: center;
-  }
-  /* Hide less important table columns on mobile */
-  /* .ExhibitorContractors-appointed-contractor-table th:nth-child(4),
-  .ExhibitorContractors-appointed-contractor-table td:nth-child(4),
-  .ExhibitorContractors-appointed-contractor-table th:nth-child(5),
-  .ExhibitorContractors-appointed-contractor-table td:nth-child(5),
-  .ExhibitorContractors-appointed-contractor-table th:nth-child(6),
-  .ExhibitorContractors-appointed-contractor-table td:nth-child(6) {
-    display: none;
-  } */
-  .ExhibitorContractors-appointed-contractor-table th,
-  .ExhibitorContractors-appointed-contractor-table td {
-    padding: 8px 10px;
-    font-size: 0.8rem;
-  }
-
-  .ExhibitorContractors-left-top-item{
-  background: #F5F6FA !important;
+/* ====================================================
+   WORKFLOW LAYER  –  STEP PANELS
+   ==================================================== */
+.workflow-layer {
   padding: 0;
-  box-shadow: none;
-}
-  /* Popup */
-  .ContractorPopup-box {
-    padding: 20px;
-  }
-  .ContractorPopup-buttons {
-    flex-direction: column;
-  }
-  .PopupCancelBtn,
-  .PopupOkBtn {
-    width: 100%;
-    text-align: center;
-  }
-  /* Overlay */
-  .ContractorListOverlay-box {
-    padding: 16px;
-    max-height: 90vh;
-  }
-  /* Top actions */
-  .workflow-left-top-actions {
-    gap: 6px;
-    flex-wrap:nowrap;
-    overflow-y: auto;
-  }
-  .unlock-btn,
-  .view-list-btn,
-  .view-uploaded-btn {
-    padding: 8px 12px;
-    font-size: 0.8rem;
-  }
-  /* Step actions */
-  .step-1-actions {
-    flex-direction: column;
-  }
-  .step-1-actions .doc-btn {
-    width: 100%;
-    justify-content: center;
-  }
-  .contractor-form-btn {
-    flex-direction: column;
-  }
-  .contractor-form-btn .doc-btn {
-    width: 100%;
-    justify-content: center;
-  }
-  /* PDF Preview */
-  .Workflow-pdf-preview-popup {
-    max-width: 100%;
-  }
-  .Workflow-pdf-body iframe {
-    height: 40vh;
-  }
-  /* Status cards */
-  .contractor-thankyou-card {
-    padding: 24px 16px;
-  }
-  /* Selected contractor grid */
-  .selected-contractor-container {
-    padding: 16px;
-  }
-  /* Checklist */
-  .exhibitorInstructions-container {
-    gap: 8px;
-  }
-  .wf-step-num {
-    width: 28px;
-    height: 28px;
-    font-size: 0.8rem;
-  }
-  .wf-step:not(:last-child)::after {
-    height: 24px;
-  }
-
-  .workflow-left-flex-row{
-    flex-direction: column;
-  }
-
-  .wf-step:not(:last-child)::after {
-  height: 7px;
+  flex: 1;
 }
 
-.exhibitorinsructionchecklist-box{
-  gap: 0px;
+/* --- Approved Contractor Table row (inside workflow) --- */
+.ec-table-section {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--ec-border);
 }
 
-.selected-contractor-container-box {
-  margin-bottom: 0px;
-}
-
-
-.ExhibitorContractors-root {
-  min-height: auto !important;
-  height: auto !important;
-}
-
-.ExhibitorContractors-exhibitor-cont-table-container{
-
-  padding: 12px;
-}
-  
-  .mobile-step-spacer{
-    display:block;
-    height:180px;
-  }
-
-  .mobile-step-spacer.step-0{
-height: 120px;
-  }
-  .mobile-step-spacer.step-1,
-  .mobile-step-spacer.step-2,
-  .mobile-step-spacer.step-3,
-  .mobile-step-spacer.step-4{
-    height:300px;
-  }
-
-
-/* hide table head */
-.ExhibitorContractors-appointed-contractor-table thead{
-  display:none;
-}
-
-
-
-/* ===== CARD ===== */
-
-.cm-card{
-  border-radius:18px;
-  margin-bottom:14px;
-}
-
-/* ===== TOP LINE ===== */
-
-.cm-top{
-  display:flex;
-  align-items:center;
+.ec-table-header {
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  gap:10px;
+  margin-bottom: 14px;
 }
 
-/* ID */
-
-.cm-id{
-  display:flex;
-  align-items:center;
-  font-weight:500;
-  font-size:16px;
-  color:#6b7280;
-  width:28px;
-  flex-shrink:0;
+.ec-table-title {
+  font-family: var(--font-head);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ec-text);
 }
 
-/* NAME + ICON */
+.ec-table-search {
+  background: var(--ec-card);
+  border: 1px solid var(--ec-border);
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 13px;
+  color: var(--ec-text);
+  font-family: var(--font-body);
+  outline: none;
+  width: 210px;
+  transition: border-color 0.2s;
+}
+.ec-table-search:focus { border-color: var(--ec-blue); }
+.ec-table-search::placeholder { color: var(--ec-muted); }
 
-.cm-name{
-  flex:1;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  font-weight:500;
-  font-size:14px;
-  text-transform: capitalize !important;
-  color:#111827;
-  line-height:1.2;
+/* --- PDF Preview Popup (inside workflow) --- */
+.Workflow-warning-popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  z-index: 998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
 }
 
-/* SELECT BUTTON */
-
-.cm-btn{
-  background:linear-gradient(135deg,#9bbcf0,#7aa3e6);
-  color:#fff;
-  border:none;
-  padding:8px 18px;
-  border-radius:8px;
-  font-size:13px;
-  font-weight:700;
-  min-width:86px;
-  height:34px;
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
+.Workflow-pdf-preview-popup {
+  background: var(--ec-card);
+  border: 1px solid var(--ec-border);
+  border-radius: 16px;
+  width: 90%;
+  max-width: 720px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.5);
 }
 
-/* ===== COMPANY / EMAIL ROW ===== */
-
-.cm-company,
-.cm-email{
-  display:flex;
-  align-items:center;     /* icon + text vertical center */
-  gap:10px;
-  font-size:14px;
-  color:#374151;
-  font-weight:500;
-  line-height:1.35;
+.Workflow-pdf-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--ec-border);
 }
 
-/* ===== PHONE CHIP ===== */
-
-.cm-phone{
-  margin-top:8px;
-  display:inline-flex;
-  align-items:center;     /* icon + number center */
-  gap:8px;
-
-  background:#e9eef5;
-  color:#374151;
-
-  padding:6px 12px;
-  border-radius:999px;
-  font-size:13px;
-  font-weight:600;
+.Workflow-pdf-header h4 {
+  font-family: var(--font-head);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ec-text);
 }
 
-/* ===== ICON SIZES (IMPORTANT FOR ALIGNMENT) ===== */
+.Workflow-pdf-close-btn {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--ec-border);
+  color: var(--ec-muted);
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+.Workflow-pdf-close-btn:hover { color: var(--ec-text); }
 
-.cm-icon{
-  font-size:14px;
-  min-width:16px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  opacity:.8;
+.Workflow-pdf-body {
+  flex: 1;
+  overflow: auto;
+  padding: 0;
 }
 
-.cm-icon-user{
-  font-size:16px;
+.Workflow-pdf-body iframe {
+  width: 100%;
+  height: 100%;
+  min-height: 420px;
+  border: none;
 }
 
-.cm-icon-phone{
-  font-size:14px;
+.Workflow-pdf-footer {
+  padding: 16px 22px;
+  border-top: 1px solid var(--ec-border);
+  display: flex;
+  justify-content: flex-end;
 }
 
-.cm-icon-mail{
-  font-size:14px;
+.Workflow-pdf-submit-btn {
+  background: var(--ec-blue);
+  border: none;
+  color: #fff;
+  padding: 10px 22px;
+  border-radius: 9px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.Workflow-pdf-submit-btn:hover { background: #3a7de8; }
+
+/* --- Step Panels --- */
+.ec-step-panels {
+  padding: 0 24px 28px;
 }
 
-
-  
+.Workflow-panel {
+  transition: transform 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.35s;
 }
-/* ═══════════════════════════════════════
-   RESPONSIVE — VERY SMALL (≤380px)
-   ═══════════════════════════════════════ */
-@media (max-width: 380px) {
-  .ExhibitorContractors-root {
-    padding: 8px;
+
+.Workflow-panel.show      { transform: translateX(0);    opacity: 1; }
+.Workflow-panel.hide-left { transform: translateX(-30px); opacity: 0; display: none; }
+.Workflow-panel.hide-right{ transform: translateX(30px);  opacity: 0; display: none; }
+
+.ec-step-panel {
+  background: var(--ec-card);
+  border: 1px solid var(--ec-border);
+  border-radius: 14px;
+  margin-top: 18px;
+  overflow: hidden;
+}
+
+.ec-step-panel.ec-panel-active {
+  border-color: rgba(79,142,247,0.4);
+  box-shadow: 0 0 0 1px rgba(79,142,247,0.12);
+}
+
+.ec-step-panel.ec-panel-locked { opacity: 0.5; }
+
+.ec-step-panel-header {
+  background: linear-gradient(135deg, rgba(79,142,247,0.08), rgba(245,166,35,0.04));
+  border-bottom: 1px solid var(--ec-border);
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ec-step-panel-header.ec-ph-active {
+  background: linear-gradient(135deg, rgba(79,142,247,0.15), rgba(79,142,247,0.04));
+}
+
+.ec-step-panel-badge {
+  width: 32px;
+  height: 32px;
+  background: var(--ec-blue);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 14px;
+  color: #fff;
+  flex-shrink: 0;
+}
+.ec-step-panel-badge.ec-badge-done   { background: var(--ec-green); }
+.ec-step-panel-badge.ec-badge-locked { background: var(--ec-muted); }
+
+.ec-step-panel-title {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--ec-text);
+}
+
+.ec-step-panel-status {
+  font-size: 12px;
+  margin-top: 2px;
+}
+.ec-step-panel-status.done        { color: var(--ec-green); }
+.ec-step-panel-status.in-progress { color: var(--ec-blue); }
+.ec-step-panel-status.locked      { color: var(--ec-muted); }
+
+.ec-step-panel-body {
+  padding: 18px 20px;
+  display: flex;
+  gap: 24px;
+}
+
+.ec-step-instructions {
+  flex: 1;
+}
+
+.ec-step-instructions ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+}
+
+.ec-step-instructions ul li {
+  font-size: 13px;
+  color: var(--ec-sub);
+  line-height: 1.55;
+  padding-left: 18px;
+  position: relative;
+}
+
+.ec-step-instructions ul li::before {
+  content: '›';
+  position: absolute;
+  left: 0;
+  color: var(--ec-blue);
+  font-size: 16px;
+  top: -1px;
+  font-weight: 700;
+}
+
+.ec-step-note {
+  margin-top: 12px;
+  background: rgba(245,166,35,0.07);
+  border: 1px solid rgba(245,166,35,0.22);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: #c8a040;
+  line-height: 1.5;
+}
+
+.field-error {
+  font-size: 12px;
+  color: var(--ec-accent);
+  background: rgba(245,166,35,0.07);
+  border: 1px solid rgba(245,166,35,0.2);
+  border-radius: 8px;
+  padding: 10px 14px;
+  line-height: 1.5;
+}
+
+/* ── Step Action Buttons ── */
+.ec-step-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-width: 150px;
+  align-items: stretch;
+}
+
+.doc-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px 16px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: all 0.2s;
+  border: none;
+  white-space: nowrap;
+}
+
+.doc-btn.download-btn,
+.doc-btn.download {
+  background: rgba(245,166,35,0.12);
+  border: 1px solid rgba(245,166,35,0.3);
+  color: var(--ec-accent);
+}
+.doc-btn.download-btn:hover { background: rgba(245,166,35,0.2); }
+
+.doc-btn.upload,
+.doc-btn:not(.download-btn):not(.download):not(.Workflow-next-btn):not(.send-form-btn) {
+  background: rgba(79,142,247,0.1);
+  border: 1px solid rgba(79,142,247,0.3);
+  color: var(--ec-blue);
+}
+
+.send-form-btn {
+  background: rgba(46,204,122,0.1) !important;
+  border: 1px solid rgba(46,204,122,0.3) !important;
+  color: var(--ec-green) !important;
+}
+
+.Workflow-next-btn {
+  background: var(--ec-blue) !important;
+  color: #fff !important;
+  border: none !important;
+}
+.Workflow-next-btn:disabled {
+  opacity: 0.35 !important;
+  cursor: not-allowed !important;
+}
+
+.contractor-form-btn {
+  margin: 12px 0 0;
+}
+
+.step-1-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-top: 14px;
+}
+
+/* label as button */
+label.doc-btn {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  background: rgba(79,142,247,0.1);
+  border: 1px solid rgba(79,142,247,0.3);
+  color: var(--ec-blue);
+}
+
+.doc-icon-exhibitor { font-size: 12px; }
+
+/* ── Status / Thank you Cards ── */
+.contractor-thankyou-card {
+  margin: 20px 0;
+  border-radius: 14px;
+  padding: 30px;
+  text-align: center;
+  border: 1px solid;
+}
+.contractor-thankyou-card.warning  { background: rgba(245,166,35,0.07); border-color: rgba(245,166,35,0.3); }
+.contractor-thankyou-card.rejected { background: rgba(224,92,92,0.07);  border-color: rgba(224,92,92,0.3); }
+.contractor-thankyou-card.success  { background: rgba(46,204,122,0.07); border-color: rgba(46,204,122,0.3); }
+
+.contractor-thankyou-card h3 {
+  font-family: var(--font-head);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ec-text);
+  margin-bottom: 8px;
+}
+.contractor-thankyou-card p { font-size: 13px; color: var(--ec-muted); }
+
+.reject-reason-box {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(224,92,92,0.25);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: var(--ec-sub);
+  margin: 12px 0 18px;
+  text-align: left;
+}
+
+/* ── Mobile step spacer ── */
+.mobile-step-spacer { display: none; }
+
+/* ════════════════════════════════════════
+   BLACK & WHITE TABLE THEME
+════════════════════════════════════════ */
+.ec-bw-table-wrap {
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  overflow-x: auto;
+}
+
+.ec-bw-table {
+  background: #fff !important;
+}
+
+.ec-bw-table th {
+  background: #f3f4f6 !important;
+  color: #374151 !important;
+  border-bottom: 2px solid #e5e7eb !important;
+  font-family: var(--font-head);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 10px 14px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.ec-bw-table td {
+  background: #fff !important;
+  color: #111827 !important;
+  border-bottom: 1px solid #f3f4f6 !important;
+  padding: 11px 14px;
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+.ec-bw-table tr:hover td {
+  background: #f9fafb !important;
+}
+
+.ec-td-num     { color: #9ca3af !important; font-size: 12px !important; }
+.ec-td-company { font-weight: 600 !important; color: #111827 !important; }
+.ec-td-email   { color: #6b7280 !important; font-size: 12px !important; }
+
+.ec-badge-city-bw {
+  font-size: 11px;
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-weight: 600;
+}
+
+/* ════════════════════════════════════════
+   LOCKED STATE — disabled buttons overlay
+════════════════════════════════════════ */
+.ec-actions-locked {
+  opacity: 0.4;
+  pointer-events: none;
+  user-select: none;
+  cursor: not-allowed;
+}
+
+.ec-btn-disabled {
+  opacity: 0.4 !important;
+  pointer-events: none !important;
+  cursor: not-allowed !important;
+}
+
+/* Upload label styled as blue button */
+.ec-upload-btn {
+  background: rgba(79,142,247,0.1);
+  border: 1px solid rgba(79,142,247,0.3);
+  color: var(--ec-blue);
+}
+.ec-upload-btn:not(.ec-btn-disabled):hover {
+  background: rgba(79,142,247,0.18);
+}
+
+/* ====================================================
+   RESPONSIVE
+   ==================================================== */
+@media (max-width: 900px) {
+  .ExhibitorContractors-main-container-split {
+    grid-template-columns: 1fr;
   }
-  .ExhibitorContractors-heading {
-    font-size: 1rem;
+
+  .ExhibitorContractors-leftContainer {
+    border-right: none;
+    border-bottom: 1px solid var(--ec-border);
+    position: static;
+    min-height: auto;
   }
-  .ExhibitorInstructions h4 {
-    font-size: 0.95rem;
+
+  .left-layer {
+    position: static;
+    transform: none !important;
+    opacity: 1 !important;
   }
-  .instruction-alignment li,
-  .ExhibitorContractors-points li {
-    font-size: 0.8rem;
-  }
-  /* Hide even more columns */
-  .ExhibitorContractors-appointed-contractor-table th:nth-child(3),
-  .ExhibitorContractors-appointed-contractor-table td:nth-child(3) {
+
+  .left-layer.slide-out-left,
+  .left-layer.hidden {
     display: none;
   }
-  .unlock-btn,
-  .view-list-btn,
-  .view-uploaded-btn {
-    padding: 6px 10px;
-    font-size: 0.75rem;
-  }
-  .ContractorPopup-box,
-  .pdf-preview-card.small-card {
-    padding: 16px;
-  }
+
+  .ec-header { padding: 14px 18px; }
+  .ec-action-bar { padding: 12px 18px; }
+  .ec-table-section { padding: 16px 18px; }
+  .ec-step-panels { padding: 0 18px 20px; }
+
+  .ec-step-panel-body { flex-direction: column; }
+  .ec-step-actions { flex-direction: row; flex-wrap: wrap; min-width: unset; }
+
+  .d-only { display: none; }
+  .m-only { display: table-cell; }
+
+  .mobile-step-spacer { display: block; height: 20px; }
 }
-
-
-/* contractor table in mobile showing in cards start */
-
-/* contractor table in mobile showing in cards end */

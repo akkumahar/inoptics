@@ -1687,11 +1687,7 @@ html, body {
 }
 
 
-.ExhibitorContractors-exhibitor-cont-table-container {
-  max-height: 520px;
-  overflow-y: auto;
-  overflow-x: hidden !important;
-}
+
 
 
 .ExhibitorContractors-appointed-contractor-table {
@@ -1795,7 +1791,6 @@ html, body {
   font-family: "Montserrat", sans-serif;
   font-size: 14px;
   font-weight: 500;
-  margin-top: 20px;
   margin-bottom: 4px;
   color: #37474f;
 }

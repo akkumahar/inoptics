@@ -84,7 +84,7 @@ const StallDetailsCard = ({ stallList }) => (
         stallList.map((stall, idx) => (
           <div key={idx} className="profile-details-grid">
             <Detail label="Stall Number" value={stall.stall_number} />
-            <Detail label="Stall Category" value={stall.stall_category} />
+            {/* <Detail label="Stall Category" value={stall.stall_category} /> */}
             <Detail
               label="Stall Price"
               value={stall.stall_price ? `₹${stall.stall_price}` : null}

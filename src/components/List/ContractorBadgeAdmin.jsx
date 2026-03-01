@@ -33,36 +33,36 @@ const ContractorBadgeAdmin = () => {
     }
   };
 
-  const handleUnlock = async (company) => {
-    setProcessing(company);
+  const handleUnlock = async (id) => {
+  setProcessing(id);
 
-    try {
-      const res = await fetch(
-        "https://inoptics.in/api/unlock_contractor_badge.php",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            exhibitor_company_name: company,
-          }),
-        }
-      );
-
-      const data = await res.json();
-
-      if (data.success) {
-        toast.success("Badge unlocked successfully");
-        fetchBadges();
-      } else {
-        toast.error(data.message || "Unlock failed");
+  try {
+    const res = await fetch(
+      "https://inoptics.in/api/unlock_contractor_badge.php",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
       }
-    } catch (err) {
-      console.error(err);
-      toast.error("Server error while unlocking");
-    } finally {
-      setProcessing(null);
+    );
+
+    const data = await res.json();
+
+    if (data.success) {
+      toast.success("Badge unlocked successfully");
+      fetchBadges();
+    } else {
+      toast.error(data.message || "Unlock failed");
     }
-  };
+  } catch (err) {
+    console.error(err);
+    toast.error("Server error while unlocking");
+  } finally {
+    setProcessing(null);
+  }
+};
+
+
 
   return (
     <div className="table-scroll-wrapper">
@@ -89,37 +89,48 @@ const ContractorBadgeAdmin = () => {
                 <td colSpan="6">No badge records</td>
               </tr>
             ) : (
-              rows.map((row, index) => (
-                <tr key={row.id}>
-                  <td>{index + 1}</td>
-                  <td>{row.exhibitor_company_name}</td>
-                  <td>{row.contractor_company_name}</td>
-                  <td>{row.badge_quantity}</td>
-                  <td>
-                    {Number(row.is_locked) === 1 ? (
-                      <span className="status-locked">Locked</span>
-                    ) : (
-                      <span className="status-unlocked">Unlocked</span>
-                    )}
-                  </td>
+              rows.map((row, index) => {
+  const lockStatus = Number(row.is_locked);
 
-                  <td>
-                    {Number(row.is_locked) === 1 && (
-                      <button
-                        className="action-btn unlock-btn"
-                        disabled={processing === row.exhibitor_company_name}
-                        onClick={() =>
-                          handleUnlock(row.exhibitor_company_name)
-                        }
-                      >
-                        {processing === row.exhibitor_company_name
-                          ? "Unlocking..."
-                          : "Unlock"}
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))
+  return (
+    <tr key={row.id}>
+      <td>{index + 1}</td>
+      <td>{row.exhibitor_company_name}</td>
+      <td>{row.contractor_company_name}</td>
+      <td>{row.badge_quantity}</td>
+
+      <td>
+        {lockStatus === 0 && (
+          <span className="status-unlocked">Unlocked</span>
+        )}
+
+        {lockStatus === 1 && (
+          <span className="status-locked">Locked</span>
+        )}
+
+        {lockStatus === 2 && (
+          <span className="status-requested">
+            Unlock Requested
+          </span>
+        )}
+      </td>
+
+      <td>
+        {lockStatus === 2 && (
+          <button
+            className="btn approve"
+            disabled={processing === row.id}
+            onClick={() => handleUnlock(row.id)}
+          >
+            {processing === row.id
+              ? "Processing..."
+              : "Approve Unlock"}
+          </button>
+        )}
+      </td>
+    </tr>
+  );
+})
             )}
           </tbody>
         </table>

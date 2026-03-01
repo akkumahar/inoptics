@@ -102,8 +102,8 @@ const ExhibitorPaymentCards = ({
         <div className="sd-label">Stall Number:</div>
         <div className="sd-value">{stall.stall_number || "-"}</div>
 
-        <div className="sd-label">Stall Category:</div>
-        <div className="sd-value">{stall.stall_category || "-"}</div>
+        {/* <div className="sd-label">Stall Category:</div>
+        <div className="sd-value">{stall.stall_category || "-"}</div> */}
 
         <div className="sd-label">Stall Area:</div>
         <div className="sd-value">
@@ -212,7 +212,7 @@ const ExhibitorPaymentCards = ({
   const b = getExhibitorBadgeBilling() || {};
 
   // ✅ date based badge price
-  const cutoff = new Date("2026-02-28T23:59:59");
+  const cutoff = new Date("2026-03-20T23:59:59");
   const now = new Date();
   const amountPerBadge = now <= cutoff ? 100 : 200;
 

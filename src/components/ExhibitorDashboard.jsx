@@ -27,6 +27,7 @@ import ExhibitorFurnitureRequirements from "./ExhibitorDashboardComponent/Exhibi
 import ExhibitorPowerRequirement from "./ExhibitorDashboardComponent/ExhibitorPowerRequirement";
 import ExhibitorContractors from "./ExhibitorDashboardComponent/ExhibitorContractors";
 import ContractorBadgeForm from "./ExhibitorDashboardComponent/ContractorBadgeForm";
+import ExhibitorFaciaForm from "./ExhibitorDashboardComponent/ExhibitorFacia";
 
 const ExhibitorDashboard = () => {
   const navigate = useNavigate();
@@ -70,6 +71,9 @@ const [loadingRemarks, setLoadingRemarks] = useState(false);
 const [remarkError, setRemarkError] = useState(null);
 const [isEditMode, setIsEditMode] = useState(false);
 
+const [stepSubmitted, setStepSubmitted] = useState({});
+const [unlockStatus, setUnlockStatus] = useState({});
+
 
   // Fetch Products
   const fetchProducts = async () => {
@@ -93,6 +97,8 @@ const [isEditMode, setIsEditMode] = useState(false);
     const saved = localStorage.getItem(CONTRACTOR_STEP_KEY);
     return saved ? Number(saved) : 0;
   });
+
+  const [contractorViewStep, setContractorViewStep] = useState(1);
 
   useEffect(() => {
     localStorage.setItem(CONTRACTOR_STEP_KEY, currentStep);
@@ -329,6 +335,7 @@ const [isEditMode, setIsEditMode] = useState(false);
     { name: "Contractors", icon: <FaRegHandshake  /> },
     { name: "Exhibitor Badges", icon: <FaRegIdBadge  /> },
     { name: "Contractor Badges", icon: <FaIdCard   /> },
+    { name: "Fascia Name", icon: <FaIdCard   /> },
     { name: "Payment", icon: <FaMoneyBill /> },
   ];
 
@@ -2784,59 +2791,55 @@ const [isEditMode, setIsEditMode] = useState(false);
   }, [grandTotal, powerCleared]);
 
   const handleFinalUpload = async () => {
-    if (!selectedFile) return;
+  if (!selectedFile) {
+    throw new Error("No file selected");
+  }
 
-    // ✅ decide form_type from step
-    let formType = "";
-    if (currentStep === 1) formType = "appointed";
-    else if (currentStep === 2) formType = "undertaking";
-    else if (currentStep === 3) formType = "booth_design"; // optional future
+  let formType = "";
+  if (currentStep === 1) formType = "appointed";
+  else if (currentStep === 2) formType = "undertaking";
+  else if (currentStep === 3) formType = "booth_design";
 
-    const uploadData = new FormData();
-    uploadData.append("file", selectedFile);
-    uploadData.append("exhibitor_company_name", formData.company_name);
-    uploadData.append("form_type", formType); // ✅ NEW LINE
+  const uploadData = new FormData();
+  uploadData.append("file", selectedFile);
+  uploadData.append("exhibitor_company_name", formData.company_name);
+  uploadData.append("form_type", formType);
 
-    try {
-      const res = await fetch(
-        "https://inoptics.in/api/upload_exhibitor_form.php",
-        {
-          method: "POST",
-          body: uploadData,
-        },
-      );
-
-      const data = await res.json();
-      setUploadedFileURL(data.file_path);
-
-      if (data.success) {
-        toast.success("Form uploaded successfully!");
-
-        setUploadedFiles((prev) => {
-          const updated = {
-            ...prev,
-            [`step${currentStep}`]: data.file_path,
-          };
-          console.log("Uploaded Files:", updated);
-          return updated;
-        });
-
-        setUploadedSteps((prev) => ({
-          ...prev,
-          [`step${currentStep}`]: true,
-        }));
-
-        setShowPreview(false);
-        setSelectedFile(null);
-        setPreviewURL(null);
-      } else {
-        toast.error(data.message || "Upload failed");
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Upload error");
+  const res = await fetch(
+    "https://inoptics.in/api/upload_exhibitor_form.php",
+    {
+      method: "POST",
+      body: uploadData,
     }
-  };
+  );
+
+  const data = await res.json();
+
+  if (!data.success) {
+    throw new Error(data.message || "Upload failed");
+  }
+
+  // ✅ Success Logic
+  setUploadedFileURL(data.file_path);
+
+  setUploadedFiles((prev) => ({
+    ...prev,
+    [`step${currentStep}`]: data.file_path,
+  }));
+
+  setUploadedSteps((prev) => ({
+    ...prev,
+    [`step${currentStep}`]: true,
+  }));
+
+  setShowPreview(false);
+  setSelectedFile(null);
+  setPreviewURL(null);
+
+  return data;
+};
+
+
 
   const handleFileSelect = (e) => {
     const file = e.target.files?.[0];
@@ -2851,54 +2854,103 @@ const [isEditMode, setIsEditMode] = useState(false);
 
   // booth design upload handler
   const handleBoothDesignUpload = async () => {
-    if (!selectedFile) {
-      toast.error("No file selected");
+
+  if (!selectedFile) {
+    toast.error("No file selected");
+    return;
+  }
+
+  const uploadData = new FormData();
+  uploadData.append("file", selectedFile);
+  uploadData.append("company_name", formData.company_name);
+
+  try {
+
+    // 🔹 STEP 1: Upload
+    const res = await fetch(
+      "https://inoptics.in/api/upload_booth_design_file.php",
+      { method: "POST", body: uploadData }
+    );
+
+    const data = await res.json();
+
+    if (!data.success) {
+      toast.error("Upload failed");
       return;
     }
 
-    const uploadData = new FormData();
-    uploadData.append("file", selectedFile);
-    uploadData.append("company_name", formData.company_name);
+    // 🔹 STEP 2: Lock Step 4 (Booth step)
+    const fd = new FormData();
+    fd.append("exhibitor_company_name", formData.company_name);
+    fd.append("step_number", 4);
 
+    await fetch(
+      "https://inoptics.in/api/lock_contractor_step_status.php",
+      { method: "POST", body: fd }
+    );
+
+    // 🔹 STEP 3: Update UI
+    setStepSubmitted((prev) => ({
+      ...prev,
+      4: true,
+    }));
+
+    fetchUnlockStatus();
+
+    toast.success("Booth design uploaded & locked!");
+
+    setUploadedSteps((prev) => ({
+      ...prev,
+      step3: true,
+    }));
+
+    setSelectedFile(null);
+    setPreviewURL(null);
+    setShowBoothDesignPreview(false);
+
+  } catch (err) {
+    console.error(err);
+    toast.error("Upload failed");
+  }
+};
+
+
+
+const fetchUnlockStatus = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/upload_booth_design_file.php",
-        {
-          method: "POST",
-          body: uploadData,
-        },
+        `https://inoptics.in/api/get_contractor_unlock_step_status.php?exhibitor_company_name=${encodeURIComponent(formData.company_name)}`
       );
+      if (!res.ok) { console.error("Server error:", res.status); return; }
+      const text = await res.text();
+      if (!text) { console.warn("Empty response from server"); return; }
+      const data = JSON.parse(text);
+      if (data.success) {
+        const steps = data.steps || {};
+        setUnlockStatus(steps);
 
-      const data = await res.json();
-      console.log("BOOTH UPLOAD RESPONSE:", data);
-
-      if (!data.success) {
-        toast.error("Upload failed");
-        return;
+        // ✅ DB se stepSubmitted restore karo:
+        // Jo bhi step DB mein hai (locked/pending/rejected) = submitted tha
+        // Sirf "approved" = admin ne unlock kiya = submitted nahi
+        setStepSubmitted((prev) => {
+          const updated = { ...prev };
+          Object.keys(steps).forEach((stepKey) => {
+            const n = parseInt(stepKey);
+            if (steps[stepKey]?.status === "approved") {
+              updated[n] = false; // admin approved → unlock
+            } else {
+              updated[n] = true;  // locked/pending/rejected → was submitted, keep locked
+            }
+          });
+          return updated;
+        });
       }
-
-      toast.success("Booth design uploaded!");
-
-      // ⭐⭐⭐ THIS LINE WAS MISSING — BUTTON SHOW FIX
-      setUploadedFiles((prev) => ({
-        ...prev,
-        step3: data.file_path || "booth_uploaded",
-      }));
-
-      // mark step complete
-      setUploadedSteps((prev) => ({
-        ...prev,
-        step3: true,
-      }));
-
-      setSelectedFile(null);
-      setPreviewURL(null);
-      setShowBoothDesignPreview(false);
     } catch (err) {
-      console.error(err);
-      toast.error("Upload failed");
+      console.error("unlock fetch error", err);
     }
   };
+
+
 
   useEffect(() => {
     if (!formData.company_name) return;
@@ -3792,8 +3844,15 @@ const fetchCompanyRemarks = async () => {
               <div className="contractor-ui-root">
                 {!importantPage && activeMenu === "Contractors" && (
                   <ExhibitorContractors
+                    handleBoothDesignUpload={handleBoothDesignUpload}
+  stepSubmitted={stepSubmitted}
+  unlockStatus={unlockStatus}
+  setStepSubmitted={setStepSubmitted}
+  fetchUnlockStatus={fetchUnlockStatus}
                     importantPage={importantPage}
+                    contractorViewStep={contractorViewStep}
                     activeMenu={activeMenu}
+                    setActiveMenu={setActiveMenu}
                     showPopup={showPopup}
                     setShowPopup={setShowPopup}
                     selectedContractorTemp={selectedContractorTemp}
@@ -3838,7 +3897,6 @@ const fetchCompanyRemarks = async () => {
                     setBoothRejectReason={setBoothRejectReason}
                     showBoothDesignPreview={showBoothDesignPreview}
                     setShowBoothDesignPreview={setShowBoothDesignPreview}
-                    handleBoothDesignUpload={handleBoothDesignUpload}
                   />
 
                   // <div className="contractor-ui-body">
@@ -3858,12 +3916,27 @@ const fetchCompanyRemarks = async () => {
 
               {activeMenu === "Contractor Badges" && currentExhibitor &&(
                 <ContractorBadgeForm
+                
+                setActiveMenu={setActiveMenu}
+                setCurrentStep={setCurrentStep}
+                setContractorViewStep={setContractorViewStep}   // 👈 NEW
                 exhibitorCompany={currentExhibitor.company_name}
-                  setIsInExhibitorBadges={setIsInExhibitorBadges}
-                  setHasGeneratedBadge={setHasGeneratedBadge}
-                  setHasUnlockedBadge={setHasUnlockedBadge}
+                setIsInExhibitorBadges={setIsInExhibitorBadges}
+                setHasGeneratedBadge={setHasGeneratedBadge}
+                setHasUnlockedBadge={setHasUnlockedBadge}
                 />
               )}
+
+              
+              {activeMenu === "Fascia Name" && currentExhibitor &&(
+                <ExhibitorFaciaForm
+                  companyName={currentExhibitor.company_name}
+                  stallNo={currentExhibitor.stall_no}
+                  city={currentExhibitor.city}
+                />
+              )}
+               
+             
 
 
               {!importantPage && activeMenu === "Payment" && (

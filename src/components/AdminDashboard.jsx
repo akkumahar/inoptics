@@ -62,6 +62,8 @@ import ExhibitorForms from "./List/ExhibitorForms";
 import PowerVendor from "./List/PowerVendor";
 import FurnitureVendor from "./List/FurnitureVendor";
 import ContractorBadgeAdmin from "./List/ContractorBadgeAdmin";
+import ContractorStepsUnlockAdmin from "./List/ContractorStepsUnlockAdmin";
+import FinalContractorListTable from "./List/FinalContractorListTable";
 // import { useMemo } from 'react';
 
 const AdminDashboard = () => {
@@ -92,7 +94,6 @@ const AdminDashboard = () => {
   const [remarkSaved, setRemarkSaved] = useState(false);
   const [companyRemarks, setCompanyRemarks] = useState([]);
   const [editingRemarkId, setEditingRemarkId] = useState(null);
-
 
   const handleImageSelect = (e) => {
     const file = e.target.files[0];
@@ -4250,7 +4251,7 @@ const AdminDashboard = () => {
       .then((data) => {
         if (data.success) {
           console.log("exhibitor stall payment", data);
-          
+
           const normalized = data.records.map((pay) => ({
             type: pay.payment_type || pay.type || "",
             date: pay.payment_date || pay.date || "",
@@ -4373,7 +4374,7 @@ const AdminDashboard = () => {
 
     if (data.success) {
       console.log("exhibitor second methos api fetch data", data);
-      
+
       const normalized = data.records.map((pay) => ({
         type: pay.payment_type || "",
         date: pay.payment_date || "",
@@ -5322,40 +5323,38 @@ const AdminDashboard = () => {
       const data = await res.json();
 
       if (data.success) {
-        console.log('fetch all payment', data)
+        console.log("fetch all payment", data);
         // Map the backend data to frontend structure
         const safeNum = (val) => Number(val) || 0;
 
-const normalized = data.records.map((r, idx) => ({
-  id: idx + 1,
-  company_name: r.company_name || "N/A",
-  state: r.state || "",
+        const normalized = data.records.map((r, idx) => ({
+          id: idx + 1,
+          company_name: r.company_name || "N/A",
+          state: r.state || "",
 
-  stall: safeNum(r.stall_total),
-  power: safeNum(r.power_total),
-  exhibitorBadgesTotal: safeNum(r.badges_total),
+          stall: safeNum(r.stall_total),
+          power: safeNum(r.power_total),
+          exhibitorBadgesTotal: safeNum(r.badges_total),
 
-  // ✅ Paid
-  stallPaid: safeNum(r.paid_exhibitor),
-  powerPaid: safeNum(r.paid_power),
-  badgePaid: safeNum(r.paid_badge),
+          // ✅ Paid
+          stallPaid: safeNum(r.paid_exhibitor),
+          powerPaid: safeNum(r.paid_power),
+          badgePaid: safeNum(r.paid_badge),
 
-  paid_total: safeNum(r.paid_total),
-  total: safeNum(r.total),
-  pending: safeNum(r.pending),
+          paid_total: safeNum(r.paid_total),
+          total: safeNum(r.total),
+          pending: safeNum(r.pending),
 
-  // ✅ TDS
-  stall_tds: safeNum(r.stall_tds_total),
-  power_tds: safeNum(r.power_tds_total),
-  badge_tds: safeNum(r.badge_tds_total),
-  total_tds: safeNum(r.total_tds),
+          // ✅ TDS
+          stall_tds: safeNum(r.stall_tds_total),
+          power_tds: safeNum(r.power_tds_total),
+          badge_tds: safeNum(r.badge_tds_total),
+          total_tds: safeNum(r.total_tds),
 
-  stall_payments: r.stall_payments || "-",
-  power_payments: r.power_payments || "-",
-  badge_payments: r.badge_payments || "-",
-}));
-
-
+          stall_payments: r.stall_payments || "-",
+          power_payments: r.power_payments || "-",
+          badge_payments: r.badge_payments || "-",
+        }));
 
         setPaymentsData(normalized);
       } else {
@@ -5923,6 +5922,7 @@ const normalized = data.records.map((r, idx) => ({
     try {
       const res = await fetch("https://inoptics.in/api/get_exhibitors.php");
       const data = await res.json();
+      console.log("exhibitor data working api", data);
       setExhibitorData(data);
     } catch (error) {
       console.error("Failed to fetch exhibitors:", error);
@@ -6272,7 +6272,7 @@ const normalized = data.records.map((r, idx) => ({
   }, [activeNavbarItem, formData.company_name, contractorData]);
 
   useEffect(() => {
-    if (activeContractorTab === "Final List") {
+    if (activeContractorTab === "Booth Design") {
       fetchAllFinalSelections();
     }
   }, [activeContractorTab]);
@@ -6779,29 +6779,81 @@ const normalized = data.records.map((r, idx) => ({
       });
   };
 
-  const handleExibitorBadgesSubmit = (e) => {
+  const handleExhibitorBadgesSubmit = async (e) => {
     e.preventDefault();
 
-    fetch("https://inoptics.in/api/update_Exhibitor_badges.php", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        company_name: formData.company_name,
-        free_badges: formData.free_badges,
-        extra_badges: formData.extra_badges,
-      }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          alert("Badges updated successfully");
-        } else {
-          alert(data.error || "Failed to update badges.");
-        }
-      })
-      .catch(() => alert("Error updating exhibitor badges."));
+    const extraValue = Number(formData.extra_badges);
+
+    // ❌ Block negative only
+    if (extraValue < 0) {
+      alert("Extra badges cannot be negative");
+      return;
+    }
+
+    // Optional: block NaN
+    if (isNaN(extraValue)) {
+      alert("Enter valid extra badge count");
+      return;
+    }
+
+    try {
+      const res = await fetch(
+        "https://inoptics.in/api/update_Exhibitor_badges.php",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            company_name: formData.company_name,
+            extra_badges: extraValue, // 0 allowed now
+          }),
+        },
+      );
+
+      const data = await res.json();
+
+      if (data.success) {
+        alert("Extra badges updated successfully");
+      } else {
+        alert(data.error || "Failed to update extra badges.");
+      }
+    } catch (error) {
+      alert("Error updating exhibitor badges.");
+    }
+  };
+
+  const handleUpdateFreeExhibitorBadgesSubmit = async () => {
+    if (!formData.free_badges || formData.free_badges <= 0) {
+      alert("Enter valid free badge count");
+      return;
+    }
+
+    try {
+      const res = await fetch(
+        "https://inoptics.in/api/update_Exhibitor_Free_badges.php",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            company_name: formData.company_name,
+            free_badges: Number(formData.free_badges),
+          }),
+        },
+      );
+
+      const data = await res.json();
+
+      if (data.success) {
+        alert("Free badges updated successfully");
+      } else {
+        alert(data.error || "Failed to update badges.");
+      }
+    } catch (error) {
+      alert("Error updating exhibitor badges.");
+    }
   };
 
   const getCurrencySymbol = (name) => {
@@ -8399,79 +8451,75 @@ const normalized = data.records.map((r, idx) => ({
   };
 
   const saveExhibitorInstruction = async () => {
-  if (!instructionEditorData.trim()) {
-    alert("Instruction content cannot be empty.");
-    return;
-  }
-
-  const isEditing = editInstructionId !== null;
-
-  const endpoint = isEditing
-    ? "https://inoptics.in/api/update_exhibitor_instruction.php"
-    : "https://inoptics.in/api/add_exhibitor_instruction.php";
-
-  const payload = isEditing
-    ? { id: editInstructionId, content: instructionEditorData }
-    : { content: instructionEditorData };
-
-  try {
-    const res = await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    const data = await res.json();
-    console.log("API Response:", data);
-
-    if (!data.success && isEditing) {
-      alert(data.message || "Update failed");
+    if (!instructionEditorData.trim()) {
+      alert("Instruction content cannot be empty.");
       return;
     }
 
-    setInstructionModalOpen(false);
-    setInstructionEditorData("");
-    setEditingIndex(null);
-    setEditInstructionId(null);
-    fetchExhibitorInstructions();
+    const isEditing = editInstructionId !== null;
 
-  } catch (err) {
-    console.error("Failed to save instruction", err);
-  }
-};
+    const endpoint = isEditing
+      ? "https://inoptics.in/api/update_exhibitor_instruction.php"
+      : "https://inoptics.in/api/add_exhibitor_instruction.php";
 
-  const deleteExhibitorInstruction = async (id) => {
-  const confirmDelete = window.confirm(
-    "Are you sure you want to delete this instruction?"
-  );
-  if (!confirmDelete) return;
+    const payload = isEditing
+      ? { id: editInstructionId, content: instructionEditorData }
+      : { content: instructionEditorData };
 
-  try {
-    const res = await fetch(
-      "https://inoptics.in/api/delete_exhibitor_instruction.php",
-      {
+    try {
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id }),   // ✅ correct
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      console.log("API Response:", data);
+
+      if (!data.success && isEditing) {
+        alert(data.message || "Update failed");
+        return;
       }
-    );
 
-    const data = await res.json();
-    console.log("Delete Response:", data);
-
-    if (!data.success) {
-      alert(data.message || "Delete failed");
-      return;
+      setInstructionModalOpen(false);
+      setInstructionEditorData("");
+      setEditingIndex(null);
+      setEditInstructionId(null);
+      fetchExhibitorInstructions();
+    } catch (err) {
+      console.error("Failed to save instruction", err);
     }
+  };
 
-    fetchExhibitorInstructions();
+  const deleteExhibitorInstruction = async (id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this instruction?",
+    );
+    if (!confirmDelete) return;
 
-  } catch (err) {
-    console.error("Failed to delete instruction", err);
-  }
-};
+    try {
+      const res = await fetch(
+        "https://inoptics.in/api/delete_exhibitor_instruction.php",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id }), // ✅ correct
+        },
+      );
 
+      const data = await res.json();
+      console.log("Delete Response:", data);
 
+      if (!data.success) {
+        alert(data.message || "Delete failed");
+        return;
+      }
+
+      fetchExhibitorInstructions();
+    } catch (err) {
+      console.error("Failed to delete instruction", err);
+    }
+  };
 
   useEffect(() => {
     fetchExhibitorRules();
@@ -13143,148 +13191,125 @@ const normalized = data.records.map((r, idx) => ({
     }
   };
 
-
   const handleDeleteCompanyRemark = async (id) => {
-  if (!window.confirm("Delete this remark?")) return;
+    if (!window.confirm("Delete this remark?")) return;
 
-  try {
-    const res = await fetch(
-      "https://inoptics.in/api/delete_exhibitor_remark.php",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id }),
+    try {
+      const res = await fetch(
+        "https://inoptics.in/api/delete_exhibitor_remark.php",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id }),
+        },
+      );
+
+      const data = await res.json();
+
+      if (data.success) {
+        fetchCompanyRemarks();
       }
-    );
-
-    const data = await res.json();
-
-    if (data.success) {
-      fetchCompanyRemarks();
+    } catch (err) {
+      console.error(err);
     }
-  } catch (err) {
-    console.error(err);
-  }
-};
+  };
 
+  const handleUpdateCompanyRemark = async () => {
+    if (!editingRemarkId || !remarkText.trim()) return;
 
+    try {
+      const res = await fetch(
+        "https://inoptics.in/api/update_exhibitor_remark.php",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: editingRemarkId,
+            remark: remarkText,
+          }),
+        },
+      );
 
+      const data = await res.json();
 
-const handleUpdateCompanyRemark = async () => {
-  if (!editingRemarkId || !remarkText.trim()) return;
+      if (data.success) {
+        fetchCompanyRemarks();
 
-  try {
-    const res = await fetch(
-      "https://inoptics.in/api/update_exhibitor_remark.php",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: editingRemarkId,
-          remark: remarkText,
-        }),
+        // 🔥 RESET AFTER UPDATE
+        setRemarkText("");
+        setEditingRemarkId(null);
+        setRemarkSaved(false);
       }
-    );
-
-    const data = await res.json();
-
-    if (data.success) {
-      fetchCompanyRemarks();
-
-      // 🔥 RESET AFTER UPDATE
-      setRemarkText("");
-      setEditingRemarkId(null);
-      setRemarkSaved(false);
+    } catch (err) {
+      console.error(err);
     }
+  };
 
-  } catch (err) {
-    console.error(err);
-  }
-};
+  const handleSaveRemark = async () => {
+    if (!remarkText.trim()) return;
 
+    try {
+      const res = await fetch(
+        "https://inoptics.in/api/add_exhibitor_remark.php",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            company_name: formData.company_name,
+            remark: remarkText,
+          }),
+        },
+      );
 
+      const data = await res.json();
 
-const handleSaveRemark = async () => {
-  if (!remarkText.trim()) return;
-
-  try {
-    const res = await fetch(
-      "https://inoptics.in/api/add_exhibitor_remark.php",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          company_name: formData.company_name,
-          remark: remarkText,
-        }),
+      if (data.success) {
+        setRemarkSaved(true);
+        setRemarkText("");
+        fetchCompanyRemarks();
       }
-    );
-
-    const data = await res.json();
-
-    if (data.success) {
-      setRemarkSaved(true);
-      setRemarkText("");
-      fetchCompanyRemarks();
+    } catch (err) {
+      console.error(err);
     }
+  };
 
-  } catch (err) {
-    console.error(err);
-  }
-};
+  const handleSendEmail = () => {
+    alert("Send Email logic here");
+  };
 
+  const handleEditCompanyRemark = (item) => {
+    setRemarkText(item.remark); // textarea me remark
+    setEditingRemarkId(item.id); // kis id ko update karna hai
+    setRemarkSaved(true); // update button show karega
+  };
 
+  useEffect(() => {
+    if (!formData.company_name) return;
 
+    fetchCompanyRemarks();
+    setRemarkText("");
+    setRemarkSaved(false);
+    setEditingRemarkId(null);
+  }, [formData.company_name]);
 
-const handleSendEmail = () => {
-  alert("Send Email logic here");
-};
+  const fetchCompanyRemarks = async () => {
+    try {
+      const res = await fetch(
+        `https://inoptics.in/api/get_exhibitor_remarks.php?company_name=${formData.company_name}`,
+      );
 
-const handleEditCompanyRemark = (item) => {
-  setRemarkText(item.remark);      // textarea me remark
-  setEditingRemarkId(item.id);     // kis id ko update karna hai
-  setRemarkSaved(true);            // update button show karega
-};
+      const data = await res.json();
 
-
-
-
-useEffect(() => {
-  if (!formData.company_name) return;
-
-  fetchCompanyRemarks();
-  setRemarkText("");
-  setRemarkSaved(false);
-  setEditingRemarkId(null);
-
-}, [formData.company_name]);
-
-
-const fetchCompanyRemarks = async () => {
-  try {
-    const res = await fetch(
-      `https://inoptics.in/api/get_exhibitor_remarks.php?company_name=${formData.company_name}`
-    );
-
-    const data = await res.json();
-
-    if (data.success) {
-      setCompanyRemarks(data.records);
-    } else {
+      if (data.success) {
+        setCompanyRemarks(data.records);
+      } else {
+        setCompanyRemarks([]);
+      }
+    } catch (err) {
+      console.error(err);
       setCompanyRemarks([]);
     }
-
-  } catch (err) {
-    console.error(err);
-    setCompanyRemarks([]);
-  }
-};
-
-
-
-
-
-
+  };
 
   return (
     <div className="dashboard-container">
@@ -16096,30 +16121,30 @@ const fetchCompanyRemarks = async () => {
                                   <FontAwesomeIcon icon={faTrash} />
                                 </button>
                                 <button
-  onClick={() => {
-    setSelectedCompanyName(item.company_name);
-    setShowTermsDeclaration(true);
-    setHideMainDashboard(true);
-  }}
-  title="Terms"
-  style={{
-    backgroundColor:
-      Number(item.undertaking_accepted) === 1
-        ? "#fbc02d"   // Yellow (Accepted)
-        : "#1976d2",  // Blue (Not Accepted)
-    color:
-      Number(item.undertaking_accepted) === 1
-        ? "#000"
-        : "#fff",
-    padding: "6px 12px",
-    border: "none",
-    borderRadius: "4px",
-    cursor: "pointer",
-    transition: "all 0.3s ease"
-  }}
->
-  <FontAwesomeIcon icon={faFileAlt} />
-</button>
+                                  onClick={() => {
+                                    setSelectedCompanyName(item.company_name);
+                                    setShowTermsDeclaration(true);
+                                    setHideMainDashboard(true);
+                                  }}
+                                  title="Terms"
+                                  style={{
+                                    backgroundColor:
+                                      Number(item.undertaking_accepted) === 1
+                                        ? "#fbc02d" // Yellow (Accepted)
+                                        : "#1976d2", // Blue (Not Accepted)
+                                    color:
+                                      Number(item.undertaking_accepted) === 1
+                                        ? "#000"
+                                        : "#fff",
+                                    padding: "6px 12px",
+                                    border: "none",
+                                    borderRadius: "4px",
+                                    cursor: "pointer",
+                                    transition: "all 0.3s ease",
+                                  }}
+                                >
+                                  <FontAwesomeIcon icon={faFileAlt} />
+                                </button>
 
                                 <button
                                   className="action-btn view-btn"
@@ -16176,7 +16201,6 @@ const fetchCompanyRemarks = async () => {
                         {showTermsDeclaration
                           ? ` ${selectedCompanyName}`
                           : isViewOnly
-
                             ? `View: ${formData.company_name}${
                                 formData.state ? `, ${formData.state}` : ""
                               }`
@@ -16185,8 +16209,6 @@ const fetchCompanyRemarks = async () => {
                                   formData.state ? `, ${formData.state}` : ""
                                 }`
                               : "New Exhibitor Request"}
-
-                            
                       </span>
                       <button
                         className="cancel-button-top"
@@ -16862,7 +16884,9 @@ const fetchCompanyRemarks = async () => {
                                 <div className="form-group full-width">
                                   <label>
                                     COMPANY NAME{" "}
-                                    <span style={{ color: "red" }}>*</span>
+                                    <span style={{ color: "red" }}>
+                                      rishab*
+                                    </span>
                                   </label>
                                   <input
                                     type="text"
@@ -17923,24 +17947,28 @@ const fetchCompanyRemarks = async () => {
 
                                   <div className="power-requirement-top-buttons-inside-box">
                                     {/* Send Mail button always visible */}
-                                   <button
-  className="power-btn send-mail-btn"
-  onClick={() =>
-    toast.promise(
-      (async () => {
-        await sendPowerMailToAdmin(formData.company_name);
-        await handleSendPowerDetailsMail(formData.company_name);
-      })(),
-      {
-        loading: "Sending mail...",
-        success: "Mail sent successfully",
-        error: "Failed to send mail",
-      }
-    )
-  }
->
-  Send Mail
-</button>
+                                    <button
+                                      className="power-btn send-mail-btn"
+                                      onClick={() =>
+                                        toast.promise(
+                                          (async () => {
+                                            await sendPowerMailToAdmin(
+                                              formData.company_name,
+                                            );
+                                            await handleSendPowerDetailsMail(
+                                              formData.company_name,
+                                            );
+                                          })(),
+                                          {
+                                            loading: "Sending mail...",
+                                            success: "Mail sent successfully",
+                                            error: "Failed to send mail",
+                                          },
+                                        )
+                                      }
+                                    >
+                                      Send Mail
+                                    </button>
 
                                     {!isViewOnly && (
                                       <>
@@ -18126,24 +18154,43 @@ const fetchCompanyRemarks = async () => {
                                     </div>
                                   </div>
 
-                                  <form
-                                    className="extra-badges-form-grid"
-                                    onSubmit={handleExibitorBadgesSubmit}
-                                  >
+                                  <div className="extra-badges-form-grid">
                                     <h3>Additional Badge Request</h3>
 
                                     <div className="badge-fields-row">
+                                      {/* ───────── FREE BADGES ───────── */}
                                       <div className="badge-box">
                                         <div className="field-row">
                                           <label htmlFor="free_badges">
                                             Free Badges:
                                           </label>
-                                          <span>
-                                            {formData.free_badges || 0}
-                                          </span>
+                                          <input
+                                            type="number"
+                                            id="free_badges"
+                                            value={formData.free_badges || ""}
+                                            onChange={(e) =>
+                                              setFormData({
+                                                ...formData,
+                                                free_badges: e.target.value,
+                                              })
+                                            }
+                                          />
                                         </div>
+
+                                        {!isViewOnly && (
+                                          <button
+                                            type="button"
+                                            className="badge-update-btn"
+                                            onClick={
+                                              handleUpdateFreeExhibitorBadgesSubmit
+                                            }
+                                          >
+                                            Update Free Badges
+                                          </button>
+                                        )}
                                       </div>
 
+                                      {/* ───────── EXTRA BADGES ───────── */}
                                       <div className="badge-box">
                                         <div className="field-row">
                                           <label htmlFor="extra_badges">
@@ -18152,7 +18199,6 @@ const fetchCompanyRemarks = async () => {
                                           <input
                                             type="number"
                                             id="extra_badges"
-                                            name="extra_badges"
                                             value={formData.extra_badges || ""}
                                             onChange={(e) =>
                                               setFormData({
@@ -18162,19 +18208,21 @@ const fetchCompanyRemarks = async () => {
                                             }
                                           />
                                         </div>
+
+                                        {!isViewOnly && (
+                                          <button
+                                            type="button"
+                                            className="badge-update-btn"
+                                            onClick={
+                                              handleExhibitorBadgesSubmit
+                                            } // old function
+                                          >
+                                            Update Extra Badges
+                                          </button>
+                                        )}
                                       </div>
                                     </div>
-
-                                    {!isViewOnly && (
-                                      <div className="form-submit">
-                                        <button type="submit">
-                                          {showExhibitorEditForm
-                                            ? "Update"
-                                            : "Submit"}
-                                        </button>
-                                      </div>
-                                    )}
-                                  </form>
+                                  </div>
                                 </div>
 
                                 {/* Right Side: Billing */}
@@ -20263,84 +20311,111 @@ const fetchCompanyRemarks = async () => {
                                                     </div>
                                                   </div>
 
-
                                                   <div className="remark-section">
+                                                    {/* TEXT AREA */}
+                                                    <textarea
+                                                      style={{ width: "100%" }}
+                                                      className="remark-textarea"
+                                                      placeholder="Enter remark here..."
+                                                      disabled={
+                                                        !editingRemarkId &&
+                                                        remarkSaved
+                                                      }
+                                                      value={remarkText}
+                                                      onChange={(e) =>
+                                                        setRemarkText(
+                                                          e.target.value,
+                                                        )
+                                                      }
+                                                      rows={2}
+                                                    />
 
-  {/* TEXT AREA */}
-  <textarea
-    style={{ width: "100%" }}
-    className="remark-textarea"
-    placeholder="Enter remark here..."
-    disabled={!editingRemarkId && remarkSaved}
-  value={remarkText}
-  onChange={(e) => setRemarkText(e.target.value)}
-    rows={2}
-  />
+                                                    <div className="remark-button-row">
+                                                      {remarkSaved && (
+                                                        <button
+                                                          className="remark-send-btn"
+                                                          onClick={
+                                                            handleSendEmail
+                                                          }
+                                                        >
+                                                          Send Email
+                                                        </button>
+                                                      )}
 
-  <div className="remark-button-row">
+                                                      {!remarkSaved ? (
+                                                        <button
+                                                          className="remark-save-btn"
+                                                          onClick={
+                                                            handleSaveRemark
+                                                          }
+                                                        >
+                                                          Save Remark
+                                                        </button>
+                                                      ) : (
+                                                        <button
+                                                          className="remark-edit-btn"
+                                                          onClick={
+                                                            handleUpdateCompanyRemark
+                                                          }
+                                                        >
+                                                          update Remark
+                                                        </button>
+                                                      )}
+                                                    </div>
 
-    {remarkSaved && (
-  <button
-    className="remark-send-btn"
-    onClick={handleSendEmail}
-  >
-    Send Email
-  </button>
-)}
+                                                    {/* 🔥 ALL COMPANY REMARKS BELOW */}
+                                                    {companyRemarks.length >
+                                                      0 && (
+                                                      <div className="company-remarks-list">
+                                                        <h3
+                                                          style={{
+                                                            marginTop: "15px",
+                                                          }}
+                                                        >
+                                                          Previous Remarks
+                                                        </h3>
 
-{!remarkSaved ? (
-  <button
-    className="remark-save-btn"
-    onClick={handleSaveRemark}
-  >
-    Save Remark
-  </button>
-) : (
-  <button
-    className="remark-edit-btn"
-    onClick={handleUpdateCompanyRemark}
-  >
-    update Remark
-  </button>
-)}
+                                                        {companyRemarks.map(
+                                                          (item) => (
+                                                            <div
+                                                              key={item.id}
+                                                              className="remark-history-box"
+                                                            >
+                                                              <div className="remark-content">
+                                                                <p>
+                                                                  {item.remark}
+                                                                </p>
+                                                              </div>
 
-  </div>
+                                                              <div className="remark-actions">
+                                                                <span
+                                                                  className="remark-edit-icon"
+                                                                  onClick={() =>
+                                                                    handleEditCompanyRemark(
+                                                                      item,
+                                                                    )
+                                                                  }
+                                                                >
+                                                                  <FaEdit />
+                                                                </span>
 
-  {/* 🔥 ALL COMPANY REMARKS BELOW */}
-  {companyRemarks.length > 0 && (
-  <div className="company-remarks-list">
-    <h3 style={{ marginTop: "15px" }}>Previous Remarks</h3>
-
-    {companyRemarks.map((item) => (
-      <div key={item.id} className="remark-history-box">
-
-        <div className="remark-content">
-          <p>{item.remark}</p>
-          
-        </div>
-
-        <div className="remark-actions">
-          <span
-            className="remark-edit-icon"
-            onClick={() => handleEditCompanyRemark(item)}
-          >
-            <FaEdit />
-          </span>
-
-          <span
-            className="remark-delete-icon"
-            onClick={() => handleDeleteCompanyRemark(item.id)}
-          >
-            <FaTrash />
-          </span>
-        </div>
-
-      </div>
-    ))}
-  </div>
-)}
-
-</div>
+                                                                <span
+                                                                  className="remark-delete-icon"
+                                                                  onClick={() =>
+                                                                    handleDeleteCompanyRemark(
+                                                                      item.id,
+                                                                    )
+                                                                  }
+                                                                >
+                                                                  <FaTrash />
+                                                                </span>
+                                                              </div>
+                                                            </div>
+                                                          ),
+                                                        )}
+                                                      </div>
+                                                    )}
+                                                  </div>
                                                 </div>
                                               </div>
                                             </div>
@@ -24843,7 +24918,7 @@ const fetchCompanyRemarks = async () => {
                       <th>Total</th>
                       <th>Received Amount</th>
                       <th>Pending Amount</th>
-                      
+
                       <th>Action</th>
                     </tr>
                   </thead>
@@ -24859,25 +24934,28 @@ const fetchCompanyRemarks = async () => {
                           const originalIndex = index + 1;
 
                           const stall = Number(item.stall) || 0;
-const power = Number(item.power) || 0;
-const badge = Number(item.exhibitorBadgesTotal) || 0;
+                          const power = Number(item.power) || 0;
+                          const badge = Number(item.exhibitorBadgesTotal) || 0;
 
-const total = stall + power + badge;
+                          const total = stall + power + badge;
 
-const stallPaid = Number(item.stallPaid) || 0;
-const powerPaid = Number(item.powerPaid) || 0;
-const badgePaid = Number(item.badgePaid) || 0;
+                          const stallPaid = Number(item.stallPaid) || 0;
+                          const powerPaid = Number(item.powerPaid) || 0;
+                          const badgePaid = Number(item.badgePaid) || 0;
 
-const stallTds = Number(item.stall_tds) || 0;
-const powerTds = Number(item.power_tds) || 0;
-const badgeTds = Number(item.badge_tds) || 0;
+                          const stallTds = Number(item.stall_tds) || 0;
+                          const powerTds = Number(item.power_tds) || 0;
+                          const badgeTds = Number(item.badge_tds) || 0;
 
-const received =
-  stallPaid + stallTds +
-  powerPaid + powerTds +
-  badgePaid + badgeTds;
+                          const received =
+                            stallPaid +
+                            stallTds +
+                            powerPaid +
+                            powerTds +
+                            badgePaid +
+                            badgeTds;
 
-const pending = total - received;
+                          const pending = total - received;
 
                           // Format multiline payments
                           // const formatPayments = (payments) => {
@@ -24930,7 +25008,6 @@ const pending = total - received;
                         })}
 
                         {/* Blank row */}
-                       
 
                         {/* Totals Row */}
                         <tr className="grand-total-row sticky-row">
@@ -24976,8 +25053,6 @@ const pending = total - received;
                             </strong>
                           </td>
                         </tr>
-
-                       
                       </>
                     ) : (
                       <tr>
@@ -25577,11 +25652,12 @@ const pending = total - received;
                 <ul className="navbar-list">
                   {[
                     "Contractors Requirement",
-                    "Final List",
+                    "Booth Design",
                     "Undertaking & Registration Fees",
                     "Guidelines For Construction",
                     "Unlock Exhibitors",
-                    'Contractor Badges',
+                    "Contractor Badges",
+                    "Exhibitor Mandotary Forms",
                   ].map((tab) => (
                     <li
                       key={tab}
@@ -25601,6 +25677,11 @@ const pending = total - received;
                 {activeContractorTab === "Contractor Badges" && (
                   <>
                     <ContractorBadgeAdmin />
+                  </>
+                )}
+                {activeContractorTab === "Exhibitor Mandotary Forms" && (
+                  <>
+                    <ContractorStepsUnlockAdmin />
                   </>
                 )}
 
@@ -25888,142 +25969,159 @@ const pending = total - received;
                   </>
                 )}
 
-                {activeContractorTab === "Final List" && (
-                  <div className="final-list-container">
-                    <div className="table-wrapper">
-                      <table className="final-list-table">
-                        <thead>
-                          <tr>
-                            <th>ID</th>
-                            <th>EXHIBITOR</th>
-                            <th>CONTRACTOR</th>
-                            <th>BADGES</th>
-                            <th>FORMS</th>
-                            <th>SECURITY</th>
-                            <th>BOOTH DESIGN</th>
-                            <th>STATUS</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {finalListData.map((item, index) => {
-                            const forms =
-                              formsMap[item.exhibitor_company_name] || {};
+                {activeContractorTab === "Booth Design" && (
+                  // <div className="final-list-container">
+                  //   <div className="table-wrapper">
+                  //     <table className="final-list-table">
+                  //       <thead>
+                  //         <tr>
+                  //           <th>ID</th>
+                  //           <th>EXHIBITOR</th>
+                  //           <th>CONTRACTOR</th>
+                  //           <th>BADGES</th>
+                  //           <th>FORMS</th>
+                  //           <th>SECURITY</th>
+                  //           <th>BOOTH DESIGN</th>
+                  //           <th>STATUS</th>
+                  //         </tr>
+                  //       </thead>
+                  //       <tbody>
+                  //         {finalListData.map((item, index) => {
+                  //           const forms =
+                  //             formsMap[item.exhibitor_company_name] || {};
 
-                            return (
-                              <tr key={index}>
-                                <td>{index + 1}</td>
-                                <td>{item.exhibitor_company_name}</td>
-                                <td>{item.contractor_name}</td>
-                                <td>{item.contractor_company_name}</td>
+                  //           return (
+                  //             <tr key={index}>
+                  //               <td>{index + 1}</td>
+                  //               <td>{item.exhibitor_company_name}</td>
+                  //               <td>{item.contractor_name}</td>
+                  //               <td>{item.contractor_company_name}</td>
 
-                                {/* FORMS COLUMN */}
-                                <td>
-                                  <div className="forms-icons-row">
-                                    {formsMap[item.exhibitor_company_name]
-                                      ?.length > 0 ? (
-                                      formsMap[item.exhibitor_company_name].map(
-                                        (f, i) => {
-                                          const normalPath =
-                                            typeof f.file_path === "string"
-                                              ? f.file_path.trim()
-                                              : "";
-                                          const boothPath =
-                                            typeof f.booth_design === "string"
-                                              ? f.booth_design.trim()
-                                              : "";
+                  //               {/* FORMS COLUMN */}
+                  //               <td>
+                  //                 <div className="forms-icons-row">
+                  //                   {formsMap[item.exhibitor_company_name]
+                  //                     ?.length > 0 ? (
+                  //                     formsMap[item.exhibitor_company_name].map(
+                  //                       (f, i) => {
+                  //                         const normalPath =
+                  //                           typeof f.file_path === "string"
+                  //                             ? f.file_path.trim()
+                  //                             : "";
+                  //                         const boothPath =
+                  //                           typeof f.booth_design === "string"
+                  //                             ? f.booth_design.trim()
+                  //                             : "";
 
-                                          return (
-                                            <React.Fragment key={i}>
-                                              {/* ✅ Normal form preview */}
-                                              {normalPath && (
-                                                <a
-                                                  href={`https://inoptics.in/api/${normalPath}`}
-                                                  target="_blank"
-                                                  rel="noreferrer"
-                                                  title={f.file_name || "Form"}
-                                                  className="form-view-icon"
-                                                >
-                                                  <FaEye />
-                                                </a>
-                                              )}
+                  //                         return (
+                  //                           <React.Fragment key={i}>
+                  //                             {/* ✅ Normal form preview */}
+                  //                             {normalPath && (
+                  //                               <a
+                  //                                 href={`https://inoptics.in/api/${normalPath}`}
+                  //                                 target="_blank"
+                  //                                 rel="noreferrer"
+                  //                                 title={f.file_name || "Form"}
+                  //                                 className="form-view-icon"
+                  //                               >
+                  //                                 <FaEye />
+                  //                               </a>
+                  //                             )}
 
-                                              {/* ✅ Booth design preview */}
-                                              {boothPath && (
-                                                <a
-                                                  href={`https://inoptics.in/api/${boothPath}`}
-                                                  target="_blank"
-                                                  rel="noreferrer"
-                                                  title="Booth Design"
-                                                  className="form-view-icon"
-                                                >
-                                                  <FaEye />
-                                                </a>
-                                              )}
-                                            </React.Fragment>
-                                          );
-                                        },
-                                      )
-                                    ) : (
-                                      <span style={{ color: "#999" }}>—</span>
-                                    )}
-                                  </div>
-                                </td>
+                  //                             {/* ✅ Booth design preview */}
+                  //                             {boothPath && (
+                  //                               <a
+                  //                                 href={`https://inoptics.in/api/${boothPath}`}
+                  //                                 target="_blank"
+                  //                                 rel="noreferrer"
+                  //                                 title="Booth Design"
+                  //                                 className="form-view-icon"
+                  //                               >
+                  //                                 <FaEye />
+                  //                               </a>
+                  //                             )}
+                  //                           </React.Fragment>
+                  //                         );
+                  //                       },
+                  //                     )
+                  //                   ) : (
+                  //                     <span style={{ color: "#999" }}>—</span>
+                  //                   )}
+                  //                 </div>
+                  //               </td>
 
-                                <td></td>
-                                <td></td>
-                                <td>
-                                  <div className="contractor-final-list-btn">
-                                    <button
-                                      onClick={() => {
-                                        const boothId =
-                                          boothIdMap[
-                                            item.exhibitor_company_name
-                                          ] || null;
+                  //               <td></td>
+                  //               <td></td>
+                  //               <td>
+                  //                 <div className="contractor-final-list-btn">
+                  //                   <button
+                  //                     onClick={() => {
+                  //                       const boothId =
+                  //                         boothIdMap[
+                  //                           item.exhibitor_company_name
+                  //                         ] || null;
 
-                                        console.log("Rejecting booth:", {
-                                          company: item.exhibitor_company_name,
-                                          boothId,
-                                        });
+                  //                       console.log("Rejecting booth:", {
+                  //                         company: item.exhibitor_company_name,
+                  //                         boothId,
+                  //                       });
 
-                                        if (!boothId) {
-                                          alert("Booth design not found");
-                                          return;
-                                        }
+                  //                       if (!boothId) {
+                  //                         alert("Booth design not found");
+                  //                         return;
+                  //                       }
 
-                                        setSelectedBoothId(boothId); // ✅ booth id
-                                        setSelectedCompany(
-                                          item.exhibitor_company_name,
-                                        ); // ✅ ADD THIS
-                                        setRejectReason("");
-                                        setShowRejectPopup(true);
-                                      }}
-                                      className="contractor-final-list-btn-reject"
-                                    >
-                                      <IoMdCloseCircle />
-                                    </button>
+                  //                       setSelectedBoothId(boothId); // ✅ booth id
+                  //                       setSelectedCompany(
+                  //                         item.exhibitor_company_name,
+                  //                       ); // ✅ ADD THIS
+                  //                       setRejectReason("");
+                  //                       setShowRejectPopup(true);
+                  //                     }}
+                  //                     className="contractor-final-list-btn-reject"
+                  //                   >
+                  //                     <IoMdCloseCircle />
+                  //                   </button>
 
-                                    <button
-                                      onClick={() =>
-                                        approveBooth(
-                                          item.exhibitor_company_name,
-                                        )
-                                      }
-                                      className="contractor-final-list-btn-approve"
-                                    >
-                                      <FaCircleCheck />
-                                    </button>
-                                  </div>
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
+                  //                   <button
+                  //                     onClick={() =>
+                  //                       approveBooth(
+                  //                         item.exhibitor_company_name,
+                  //                       )
+                  //                     }
+                  //                     className="contractor-final-list-btn-approve"
+                  //                   >
+                  //                     <FaCircleCheck />
+                  //                   </button>
+                  //                 </div>
+                  //               </td>
+                  //             </tr>
+                  //           );
+                  //         })}
+                  //       </tbody>
+                  //     </table>
+                  //   </div>
+                  // </div>
+
+                  <FinalContractorListTable
+                    activeContractorTab={activeContractorTab}
+                    finalListData={finalListData}
+                    formsMap={formsMap}
+                    boothIdMap={boothIdMap}
+                    approveBooth={approveBooth}
+                    showRejectPopup={showRejectPopup}
+                    boothDesignStatus={boothDesignStatus}
+                    // setboothDesignStatus={setboothDesignStatus}
+                    selectedBoothId={selectedBoothId}
+                    rejectReason={rejectReason}
+                    setSelectedBoothId={setSelectedBoothId}
+                    setSelectedCompany={setSelectedCompany}
+                    setRejectReason={setRejectReason}
+                    setShowRejectPopup={setShowRejectPopup}
+                  />
                 )}
 
-                {boothDesignStatus === "rejected" && (
+                {/* {boothDesignStatus === "rejected" && (
                   <div className="contractor-thankyou-card rejected">
                     <h3>Booth Design Rejected</h3>
                     <p>❌ Your booth design has been rejected.</p>
@@ -26041,9 +26139,9 @@ const pending = total - received;
                       Re-upload Booth Design
                     </button>
                   </div>
-                )}
+                )} */}
 
-                {showRejectPopup && (
+                {/* {showRejectPopup && (
                   <div className="confirm-overlay">
                     <div className="confirm-modal">
                       <h3>Reject Booth Design</h3>
@@ -26084,7 +26182,7 @@ const pending = total - received;
                       </div>
                     </div>
                   </div>
-                )}
+                )} */}
 
                 {activeContractorTab === "Undertaking & Registration Fees" && (
                   <>
@@ -26529,11 +26627,6 @@ const pending = total - received;
                         </a>
                       </li>
 
-
-
-
-
-
                       <li className="dropdown-parent">
                         <a
                           className="header-menu-tab"
@@ -26565,7 +26658,6 @@ const pending = total - received;
                           </li>
                         </ul> */}
                       </li>
-
 
                       <li>
                         <a

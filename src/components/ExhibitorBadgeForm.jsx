@@ -842,7 +842,7 @@ const ExhibitorBadgeForm = ({
                     <br />
                     Additional badges can be requested at a cost of ₹100 per
                     badge. However, any badge requests made after{" "}
-                    <strong>28th February 2026</strong> will be charged at ₹200
+                    <strong>20th March 2026</strong> will be charged at ₹200
                     per badge.
                     <br />
                     <br />
@@ -859,7 +859,7 @@ const ExhibitorBadgeForm = ({
               <div className="exhibitor-extra-badges-payment">
                 {(() => {
                   const count = parseInt(extraPaidBadges || 0, 10);
-                  const rate = new Date() > new Date("2026-02-28") ? 200 : 100;
+                  const rate = new Date() > new Date("2026-03-20") ? 200 : 100;
                   const total = count * rate;
 
                   const companyState =
