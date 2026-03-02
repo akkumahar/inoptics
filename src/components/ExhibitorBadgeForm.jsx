@@ -294,15 +294,15 @@ const ExhibitorBadgeForm = ({
       return;
     }
 
-    if (!(formData.candidate_photo instanceof File)) {
-      setFieldErrors({ photo: "Please upload candidate photo" });
-      return;
-    }
+    // if (!(formData.candidate_photo instanceof File)) {
+    //   setFieldErrors({ photo: "Please upload candidate photo" });
+    //   return;
+    // }
 
-    if (formData.candidate_photo.size > 2 * 1024 * 1024) {
-      setFieldErrors({ photo: "Image size should be less than 2MB" });
-      return;
-    }
+    // if (formData.candidate_photo.size > 2 * 1024 * 1024) {
+    //   setFieldErrors({ photo: "Image size should be less than 2MB" });
+    //   return;
+    // }
 
     setLoading(true);
     setMessage({ type: "", text: "" });
@@ -345,9 +345,9 @@ const ExhibitorBadgeForm = ({
         throw new Error(data.message || "Failed to create badge");
       }
 
-      if (isExtraBadge) {
-        await autoIncrementExtraBadge();
-      }
+//       if (freeRemaining === 0) {
+//    await autoIncrementExtraBadge();
+// }
 
       // ===== SUCCESS UI =====
       setFieldErrors({ name: "", photo: "" });
@@ -399,38 +399,34 @@ const ExhibitorBadgeForm = ({
 
   // ===== AUTO INCREMENT EXTRA BADGE =====
   const autoIncrementExtraBadge = async () => {
-    if (!currentExhibitor?.company_name) {
-      console.error("No company name available");
-      return;
-    }
 
-    try {
-      const payload = {
-        company_name: currentExhibitor.company_name,
-        free_badges: currentExhibitor.free_badges || 0,
-        extra_badges: 1, // +1 each time
-      };
+  if (!currentExhibitor?.company_name) return;
 
-      const res = await fetch(
-        "https://inoptics.in/api/update_Exhibitor_badges.php",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        },
-      );
-
-      const data = await res.json();
-
-      if (data.success) {
-        console.log("✅ Extra badge count incremented");
-      } else {
-        console.error("Failed to increment:", data.error);
+  try {
+    const res = await fetch(
+      "https://inoptics.in/api/update_Exhibitor_badges.php",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          company_name: currentExhibitor.company_name,
+          increment_extra: true
+        }),
       }
-    } catch (error) {
-      console.error("❌ Auto increment error:", error);
+    );
+
+    const data = await res.json();
+
+    if (data.success) {
+      setExtraPaidBadges((prev) => prev + 1); // 🔥 local update
     }
-  };
+
+  } catch (error) {
+    console.error("Extra badge increment error:", error);
+  }
+};
+
+
 
   // ===== LOCK ALL BADGES =====
   const handleLockBadgesAfterSubmit = async (e) => {
@@ -980,9 +976,10 @@ const ExhibitorBadgeForm = ({
 
                   <tbody className="badge-table-scroll-list">
                     {[...companyBadges]
-                      .sort((a, b) => a.id - b.id)
+                      .sort((a, b) => a.badge_series_num - b.badge_series_num)
                       .map((badge, index) => {
-                        const isFree = index < freeBadges;
+                        const totalFree = Number(freeBadges) || 0;
+const isFree = index < totalFree;
 
                         return (
                           <tr key={badge.id}  className="badge-row-card">
@@ -1180,7 +1177,7 @@ const ExhibitorBadgeForm = ({
                     per badge.
                     <br />
                     Badge requests made after{" "}
-                    <strong>28th February 2026</strong> will be charged at ₹200
+                    <strong>20th March 2026</strong> will be charged at ₹200
                     per badge.
                   </p>
 
@@ -1246,7 +1243,7 @@ const ExhibitorBadgeForm = ({
                           onChange={handleInputChange}
                           placeholder="Enter candidate name"
                           className="input-field"
-                          required
+                          
                         />
                       </div>
 
@@ -1266,7 +1263,7 @@ const ExhibitorBadgeForm = ({
                             accept="image/*"
                             onChange={handlePhotoChange}
                             className="file-input candicate-preview-input"
-                            required={!photoPreview}
+                            
                           />
                         </div>
 

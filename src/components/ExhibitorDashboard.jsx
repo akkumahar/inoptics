@@ -649,27 +649,34 @@ useEffect(() => {
   }, [exhibitorData]);
 
   const fetchExhibitorData = async (email) => {
-    try {
-      const res = await fetch("https://inoptics.in/api/get_exhibitors.php");
-      const data = await res.json();
+  try {
+    const res = await fetch("https://inoptics.in/api/get_exhibitors.php");
+    const data = await res.json();
 
-      if (Array.isArray(data)) {
-        const matched = data.find((ex) => ex.email === email);
-        if (matched) {
-          setExhibitors([matched]);
+    if (Array.isArray(data)) {
 
-          // 🔹 Fetch stall data using company name
-          if (matched.company_name) {
-            fetchStallsByCompany(matched.company_name);
-          }
-        } else {
-          setExhibitors([]);
+      const matched = data.find(
+        (ex) =>
+          ex.email?.toLowerCase().trim() ===
+          email?.toLowerCase().trim()
+      );
+
+      if (matched) {
+        setExhibitors([matched]);
+
+        if (matched.company_name) {
+          fetchStallsByCompany(matched.company_name);
         }
       }
-    } catch (error) {
-      console.error("Failed to fetch exhibitors:", error);
+
+      // ❌ DO NOT CLEAR exhibitors here
     }
-  };
+  } catch (error) {
+    console.error("Failed to fetch exhibitors:", error);
+  }
+};
+
+
 
   const fetchStallsByCompany = async (companyName) => {
     try {

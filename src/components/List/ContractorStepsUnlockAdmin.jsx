@@ -91,7 +91,6 @@ const ContractorStepsUnlockAdmin = () => {
  return (
   <div className="admin-wrapper">
 
-    <h2 className="admin-title">Contractor Forms & Unlock</h2>
 
     {loading && <p>Loading...</p>}
 

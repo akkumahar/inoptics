@@ -163,10 +163,12 @@
 
 /* Company Card */
 .company-card {
-  margin-bottom: 20px;
-  border-radius: 10px;
+  width: 100%;
+  max-width: 850px;   /* 👈 yaha width control */
+  margin: 0 auto 20px auto;  /* 👈 center alignment */
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
 }
 
 /* Accordion Header */

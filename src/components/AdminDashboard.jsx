@@ -65,6 +65,7 @@ import ContractorBadgeAdmin from "./List/ContractorBadgeAdmin";
 import ContractorStepsUnlockAdmin from "./List/ContractorStepsUnlockAdmin";
 import FinalContractorListTable from "./List/FinalContractorListTable";
 import FasciaNameAdmin from "./List/FasciaNameAdmin";
+import AdminPowerRequirement from "./List/AdminPowerRequirement";
 // import { useMemo } from 'react';
 
 const AdminDashboard = () => {
@@ -2579,7 +2580,7 @@ const AdminDashboard = () => {
 
   const getExhibitorBadgeBilling = () => {
     const count = parseInt(formData.extra_badges, 10) || 0;
-    const rate = new Date() > new Date("2026-02-30") ? 200 : 100;
+    const rate = new Date() > new Date("2026-03-20") ? 200 : 100;
     const total = count * rate;
 
     const isDelhi = formData?.state?.trim().toLowerCase() === "delhi";
@@ -13339,6 +13340,9 @@ const AdminDashboard = () => {
           <li onClick={() => openOverlay("Fascia Name")}>
             <FaBullhorn /> {!collapsed && "Fascia Name"}{" "}
           </li>
+          <li onClick={() => openOverlay("Exhibitor Power")}>
+            <FaBullhorn /> {!collapsed && "Exhibitor Power"}{" "}
+          </li>
           <li onClick={() => setShowFormsMenu(!showFormsMenu)}>
             <FaWpforms /> {!collapsed && "Forms"}
           </li>
@@ -18116,7 +18120,9 @@ const AdminDashboard = () => {
                                 </div>
                               </div>
                             </>
-                          )}
+                          )}  
+
+                          
 
                           {activeNavbarItem === "EXHIBITOR BADGES" && (
                             <div className="exhibitor-badges-form slide-up-form">
@@ -24361,6 +24367,11 @@ const AdminDashboard = () => {
           {overlayContent === "Fascia Name" && (
             <>
              <FasciaNameAdmin />             
+            </>
+          )}
+          {overlayContent === "Exhibitor Power" && (
+            <>
+             <AdminPowerRequirement />             
             </>
           )}
 

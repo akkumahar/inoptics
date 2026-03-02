@@ -1,16 +1,76 @@
+/* ================= CONTAINER ================= */
+
 .fascia-admin-container {
   padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
+/* ================= DROPDOWN CARD ================= */
+
 .fascia-dropdown {
-  padding: 8px 12px;
-  margin-bottom: 20px;
-  border-radius: 6px;
+  width: 100%;
+  max-width: 700px;   /* 👈 control width */
+  margin: 0 auto 20px auto;
+  padding: 14px 18px; /* 👈 compact height */
+  border-radius: 12px;
+  background: #0f0f0f;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: 0.3s ease;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
+
+/* Hover effect */
+.fascia-dropdown:hover {
+  background: #1a1a1a;
+}
+
+/* ================= LEFT TITLE ================= */
+
+.fascia-title {
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ================= RIGHT BADGES ================= */
+
+.fascia-badges {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Badge Pill Style */
+.fascia-badge {
+  background: #e5e7eb;
+  color: #111827;
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+/* Dropdown Arrow */
+.fascia-arrow {
+  margin-left: 12px;
+  font-size: 14px;
+}
+
+/* ================= TABLE ================= */
 
 .fascia-table {
   width: 100%;
   border-collapse: collapse;
+  margin-top: 10px;
+  background: #ffffff;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 .fascia-table th,
@@ -18,4 +78,42 @@
   border: 1px solid #ddd;
   padding: 10px;
   text-align: center;
+  font-size: 13px;
+}
+
+.fascia-table th {
+  background: #f3f4f6;
+  font-weight: 600;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+
+  .fascia-dropdown {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .fascia-badges {
+    gap: 6px;
+  }
+
+  .fascia-title {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+
+  .fascia-dropdown {
+    padding: 10px;
+  }
+
+  .fascia-badge {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
 }

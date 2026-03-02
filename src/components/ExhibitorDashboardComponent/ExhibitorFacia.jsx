@@ -13,30 +13,40 @@ const ExhibitorFaciaForm = ({
 
   /* ================= FETCH EXISTING DATA ================= */
   useEffect(() => {
-    if (companyName) {
-      fetchFasciaData();
-    }
-  }, [companyName]);
+  if (companyName) {
+    fetchFasciaData();
+  } else {
+    setExistingData(null);
+  }
+}, [companyName]);
 
-  const fetchFasciaData = async () => {
-    try {
-      const res = await fetch(
-        `https://inoptics.in/api/get_all_fascia.php?company=${encodeURIComponent(
-          companyName
-        )}`
-      );
+const fetchFasciaData = async () => {
+  try {
+    const res = await fetch(
+  `https://inoptics.in/api/get_exhibitor_facia.php?exhibitor_company_name=${encodeURIComponent(companyName)}`
+);
 
-      const data = await res.json();
+const text = await res.text();
 
-      if (data.success && data.records.length > 0) {
-        setExistingData(data.records[0]);
-      } else {
-        setExistingData(null);
-      }
-    } catch (error) {
-      console.error("Fetch error:", error);
-    }
-  };
+if (!text) {
+  setExistingData(null);
+  return;
+}
+
+const data = JSON.parse(text);
+setExistingData(data);
+
+    // if (data.facia_company_name) {
+    //   setExistingData(data);
+    // } else {
+    //   setExistingData(null);
+    // }
+
+  } catch (error) {
+    console.error("Fetch error:", error);
+    setExistingData(null);
+  }
+};
 
   /* ================= SUBMIT ================= */
   const handleSubmit = async (e) => {
