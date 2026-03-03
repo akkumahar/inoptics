@@ -110,67 +110,68 @@ const AdminBadges = () => {
 
   /* ================= EDIT ================= */
   const openEditModal = (badge) => {
-    setEditingBadge({ ...badge });
-    setShowEditModal(true);
-  };
-
-  const updateBadge = async () => {
-  try {
-
-    const fd = new FormData();
-    fd.append("id", editingBadge.id);
-    fd.append("name", editingBadge.name);
-    fd.append("stall_no", editingBadge.stall_no);
-    fd.append("state", editingBadge.state || "");
-    fd.append("city", editingBadge.city || "");
-
-    // ✅ image optional
-    if (editingBadge.candidate_photo instanceof File) {
-      fd.append("candidate_photo", editingBadge.candidate_photo);
-    }
-
-    const res = await fetch(`${SITE}/api/edit_exhibitor_badge.php`, {
-      method: "POST",
-      body: fd,   // ✅ NO content-type header
+    setEditingBadge({
+      ...badge,
+      preview: badge.photo ? `${SITE}/${badge.photo}` : null,
+      candidate_photo: null, // reset file
     });
 
-    const data = await res.json();
+    setShowEditModal(true);
+  };
+  const updateBadge = async () => {
+    try {
+      const fd = new FormData();
+      fd.append("id", editingBadge.id);
+      fd.append("name", editingBadge.name);
+      fd.append("stall_no", editingBadge.stall_no);
+      fd.append("state", editingBadge.state || "");
+      fd.append("city", editingBadge.city || "");
 
-    if (!data.success) {
-      toast.error(data.message || "Update failed");
-      return;
+      // ✅ image optional
+      if (editingBadge.candidate_photo instanceof File) {
+        fd.append("candidate_photo", editingBadge.candidate_photo);
+      }
+
+      const res = await fetch(`${SITE}/api/edit_exhibitor_badge.php`, {
+        method: "POST",
+        body: fd, // ✅ NO content-type header
+      });
+
+      const data = await res.json();
+
+      if (!data.success) {
+        toast.error(data.message || "Update failed");
+        return;
+      }
+
+      /* ===== refresh UI ===== */
+      setCompanies((prev) =>
+        prev.map((c) => ({
+          ...c,
+          badges: c.badges.map((b) =>
+            b.id === editingBadge.id
+              ? {
+                  ...b,
+                  name: editingBadge.name,
+                  stall_no: editingBadge.stall_no,
+                  state: editingBadge.state,
+                  city: editingBadge.city,
+                  photo: data.candidate_photo
+                    ? data.candidate_photo + "?t=" + data.ts
+                    : b.photo,
+                }
+              : b,
+          ),
+        })),
+      );
+
+      toast.success("Badge updated");
+      setShowEditModal(false);
+    } catch (err) {
+      console.error(err);
+      toast.error("Update failed");
     }
-
-    /* ===== refresh UI ===== */
-    setCompanies(prev =>
-      prev.map(c => ({
-        ...c,
-        badges: c.badges.map(b =>
-          b.id === editingBadge.id
-            ? {
-                ...b,
-                name: editingBadge.name,
-                stall_no: editingBadge.stall_no,
-                state: editingBadge.state,
-                city: editingBadge.city,
-                photo: data.candidate_photo
-                  ? data.candidate_photo + "?t=" + data.ts
-                  : b.photo
-              }
-            : b
-        )
-      }))
-    );
-
-    toast.success("Badge updated");
-    setShowEditModal(false);
-
-  } catch (err) {
-    console.error(err);
-    toast.error("Update failed");
-  }
-};
-
+  };
 
   /* ================= PRINT TOGGLE ================= */
   const togglePrintStatus = async (badge) => {
@@ -298,9 +299,9 @@ const AdminBadges = () => {
       )}
 
       {filteredCompanies.map((company) => (
-        <div className="company-card" key={company.company_name}>
+        <div className="company-card-admin" key={company.company_name}>
           <div
-            className="company-header"
+            className="company-header-admin"
             onClick={() => toggleCompany(company.company_name)}
           >
             <div
@@ -493,13 +494,18 @@ const AdminBadges = () => {
             />
 
             {/* ===== IMAGE UPLOAD + PREVIEW ===== */}
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <div className="image-upload-wrapper">
               <input
                 type="file"
                 accept="image/*"
                 onChange={(e) => {
                   const file = e.target.files[0];
                   if (!file) return;
+
+                  // Clean old preview
+                  if (editingBadge.preview?.startsWith("blob:")) {
+                    URL.revokeObjectURL(editingBadge.preview);
+                  }
 
                   setEditingBadge((prev) => ({
                     ...prev,
@@ -513,9 +519,7 @@ const AdminBadges = () => {
                 <img
                   src={editingBadge.preview}
                   alt="preview"
-                  width={50}
-                  height={50}
-                  style={{ borderRadius: "4px", objectFit: "cover" }}
+                  className="edit-preview-img"
                 />
               )}
             </div>

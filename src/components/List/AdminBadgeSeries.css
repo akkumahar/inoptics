@@ -1,0 +1,97 @@
+/* ===============================
+   WRAPPER
+================================ */
+.badge-series-wrapper {
+  background: #ffffff;
+  padding: 28px;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+  max-width: 420px;
+  width: 100%;
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+/* ===============================
+   TITLE
+================================ */
+.badge-series-wrapper h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 22px;
+  color: #111827;
+  text-align: center;
+}
+
+/* ===============================
+   FORM
+================================ */
+.badge-series-wrapper form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ===============================
+   INPUT FIELDS
+================================ */
+.badge-series-wrapper input {
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.badge-series-wrapper input:focus {
+  outline: none;
+  border-color: #111827;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.05);
+}
+
+/* ===============================
+   BUTTON
+================================ */
+.badge-series-wrapper button {
+  margin-top: 6px;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #111827;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.badge-series-wrapper button:hover {
+  background: #000000;
+  transform: translateY(-1px);
+}
+
+.badge-series-wrapper button:active {
+  transform: translateY(0);
+}
+
+/* ===============================
+   SAVED PREVIEW BOX
+================================ */
+.badge-series-wrapper > div {
+  margin-top: 22px;
+  padding: 14px;
+  border-radius: 8px;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+}
+
+.badge-series-wrapper p {
+  margin: 6px 0;
+  font-size: 14px;
+  color: #374151;
+}
+
+.badge-series-wrapper strong {
+  color: #111827;
+}

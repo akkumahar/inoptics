@@ -5,6 +5,8 @@ import "./AdminDashboard.css";
 import CustomEditor from "./CustomEditor";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import { BsBuildingsFill } from "react-icons/bs";
+
 // import { CKEditor } from '@ckeditor/ckeditor5-react';
 // import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import visitorsImg from "../assets/Admin_VisitorsCounts.jpg";
@@ -28,7 +30,7 @@ import { LuFileBadge2 } from "react-icons/lu";
 
 import { FaFileImage, FaExternalLinkAlt, FaRegTrashAlt } from "react-icons/fa";
 
-import { FaCircleCheck } from "react-icons/fa6";
+import { FaCircleCheck, FaPowerOff  } from "react-icons/fa6";
 import { IoMdCloseCircle } from "react-icons/io";
 
 // React Icons package
@@ -66,6 +68,7 @@ import ContractorStepsUnlockAdmin from "./List/ContractorStepsUnlockAdmin";
 import FinalContractorListTable from "./List/FinalContractorListTable";
 import FasciaNameAdmin from "./List/FasciaNameAdmin";
 import AdminPowerRequirement from "./List/AdminPowerRequirement";
+import AdminBadgeSeries from "./List/AdminBadgeSeries";
 // import { useMemo } from 'react';
 
 const AdminDashboard = () => {
@@ -9722,7 +9725,11 @@ const AdminDashboard = () => {
     "Taxes",
     "Currency",
     "Proforma",
-    "Furniture Vendor",
+    "Badges Limit",
+    "Power Requirement",
+    "Exhibitor Series Edit",
+    "Furniture Requirement",
+    // "Furniture Vendor",
   ];
 
   const stallsManagementPages = [
@@ -13338,10 +13345,10 @@ const AdminDashboard = () => {
             <FaBullhorn /> {!collapsed && "Promotes Your Brands"}{" "}
           </li>
           <li onClick={() => openOverlay("Fascia Name")}>
-            <FaBullhorn /> {!collapsed && "Fascia Name"}{" "}
+            <BsBuildingsFill  /> {!collapsed && "Fascia Name"}{" "}
           </li>
           <li onClick={() => openOverlay("Exhibitor Power")}>
-            <FaBullhorn /> {!collapsed && "Exhibitor Power"}{" "}
+            <FaPowerOff /> {!collapsed && "Exhibitor Power"}{" "}
           </li>
           <li onClick={() => setShowFormsMenu(!showFormsMenu)}>
             <FaWpforms /> {!collapsed && "Forms"}
@@ -13351,9 +13358,9 @@ const AdminDashboard = () => {
               <li onClick={() => openOverlay("Core Required Forms")}>
                 › Core Required Forms
               </li>
-              <li onClick={() => openOverlay("Additional Requirement")}>
+              {/* <li onClick={() => openOverlay("Additional Requirement")}>
                 › Additional Requirement
-              </li>
+              </li> */}
             </ul>
           )}
           <li onClick={() => openOverlay("Exhibitor Forms")}>
@@ -13642,7 +13649,7 @@ const AdminDashboard = () => {
                 )}
 
                 {/* Additional Requirement: Dynamic actions based on activeNavbarItem */}
-                {overlayContent === "Additional Requirement" && (
+                {/* {overlayContent === "Additional Requirement" && (
                   <>
                     {activeNavbarItem === "FURNITURE REQUIREMENT" && (
                       <div className="header-actions-group">
@@ -13732,7 +13739,7 @@ const AdminDashboard = () => {
                       </div>
                     )}
                   </>
-                )}
+                )} */}
 
                 {/* Stall Management (Stall Numbers, Hall Numbers, etc.) */}
                 {overlayContent === "Stall Numbers" && (
@@ -13817,7 +13824,11 @@ const AdminDashboard = () => {
                   "Taxes",
                   "Products",
                   "Currency",
-                  "Furniture Vendor",
+                  "Badges Limit",
+                  "Power Requirement",
+                  "Exhibitor Series Edit",
+                  "Furniture Requirement",
+                  // "Furniture Vendor",
                 ].includes(overlayContent) && (
                   <div className="header-actions-group">
                     {overlayContent === "Business Requirement" && (
@@ -13828,14 +13839,14 @@ const AdminDashboard = () => {
                         + Add Business
                       </button>
                     )}
-                    {overlayContent === "Furniture Vendor" && (
+                    {/* {overlayContent === "Furniture Vendor" && (
                       <button
                         className="Exhibitor-top-bar-button"
                         onClick={handleAddFurnitureVendor}
                       >
                         + Add Furniture Vendor
                       </button>
-                    )}
+                    )} */}
                     {overlayContent === "Exhibition Map" && (
                       <button
                         className="Exhibitor-top-bar-button"
@@ -13844,6 +13855,47 @@ const AdminDashboard = () => {
                         + Add Exhibition Image
                       </button>
                     )}
+                    {overlayContent === "Furniture Requirement" && (
+                      <div className="header-actions-group">
+                        <button
+                          className="Exhibitor-top-bar-button"
+                          onClick={() => setShowAddFurnitureForm(true)}
+                        >
+                          + Add Furniture
+                        </button>                        
+                      </div>
+                    )}
+                    {overlayContent === "Power Requirement" && (
+                      <div className="header-actions-group">
+                        <button
+                          className="Exhibitor-top-bar-button"
+                          onClick={() => setShowAddForm(true)}
+                        >
+                          + Add Power
+                        </button>                        
+                      </div>
+                    )}
+                    {overlayContent === "Badges Limit" && (
+                      <div className="header-actions-group">
+                        <button
+                          className="Exhibitor-top-bar-button"
+                          onClick={() => setShowBadgeLimitsAddForm(true)}
+                        >
+                          + Add Badge Limits
+                        </button>                        
+                      </div>
+                    )}
+                    {overlayContent === "Exhibitor Series Edit" && (
+                      <div className="header-actions-group">
+                        <button
+                          className="Exhibitor-top-bar-button"
+                          onClick={() => setShowBadgeLimitsAddForm(true)}
+                        >
+                          + Add Badge Limits
+                        </button>                        
+                      </div>
+                    )}
+
                     {overlayContent === "Exhibitor Dashboard Instruction" && (
                       <button
                         className="Exhibitor-top-bar-button"
@@ -14256,6 +14308,374 @@ const AdminDashboard = () => {
             </div>
           )}
 
+          {overlayContent === "Power Requirement" && (
+            <>         
+              
+                
+                  <div className="table-scroll-wrapper">
+                    <div className="table-container">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>ID</th>
+                            <th>POWER TYPE</th>
+                            <th>PRICE</th>
+                            <th>Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filteredPowerData.length > 0 ? (
+                            filteredPowerData
+                              .slice()
+                              .sort((a, b) =>
+                                a.power_type.localeCompare(b.power_type),
+                              )
+                              .map((item, index) => (
+                                <tr key={item.id}>
+                                  <td>{index + 1}</td>
+                                  <td>{item.power_type}</td>
+                                  <td>{item.price}</td>
+                                  <td>
+                                    <button
+                                      className="action-btn edit-btn"
+                                      onClick={() => handleEdit(item)}
+                                    >
+                                      Edit
+                                    </button>
+                                    <button
+                                      className="action-btn delete-btn"
+                                      onClick={() => handleDelete(item.id)}
+                                    >
+                                      Delete
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))
+                          ) : (
+                            <tr>
+                              <td colSpan="4">No data found</td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {showAddForm && (
+                    <div className="modal-form">
+                      <h3>Add Power Requirement</h3>
+                      <input
+                        type="text"
+                        ref={stallInputRef}
+                        placeholder="Power Type"
+                        value={powerType}
+                        onChange={(e) => setPowerType(e.target.value)}
+                      />
+                      <input
+                        type="number"
+                        placeholder="Price"
+                        value={price}
+                        onChange={(e) => setPrice(e.target.value)}
+                      />
+                      <button onClick={addPowerRequirement}>Submit</button>
+                      <button onClick={() => setShowAddForm(false)}>
+                        Cancel
+                      </button>
+                    </div>
+                  )}
+
+                  {showEditForm && (
+                    <div className="modal-form">
+                      <h3>Edit Power Requirement</h3>
+                      <input
+                        type="text"
+                        ref={editStallInputRef}
+                        placeholder="Power Type"
+                        value={editPowerType}
+                        onChange={(e) => setEditPowerType(e.target.value)}
+                      />
+                      <input
+                        type="number"
+                        placeholder="Price"
+                        value={editPrice}
+                        onChange={(e) => setEditPrice(e.target.value)}
+                      />
+                      <button onClick={handleUpdate}>Update</button>
+                      <button onClick={() => setShowEditForm(false)}>
+                        Cancel
+                      </button>
+                    </div>
+                  )}
+                </>
+          )}
+          {overlayContent === "Furniture Requirement" && (
+            <>
+           
+                  <div className="add-furniture-grid-wrapper">
+                    {filteredFurnitureData.length > 0 ? (
+                      <div className="add-furniture-grid">
+                        {[...filteredFurnitureData]
+                          .sort((a, b) => {
+                            const piA = parseInt(
+                              a.name.match(/PI-(\d+)/)?.[1] || 0,
+                            );
+                            const piB = parseInt(
+                              b.name.match(/PI-(\d+)/)?.[1] || 0,
+                            );
+                            return piA - piB;
+                          })
+                          .map((item, index) => {
+                            const match = item.name.match(/PI-(\d+)/);
+                            const displayId = match ? parseInt(match[1]) : "?";
+
+                            return (
+                              <div className="add-furniture-card" key={item.id}>
+                                <div className="add-furniture-id">
+                                  ID: {displayId}
+                                </div>
+
+                                <div className="add-furniture-image-wrapper">
+                                  <img
+                                    src={`https://www.inoptics.in/api/uploads/${item.image}`}
+                                    alt={item.name}
+                                    className="add-furniture-image"
+                                  />
+                                </div>
+
+                                <div className="add-furniture-name">
+                                  {item.name}
+                                </div>
+                                <div className="add-furniture-price">
+                                  ₹{item.price}
+                                </div>
+
+                                <div className="add-furniture-actions">
+                                  <button
+                                    className="action-btn edit-btn"
+                                    onClick={() => handleEditFurniture(item)}
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    className="action-btn delete-btn"
+                                    onClick={() =>
+                                      handleDeleteFurniture(item.id)
+                                    }
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                      </div>
+                    ) : (
+                      <p style={{ padding: "10px" }}>No data found</p>
+                    )}
+                  </div>
+
+                  {showAddFurnitureForm && (
+                    <div className="modal-form">
+                      <h3>Add Furniture Requirement</h3>
+
+                      <input
+                        type="text"
+                        ref={stallInputRef}
+                        placeholder="Name"
+                        value={furnitureName}
+                        onChange={(e) => setFurnitureName(e.target.value)}
+                      />
+
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setFurnitureImage(e.target.files[0])}
+                      />
+
+                      <input
+                        type="number"
+                        placeholder="Price"
+                        value={furniturePrice}
+                        onChange={(e) => setFurniturePrice(e.target.value)}
+                      />
+
+                      <button onClick={addFurnitureRequirement}>Submit</button>
+                      <button onClick={() => setShowAddFurnitureForm(false)}>
+                        Cancel
+                      </button>
+                    </div>
+                  )}
+
+                  {showEditFurnitureForm && (
+                    <div className="modal-form">
+                      <h3>Edit Furniture Requirement</h3>
+
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) =>
+                          setEditFurnitureImage(e.target.files[0])
+                        }
+                      />
+
+                      <input
+                        type="text"
+                        ref={editStallInputRef}
+                        value={editFurnitureName}
+                        onChange={(e) => setEditFurnitureName(e.target.value)}
+                        placeholder="Name"
+                      />
+
+                      <input
+                        type="number"
+                        placeholder="Price"
+                        value={editFurniturePrice}
+                        onChange={(e) => setEditFurniturePrice(e.target.value)}
+                      />
+
+                      <button onClick={handleUpdateFurniture}>Update</button>
+                      <button onClick={() => setShowEditFurnitureForm(false)}>
+                        Cancel
+                      </button>
+                    </div>
+                  )}
+              
+              
+            </>
+          )}
+          {overlayContent === "Badges Limit" && (
+            <>
+               <>
+                  <div className="table-scroll-wrapper">
+                    <div className="table-container">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>ID</th>
+                            <th>Min Square Footage</th>
+                            <th>Max Square Footage</th>
+                            <th>No Of Badges</th>
+                            <th>Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {badgeLimitsData && badgeLimitsData.length > 0 ? (
+                            badgeLimitsData
+                              .filter(
+                                (item) =>
+                                  (item.min_sq_ft?.toString() || "").includes(
+                                    searchBadgeQuery,
+                                  ) ||
+                                  (item.max_sq_ft?.toString() || "").includes(
+                                    searchBadgeQuery,
+                                  ),
+                              )
+                              .map((item, index) => (
+                                <tr key={item.id || index}>
+                                  <td>{index + 1}</td>
+                                  <td>{item.min_sq_ft}</td>
+                                  <td>{item.max_sq_ft}</td>
+                                  <td>{item.no_of_badges}</td>
+                                  <td>
+                                    <button
+                                      className="action-btn edit-btn"
+                                      onClick={() =>
+                                        handleBadgeLimitsEdit(item)
+                                      }
+                                    >
+                                      Edit
+                                    </button>
+                                    <button
+                                      className="action-btn delete-btn"
+                                      onClick={() => deleteBadgeLimit(item.id)}
+                                    >
+                                      Delete
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))
+                          ) : (
+                            <tr>
+                              <td colSpan="5">No data found</td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {showBadgeLimitsAddForm && (
+                    <div className="modal-form">
+                      <h3>Add Badge Limit</h3>
+                      <input
+                        type="number"
+                        placeholder="Min Square Footage"
+                        value={minSqFt}
+                        onChange={(e) => setMinSqFt(e.target.value)}
+                      />
+                      <input
+                        type="number"
+                        placeholder="Max Square Footage"
+                        value={maxSqFt}
+                        onChange={(e) => setMaxSqFt(e.target.value)}
+                      />
+                      <input
+                        type="number"
+                        placeholder="No Of Badges"
+                        value={noOfBadges}
+                        onChange={(e) => setNoOfBadges(e.target.value)}
+                      />
+                      <button onClick={addBadgeLimit}>Add</button>
+                      <button onClick={() => setShowBadgeLimitsAddForm(false)}>
+                        Cancel
+                      </button>
+                    </div>
+                  )}
+
+                  {showBadgeLimitsEditForm && (
+                    <div className="modal-form">
+                      <h3>Edit Badge Limit</h3>
+                      <input
+                        type="number"
+                        placeholder="Min Square Footage"
+                        value={editMinSqFt}
+                        onChange={(e) => setEditMinSqFt(e.target.value)}
+                      />
+                      <input
+                        type="number"
+                        placeholder="Max Square Footage"
+                        value={editMaxSqFt}
+                        onChange={(e) => setEditMaxSqFt(e.target.value)}
+                      />
+                      <input
+                        type="number"
+                        placeholder="No Of Badges"
+                        value={editNoOfBadges}
+                        onChange={(e) => setEditNoOfBadges(e.target.value)}
+                      />
+                      <button onClick={updateBadgeLimit}>Update</button>
+                      <button onClick={() => setShowBadgeLimitsEditForm(false)}>
+                        Cancel
+                      </button>
+                    </div>
+                  )}
+                </>
+              
+              
+            </>
+          )}
+
+
+           {overlayContent === "Exhibitor Series Edit" && (
+            <>
+            <div style={{ padding: "10px" }}>
+                  <AdminBadgeSeries />
+                </div>
+            </>
+          )}
+
+
+
           {overlayContent === "Business Requirement" && (
             <>
               <div className="table-scroll-wrapper">
@@ -14592,7 +15012,7 @@ const AdminDashboard = () => {
             </div>
           )}
 
-          {overlayContent === "Furniture Vendor" && (
+          {/* {overlayContent === "Furniture Vendor" && (
             <div className="main-content-wrapper furniture-vendor-management">
               <>
                 <div className="footer-tables-row">
@@ -14645,17 +15065,17 @@ const AdminDashboard = () => {
                   </div>
                 </div>
 
-                {/* <div className="add-btn-container">
+                <div className="add-btn-container">
         <button className="action-btn add-btn" onClick={handleAddFurnitureVendor}>
           + Add Furniture Vendor
         </button>
-      </div> */}
+      </div>
               </>
             </div>
-          )}
+          )} */}
 
           {/* ==== Furniture Vendor Modal ==== */}
-          {showFurnitureVendorModal && (
+          {/* {showFurnitureVendorModal && (
             <div className="visitor-guide-editor-overlay">
               <div className="visitor-guide-editor-content">
                 <h2>
@@ -14694,7 +15114,7 @@ const AdminDashboard = () => {
                 </div>
               </div>
             </div>
-          )}
+          )} */}
 
           {overlayContent === "Proforma" && (
             <div className="invoice-wrapper">
@@ -18150,7 +18570,7 @@ const AdminDashboard = () => {
                                       Additional badges can be requested at a
                                       cost of ₹100 per badge. However, any badge
                                       requests made after{" "}
-                                      <strong>28th February 2026</strong> will
+                                      <strong>20th March 2026</strong> will
                                       be charged at ₹200 per badge.
                                       <br />
                                       <br />
@@ -18243,9 +18663,9 @@ const AdminDashboard = () => {
                                       10,
                                     );
                                     const rate =
-                                      new Date() > new Date("2026-02-28")
+                                      new Date() > new Date("2026-03-20")
                                         ? 200
-                                        : 100; // Corrected date to '2026-02-28'
+                                        : 100; // Corrected date to '2026-03-20'
                                     const total = count * rate;
 
                                     const companyState =
@@ -24498,7 +24918,7 @@ const AdminDashboard = () => {
                 </ul>
               </div>
 
-              {activeNavbarItem === "FURNITURE REQUIREMENT" && (
+              {/* {activeNavbarItem === "FURNITURE REQUIREMENT" && (
                 <>
                   <div className="add-furniture-grid-wrapper">
                     {filteredFurnitureData.length > 0 ? (
@@ -24629,10 +25049,10 @@ const AdminDashboard = () => {
                     </div>
                   )}
                 </>
-              )}
+              )} */}
 
               {/* POWER REQUIREMENT Section */}
-              {activeNavbarItem === "POWER REQUIREMENT" && (
+              {/* {activeNavbarItem === "POWER REQUIREMENT" && (
                 <>
                   <div className="table-scroll-wrapper">
                     <div className="table-container">
@@ -24729,10 +25149,10 @@ const AdminDashboard = () => {
                     </div>
                   )}
                 </>
-              )}
+              )} */}
 
               {/* ✅ BADGES LIMIT */}
-              {activeNavbarItem === "BADGES LIMIT" && (
+              {/* {activeNavbarItem === "BADGES LIMIT" && (
                 <>
                   <div className="table-scroll-wrapper">
                     <div className="table-container">
@@ -24848,7 +25268,7 @@ const AdminDashboard = () => {
                     </div>
                   )}
                 </>
-              )}
+              )} */}
             </>
           )}
 
@@ -24860,9 +25280,9 @@ const AdminDashboard = () => {
                 <ul className="admin-sub-navbar-list">
                   <li
                     onClick={() => setActiveNavbarItem("EXHIBITOR FORMS")}
-                    className={
-                      activeNavbarItem === "Exhibitor Forms" ? "active" : ""
-                    }
+                    // className={
+                    //   activeNavbarItem === "Exhibitor Forms" ? "active" : ""
+                    // }
                   >
                     Exhibitor Forms
                   </li>
@@ -24884,9 +25304,9 @@ const AdminDashboard = () => {
                 <ul className="admin-sub-navbar-list">
                   <li
                     onClick={() => setActiveNavbarItem("EXHIBITOR BADGES")}
-                    className={
-                      activeNavbarItem === "Exhibitor Badges" ? "active" : ""
-                    }
+                    // className={
+                    //   activeNavbarItem === "Exhibitor Badges" ? "active" : ""
+                    // }
                   >
                     Exhibitor Badges
                   </li>
@@ -24894,9 +25314,9 @@ const AdminDashboard = () => {
                     onClick={() =>
                       setActiveNavbarItem("EXHIBITOR BADGES SERIES")
                     }
-                    className={
-                      activeNavbarItem === "Exhibitor Series" ? "active" : ""
-                    }
+                    // className={
+                    //   activeNavbarItem === "Exhibitor Series" ? "active" : ""
+                    // }
                   >
                     Exhibitor Series Edit
                   </li>
@@ -25694,6 +26114,7 @@ const AdminDashboard = () => {
 
               {/* Contractor Content */}
               <div className="contractor-tab-content">
+                
                 {activeContractorTab === "Contractor Badges" && (
                   <>
                     <ContractorBadgeAdmin />
@@ -28138,6 +28559,8 @@ const AdminDashboard = () => {
                                   "Electrical Vendor Power Requirement",
                                   "Stall Balance Payment",
                                   "Remark Mail",
+                                  "Contractor Badges Unlock Request",
+                                  "Contractor Badges Submit",
                                 ].map((place) => (
                                   <label key={place}>
                                     <input
@@ -28260,6 +28683,8 @@ const AdminDashboard = () => {
                                   "Electrical Vendor Power Requirement",
                                   "Stall Balance Payment",
                                   "Remark Mail",
+                                  "Contractor Badges Unlock Request",
+                                  "Contractor Badges Submit",
                                 ].map((place) => (
                                   <label key={place}>
                                     <input

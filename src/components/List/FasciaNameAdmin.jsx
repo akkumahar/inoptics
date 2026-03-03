@@ -7,6 +7,7 @@ const FasciaNameAdmin = () => {
   const [openCompany, setOpenCompany] = useState(null);
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [editData, setEditData] = useState(null);
@@ -104,8 +105,31 @@ const FasciaNameAdmin = () => {
 
   return (
     <div className="fascia-admin-container">
+      {/* 🔎 SEARCH BAR */}
+<div className="fascia-search-bar">
+  <input
+    type="text"
+    placeholder="Search company or fascia name..."
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+  />
+</div>
 
-      {companies.map((company, index) => {
+      {companies
+  .filter((company) => {
+    const term = searchTerm.toLowerCase();
+
+    // Company match
+    if (company.toLowerCase().includes(term)) return true;
+
+    // Fascia name match
+    const fasciaMatch = groupedData[company]?.some((row) =>
+      row.facia_company_name?.toLowerCase().includes(term)
+    );
+
+    return fasciaMatch;
+  })
+  .map((company, index) => {
         const isOpen = openCompany === company;
 
         return (
@@ -123,7 +147,7 @@ const FasciaNameAdmin = () => {
 
             {/* BODY */}
             {isOpen && (
-              <div className="accordion-body">
+              <div className="accordion-body fascia-scroll">
                 <table className="fascia-table">
                   <thead>
                     <tr>

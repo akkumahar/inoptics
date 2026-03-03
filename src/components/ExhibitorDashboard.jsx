@@ -65,15 +65,16 @@ const ExhibitorDashboard = () => {
 
   const [powerPreviewRows, setPowerPreviewRows] = useState([]);
 
-
   const [companyRemarks, setCompanyRemarks] = useState([]);
-const [loadingRemarks, setLoadingRemarks] = useState(false);
-const [remarkError, setRemarkError] = useState(null);
-const [isEditMode, setIsEditMode] = useState(false);
+  const [loadingRemarks, setLoadingRemarks] = useState(false);
+  const [remarkError, setRemarkError] = useState(null);
+  const [isEditMode, setIsEditMode] = useState(false);
 
-const [stepSubmitted, setStepSubmitted] = useState({});
-const [unlockStatus, setUnlockStatus] = useState({});
+  const [stepSubmitted, setStepSubmitted] = useState({});
+  const [unlockStatus, setUnlockStatus] = useState({});
 
+  const [showMandatoryPopup, setShowMandatoryPopup] = useState(false);
+  
 
   // Fetch Products
   const fetchProducts = async () => {
@@ -332,120 +333,111 @@ const [unlockStatus, setUnlockStatus] = useState({});
     { name: "Mails Inbox", icon: <FaEnvelope /> },
     { name: "Additional Furniture", icon: <FaClipboardList /> },
     { name: "Additional Power", icon: <FaBolt /> },
-    { name: "Mandatory Forms", icon: <FaRegHandshake  /> },
-    { name: "Exhibitor Badges", icon: <FaRegIdBadge  /> },
-    { name: "Contractor Badges", icon: <FaIdCard   /> },
-    { name: "Fascia Name", icon: <FaIdCard   /> },
+    { name: "Mandatory Forms", icon: <FaRegHandshake /> },
+    { name: "Exhibitor Badges", icon: <FaRegIdBadge /> },
+    { name: "Contractor Badges", icon: <FaIdCard /> },
+    { name: "Fascia Name", icon: <FaIdCard /> },
     { name: "Payment", icon: <FaMoneyBill /> },
   ];
 
   // ✅ Load login data
   useEffect(() => {
-  const isLoggedIn = localStorage.getItem("isExhibitorLoggedIn");
+    const isLoggedIn = localStorage.getItem("isExhibitorLoggedIn");
 
-  if (!isLoggedIn) {
-    navigate("/exhibitor-login");
-    return;
-  }
-
-  const data = localStorage.getItem("exhibitorInfo");
-
-  if (!data || data === "undefined" || data === "null") return;
-
-  try {
-    const parsedData = JSON.parse(data);
-    setExhibitorData(parsedData);
-
-    const companyName = parsedData.company_name;
-
-    /* ================= UNDERTAKING STATUS ================= */
-    fetch(
-      `https://inoptics.in/api/get_undertaking_status.php?company_name=${encodeURIComponent(
-        companyName
-      )}`
-    )
-      .then((res) => res.json())
-      .then((statusData) => {
-        if (!statusData.undertaking_accepted) {
-          setShowDeclaration(true);
-
-          fetch(
-            "https://inoptics.in/api/get_exhibitor_declaration_undertaking.php"
-          )
-            .then((res) => res.json())
-            .then((declData) => {
-              if (Array.isArray(declData)) {
-                setDeclarationUndertakingData(declData);
-              }
-            })
-            .catch((err) =>
-              console.error("Error fetching declaration:", err)
-            );
-        } else {
-          setActivities((prev) =>
-            prev.map((act) =>
-              act.name === "UNDERTAKING AGREED"
-                ? { ...act, done: true }
-                : act
-            )
-          );
-        }
-      })
-      .catch((err) =>
-        console.error("Error fetching undertaking status:", err)
-      );
-
-    /* ================= BADGE STATUS ================= */
-    fetchcontractorBadgeStatus(companyName);
-
-  } catch (err) {
-    console.error("Invalid JSON in exhibitorInfo:", err);
-  }
-}, [navigate]);
-
-
-useEffect(() => {
-  if (exhibitorData?.company_name) {
-    fetchcontractorBadgeStatus(exhibitorData.company_name);
-  }
-}, [exhibitorData]);
-
-
-
- const fetchcontractorBadgeStatus = async (companyName) => {
-  try {
-    const res = await fetch(
-      `https://inoptics.in/api/get_all_contractor_badges.php?exhibitor_company_name=${encodeURIComponent(
-        companyName
-      )}`
-    );
-
-    const badgeData = await res.json();
-
-    if (!badgeData.success) return;
-
-    const badgeSubmitted = badgeData.badge_submitted;
-    const isLocked = badgeData.is_locked;
-
-    // ✅ Condition: badge submitted OR unlocked
-    if (badgeSubmitted || isLocked === 0) {
-
-      setActivities((prev) =>
-        prev.map((act) =>
-          act.name === "APPOINTED CONTRACTOR & BADGES"
-            ? { ...act, done: true }
-            : act
-        )
-      );
-
+    if (!isLoggedIn) {
+      navigate("/exhibitor-login");
+      return;
     }
 
-  } catch (err) {
-    console.error("Error fetching contractor badge status:", err);
-  }
-};
+    const data = localStorage.getItem("exhibitorInfo");
 
+    if (!data || data === "undefined" || data === "null") return;
 
+    try {
+      const parsedData = JSON.parse(data);
+      setExhibitorData(parsedData);
+
+      const companyName = parsedData.company_name;
+
+      /* ================= UNDERTAKING STATUS ================= */
+      fetch(
+        `https://inoptics.in/api/get_undertaking_status.php?company_name=${encodeURIComponent(
+          companyName,
+        )}`,
+      )
+        .then((res) => res.json())
+        .then((statusData) => {
+          if (!statusData.undertaking_accepted) {
+            setShowDeclaration(true);
+
+            fetch(
+              "https://inoptics.in/api/get_exhibitor_declaration_undertaking.php",
+            )
+              .then((res) => res.json())
+              .then((declData) => {
+                if (Array.isArray(declData)) {
+                  setDeclarationUndertakingData(declData);
+                }
+              })
+              .catch((err) =>
+                console.error("Error fetching declaration:", err),
+              );
+          } else {
+            setActivities((prev) =>
+              prev.map((act) =>
+                act.name === "UNDERTAKING AGREED"
+                  ? { ...act, done: true }
+                  : act,
+              ),
+            );
+          }
+        })
+        .catch((err) =>
+          console.error("Error fetching undertaking status:", err),
+        );
+
+      /* ================= BADGE STATUS ================= */
+      fetchcontractorBadgeStatus(companyName);
+    } catch (err) {
+      console.error("Invalid JSON in exhibitorInfo:", err);
+    }
+  }, [navigate]);
+
+  useEffect(() => {
+    if (exhibitorData?.company_name) {
+      fetchcontractorBadgeStatus(exhibitorData.company_name);
+    }
+  }, [exhibitorData]);
+
+  const fetchcontractorBadgeStatus = async (companyName) => {
+    try {
+      const res = await fetch(
+        `https://inoptics.in/api/get_all_contractor_badges.php?exhibitor_company_name=${encodeURIComponent(
+          companyName,
+        )}`,
+      );
+
+      const badgeData = await res.json();
+
+      if (!badgeData.success) return;
+
+      const badgeSubmitted = badgeData.badge_submitted;
+      const isLocked = badgeData.is_locked;
+
+      // ✅ Condition: badge submitted OR unlocked
+      if (badgeSubmitted || isLocked === 0) {
+        setActivities((prev) =>
+          prev.map((act) =>
+            act.name === "APPOINTED CONTRACTOR & BADGES"
+              ? { ...act, done: true }
+              : act,
+          ),
+        );
+      }
+    } catch (err) {
+      console.error("Error fetching contractor badge status:", err);
+    }
+  };
 
   // ✅ Accept undertaking
   const handleAgree = async () => {
@@ -485,23 +477,15 @@ useEffect(() => {
     navigate("/exhibitor-login");
   };
 
-
-
-  
-
-
-
-
   const handleImportantClick = (page) => {
     setImportantPage(page);
     setActiveMenu("");
   };
 
   const handleImportantPaymentClick = (menu) => {
-  setActiveMenu(menu);
-  setImportantPage(false);
-};
-
+    setActiveMenu(menu);
+    setImportantPage(false);
+  };
 
   // poll unread mails count for sidebar badge
   useEffect(() => {
@@ -649,34 +633,30 @@ useEffect(() => {
   }, [exhibitorData]);
 
   const fetchExhibitorData = async (email) => {
-  try {
-    const res = await fetch("https://inoptics.in/api/get_exhibitors.php");
-    const data = await res.json();
+    try {
+      const res = await fetch("https://inoptics.in/api/get_exhibitors.php");
+      const data = await res.json();
 
-    if (Array.isArray(data)) {
+      if (Array.isArray(data)) {
+        const matched = data.find(
+          (ex) =>
+            ex.email?.toLowerCase().trim() === email?.toLowerCase().trim(),
+        );
 
-      const matched = data.find(
-        (ex) =>
-          ex.email?.toLowerCase().trim() ===
-          email?.toLowerCase().trim()
-      );
+        if (matched) {
+          setExhibitors([matched]);
 
-      if (matched) {
-        setExhibitors([matched]);
-
-        if (matched.company_name) {
-          fetchStallsByCompany(matched.company_name);
+          if (matched.company_name) {
+            fetchStallsByCompany(matched.company_name);
+          }
         }
+
+        // ❌ DO NOT CLEAR exhibitors here
       }
-
-      // ❌ DO NOT CLEAR exhibitors here
+    } catch (error) {
+      console.error("Failed to fetch exhibitors:", error);
     }
-  } catch (error) {
-    console.error("Failed to fetch exhibitors:", error);
-  }
-};
-
-
+  };
 
   const fetchStallsByCompany = async (companyName) => {
     try {
@@ -733,62 +713,86 @@ useEffect(() => {
   }, []);
 
   const handleMenuClick = (menu) => {
-    // 🚨 EXIT GUARD — sirf tab popup jab:
-    // 1️⃣ Exhibitor Badges page par ho
-    // 2️⃣ At least 1 badge UNLOCKED ho
-    // 3️⃣ Kisi aur menu par ja rahe ho
-    if (
-      isInExhibitorBadges &&
-      hasUnlockedBadge && // 🔥 IMPORTANT FIX
-      menu !== "Exhibitor Badges"
-    ) {
-      setPendingMenu(menu);
-      setShowExitPopup(true);
-      return; // ⛔ stop here
+
+  /* =====================================================
+     🚨 EXIT GUARD (Exhibitor Badges Unlock Protection)
+  ====================================================== */
+  if (
+    isInExhibitorBadges &&
+    hasUnlockedBadge &&
+    menu !== "Exhibitor Badges"
+  ) {
+    setPendingMenu(menu);
+    setShowExitPopup(true);
+    return;
+  }
+
+
+  /* =====================================================
+     🚨 CONTRACTOR BADGES GUARD
+     Redirect to Mandatory Forms if not completed
+  ====================================================== */
+  if (menu === "Contractor Badges") {
+
+    const contractorSelected = !!selectedContractorId;
+
+    const mandatoryCompleted =
+      uploadedSteps?.step1 &&
+      uploadedSteps?.step2; // step3 optional if needed
+
+    if (!contractorSelected || !mandatoryCompleted) {
+      setShowMandatoryPopup(true); // show popup
+      return; // ⛔ stop navigation
     }
+  }
 
-    // ===== NORMAL NAVIGATION =====
-    setActiveMenu(menu);
-    setImportantPage("");
 
-    if (menu === "Additional Requirements") {
-      setImportantPage("Furniture Requirements");
-      return;
-    }
+  /* =====================================================
+     ✅ NORMAL NAVIGATION
+  ====================================================== */
+  setActiveMenu(menu);
+  setImportantPage("");
 
-    // mobile / tablet auto close
-    if (window.innerWidth <= 768) {
-      setCollapsed(true);
-    }
+  if (menu === "Additional Requirements") {
+    setImportantPage("Furniture Requirements");
+    return;
+  }
 
-    // mails inbox special logic
-    if (menu === "Mails Inbox" && currentExhibitor) {
-      setLoadingMails(true);
+  // mobile auto close
+  if (window.innerWidth <= 768) {
+    setCollapsed(true);
+  }
 
-      fetch(
-        `https://inoptics.in/api/get_exhibitor_mails.php?company_name=${encodeURIComponent(
-          currentExhibitor.company_name,
-        )}`,
-      )
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success && Array.isArray(data.mails)) {
-            setMailsList(data.mails);
-            setUnreadCount(
-              data.mails.filter((m) => Number(m.is_read) === 0).length,
-            );
-          } else {
-            setMailsList([]);
-            setUnreadCount(0);
-          }
-        })
-        .catch(() => {
+  /* =====================================================
+     📩 MAILS INBOX FETCH
+  ====================================================== */
+  if (menu === "Mails Inbox" && currentExhibitor) {
+    setLoadingMails(true);
+
+    fetch(
+      `https://inoptics.in/api/get_exhibitor_mails.php?company_name=${encodeURIComponent(
+        currentExhibitor.company_name,
+      )}`,
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.mails)) {
+          setMailsList(data.mails);
+          setUnreadCount(
+            data.mails.filter((m) => Number(m.is_read) === 0).length,
+          );
+        } else {
           setMailsList([]);
           setUnreadCount(0);
-        })
-        .finally(() => setLoadingMails(false));
-    }
-  };
+        }
+      })
+      .catch(() => {
+        setMailsList([]);
+        setUnreadCount(0);
+      })
+      .finally(() => setLoadingMails(false));
+  }
+};
 
   useEffect(() => {
     fetchEventSchedule();
@@ -941,24 +945,24 @@ useEffect(() => {
   }, []);
 
   const fetchFurnitureVendorDetails = async () => {
-  try {
-    const res = await fetch(
-      "https://inoptics.in/api/get_furniture_vendor.php"
-    );
+    try {
+      const res = await fetch(
+        "https://inoptics.in/api/get_furniture_vendor.php",
+      );
 
-    const data = await res.json();
-    console.log("Furniture API Response:", data);
+      const data = await res.json();
+      console.log("Furniture API Response:", data);
 
-    if (data.success && Array.isArray(data.data)) {
-      setFurnitureVendorDetails(data.data); // ✅ correct
-    } else {
-      setFurnitureVendorDetails([]); // fallback
+      if (data.success && Array.isArray(data.data)) {
+        setFurnitureVendorDetails(data.data); // ✅ correct
+      } else {
+        setFurnitureVendorDetails([]); // fallback
+      }
+    } catch (err) {
+      console.error("Failed to fetch Furniture Vendor details", err);
+      setFurnitureVendorDetails([]);
     }
-  } catch (err) {
-    console.error("Failed to fetch Furniture Vendor details", err);
-    setFurnitureVendorDetails([]);
-  }
-};
+  };
 
   useEffect(() => {
     fetchEmailMessages();
@@ -1914,7 +1918,7 @@ useEffect(() => {
           );
         }
       })
-      
+
       .catch((err) =>
         console.error("❌ Failed to fetch exhibitor badges:", err),
       )
@@ -2856,55 +2860,53 @@ useEffect(() => {
   }, [grandTotal, powerCleared]);
 
   const handleFinalUpload = async () => {
-  if (!selectedFile) {
-    throw new Error("No file selected");
-  }
-
-  let formType = "";
-  if (currentStep === 1) formType = "appointed";
-  else if (currentStep === 2) formType = "undertaking";
-  else if (currentStep === 3) formType = "booth_design";
-
-  const uploadData = new FormData();
-  uploadData.append("file", selectedFile);
-  uploadData.append("exhibitor_company_name", formData.company_name);
-  uploadData.append("form_type", formType);
-
-  const res = await fetch(
-    "https://inoptics.in/api/upload_exhibitor_form.php",
-    {
-      method: "POST",
-      body: uploadData,
+    if (!selectedFile) {
+      throw new Error("No file selected");
     }
-  );
 
-  const data = await res.json();
+    let formType = "";
+    if (currentStep === 1) formType = "appointed";
+    else if (currentStep === 2) formType = "undertaking";
+    else if (currentStep === 3) formType = "booth_design";
 
-  if (!data.success) {
-    throw new Error(data.message || "Upload failed");
-  }
+    const uploadData = new FormData();
+    uploadData.append("file", selectedFile);
+    uploadData.append("exhibitor_company_name", formData.company_name);
+    uploadData.append("form_type", formType);
 
-  // ✅ Success Logic
-  setUploadedFileURL(data.file_path);
+    const res = await fetch(
+      "https://inoptics.in/api/upload_exhibitor_form.php",
+      {
+        method: "POST",
+        body: uploadData,
+      },
+    );
 
-  setUploadedFiles((prev) => ({
-    ...prev,
-    [`step${currentStep}`]: data.file_path,
-  }));
+    const data = await res.json();
 
-  setUploadedSteps((prev) => ({
-    ...prev,
-    [`step${currentStep}`]: true,
-  }));
+    if (!data.success) {
+      throw new Error(data.message || "Upload failed");
+    }
 
-  setShowPreview(false);
-  setSelectedFile(null);
-  setPreviewURL(null);
+    // ✅ Success Logic
+    setUploadedFileURL(data.file_path);
 
-  return data;
-};
+    setUploadedFiles((prev) => ({
+      ...prev,
+      [`step${currentStep}`]: data.file_path,
+    }));
 
+    setUploadedSteps((prev) => ({
+      ...prev,
+      [`step${currentStep}`]: true,
+    }));
 
+    setShowPreview(false);
+    setSelectedFile(null);
+    setPreviewURL(null);
+
+    return data;
+  };
 
   const handleFileSelect = (e) => {
     const file = e.target.files?.[0];
@@ -2919,76 +2921,77 @@ useEffect(() => {
 
   // booth design upload handler
   const handleBoothDesignUpload = async () => {
-
-  if (!selectedFile) {
-    toast.error("No file selected");
-    return;
-  }
-
-  const uploadData = new FormData();
-  uploadData.append("file", selectedFile);
-  uploadData.append("company_name", formData.company_name);
-
-  try {
-
-    // 🔹 STEP 1: Upload
-    const res = await fetch(
-      "https://inoptics.in/api/upload_booth_design_file.php",
-      { method: "POST", body: uploadData }
-    );
-
-    const data = await res.json();
-
-    if (!data.success) {
-      toast.error("Upload failed");
+    if (!selectedFile) {
+      toast.error("No file selected");
       return;
     }
 
-    // 🔹 STEP 2: Lock Step 4 (Booth step)
-    const fd = new FormData();
-    fd.append("exhibitor_company_name", formData.company_name);
-    fd.append("step_number", 4);
+    const uploadData = new FormData();
+    uploadData.append("file", selectedFile);
+    uploadData.append("company_name", formData.company_name);
 
-    await fetch(
-      "https://inoptics.in/api/lock_contractor_step_status.php",
-      { method: "POST", body: fd }
-    );
+    try {
+      // 🔹 STEP 1: Upload
+      const res = await fetch(
+        "https://inoptics.in/api/upload_booth_design_file.php",
+        { method: "POST", body: uploadData },
+      );
 
-    // 🔹 STEP 3: Update UI
-    setStepSubmitted((prev) => ({
-      ...prev,
-      4: true,
-    }));
+      const data = await res.json();
 
-    fetchUnlockStatus();
+      if (!data.success) {
+        toast.error("Upload failed");
+        return;
+      }
 
-    toast.success("Booth design uploaded & locked!");
+      // 🔹 STEP 2: Lock Step 4 (Booth step)
+      const fd = new FormData();
+      fd.append("exhibitor_company_name", formData.company_name);
+      fd.append("step_number", 4);
 
-    setUploadedSteps((prev) => ({
-      ...prev,
-      step3: true,
-    }));
+      await fetch("https://inoptics.in/api/lock_contractor_step_status.php", {
+        method: "POST",
+        body: fd,
+      });
 
-    setSelectedFile(null);
-    setPreviewURL(null);
-    setShowBoothDesignPreview(false);
+      // 🔹 STEP 3: Update UI
+      setStepSubmitted((prev) => ({
+        ...prev,
+        4: true,
+      }));
 
-  } catch (err) {
-    console.error(err);
-    toast.error("Upload failed");
-  }
-};
+      fetchUnlockStatus();
 
+      toast.success("Booth design uploaded & locked!");
 
+      setUploadedSteps((prev) => ({
+        ...prev,
+        step3: true,
+      }));
 
-const fetchUnlockStatus = async () => {
+      setSelectedFile(null);
+      setPreviewURL(null);
+      setShowBoothDesignPreview(false);
+    } catch (err) {
+      console.error(err);
+      toast.error("Upload failed");
+    }
+  };
+
+  const fetchUnlockStatus = async () => {
     try {
       const res = await fetch(
-        `https://inoptics.in/api/get_contractor_unlock_step_status.php?exhibitor_company_name=${encodeURIComponent(formData.company_name)}`
+        `https://inoptics.in/api/get_contractor_unlock_step_status.php?exhibitor_company_name=${encodeURIComponent(formData.company_name)}`,
       );
-      if (!res.ok) { console.error("Server error:", res.status); return; }
+      if (!res.ok) {
+        console.error("Server error:", res.status);
+        return;
+      }
       const text = await res.text();
-      if (!text) { console.warn("Empty response from server"); return; }
+      if (!text) {
+        console.warn("Empty response from server");
+        return;
+      }
       const data = JSON.parse(text);
       if (data.success) {
         const steps = data.steps || {};
@@ -3004,7 +3007,7 @@ const fetchUnlockStatus = async () => {
             if (steps[stepKey]?.status === "approved") {
               updated[n] = false; // admin approved → unlock
             } else {
-              updated[n] = true;  // locked/pending/rejected → was submitted, keep locked
+              updated[n] = true; // locked/pending/rejected → was submitted, keep locked
             }
           });
           return updated;
@@ -3014,8 +3017,6 @@ const fetchUnlockStatus = async () => {
       console.error("unlock fetch error", err);
     }
   };
-
-
 
   useEffect(() => {
     if (!formData.company_name) return;
@@ -3199,131 +3200,114 @@ const fetchUnlockStatus = async () => {
     setShowBrandsEditForm(false);
   };
 
-
-
   const handleSubmitBrands = async () => {
-  const payload = {
-    Company_name: currentExhibitor.company_name,
-    website: brandsData.website,
-    products: (brandsData.products || []).join(","),
-    home_brands: brandsData.home_brands,
-    distributors: brandsData.distributors,
-    international_brands: brandsData.international_brands,
-  };
+    const payload = {
+      Company_name: currentExhibitor.company_name,
+      website: brandsData.website,
+      products: (brandsData.products || []).join(","),
+      home_brands: brandsData.home_brands,
+      distributors: brandsData.distributors,
+      international_brands: brandsData.international_brands,
+    };
 
-  console.log("SUBMIT / UPDATE:", payload);
+    console.log("SUBMIT / UPDATE:", payload);
 
-  try {
-    const endpoint = hasBrandsData
-      ? "https://inoptics.in/api/update_exhibitor_brands.php"
-      : "https://inoptics.in/api/add_exhibitor_brands.php";
-
-    const res = await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    const data = await res.json();
-    console.log("API Response:", data);
-
-    if (data.success || data.status === "success") {
-      setHasBrandsData(true);
-      setIsEditMode(false);  // back to view mode
-      setShowBrandsEditForm(true);
-    }
-
-  } catch (err) {
-    console.error("Brand submit/update error:", err);
-  }
-};
-
-
-
- useEffect(() => {
-  if (!formData.company_name) return;
-
-  const companyName = formData.company_name;
-
-  const fetchAll = async () => {
     try {
-      /* ================= BRANDS API ================= */
-      const brandRes = await fetch(
-        `https://inoptics.in/api/get_exhibitor_brands.php?Company_name=${encodeURIComponent(
-          companyName
-        )}`
-      );
+      const endpoint = hasBrandsData
+        ? "https://inoptics.in/api/update_exhibitor_brands.php"
+        : "https://inoptics.in/api/add_exhibitor_brands.php";
 
-      const brandData = await brandRes.json();
-      console.log("BRAND API:", brandData);
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-      if (brandData.status === "success" && brandData.data) {
-        const brand = brandData.data;
+      const data = await res.json();
+      console.log("API Response:", data);
 
-        setBrandsData({
-          website: brand.website || "",
-          products: brand.products
-            ? brand.products.split(",").map((x) => x.trim())
-            : [],
-          home_brands: brand.home_brands || "",
-          distributors: brand.distributors || "",
-          international_brands:
-            brand.international_brands || "",
-        });
-
+      if (data.success || data.status === "success") {
         setHasBrandsData(true);
-        setIsEditMode(false);
-
-        const brandLocked = Number(brand.is_locked) === 1;
-
-        // Update Brands Activity (ID 9)
-        setActivities((prev) =>
-          prev.map((a) =>
-            a.id === 9 ? { ...a, done: brandLocked } : a
-          )
-        );
-
-      } else {
-        setHasBrandsData(false);
-        setIsEditMode(true);
-
-        setActivities((prev) =>
-          prev.map((a) =>
-            a.id === 9 ? { ...a, done: false } : a
-          )
-        );
+        setIsEditMode(false); // back to view mode
+        setShowBrandsEditForm(true);
       }
-
-      /* ================= CONTRACTOR API ================= */
-
-      const contractorRes = await fetch(
-        `https://inoptics.in/api/get_selected_exhibitors_contractors.php?exhibitor_company_name=${encodeURIComponent(
-          companyName
-        )}`
-      );
-
-      const contractorData = await contractorRes.json();
-      console.log("CONTRACTOR API:", contractorData);
-
-      const contractorLocked =
-        contractorData?.is_locked === 1;
-
-      // Update Contractor Activity (ID 8)
-      setActivities((prev) =>
-        prev.map((a) =>
-          a.id === 8 ? { ...a, done: contractorLocked } : a
-        )
-      );
-
     } catch (err) {
-      console.error("Fetch error:", err);
+      console.error("Brand submit/update error:", err);
     }
   };
 
-  fetchAll();
-}, [formData.company_name]);
+  useEffect(() => {
+    if (!formData.company_name) return;
 
+    const companyName = formData.company_name;
 
+    const fetchAll = async () => {
+      try {
+        /* ================= BRANDS API ================= */
+        const brandRes = await fetch(
+          `https://inoptics.in/api/get_exhibitor_brands.php?Company_name=${encodeURIComponent(
+            companyName,
+          )}`,
+        );
+
+        const brandData = await brandRes.json();
+        console.log("BRAND API:", brandData);
+
+        if (brandData.status === "success" && brandData.data) {
+          const brand = brandData.data;
+
+          setBrandsData({
+            website: brand.website || "",
+            products: brand.products
+              ? brand.products.split(",").map((x) => x.trim())
+              : [],
+            home_brands: brand.home_brands || "",
+            distributors: brand.distributors || "",
+            international_brands: brand.international_brands || "",
+          });
+
+          setHasBrandsData(true);
+          setIsEditMode(false);
+
+          const brandLocked = Number(brand.is_locked) === 1;
+
+          // Update Brands Activity (ID 9)
+          setActivities((prev) =>
+            prev.map((a) => (a.id === 9 ? { ...a, done: brandLocked } : a)),
+          );
+        } else {
+          setHasBrandsData(false);
+          setIsEditMode(true);
+
+          setActivities((prev) =>
+            prev.map((a) => (a.id === 9 ? { ...a, done: false } : a)),
+          );
+        }
+
+        /* ================= CONTRACTOR API ================= */
+
+        const contractorRes = await fetch(
+          `https://inoptics.in/api/get_selected_exhibitors_contractors.php?exhibitor_company_name=${encodeURIComponent(
+            companyName,
+          )}`,
+        );
+
+        const contractorData = await contractorRes.json();
+        console.log("CONTRACTOR API:", contractorData);
+
+        const contractorLocked = contractorData?.is_locked === 1;
+
+        // Update Contractor Activity (ID 8)
+        setActivities((prev) =>
+          prev.map((a) => (a.id === 8 ? { ...a, done: contractorLocked } : a)),
+        );
+      } catch (err) {
+        console.error("Fetch error:", err);
+      }
+    };
+
+    fetchAll();
+  }, [formData.company_name]);
 
   const handleUpdateBrands = async () => {
     try {
@@ -3354,44 +3338,42 @@ const fetchUnlockStatus = async () => {
     }
   };
 
-
   useEffect(() => {
-  if (!formData.company_name) return;
+    if (!formData.company_name) return;
 
-  fetchCompanyRemarks();
+    fetchCompanyRemarks();
+  }, [formData.company_name]);
 
-}, [formData.company_name]);
+  const fetchCompanyRemarks = async () => {
+    setLoadingRemarks(true);
+    setRemarkError(null);
 
+    try {
+      const res = await fetch(
+        `https://inoptics.in/api/get_exhibitor_remarks.php?company_name=${encodeURIComponent(formData.company_name)}`,
+      );
 
-const fetchCompanyRemarks = async () => {
-  setLoadingRemarks(true);
-  setRemarkError(null);
+      const data = await res.json();
 
-  try {
-    const res = await fetch(
-      `https://inoptics.in/api/get_exhibitor_remarks.php?company_name=${encodeURIComponent(formData.company_name)}`
-    );
-
-    const data = await res.json();
-
-    if (data.success) {
-      setCompanyRemarks(data.records);
-    } else {
+      if (data.success) {
+        setCompanyRemarks(data.records);
+      } else {
+        setCompanyRemarks([]);
+      }
+    } catch (err) {
+      console.error("Error fetching remarks:", err);
+      setRemarkError("Failed to load remarks");
       setCompanyRemarks([]);
+    } finally {
+      setLoadingRemarks(false);
     }
-
-  } catch (err) {
-    console.error("Error fetching remarks:", err);
-    setRemarkError("Failed to load remarks");
-    setCompanyRemarks([]);
-  } finally {
-    setLoadingRemarks(false);
-  }
-};
+  };
 
 
 
-  
+ 
+
+
 
   return (
     <div className="exhibitordashboard-container">
@@ -3525,9 +3507,13 @@ const fetchCompanyRemarks = async () => {
         {/* Overlay Panel */}
         {(activeMenu === "Dashboard" ||
           activeMenu === "Profile" ||
-          ["Instructions", "Rules", "Exhibition Map", "Guidelines", "Payments"].includes(
-            importantPage,
-          )) && (
+          [
+            "Instructions",
+            "Rules",
+            "Exhibition Map",
+            "Guidelines",
+            "Payments",
+          ].includes(importantPage)) && (
           <div className="exhibitordashboard-dashboard-overlay-panel open">
             <header className="exhibitordashboard-undertaking-dashboard-header">
               <ul className="exhibitordashboard-header-menu horizontal-list">
@@ -3580,13 +3566,12 @@ const fetchCompanyRemarks = async () => {
                 </li>
                 <li>
                   <button
-                    className="exhibitordashboard-header-menu-tab"  
+                    className="exhibitordashboard-header-menu-tab"
                     onClick={() => handleImportantPaymentClick("Payment")}
                   >
                     Payments
                   </button>
                 </li>
-                
               </ul>
             </header>
           </div>
@@ -3701,8 +3686,6 @@ const fetchCompanyRemarks = async () => {
                   onBackToList={() => setSelectedMail(null)}
                 />
               )}
-
-              
 
               {importantPage === "Instructions" && (
                 <div className="ExhibitorInstruction-instruction-container">
@@ -3842,17 +3825,17 @@ const fetchCompanyRemarks = async () => {
 
               {!importantPage && activeMenu === "Profile" && (
                 <ExhibitorProfile
-  exhibitors={exhibitors}
-  stallList={stallList}
-  brandsData={brandsData}
-  setBrandsData={setBrandsData}
-  products={products}
-  hasBrandsData={hasBrandsData}
-  isEditMode={isEditMode}
-  setIsEditMode={setIsEditMode}
-  handleSubmitBrands={handleSubmitBrands}
-  handleEditBrands={() => setIsEditMode(true)}
-/>
+                  exhibitors={exhibitors}
+                  stallList={stallList}
+                  brandsData={brandsData}
+                  setBrandsData={setBrandsData}
+                  products={products}
+                  hasBrandsData={hasBrandsData}
+                  isEditMode={isEditMode}
+                  setIsEditMode={setIsEditMode}
+                  handleSubmitBrands={handleSubmitBrands}
+                  handleEditBrands={() => setIsEditMode(true)}
+                />
               )}
 
               {activeMenu === "Additional Furniture" && (
@@ -3874,9 +3857,9 @@ const fetchCompanyRemarks = async () => {
                 />
               )}
 
-               {activeMenu === "Additional Power"  && currentExhibitor && (
+              {activeMenu === "Additional Power" && currentExhibitor && (
                 <>
-                  <ExhibitorPowerRequirement  
+                  <ExhibitorPowerRequirement
                     currentExhibitor={currentExhibitor}
                     exhibitorPricePerKw={exhibitorPricePerKw}
                     isViewOnly={isViewOnly}
@@ -3910,10 +3893,10 @@ const fetchCompanyRemarks = async () => {
                 {!importantPage && activeMenu === "Mandatory Forms" && (
                   <ExhibitorContractors
                     handleBoothDesignUpload={handleBoothDesignUpload}
-  stepSubmitted={stepSubmitted}
-  unlockStatus={unlockStatus}
-  setStepSubmitted={setStepSubmitted}
-  fetchUnlockStatus={fetchUnlockStatus}
+                    stepSubmitted={stepSubmitted}
+                    unlockStatus={unlockStatus}
+                    setStepSubmitted={setStepSubmitted}
+                    fetchUnlockStatus={fetchUnlockStatus}
                     importantPage={importantPage}
                     contractorViewStep={contractorViewStep}
                     activeMenu={activeMenu}
@@ -3979,30 +3962,25 @@ const fetchCompanyRemarks = async () => {
                 />
               )}
 
-              {activeMenu === "Contractor Badges" && currentExhibitor &&(
+              {activeMenu === "Contractor Badges" && currentExhibitor && (
                 <ContractorBadgeForm
-                
-                setActiveMenu={setActiveMenu}
-                setCurrentStep={setCurrentStep}
-                setContractorViewStep={setContractorViewStep}   // 👈 NEW
-                exhibitorCompany={currentExhibitor.company_name}
-                setIsInExhibitorBadges={setIsInExhibitorBadges}
-                setHasGeneratedBadge={setHasGeneratedBadge}
-                setHasUnlockedBadge={setHasUnlockedBadge}
+                  setActiveMenu={setActiveMenu}
+                  setCurrentStep={setCurrentStep}
+                  setContractorViewStep={setContractorViewStep} // 👈 NEW
+                  exhibitorCompany={currentExhibitor.company_name}
+                  setIsInExhibitorBadges={setIsInExhibitorBadges}
+                  setHasGeneratedBadge={setHasGeneratedBadge}
+                  setHasUnlockedBadge={setHasUnlockedBadge}
                 />
               )}
 
-              
-              {activeMenu === "Fascia Name" && currentExhibitor &&(
+              {activeMenu === "Fascia Name" && currentExhibitor && (
                 <ExhibitorFaciaForm
                   companyName={currentExhibitor.company_name}
                   stallNo={currentExhibitor.stall_no}
                   city={currentExhibitor.city}
                 />
               )}
-               
-             
-
 
               {!importantPage && activeMenu === "Payment" && (
                 <ExhibitorPayments
@@ -4060,6 +4038,26 @@ const fetchCompanyRemarks = async () => {
             </div>
           </div>
         )}
+
+
+        {showMandatoryPopup && (
+  <div className="mandatory-popup-overlay">
+    <div className="mandatory-popup-box">
+      <h3>Action Required</h3>
+      <p>Please fill mandatory forms after selecting contractor.</p>
+
+      <button
+        onClick={() => {
+          setShowMandatoryPopup(false);
+          setActiveMenu("Mandatory Forms"); // 🔥 redirect
+        }}
+        className="primary-btn"
+      >
+        Go to Mandatory Forms
+      </button>
+    </div>
+  </div>
+)}
       </div>
     </div>
   );

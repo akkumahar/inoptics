@@ -9,6 +9,9 @@ const AdminPowerRequirement = () => {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingRow, setEditingRow] = useState(null);
+
   /* ================= FETCH ALL POWER DATA ================= */
   useEffect(() => {
     fetchAllPower();
@@ -18,7 +21,7 @@ const AdminPowerRequirement = () => {
     setLoading(true);
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_all_power_requirement.php"
+        "https://inoptics.in/api/get_all_power_requirement.php",
       );
       const result = await res.json();
 
@@ -29,7 +32,7 @@ const AdminPowerRequirement = () => {
           ...new Set(
             result.data
               .filter((item) => item.company_name)
-              .map((item) => item.company_name.trim())
+              .map((item) => item.company_name.trim()),
           ),
         ];
 
@@ -61,14 +64,11 @@ const AdminPowerRequirement = () => {
     if (!window.confirm("Delete this entry?")) return;
 
     try {
-      const res = await fetch(
-        "https://inoptics.in/api/delete_power.php",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id }),
-        }
-      );
+      const res = await fetch("https://inoptics.in/api/delete_power.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
 
       const data = await res.json();
 
@@ -81,9 +81,30 @@ const AdminPowerRequirement = () => {
     }
   };
 
+  const handleUpdate = async () => {
+    try {
+      const res = await fetch("https://inoptics.in/api/update_power.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editingRow),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        toast.success("Updated successfully");
+        setShowEditModal(false);
+        fetchAllPower();
+      } else {
+        toast.error("Update failed");
+      }
+    } catch {
+      toast.error("Server error");
+    }
+  };
+
   return (
     <div className="admin-power-wrapper">
-
       {/* SEARCH BAR */}
       <div className="search-bar">
         <input
@@ -98,27 +119,25 @@ const AdminPowerRequirement = () => {
 
       {companies
         .filter((company) =>
-          company.toLowerCase().includes(searchTerm.toLowerCase())
+          company.toLowerCase().includes(searchTerm.toLowerCase()),
         )
         .map((company, index) => {
           const isOpen = openCompany === company;
           const companyRows = groupedData[company] || [];
 
           return (
-            <div key={index} className="accordion">
+            <div key={index} className="power-accordion">
               <div
-                className="accordion-header"
-                onClick={() =>
-                  setOpenCompany(isOpen ? null : company)
-                }
+                className="power-accordion-header"
+                onClick={() => setOpenCompany(isOpen ? null : company)}
               >
                 {company}
                 <span>{isOpen ? "▲" : "▼"}</span>
               </div>
 
               {isOpen && (
-                <div className="accordion-body">
-                  <table>
+                <div className="power-accordion-body">
+                  <table className="power-table">
                     <thead>
                       <tr>
                         <th>ID</th>
@@ -144,9 +163,19 @@ const AdminPowerRequirement = () => {
                             <td>{row.power_required}</td>
                             <td>{row.phase}</td>
                             <td>{row.total_amount}</td>
-                            <td>
+                            <td className="power-action-cell">
                               <button
-                                className="delete-btn"
+                                className="power-edit-btn"
+                                onClick={() => {
+                                  setEditingRow(row);
+                                  setShowEditModal(true);
+                                }}
+                              >
+                                Edit
+                              </button>
+
+                              <button
+                                className="power-delete-btn"
                                 onClick={() => handleDelete(row.id)}
                               >
                                 Delete
@@ -165,33 +194,26 @@ const AdminPowerRequirement = () => {
                     <p>
                       Total Power:{" "}
                       {companyRows.reduce(
-                        (sum, item) =>
-                          sum + Number(item.power_required || 0),
-                        0
+                        (sum, item) => sum + Number(item.power_required || 0),
+                        0,
                       )}
                     </p>
 
                     <p>
                       Total Amount: ₹{" "}
                       {companyRows.reduce(
-                        (sum, item) =>
-                          sum + Number(item.total_amount || 0),
-                        0
+                        (sum, item) => sum + Number(item.total_amount || 0),
+                        0,
                       )}
                     </p>
 
                     <p>
-                      Locked:{" "}
-                      {companyRows[0]?.is_locked === "1"
-                        ? "Yes"
-                        : "No"}
+                      Locked: {companyRows[0]?.is_locked === "1" ? "Yes" : "No"}
                     </p>
 
                     <p>
                       Unlock Requested:{" "}
-                      {companyRows[0]?.unlock_requested === "1"
-                        ? "Yes"
-                        : "No"}
+                      {companyRows[0]?.unlock_requested === "1" ? "Yes" : "No"}
                     </p>
                   </div>
                 </div>
@@ -199,6 +221,76 @@ const AdminPowerRequirement = () => {
             </div>
           );
         })}
+
+      {showEditModal && editingRow && (
+        <div className="power-modal-overlay">
+          <div className="power-modal">
+            <h3>Edit Power Requirement</h3>
+
+            <label>Day</label>
+            <input
+              type="text"
+              value={editingRow.day}
+              onChange={(e) =>
+                setEditingRow({ ...editingRow, day: e.target.value })
+              }
+            />
+
+            <label>Price Per KW</label>
+            <input
+              type="number"
+              value={editingRow.price_per_kw}
+              onChange={(e) =>
+                setEditingRow({
+                  ...editingRow,
+                  price_per_kw: e.target.value,
+                })
+              }
+            />
+
+            <label>Power Required</label>
+            <input
+              type="number"
+              value={editingRow.power_required}
+              onChange={(e) =>
+                setEditingRow({
+                  ...editingRow,
+                  power_required: e.target.value,
+                })
+              }
+            />
+
+            <label>Phase</label>
+            <input
+              type="text"
+              value={editingRow.phase}
+              onChange={(e) =>
+                setEditingRow({
+                  ...editingRow,
+                  phase: e.target.value,
+                })
+              }
+            />
+
+            <label>Total Amount</label>
+            <input
+              type="number"
+              value={editingRow.total_amount}
+              onChange={(e) =>
+                setEditingRow({
+                  ...editingRow,
+                  total_amount: e.target.value,
+                })
+              }
+            />
+
+            <div className="btn-main-action">
+              <button className="power-edit-btn-update" onClick={handleUpdate}>Update</button>
+            <button className="power-delete-btn" onClick={() => setShowEditModal(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
