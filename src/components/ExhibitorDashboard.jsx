@@ -2097,32 +2097,39 @@ const ExhibitorDashboard = () => {
 
   // Fetch selected contractor for the current exhibitor
   const fetchSelectedContractor = async (companyName) => {
-    try {
-      const response = await fetch(
-        `https://inoptics.in/api/get_selected_exhibitors_contractors.php?exhibitor_company_name=${companyName}`,
+  try {
+    const response = await fetch(
+      `https://inoptics.in/api/get_selected_exhibitors_contractors.php?exhibitor_company_name=${companyName}`
+    );
+
+    const data = await response.json();
+
+    if (data && data.contractor_company_name) {
+
+      const selected = contractorData.find(
+        (c) => c.company_name === data.contractor_company_name
       );
 
-      const data = await response.json();
-
-      if (data && data.contractor_company_name) {
-        const selected = contractorData.find(
-          (c) => c.company_name === data.contractor_company_name,
-        );
-
-        if (selected) {
-          setSelectedContractorId(selected.id);
-        }
-
-        // 🔥 IMPORTANT: set lock state from backend
-        setIsLocked(Number(data.is_locked)); // store 0 or 1
-      } else {
-        setSelectedContractorId(null);
-        setIsLocked(Number(data.is_locked));
+      if (selected) {
+        setSelectedContractorId(selected.id);
+        setWorkflowActive(true); // ⭐ MOST IMPORTANT
       }
-    } catch (error) {
-      console.error("Error fetching selected contractor:", error);
+
+      setIsLocked(Number(data.is_locked));
+
+    } else {
+
+      setSelectedContractorId(null);
+      setWorkflowActive(false);
+
     }
-  };
+
+  } catch (error) {
+    console.error("Error fetching selected contractor:", error);
+  }
+};
+
+
 
   // Select contractor
   const selectContractor = async (contractorId) => {
@@ -2220,8 +2227,7 @@ const ExhibitorDashboard = () => {
       fetchSelectedContractor(formData.company_name);
       fetchBoothDesignStatus(); // 👈 important
     }
-    // Poll every 5 seconds until approved/rejected
-    fetchBoothDesignStatus();
+   
   }, [activeMenu, formData.company_name, contractorData]);
 
   useEffect(() => {
@@ -2346,7 +2352,7 @@ const ExhibitorDashboard = () => {
     alert(data.message);
   };
 
-  const requestContractorChange = async () => {
+  const requestContractorChange = async (selectedContractor, formData) => {
     if (!selectedContractor) {
       alert("No contractor selected yet.");
       return;
@@ -3894,6 +3900,7 @@ const ExhibitorDashboard = () => {
                   <ExhibitorContractors
                     handleBoothDesignUpload={handleBoothDesignUpload}
                     stepSubmitted={stepSubmitted}
+                    fetchSelectedContractor={fetchSelectedContractor} 
                     unlockStatus={unlockStatus}
                     setStepSubmitted={setStepSubmitted}
                     fetchUnlockStatus={fetchUnlockStatus}

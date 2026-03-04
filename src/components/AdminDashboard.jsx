@@ -69,6 +69,7 @@ import FinalContractorListTable from "./List/FinalContractorListTable";
 import FasciaNameAdmin from "./List/FasciaNameAdmin";
 import AdminPowerRequirement from "./List/AdminPowerRequirement";
 import AdminBadgeSeries from "./List/AdminBadgeSeries";
+import MessageRulesManager from "./List/MessageRulesManager";
 // import { useMemo } from 'react';
 
 const AdminDashboard = () => {
@@ -9727,6 +9728,7 @@ const AdminDashboard = () => {
     "Proforma",
     "Badges Limit",
     "Power Requirement",
+    "Message Rules",
     "Exhibitor Series Edit",
     "Furniture Requirement",
     // "Furniture Vendor",
@@ -13350,19 +13352,7 @@ const AdminDashboard = () => {
           <li onClick={() => openOverlay("Exhibitor Power")}>
             <FaPowerOff /> {!collapsed && "Exhibitor Power"}{" "}
           </li>
-          <li onClick={() => setShowFormsMenu(!showFormsMenu)}>
-            <FaWpforms /> {!collapsed && "Forms"}
-          </li>
-          {!collapsed && showFormsMenu && (
-            <ul className="submenu">
-              <li onClick={() => openOverlay("Core Required Forms")}>
-                › Core Required Forms
-              </li>
-              {/* <li onClick={() => openOverlay("Additional Requirement")}>
-                › Additional Requirement
-              </li> */}
-            </ul>
-          )}
+         
           <li onClick={() => openOverlay("Exhibitor Forms")}>
             <FaWpforms /> {!collapsed && "Exhibitor Forms"}
           </li>
@@ -13385,6 +13375,20 @@ const AdminDashboard = () => {
                   › {page}
                 </li>
               ))}
+            </ul>
+          )}
+
+           <li onClick={() => setShowFormsMenu(!showFormsMenu)}>
+            <FaWpforms /> {!collapsed && "Forms"}
+          </li>
+          {!collapsed && showFormsMenu && (
+            <ul className="submenu">
+              <li onClick={() => openOverlay("Core Required Forms")}>
+                › Core Required Forms
+              </li>
+              {/* <li onClick={() => openOverlay("Additional Requirement")}>
+                › Additional Requirement
+              </li> */}
             </ul>
           )}
 
@@ -13826,6 +13830,7 @@ const AdminDashboard = () => {
                   "Currency",
                   "Badges Limit",
                   "Power Requirement",
+                  "Message Rules",
                   "Exhibitor Series Edit",
                   "Furniture Requirement",
                   // "Furniture Vendor",
@@ -14670,6 +14675,13 @@ const AdminDashboard = () => {
             <>
             <div style={{ padding: "10px" }}>
                   <AdminBadgeSeries />
+                </div>
+            </>
+          )}
+           {overlayContent === "Message Rules" && (
+            <>
+            <div style={{ padding: "10px" }}>
+                  <MessageRulesManager />
                 </div>
             </>
           )}

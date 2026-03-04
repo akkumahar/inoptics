@@ -25,6 +25,15 @@ const ContractorBadgeForm = ({
   const [coreFormData, setCoreFormData] = useState([]);
   const [registrationSent, setRegistrationSent] = useState(false);
   const [showEmailSentPopup, setShowEmailSentPopup] = useState(false);
+
+
+  const [messageRule, setMessageRule] = useState({
+  success_message: "",
+  error_message: "",
+});
+
+
+
   
 
   /* ================= FETCH FUNCTION ================= */
@@ -196,6 +205,7 @@ const ContractorBadgeForm = ({
 
   useEffect(() => {
   fetchCoreForms();
+  fetchMessageRules();
 }, []);
 
 
@@ -255,6 +265,34 @@ const ContractorBadgeForm = ({
 };
 
 
+const fetchMessageRules = async () => {
+  try {
+    const res = await fetch(
+      "https://inoptics.in/api/get_message_rules.php"
+    );
+
+    const data = await res.json();
+
+    if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+      // 🔥 Find rule by match_value
+      const rule = data.data.find(
+        (item) =>
+          item.match_value?.toLowerCase() === "contractor badge"
+      );
+
+      if (rule) {
+        setMessageRule({
+          success_message: rule.success_message || "",
+          error_message: rule.error_message || "",
+        });
+      }
+    }
+  } catch (error) {
+    console.error("Message rule fetch error:", error);
+  }
+};
+
+
 
   return (
     <div className="badge-card">
@@ -296,17 +334,24 @@ const ContractorBadgeForm = ({
 
         <div className="form-group">
   <label>
-    Contractor Company Name
-    {checkingContractor && (
-      <span className="checking-label">Checking...</span>
-    )}
-    {contractorValid === true && (
-      <span className="match-success">Contractor Matched ✅</span>
-    )}
-    {contractorValid === false && (
-      <span className="match-error">Contractor Not Found ❌</span>
-    )}
-  </label>
+  Contractor Company Name
+
+  {checkingContractor && (
+    <span className="checking-label"> Checking...</span>
+  )}
+
+  {!checkingContractor && contractorValid === true && (
+    <span className="match-success">
+      {messageRule.success_message}
+    </span>
+  )}
+
+  {!checkingContractor && contractorValid === false && (
+    <span className="match-error">
+      {messageRule.error_message}
+    </span>
+  )}
+</label>
 
   <input
     type="text"

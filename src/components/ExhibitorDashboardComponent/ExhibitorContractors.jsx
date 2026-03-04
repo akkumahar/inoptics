@@ -300,6 +300,7 @@ const ExhibitorContractors = (props) => {
     setStepSubmitted,
     unlockStatus,
     setUnlockStatus,
+    fetchSelectedContractor,
     fetchUnlockStatus,
   } = props;
 
@@ -343,6 +344,14 @@ const ExhibitorContractors = (props) => {
   //     console.error("unlock fetch error", err);
   //   }
   // };
+
+useEffect(() => {
+  if (formData?.company_name) {
+    fetchSelectedContractor(formData.company_name);
+  }
+}, [formData?.company_name]);
+
+
 
   useEffect(() => {
     if (workflowActive && formData?.company_name) {
@@ -478,7 +487,9 @@ const ExhibitorContractors = (props) => {
         <div className="ec-action-bar">
           <button
             className="ec-ab-btn unlock"
-            onClick={() => requestUnlock(viewStep)}
+             onClick={() =>
+    requestContractorChange(selectedContractor, formData)
+  }
           >
             <FaLockOpen /> Unlock
           </button>
@@ -1069,7 +1080,7 @@ const ExhibitorContractors = (props) => {
 
                       <button
                         className="doc-btn Workflow-next-btn"
-                        style={{ opacity: uploadedSteps?.step1 ? 1 : 1 }}
+                        style={{ opacity: uploadedSteps?.step1}}
                         onClick={() => handleNext(1)}
                       >
                         Next →
