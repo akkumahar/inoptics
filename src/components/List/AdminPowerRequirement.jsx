@@ -60,26 +60,34 @@ const AdminPowerRequirement = () => {
   }, {});
 
   /* ================= DELETE ================= */
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete this entry?")) return;
+ const handleDelete = async (row) => {
 
-    try {
-      const res = await fetch("https://inoptics.in/api/delete_power.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id }),
-      });
+  if (!window.confirm("Delete this entry?")) return;
 
-      const data = await res.json();
-
-      if (data.success) {
-        toast.success("Deleted successfully");
-        fetchAllPower();
-      }
-    } catch {
-      toast.error("Delete failed");
+  const res = await fetch(
+    "https://inoptics.in/api/delete_power_by_id.php",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        company_name: row.company_name,
+        id: row.id
+      }),
     }
-  };
+  );
+
+  const result = await res.json();
+
+  if (result.success) {
+    toast.success("Deleted successfully");
+    fetchAllPower();
+  } else {
+    toast.error(result.error);
+  }
+};
+
 
   const handleUpdate = async () => {
     try {
@@ -102,6 +110,10 @@ const AdminPowerRequirement = () => {
       toast.error("Server error");
     }
   };
+
+
+
+
 
   return (
     <div className="admin-power-wrapper">
@@ -176,7 +188,7 @@ const AdminPowerRequirement = () => {
 
                               <button
                                 className="power-delete-btn"
-                                onClick={() => handleDelete(row.id)}
+                                onClick={() => handleDelete(row)}
                               >
                                 Delete
                               </button>

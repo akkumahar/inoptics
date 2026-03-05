@@ -3,7 +3,7 @@
 .fascia-admin-container {
   max-width: 1000px;
   margin: auto;
-  height: 100vh;              /* 🔥 Important */
+  height: 90vh;              /* 🔥 Important */
   overflow-y: scroll;           /* enable scroll */
   padding-right: 6px;         /* scrollbar space */
   font-family: "Inter", system-ui, sans-serif;

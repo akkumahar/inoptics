@@ -3479,184 +3479,229 @@ const AdminDashboard = () => {
     setIsSendingMail(false);
   };
 
-  const handleSendFurnitureMail = async (emailTemplateName) => {
-    if (isSendingMail) return;
-    setIsSendingMail(true);
+ const handleSendFurnitureMail = async (emailTemplateName) => {
+  if (isSendingMail) return;
+  setIsSendingMail(true);
 
-    try {
-      // 1️⃣ Find Vendor Template
-      const vendorTemplate = emailMasterData.find(
-        (template) => template.email_name === emailTemplateName,
-      );
+  try {
 
-      if (!vendorTemplate) {
-        alert("Vendor email template not found.");
-        setIsSendingMail(false);
-        return;
-      }
+    /* ================= TEMPLATE FETCH ================= */
 
-      // 2️⃣ Find Exhibitor Template
-      const exhibitorTemplate = emailMasterData.find(
-        (template) =>
-          template.email_name ===
-          "InOptics 2026 @ Extra Furniture Request Confirmation Exhibitor",
-      );
+    const vendorTemplate = emailMasterData.find(
+      (t) => t.email_name === emailTemplateName
+    );
 
-      if (!exhibitorTemplate) {
-        alert("Exhibitor email template not found.");
-        setIsSendingMail(false);
-        return;
-      }
+    const exhibitorTemplate = emailMasterData.find(
+      (t) =>
+        t.email_name ===
+        "InOptics 2026 @ Extra Furniture Request Confirmation Exhibitor"
+    );
 
-      // 3️⃣ Exhibitor Details
-      const { company_name, name, mobile, email, stall_no } = formData;
-      if (!company_name || !email) {
-        alert("Missing company name or email in form data.");
-        setIsSendingMail(false);
-        return;
-      }
+    if (!vendorTemplate || !exhibitorTemplate) {
+      alert("Email template not found");
+      return;
+    }
 
-      // 4️⃣ Vendor Email
-      let vendorEmail = null;
-      if (
-        Array.isArray(furnitureVendorDetails) &&
-        furnitureVendorDetails.length > 0
-      ) {
-        const vendorObj = furnitureVendorDetails[0];
-        vendorEmail =
-          vendorObj.email ||
-          vendorObj.vendor_email ||
-          vendorObj.vendorEmail ||
-          vendorObj.contact_email ||
-          (typeof vendorObj.description === "string"
-            ? vendorObj.description.match(/[\w.-]+@[\w.-]+\.\w+/)?.[0]
-            : null);
-      }
+    /* ================= EXHIBITOR DETAILS ================= */
 
-      if (!vendorEmail) {
-        alert("Vendor email not found in Extra Furniture Instruction section.");
-        setIsSendingMail(false);
-        return;
-      }
+    const { company_name, name, mobile, email, stall_no } = formData;
 
-      // 5️⃣ Validate Furniture Items
-      if (!selectedFurniture || selectedFurniture.length === 0) {
-        alert("No furniture items selected.");
-        setIsSendingMail(false);
-        return;
-      }
+    console.log("Exhibitor rishab furnicuture email details:", { company_name, name, mobile, email, stall_no });
+    if (!company_name || !email) {
+      alert("Missing exhibitor data");
+      return;
+    }
 
-      // 6️⃣ Build Furniture Table
-      const furnitureTableHTML = `
-      <br><h3>Requested Furniture Details</h3>
-      <table border="1" cellspacing="0" cellpadding="6"
-             style="border-collapse: collapse; width: 100%; font-family: Arial; font-size: 13px;">
-        <thead style="background: #f2f2f2;">
-          <tr>
-            <th>Item Name</th>
-            <th>Quantity</th>
-            <th>Rate </th>
-            <th>Total </th>
-          </tr>
-        </thead>
-        <tbody>
-          ${selectedFurniture
-            .map(
-              (item) => `
-                <tr>
-                  <td>${item.name}</td>
-                  <td>${item.quantity}</td>
-                  <td>${parseFloat(item.price).toFixed(2)}</td>
-                  <td>${(item.quantity * item.price).toFixed(2)}</td>
-                </tr>`,
-            )
-            .join("")}
-        </tbody>
+    /* ================= VENDOR DETAILS ================= */
+
+    const vendor = furnitureVendorDetails?.[0] || {};
+
+    const vendorName = vendor.vendor_name || "";
+    const vendorEmail =
+      vendor.email ||
+      vendor.vendor_email ||
+      vendor.vendorEmail ||
+      vendor.contact_email;
+
+    const vendorCompany = vendor.company_name || "";
+    const vendorPhone = vendor.contact_number || vendor.mobile || "";
+
+    if (!vendorEmail) {
+      alert("Vendor email missing");
+      return;
+    }
+
+    /* ================= VALIDATE FURNITURE ================= */
+
+    if (!selectedFurniture || selectedFurniture.length === 0) {
+      alert("No furniture selected");
+      return;
+    }
+
+    /* ================= TABLE CALCULATION ================= */
+
+    let totalAmount = 0;
+    let totalSGST = 0;
+    let totalCGST = 0;
+    let grandTotal = 0;
+
+    const rows = selectedFurniture
+      .map((item) => {
+
+        const qty = Number(item.quantity);
+        const rate = Number(item.price);
+
+        const amount = qty * rate;
+        const sgst = amount * 0.09;
+        const cgst = amount * 0.09;
+        const total = amount + sgst + cgst;
+
+        totalAmount += amount;
+        totalSGST += sgst;
+        totalCGST += cgst;
+        grandTotal += total;
+
+        return `
+        <tr>
+          <td>${item.name}</td>
+          <td align="center">${qty}</td>
+          <td align="right">${rate.toFixed(2)}</td>
+          <td align="right">${amount.toFixed(2)}</td>
+          <td align="right">${sgst.toFixed(2)}</td>
+          <td align="right">${cgst.toFixed(2)}</td>
+          <td align="right">${total.toFixed(2)}</td>
+        </tr>
+        `;
+      })
+      .join("");
+
+    /* ================= FURNITURE TABLE ================= */
+
+    const furnitureTable = `
+      <table border="1" cellpadding="6" cellspacing="0"
+      style="border-collapse:collapse;width:100%;font-family:Arial;font-size:13px">
+
+      <thead style="background:#f2f2f2">
+      <tr>
+        <th>Item Name</th>
+        <th>Qty</th>
+        <th>Rate</th>
+        <th>Amount</th>
+        <th>SGST (9%)</th>
+        <th>CGST (9%)</th>
+        <th>Total</th>
+      </tr>
+      </thead>
+
+      <tbody>
+
+      ${rows}
+
+      <tr style="font-weight:bold;background:#fafafa">
+        <td colspan="3" align="right">TOTAL</td>
+        <td align="right">${totalAmount.toFixed(2)}</td>
+        <td align="right">${totalSGST.toFixed(2)}</td>
+        <td align="right">${totalCGST.toFixed(2)}</td>
+        <td align="right">${grandTotal.toFixed(2)}</td>
+      </tr>
+
+      </tbody>
+
       </table>
-      <br>
-      <div style="font-weight:bold;">
-        GRAND TOTAL: ${selectedFurniture
-          .reduce((sum, i) => sum + i.quantity * i.price, 0)
-          .toFixed(2)}
-      </div>
     `;
 
-      // 7️⃣ Replace placeholders in template (Vendor)
-      const vendorMailHTML =
-        vendorTemplate.content
-          .replace(/\[Company Name\]/g, company_name) // 👈 global replacement
-          .replace(/\[Contact Person Name\]/g, name)
-          .replace(/\[Mobile Number\]/g, mobile)
-          .replace(/\[Email Address\]/g, email)
-          .replace(/\[Stall No.\]/g, stall_no)
-          .replace(/\[Exhibitor Name\]/g, name)
-          .replace(/\[Phone Number\]/g, mobile)
-          .replace(/&n/g, "<br>") + `<br><br>${furnitureTableHTML}`;
+    /* ================= PLACEHOLDER DATA ================= */
 
-      // 8️⃣ Send Vendor Mail (and Admin copy)
-      const vendorResponse = await fetch(
-        "https://inoptics.in/api/send_furniture_vendor_mail.php",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email_name: emailTemplateName,
-            to: vendorEmail,
-            html: vendorMailHTML,
-          }),
+    const replaceData = {
+      "[Company_Name]": company_name,
+      "[Contact_Person_Name]": name,
+      "[Mobile_Number]": mobile,
+      "[Email_Address]": email,
+      "[Stall_No]": stall_no,
+
+      "[Vendor_Name]": vendorName,
+      "[Vendor_Company]": vendorCompany,
+      "[Vendor_Email]": vendorEmail,
+      "[Vendor_Phone]": vendorPhone,
+
+      "[Furniture_Table]": furnitureTable,
+
+      "[Exhibitor_Name]": name,
+      "[Phone_Number]": mobile
+    };
+
+    /* ================= TEMPLATE REPLACEMENT ================= */
+
+    const replaceTemplate = (template) => {
+      let html = template;
+
+      Object.keys(replaceData).forEach((key) => {
+        html = html.replaceAll(key, replaceData[key]);
+      });
+
+      return html.replace(/&n/g, "<br>");
+    };
+
+    const vendorHTML = replaceTemplate(vendorTemplate.content);
+    const exhibitorHTML = replaceTemplate(exhibitorTemplate.content);
+
+    /* ================= SEND VENDOR MAIL ================= */
+
+    const vendorRes = await fetch(
+      "https://inoptics.in/api/send_furniture_vendor_mail.php",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
         },
-      );
-
-      const vendorResult = await vendorResponse.json();
-
-      if (vendorResult.message?.includes("Mail sent successfully")) {
-        // 9️⃣ Build Exhibitor Confirmation Mail
-        const vendorName =
-          furnitureVendorDetails?.[0]?.vendor_name || "Furniture Vendor";
-
-        const exhibitorMailHTML =
-          exhibitorTemplate.content
-            .replace("[Vendor Name]", vendorName)
-            .replace("[Company Name]", company_name)
-            .replace("[Contact Person Name]", name)
-            .replace("[Mobile Number]", mobile)
-            .replace("[Email Address]", email)
-            .replace("[Stall No.]", stall_no)
-            .replace("&n", "<br>") + `<br><br>${furnitureTableHTML}`;
-
-        // 🔟 Send to Exhibitor (using same backend)
-        const exhibitorResponse = await fetch(
-          "https://inoptics.in/api/send_furniture_vendor_mail.php",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              email_name:
-                "InOptics 2026 @ Extra Furniture Request Confirmation Exhibitor",
-              to: email,
-              html: exhibitorMailHTML,
-            }),
-          },
-        );
-
-        const exhibitorResult = await exhibitorResponse.json();
-        // console.log("Exhibitor Mail Response:", exhibitorResult);
-
-        if (exhibitorResult.message?.includes("Mail sent successfully")) {
-          alert("✅ Mail sent successfully!");
-        } else {
-          alert("Vendor mail sent, but failed to send Exhibitor confirmation.");
-        }
-      } else {
-        alert("❌ Failed to send mail to vendor.");
+        body: JSON.stringify({
+          email_name: emailTemplateName,
+          to: vendorEmail,
+          html: vendorHTML
+        })
       }
-    } catch (error) {
-      console.error("Error sending furniture mail:", error);
-      alert("Error sending mail. Please try again.");
-    } finally {
-      setIsSendingMail(false);
+    );
+
+    const vendorResult = await vendorRes.json();
+
+    if (!vendorResult.message?.includes("successfully")) {
+      alert("Vendor mail failed");
+      return;
     }
-  };
+
+    /* ================= SEND EXHIBITOR MAIL ================= */
+
+    const exhibitorRes = await fetch(
+      "https://inoptics.in/api/send_furniture_vendor_mail.php",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email_name:
+            "InOptics 2026 @ Extra Furniture Request Confirmation Exhibitor",
+          to: email,
+          html: exhibitorHTML
+        })
+      }
+    );
+
+    const exhibitorResult = await exhibitorRes.json();
+
+    if (exhibitorResult.message?.includes("successfully")) {
+      alert("✅ Mail sent successfully!");
+    } else {
+      alert("Vendor mail sent but exhibitor mail failed.");
+    }
+
+  } catch (error) {
+    console.error("Mail error:", error);
+    alert("Error sending mail");
+  } finally {
+    setIsSendingMail(false);
+  }
+};
 
   const handleSaveRegistrationItem = (item, index) => {
     // console.log("Saving item:", index, item);
@@ -4961,6 +5006,7 @@ const AdminDashboard = () => {
 
         alert("Data submitted successfully!");
         // console.log(result);
+        fetchPowerDataByCompany(formData.company_name); // Refresh data after submission
         setExhibitorPreviewList([]); // clear table after submission
       } else {
         alert("Submission failed: " + result.error);
@@ -13151,6 +13197,57 @@ const AdminDashboard = () => {
     }
   };
 
+
+const sendPowerRevisedMail = async (companyName, email) => {
+
+  try {
+
+    const res = await fetch(
+      "https://inoptics.in/api/send_power_revised_mail.php",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          company_name: companyName,
+          template_name: "POWER LOAD INCREASED",
+          email: email
+        })
+      }
+    );
+
+    const data = await res.json();
+    console.log(data);
+
+  } catch (error) {
+    console.error("Failed to send power revised mail:", error);
+  }
+
+};
+
+const sendPowerVendorMail = async (companyName) => {
+  try {
+    const res = await fetch("https://inoptics.in/api/send_power_vendor_mail.php", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    template_name: "Revised Power Load Vendor",
+    company_name: companyName
+  })
+});
+
+const data = await res.json();
+    console.log(data);
+
+
+  } catch (error) {
+    console.error("Failed to send vendor mail:", error);
+  }
+};
+
   const sendPowerMailToAdmin = async (companyName) => {
     try {
       await fetch("https://inoptics.in/api/send_power_mail_to_admin.php", {
@@ -18387,28 +18484,45 @@ const AdminDashboard = () => {
 
                                   <div className="power-requirement-top-buttons-inside-box">
                                     {/* Send Mail button always visible */}
-                                    <button
-                                      className="power-btn send-mail-btn"
-                                      onClick={() =>
-                                        toast.promise(
-                                          (async () => {
-                                            await sendPowerMailToAdmin(
-                                              formData.company_name,
-                                            );
-                                            await handleSendPowerDetailsMail(
-                                              formData.company_name,
-                                            );
-                                          })(),
-                                          {
-                                            loading: "Sending mail...",
-                                            success: "Mail sent successfully",
-                                            error: "Failed to send mail",
-                                          },
-                                        )
-                                      }
-                                    >
-                                      Send Mail
-                                    </button>
+                                    {showExhibitorEditForm ? (
+  <button
+    className="power-btn send-mail-btn"
+    onClick={() =>
+      toast.promise(
+        (async () => {
+          await sendPowerRevisedMail(formData.company_name, formData.email);
+          await sendPowerVendorMail(formData.company_name);
+        })(),
+        {
+          loading: "Sending update mail...",
+          success: "Updated power mail sent successfully",
+          error: "Failed to send mail",
+        }
+      )
+    }
+  >
+    Send Update Power Mail
+  </button>
+) : (
+  <button
+    className="power-btn send-mail-btn"
+    onClick={() =>
+      toast.promise(
+        (async () => {
+          await sendPowerMailToAdmin(formData.company_name);
+          await handleSendPowerDetailsMail(formData.company_name);
+        })(),
+        {
+          loading: "Sending mail...",
+          success: "Mail sent successfully",
+          error: "Failed to send mail",
+        }
+      )
+    }
+  >
+    Send Mail
+  </button>
+)}
 
                                     {!isViewOnly && (
                                       <>
@@ -18420,6 +18534,7 @@ const AdminDashboard = () => {
                                             ? "Update"
                                             : "Submit"}
                                         </button>
+                                        
 
                                         {/* 🔹 Show Unlock button only if locked */}
                                         {isLocked && (

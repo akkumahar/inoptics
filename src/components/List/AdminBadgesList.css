@@ -4,7 +4,7 @@
 .badge-dashboard {
   max-width: 1000px;
   margin: auto;
-  height: 100vh;              /* 🔥 Important */
+  height: 80vh;              /* 🔥 Important */
   overflow-y: auto;           /* enable scroll */
   padding-right: 6px;         /* scrollbar space */
   font-family: "Inter", system-ui, sans-serif;

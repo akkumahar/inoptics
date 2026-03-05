@@ -1,11 +1,11 @@
 import React from "react";
-
 import "./ExhibitorPowerForm.css";
 
 const ExhibitorPowerForm = ({
   exhibitorPricePerKw,
   isViewOnly,
-  powerFormStep, // ✅ renamed
+  isUnlocked, // ✅ NEW PROP
+  powerFormStep,
   exhibitorPowerRequired,
   exhibitorPhase,
   exhibitorTotalAmount,
@@ -15,16 +15,18 @@ const ExhibitorPowerForm = ({
   onPrevious,
   onAdd,
   onFinalSubmit,
+  onUpdatePower, // ✅ NEW FUNCTION
   handlePowerUnlockRequest,
 }) => {
   const steps = ["SETUP DAYS", "EXHIBITION DAYS"];
 
-  const safeStep = powerFormStep ?? 0; // ✅ safety
+  const safeStep = powerFormStep ?? 0;
   const type = steps[safeStep];
 
   return (
     <form className="Exhibitor-power-requirement-stalls-form-wrapper">
       <h5>Additional Power Requirement</h5>
+
       <div className="Exhibitor-power-requirement-stalls-form-grid slide-active">
         {/* ROW 1 */}
         <div className="Exhibitor-power-requirement-stalls-form-row">
@@ -53,11 +55,12 @@ const ExhibitorPowerForm = ({
 
           <div className="Exhibitor-power-requirement-stalls-form-group">
             <label>PHASE:</label>
+
             <div className="Exhibitor-phase-options">
               <label>
                 <input
                   type="radio"
-                  name={`phase-${safeStep}`} // ✅ stable
+                  name={`phase-${safeStep}`}
                   value="Single Phase"
                   checked={exhibitorPhase === "Single Phase"}
                   onChange={onPhaseChange}
@@ -93,6 +96,10 @@ const ExhibitorPowerForm = ({
               safeStep < 1 ? (
                 <button type="button" onClick={onNext}>
                   Next
+                </button>
+              ) : isUnlocked ? (
+                <button type="button" onClick={onUpdatePower}>
+                  Update Power
                 </button>
               ) : (
                 <button type="button" onClick={onFinalSubmit}>

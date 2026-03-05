@@ -74,7 +74,21 @@ const ExhibitorDashboard = () => {
   const [unlockStatus, setUnlockStatus] = useState({});
 
   const [showMandatoryPopup, setShowMandatoryPopup] = useState(false);
-  
+  const [showEditPopup, setShowEditPopup] = useState(false);
+const [editPowerData, setEditPowerData] = useState({});
+
+
+  const handleEditPower = (row) => {
+    setEditPowerData(row);
+    setShowEditPopup(true);
+  };
+
+  const handleCloseEditPopup = () => {
+  setShowEditPopup(false);
+};
+
+
+
 
   // Fetch Products
   const fetchProducts = async () => {
@@ -1665,6 +1679,27 @@ const ExhibitorDashboard = () => {
       alert("An error occurred while sending unlock request.");
     }
   };
+
+  const handleUpdatePower = async () => {
+  try {
+
+    await fetch("https://inoptics.in/api/update_power_requirement.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(editPowerData)
+    });
+
+    setShowEditPopup(false);
+
+    // reload table
+    window.location.reload();
+
+  } catch (error) {
+    console.error("Update failed", error);
+  }
+};
 
   // ====== Handle NEXT (SETUP DAYS) ======
   const handlePowerFormNext = () => {
@@ -3883,6 +3918,8 @@ const ExhibitorDashboard = () => {
                     showExhibitorEditForm={showExhibitorEditForm}
                     handlePowerUnlockRequest={handlePowerUnlockRequest}
                     previewTableList={previewTableList}
+                    setShowEditPopup={setShowEditPopup}
+                    setEditPowerData={setEditPowerData}
                     powerData={powerData}
                     handleResetPowerData={handleResetPowerData}
                     totalPrice={totalPrice}
@@ -3891,6 +3928,13 @@ const ExhibitorDashboard = () => {
                     igst={igst}
                     grandTotal={grandTotal}
                     ExhibitorPowerForm={ExhibitorPowerForm}
+
+
+                    handleEditPower={handleEditPower}
+  showEditPopup={showEditPopup}
+  editPowerData={editPowerData}
+  handleCloseEditPopup={handleCloseEditPopup}
+  handleUpdatePower={handleUpdatePower}
                   />
                 </>
               )}
