@@ -17,6 +17,7 @@ import {
   FaBolt,
 } from "react-icons/fa";
 import "./ExhibitorDashboard.css";
+import companyLogo from "../assets/INOP_BLUE.png";
 import ExhibitorBadgeForm from "./ExhibitorBadgeForm";
 import ExhibitorPayments from "./ExhibitorDashboardComponent/ExhibitorPayments";
 import ExhibitorPowerForm from "./ExhibitorDashboardComponent/ExhibitorPowerForm";
@@ -75,8 +76,7 @@ const ExhibitorDashboard = () => {
 
   const [showMandatoryPopup, setShowMandatoryPopup] = useState(false);
   const [showEditPopup, setShowEditPopup] = useState(false);
-const [editPowerData, setEditPowerData] = useState({});
-
+  const [editPowerData, setEditPowerData] = useState({});
 
   const handleEditPower = (row) => {
     setEditPowerData(row);
@@ -84,11 +84,8 @@ const [editPowerData, setEditPowerData] = useState({});
   };
 
   const handleCloseEditPopup = () => {
-  setShowEditPopup(false);
-};
-
-
-
+    setShowEditPopup(false);
+  };
 
   // Fetch Products
   const fetchProducts = async () => {
@@ -727,86 +724,80 @@ const [editPowerData, setEditPowerData] = useState({});
   }, []);
 
   const handleMenuClick = (menu) => {
-
-  /* =====================================================
+    /* =====================================================
      🚨 EXIT GUARD (Exhibitor Badges Unlock Protection)
   ====================================================== */
-  if (
-    isInExhibitorBadges &&
-    hasUnlockedBadge &&
-    menu !== "Exhibitor Badges"
-  ) {
-    setPendingMenu(menu);
-    setShowExitPopup(true);
-    return;
-  }
+    if (
+      isInExhibitorBadges &&
+      hasUnlockedBadge &&
+      menu !== "Exhibitor Badges"
+    ) {
+      setPendingMenu(menu);
+      setShowExitPopup(true);
+      return;
+    }
 
-
-  /* =====================================================
+    /* =====================================================
      🚨 CONTRACTOR BADGES GUARD
      Redirect to Mandatory Forms if not completed
   ====================================================== */
-  if (menu === "Contractor Badges") {
+    if (menu === "Contractor Badges") {
+      const contractorSelected = !!selectedContractorId;
 
-    const contractorSelected = !!selectedContractorId;
+      const mandatoryCompleted = uploadedSteps?.step1 && uploadedSteps?.step2; // step3 optional if needed
 
-    const mandatoryCompleted =
-      uploadedSteps?.step1 &&
-      uploadedSteps?.step2; // step3 optional if needed
-
-    if (!contractorSelected || !mandatoryCompleted) {
-      setShowMandatoryPopup(true); // show popup
-      return; // ⛔ stop navigation
+      if (!contractorSelected || !mandatoryCompleted) {
+        setShowMandatoryPopup(true); // show popup
+        return; // ⛔ stop navigation
+      }
     }
-  }
 
-
-  /* =====================================================
+    /* =====================================================
      ✅ NORMAL NAVIGATION
   ====================================================== */
-  setActiveMenu(menu);
-  setImportantPage("");
+    setActiveMenu(menu);
+    setImportantPage("");
 
-  if (menu === "Additional Requirements") {
-    setImportantPage("Furniture Requirements");
-    return;
-  }
+    if (menu === "Additional Requirements") {
+      setImportantPage("Furniture Requirements");
+      return;
+    }
 
-  // mobile auto close
-  if (window.innerWidth <= 768) {
-    setCollapsed(true);
-  }
+    // mobile auto close
+    if (window.innerWidth <= 768) {
+      setCollapsed(true);
+    }
 
-  /* =====================================================
+    /* =====================================================
      📩 MAILS INBOX FETCH
   ====================================================== */
-  if (menu === "Mails Inbox" && currentExhibitor) {
-    setLoadingMails(true);
+    if (menu === "Mails Inbox" && currentExhibitor) {
+      setLoadingMails(true);
 
-    fetch(
-      `https://inoptics.in/api/get_exhibitor_mails.php?company_name=${encodeURIComponent(
-        currentExhibitor.company_name,
-      )}`,
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success && Array.isArray(data.mails)) {
-          setMailsList(data.mails);
-          setUnreadCount(
-            data.mails.filter((m) => Number(m.is_read) === 0).length,
-          );
-        } else {
+      fetch(
+        `https://inoptics.in/api/get_exhibitor_mails.php?company_name=${encodeURIComponent(
+          currentExhibitor.company_name,
+        )}`,
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && Array.isArray(data.mails)) {
+            setMailsList(data.mails);
+            setUnreadCount(
+              data.mails.filter((m) => Number(m.is_read) === 0).length,
+            );
+          } else {
+            setMailsList([]);
+            setUnreadCount(0);
+          }
+        })
+        .catch(() => {
           setMailsList([]);
           setUnreadCount(0);
-        }
-      })
-      .catch(() => {
-        setMailsList([]);
-        setUnreadCount(0);
-      })
-      .finally(() => setLoadingMails(false));
-  }
-};
+        })
+        .finally(() => setLoadingMails(false));
+    }
+  };
 
   useEffect(() => {
     fetchEventSchedule();
@@ -1006,180 +997,236 @@ const [editPowerData, setEditPowerData] = useState({});
 
   // ✅ Your existing furniture mail function
   const handleSendFurnitureMail = async (emailTemplateName) => {
-    if (isSendingMail) return;
-    setIsSendingMail(true);
+  if (isSendingMail) return;
 
-    try {
-      // 1️⃣ Find Vendor Template
-      const vendorTemplate = emailMasterData.find(
-        (template) => template.email_name === emailTemplateName,
-      );
+  setIsSendingMail(true);
 
-      if (!vendorTemplate) {
-        alert("Vendor email template not found.");
-        setIsSendingMail(false);
-        return;
-      }
+  try {
 
-      // 2️⃣ Find Exhibitor Template
-      const exhibitorTemplate = emailMasterData.find(
-        (template) =>
-          template.email_name ===
-          "InOptics 2026 @ Extra Furniture Request Confirmation Exhibitor",
-      );
+    /* ================= TEMPLATE FETCH ================= */
 
-      if (!exhibitorTemplate) {
-        alert("Exhibitor email template not found.");
-        setIsSendingMail(false);
-        return;
-      }
+    const vendorTemplate = emailMasterData.find(
+      (t) => t.email_name === emailTemplateName
+    );
 
-      // 3️⃣ Exhibitor Details
-      const { company_name, name, mobile, email, stall_no } = formData;
-      if (!company_name || !email) {
-        alert("Missing company name or email in form data.");
-        setIsSendingMail(false);
-        return;
-      }
+    const exhibitorTemplate = emailMasterData.find(
+      (t) =>
+        t.email_name ===
+        "InOptics 2026 @ Extra Furniture Request Confirmation Exhibitor"
+    );
 
-      // 4️⃣ Vendor Email
-      let vendorEmail = null;
-      if (
-        Array.isArray(furnitureVendorDetails) &&
-        furnitureVendorDetails.length > 0
-      ) {
-        const vendorObj = furnitureVendorDetails[0];
-        vendorEmail =
-          vendorObj.email ||
-          vendorObj.vendor_email ||
-          vendorObj.vendorEmail ||
-          vendorObj.contact_email ||
-          (typeof vendorObj.description === "string"
-            ? vendorObj.description.match(/[\w.-]+@[\w.-]+\.\w+/)?.[0]
-            : null);
-      }
-
-      if (!vendorEmail) {
-        alert("Vendor email not found in Extra Furniture Instruction section.");
-        setIsSendingMail(false);
-        return;
-      }
-
-      // 5️⃣ Validate Furniture Items
-      if (!selectedFurniture || selectedFurniture.length === 0) {
-        alert("No furniture items selected.");
-        setIsSendingMail(false);
-        return;
-      }
-
-      // 6️⃣ Build Furniture Table
-      const furnitureTableHTML = `
-        <br><h3>Requested Furniture Details</h3>
-        <table border="1" cellspacing="0" cellpadding="6"
-               style="border-collapse: collapse; width: 100%; font-family: Arial; font-size: 13px;">
-          <thead style="background: #f2f2f2;">
-            <tr>
-              <th>Item Name</th>
-              <th>Quantity</th>
-              <th>Rate</th>
-              <th>Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${selectedFurniture
-              .map(
-                (item) => `
-                  <tr>
-                    <td>${item.name}</td>
-                    <td>${item.quantity}</td>
-                    <td>${parseFloat(item.price).toFixed(2)}</td>
-                    <td>${(item.quantity * item.price).toFixed(2)}</td>
-                  </tr>`,
-              )
-              .join("")}
-          </tbody>
-        </table>
-        <br>
-        <div style="font-weight:bold;">
-          GRAND TOTAL: ${selectedFurniture
-            .reduce((sum, i) => sum + i.quantity * i.price, 0)
-            .toFixed(2)}
-        </div>
-      `;
-
-      // 7️⃣ Replace placeholders in template (Vendor)
-      const vendorMailHTML =
-        vendorTemplate.content
-          .replace(/\[Company Name\]/g, company_name)
-          .replace(/\[Contact Person Name\]/g, name)
-          .replace(/\[Mobile Number\]/g, mobile)
-          .replace(/\[Email Address\]/g, email)
-          .replace(/\[Stall No.\]/g, stall_no)
-          .replace(/&n/g, "<br>") + `<br><br>${furnitureTableHTML}`;
-
-      // 8️⃣ Send Vendor Mail
-      const vendorResponse = await fetch(
-        "https://inoptics.in/api/send_furniture_vendor_mail.php",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email_name: emailTemplateName,
-            to: vendorEmail,
-            html: vendorMailHTML,
-          }),
-        },
-      );
-
-      const vendorResult = await vendorResponse.json();
-      console.log("Vendor Mail Response:", vendorResult);
-
-      if (vendorResult.message?.includes("Mail sent successfully")) {
-        const vendorName =
-          furnitureVendorDetails?.[0]?.vendor_name || "Furniture Vendor";
-
-        const exhibitorMailHTML =
-          exhibitorTemplate.content
-            .replace("[Vendor Name]", vendorName)
-            .replace("[Company Name]", company_name)
-            .replace("[Contact Person Name]", name)
-            .replace("[Mobile Number]", mobile)
-            .replace("[Email Address]", email)
-            .replace("[Stall No.]", stall_no)
-            .replace("&n", "<br>") + `<br><br>${furnitureTableHTML}`;
-
-        const exhibitorResponse = await fetch(
-          "https://inoptics.in/api/send_furniture_vendor_mail.php",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              email_name:
-                "InOptics 2026 @ Extra Furniture Request Confirmation Exhibitor",
-              to: email,
-              html: exhibitorMailHTML,
-            }),
-          },
-        );
-
-        const exhibitorResult = await exhibitorResponse.json();
-        console.log("Exhibitor Mail Response:", exhibitorResult);
-
-        if (exhibitorResult.message?.includes("Mail sent successfully")) {
-          alert("✅ Mail sent successfully!");
-        } else {
-          alert("Vendor mail sent, but failed to send Exhibitor confirmation.");
-        }
-      } else {
-        alert("❌ Failed to send mail to vendor.");
-      }
-    } catch (error) {
-      console.error("Error sending furniture mail:", error);
-      alert("Error sending mail. Please try again.");
-    } finally {
-      setIsSendingMail(false);
+    if (!vendorTemplate || !exhibitorTemplate) {
+      alert("Email template not found");
+      return;
     }
-  };
+
+    /* ================= EXHIBITOR DETAILS ================= */
+
+    const { company_name, name, mobile, email, stall_no } = formData;
+
+    if (!company_name || !email) {
+      alert("Missing exhibitor data");
+      return;
+    }
+
+    /* ================= VENDOR DETAILS ================= */
+
+    const vendor = furnitureVendorDetails?.[0] || {};
+
+    const vendorName = vendor.vendor_name || "";
+    const vendorCompany = vendor.company_name || "";
+    const vendorPhone = vendor.contact_number || vendor.mobile || "";
+
+    const vendorEmail =
+      vendor.email ||
+      vendor.vendor_email ||
+      vendor.vendorEmail ||
+      vendor.contact_email ||
+      (typeof vendor.description === "string"
+        ? vendor.description.match(/[\w.-]+@[\w.-]+\.\w+/)?.[0]
+        : null);
+
+    if (!vendorEmail) {
+      alert("Vendor email missing");
+      return;
+    }
+
+    /* ================= VALIDATE FURNITURE ================= */
+
+    if (!selectedFurniture || selectedFurniture.length === 0) {
+      alert("No furniture selected");
+      return;
+    }
+
+    /* ================= TABLE CALCULATION ================= */
+
+    let totalAmount = 0;
+    let totalSGST = 0;
+    let totalCGST = 0;
+    let grandTotal = 0;
+
+    const rows = selectedFurniture
+      .map((item) => {
+
+        const qty = Number(item.quantity);
+        const rate = Number(item.price);
+
+        const amount = qty * rate;
+        const sgst = amount * 0.09;
+        const cgst = amount * 0.09;
+        const total = amount + sgst + cgst;
+
+        totalAmount += amount;
+        totalSGST += sgst;
+        totalCGST += cgst;
+        grandTotal += total;
+
+        return `
+        <tr>
+          <td>${item.name}</td>
+          <td align="center">${qty}</td>
+          <td align="right">${rate.toFixed(2)}</td>
+          <td align="right">${amount.toFixed(2)}</td>
+          <td align="right">${sgst.toFixed(2)}</td>
+          <td align="right">${cgst.toFixed(2)}</td>
+          <td align="right">${total.toFixed(2)}</td>
+        </tr>
+        `;
+      })
+      .join("");
+
+    /* ================= FURNITURE TABLE ================= */
+
+    const furnitureTable = `
+      <table border="1" cellpadding="6" cellspacing="0"
+      style="border-collapse:collapse;width:100%;font-family:Arial;font-size:13px">
+
+      <thead style="background:#f2f2f2">
+      <tr>
+        <th>Item Name</th>
+        <th>Qty</th>
+        <th>Rate</th>
+        <th>Amount</th>
+        <th>SGST (9%)</th>
+        <th>CGST (9%)</th>
+        <th>Total</th>
+      </tr>
+      </thead>
+
+      <tbody>
+
+      ${rows}
+
+      <tr style="font-weight:bold;background:#fafafa">
+        <td colspan="3" align="right">TOTAL</td>
+        <td align="right">${totalAmount.toFixed(2)}</td>
+        <td align="right">${totalSGST.toFixed(2)}</td>
+        <td align="right">${totalCGST.toFixed(2)}</td>
+        <td align="right">${grandTotal.toFixed(2)}</td>
+      </tr>
+
+      </tbody>
+
+      </table>
+    `;
+
+    /* ================= PLACEHOLDER DATA ================= */
+
+    const replaceData = {
+      "[Company_Name]": company_name,
+      "[Contact_Person_Name]": name,
+      "[Mobile_Number]": mobile,
+      "[Email_Address]": email,
+      "[Stall_No]": stall_no,
+
+      "[Vendor_Name]": vendorName,
+      "[Vendor_Company]": vendorCompany,
+      "[Vendor_Email]": vendorEmail,
+      "[Vendor_Phone]": vendorPhone,
+
+      "[Furniture_Table]": furnitureTable,
+
+      "[Exhibitor_Name]": name,
+      "[Phone_Number]": mobile
+    };
+
+    /* ================= TEMPLATE REPLACEMENT ================= */
+
+    const replaceTemplate = (template) => {
+      let html = template;
+
+      Object.keys(replaceData).forEach((key) => {
+        html = html.replaceAll(key, replaceData[key]);
+      });
+
+      return html.replace(/&n/g, "<br>");
+    };
+
+    const vendorHTML = replaceTemplate(vendorTemplate.content);
+    const exhibitorHTML = replaceTemplate(exhibitorTemplate.content);
+
+    /* ================= SEND VENDOR MAIL ================= */
+
+    const vendorRes = await fetch(
+      "https://inoptics.in/api/send_furniture_vendor_mail.php",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email_name: emailTemplateName,
+          to: vendorEmail,
+          html: vendorHTML
+        })
+      }
+    );
+
+    const vendorResult = await vendorRes.json();
+
+    if (!vendorResult.message?.includes("successfully")) {
+      alert("Vendor mail failed");
+      return;
+    }
+
+    /* ================= SEND EXHIBITOR MAIL ================= */
+
+    const exhibitorRes = await fetch(
+  "https://inoptics.in/api/send_furniture_vendor_mail.php",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      email_name:
+        "InOptics 2026 @ Extra Furniture Request Confirmation Exhibitor",
+      to: email,
+      html: exhibitorHTML,
+      company_name: company_name
+    })
+  }
+);
+
+    const exhibitorResult = await exhibitorRes.json();
+
+    if (exhibitorResult.message?.includes("successfully")) {
+      alert("✅ Mail sent successfully!");
+    } else {
+      alert("Vendor mail sent but exhibitor mail failed.");
+    }
+
+  } catch (error) {
+
+    console.error("Mail error:", error);
+    alert("Error sending mail");
+
+  } finally {
+
+    setIsSendingMail(false);
+
+  }
+};
 
   const handleUnlockRequestMail = async () => {
     try {
@@ -1680,26 +1727,102 @@ const [editPowerData, setEditPowerData] = useState({});
     }
   };
 
-  const handleUpdatePower = async () => {
+  const handleUpdatePower = async (entries) => {
+
   try {
 
-    await fetch("https://inoptics.in/api/update_power_requirement.php", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(editPowerData)
-    });
+    const payload = {
+      company_name: currentExhibitor.company_name,
+      entries: entries
+    };
 
-    setShowEditPopup(false);
+    const res = await fetch(
+      "https://inoptics.in/api/update_power_requirement.php",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      }
+    );
 
-    // reload table
-    window.location.reload();
+    const result = await res.json();
+
+    if (result.success) {
+
+      toast.success("Power updated successfully");
+
+      setShowEditPopup(false);
+
+      fetchPowerBilling(currentExhibitor.company_name);
+
+    } else {
+
+      toast.error(result.error || "Update failed");
+
+    }
 
   } catch (error) {
-    console.error("Update failed", error);
+
+    console.error(error);
+    toast.error("Server error");
+
+  }
+
+};
+
+const sendPowerRevisedMail = async (companyName, email) => {
+
+  try {
+
+    const res = await fetch(
+      "https://inoptics.in/api/send_power_revised_mail.php",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          company_name: companyName,
+          template_name: "POWER LOAD INCREASED",
+          email: email
+        })
+      }
+    );
+
+    const data = await res.json();
+    console.log(data);
+
+  } catch (error) {
+    console.error("Failed to send power revised mail:", error);
+  }
+
+};
+
+const sendPowerVendorMail = async (companyName) => {
+  try {
+    const res = await fetch("https://inoptics.in/api/send_power_vendor_mail.php", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    template_name: "Revised Power Load Vendor",
+    company_name: companyName
+  })
+});
+
+const data = await res.json();
+    console.log(data);
+
+
+  } catch (error) {
+    console.error("Failed to send vendor mail:", error);
   }
 };
+
+
 
   // ====== Handle NEXT (SETUP DAYS) ======
   const handlePowerFormNext = () => {
@@ -2132,39 +2255,32 @@ const [editPowerData, setEditPowerData] = useState({});
 
   // Fetch selected contractor for the current exhibitor
   const fetchSelectedContractor = async (companyName) => {
-  try {
-    const response = await fetch(
-      `https://inoptics.in/api/get_selected_exhibitors_contractors.php?exhibitor_company_name=${companyName}`
-    );
-
-    const data = await response.json();
-
-    if (data && data.contractor_company_name) {
-
-      const selected = contractorData.find(
-        (c) => c.company_name === data.contractor_company_name
+    try {
+      const response = await fetch(
+        `https://inoptics.in/api/get_selected_exhibitors_contractors.php?exhibitor_company_name=${companyName}`,
       );
 
-      if (selected) {
-        setSelectedContractorId(selected.id);
-        setWorkflowActive(true); // ⭐ MOST IMPORTANT
+      const data = await response.json();
+
+      if (data && data.contractor_company_name) {
+        const selected = contractorData.find(
+          (c) => c.company_name === data.contractor_company_name,
+        );
+
+        if (selected) {
+          setSelectedContractorId(selected.id);
+          setWorkflowActive(true); // ⭐ MOST IMPORTANT
+        }
+
+        setIsLocked(Number(data.is_locked));
+      } else {
+        setSelectedContractorId(null);
+        setWorkflowActive(false);
       }
-
-      setIsLocked(Number(data.is_locked));
-
-    } else {
-
-      setSelectedContractorId(null);
-      setWorkflowActive(false);
-
+    } catch (error) {
+      console.error("Error fetching selected contractor:", error);
     }
-
-  } catch (error) {
-    console.error("Error fetching selected contractor:", error);
-  }
-};
-
-
+  };
 
   // Select contractor
   const selectContractor = async (contractorId) => {
@@ -2262,7 +2378,6 @@ const [editPowerData, setEditPowerData] = useState({});
       fetchSelectedContractor(formData.company_name);
       fetchBoothDesignStatus(); // 👈 important
     }
-   
   }, [activeMenu, formData.company_name, contractorData]);
 
   useEffect(() => {
@@ -3410,12 +3525,6 @@ const [editPowerData, setEditPowerData] = useState({});
     }
   };
 
-
-
- 
-
-
-
   return (
     <div className="exhibitordashboard-container">
       {/* Sidebar */}
@@ -3513,7 +3622,7 @@ const [editPowerData, setEditPowerData] = useState({});
                 <FaLongArrowAltLeft />
               </button>
             )}
-            <h1>{activeMenu}</h1>
+            <h1>{formData.company_name} <span style={{ color: "#0066cc" } }>{activeMenu}</span></h1>
           </div>
 
           {/* Profile dropdown now inside navbar */}
@@ -3527,21 +3636,21 @@ const [editPowerData, setEditPowerData] = useState({});
               </p>
               <div className="exhibitordashboard-profile-picture exhibitordashboard-small-profile-picture">
                 <img
-                  width="40"
+                  // width="40"
                   alt="Profile"
-                  src="http://upload.wikimedia.org/wikipedia/commons/e/e1/Anne_Hathaway_Face.jpg"
+                  src={companyLogo}
                 />
               </div>
             </div>
 
-            {showProfileDropdown && (
+            {/* {showProfileDropdown && (
               <div className="exhibitordashboard-floating-profile-dropdown">
                 <h4>Company Logo</h4>
                 <button className="exhibitordashboard-dropdown-btn">
                   Upload Image
                 </button>
               </div>
-            )}
+            )} */}
           </div>
         </header>
 
@@ -3928,13 +4037,13 @@ const [editPowerData, setEditPowerData] = useState({});
                     igst={igst}
                     grandTotal={grandTotal}
                     ExhibitorPowerForm={ExhibitorPowerForm}
-
-
                     handleEditPower={handleEditPower}
-  showEditPopup={showEditPopup}
-  editPowerData={editPowerData}
-  handleCloseEditPopup={handleCloseEditPopup}
-  handleUpdatePower={handleUpdatePower}
+                    showEditPopup={showEditPopup}
+                    editPowerData={editPowerData}
+                    handleCloseEditPopup={handleCloseEditPopup}
+                    handleUpdatePower={handleUpdatePower}
+                    sendPowerVendorMail={sendPowerVendorMail}
+                    sendPowerRevisedMail={sendPowerRevisedMail} 
                   />
                 </>
               )}
@@ -3944,7 +4053,7 @@ const [editPowerData, setEditPowerData] = useState({});
                   <ExhibitorContractors
                     handleBoothDesignUpload={handleBoothDesignUpload}
                     stepSubmitted={stepSubmitted}
-                    fetchSelectedContractor={fetchSelectedContractor} 
+                    fetchSelectedContractor={fetchSelectedContractor}
                     unlockStatus={unlockStatus}
                     setStepSubmitted={setStepSubmitted}
                     fetchUnlockStatus={fetchUnlockStatus}
@@ -4090,25 +4199,24 @@ const [editPowerData, setEditPowerData] = useState({});
           </div>
         )}
 
-
         {showMandatoryPopup && (
-  <div className="mandatory-popup-overlay">
-    <div className="mandatory-popup-box">
-      <h3>Action Required</h3>
-      <p>Please fill mandatory forms after selecting contractor.</p>
+          <div className="mandatory-popup-overlay">
+            <div className="mandatory-popup-box">
+              <h3>Action Required</h3>
+              <p>Please fill mandatory forms after selecting contractor.</p>
 
-      <button
-        onClick={() => {
-          setShowMandatoryPopup(false);
-          setActiveMenu("Mandatory Forms"); // 🔥 redirect
-        }}
-        className="primary-btn"
-      >
-        Go to Mandatory Forms
-      </button>
-    </div>
-  </div>
-)}
+              <button
+                onClick={() => {
+                  setShowMandatoryPopup(false);
+                  setActiveMenu("Mandatory Forms"); // 🔥 redirect
+                }}
+                className="primary-btn"
+              >
+                Go to Mandatory Forms
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

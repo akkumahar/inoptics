@@ -6,6 +6,7 @@ import CustomEditor from "./CustomEditor";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { BsBuildingsFill } from "react-icons/bs";
+import { MdChair } from "react-icons/md";
 
 // import { CKEditor } from '@ckeditor/ckeditor5-react';
 // import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
@@ -70,6 +71,7 @@ import FasciaNameAdmin from "./List/FasciaNameAdmin";
 import AdminPowerRequirement from "./List/AdminPowerRequirement";
 import AdminBadgeSeries from "./List/AdminBadgeSeries";
 import MessageRulesManager from "./List/MessageRulesManager";
+import ExtraFurnitureManager from "./List/ExtraFurnitureManager";
 // import { useMemo } from 'react';
 
 const AdminDashboard = () => {
@@ -6071,6 +6073,7 @@ const AdminDashboard = () => {
 
       if (res.ok) {
         alert(data.message || "Furniture submitted successfully");
+        fetchSelectedFurniture(payload.company_name); // Refresh furniture list after adding
       } else {
         alert(data.message || "Error submitting furniture");
       }
@@ -6178,6 +6181,7 @@ const AdminDashboard = () => {
 
       if (response.ok && data.status === "success") {
         alert("Furniture updated successfully!");
+        fetchSelectedFurniture(payload.company_name);
         // optionally refetch the data or update state here
       } else {
         alert(
@@ -13456,6 +13460,9 @@ const data = await res.json();
           <li onClick={() => openOverlay("Exhibitor Badges")}>
             <LuFileBadge2 /> {!collapsed && "Exhibitor Badges"}
           </li>
+          <li onClick={() => openOverlay("Extra Furniture")}>
+            <MdChair  /> {!collapsed && "Extra Furniture"}
+          </li>
           <li onClick={() => openOverlay("Payments")}>
             <FaMoneyBill /> {!collapsed && "Payments"}
           </li>
@@ -18484,7 +18491,7 @@ const data = await res.json();
 
                                   <div className="power-requirement-top-buttons-inside-box">
                                     {/* Send Mail button always visible */}
-                                    {showExhibitorEditForm ? (
+                                    {showExhibitorEditForm && (
   <button
     className="power-btn send-mail-btn"
     onClick={() =>
@@ -18503,7 +18510,7 @@ const data = await res.json();
   >
     Send Update Power Mail
   </button>
-) : (
+)}
   <button
     className="power-btn send-mail-btn"
     onClick={() =>
@@ -18522,7 +18529,7 @@ const data = await res.json();
   >
     Send Mail
   </button>
-)}
+
 
                                     {!isViewOnly && (
                                       <>
@@ -19486,12 +19493,12 @@ const data = await res.json();
                                     >
                                       <button
                                         onClick={() => {
-                                          if (selectedFurniture.length === 0) {
-                                            alert(
-                                              "Please select at least one furniture item.",
-                                            );
-                                            return;
-                                          }
+                                          // if (selectedFurniture.length === 0) {
+                                          //   alert(
+                                          //     "Please select at least one furniture item.",
+                                          //   );
+                                          //   return;
+                                          // }
 
                                           const companyName =
                                             formData.company_name ||
@@ -19506,7 +19513,7 @@ const data = await res.json();
                                                 price: item.price,
                                                 quantity: item.quantity,
                                                 total:
-                                                  item.quantity * item.price,
+                                                item.quantity * item.price,
                                               }),
                                             ),
                                           };
@@ -24918,7 +24925,12 @@ const data = await res.json();
           )}
           {overlayContent === "Exhibitor Power" && (
             <>
-             <AdminPowerRequirement />             
+             <AdminPowerRequirement exhibitorData={exhibitorData} />             
+            </>
+          )}
+          {overlayContent === "Extra Furniture" && (
+            <>
+             <ExtraFurnitureManager  />             
             </>
           )}
 
@@ -28688,6 +28700,8 @@ const data = await res.json();
                                   "Remark Mail",
                                   "Contractor Badges Unlock Request",
                                   "Contractor Badges Submit",
+                                  "UnderTaking and Declaration Accept",
+                                  "Contractor Selection",
                                 ].map((place) => (
                                   <label key={place}>
                                     <input
@@ -28812,6 +28826,8 @@ const data = await res.json();
                                   "Remark Mail",
                                   "Contractor Badges Unlock Request",
                                   "Contractor Badges Submit",
+                                  "UnderTaking and Declaration Accept",
+                                  "Contractor Selection",
                                 ].map((place) => (
                                   <label key={place}>
                                     <input

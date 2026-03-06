@@ -286,7 +286,7 @@ img, iframe, video {
 /* Profile Image – Square */
 .exhibitordashboard-small-profile-picture img {
   border-radius: 6px; /* Square with slightly rounded corners */
-  width: 40px;
+  width: 100%;
   height: 40px;
   object-fit: cover;
   border: 2px solid #fff;

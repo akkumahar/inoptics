@@ -1,6 +1,7 @@
 import React from "react";
 import "./ExhibitorPowerRequirement.css";
-
+import toast from "react-hot-toast";
+import { FaLock } from "react-icons/fa";
 const PowerRequirementSection = ({
   currentExhibitor,
 
@@ -39,6 +40,8 @@ const PowerRequirementSection = ({
   editPowerData,
   handleCloseEditPopup,
   handleUpdatePower,
+  sendPowerRevisedMail,
+  sendPowerVendorMail,
 }) => {
   if (!currentExhibitor) return null;
 
@@ -161,16 +164,20 @@ const PowerRequirementSection = ({
 
                           {/* EDIT BUTTON */}
                           <td>
-                            {!item.is_locked && (
+                            {!item.is_locked ? (
                               <button
                                 className="power-edit-btn"
                                 onClick={() => {
-                                  setEditPowerData(powerData);
+                                  setEditPowerData([...powerData]);
                                   setShowEditPopup(true);
                                 }}
                               >
                                 Edit
                               </button>
+                            ):(
+                              <span style={{ color: "#000000", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                <FaLock />
+                              </span>
                             )}
                           </td>
                         </tr>
@@ -316,10 +323,13 @@ const PowerRequirementSection = ({
 
                     return (
                       <tr key={index}>
-                        <td>{row.day}</td>
+                        {/* DAY VIEW ONLY */}
+                        <td className="readonly-cell">{row.day}</td>
 
-                        <td>{row.price_per_kw}</td>
+                        {/* PRICE VIEW ONLY */}
+                        <td className="readonly-cell">{row.price_per_kw}</td>
 
+                        {/* POWER EDITABLE */}
                         <td>
                           <input
                             type="number"
@@ -328,17 +338,39 @@ const PowerRequirementSection = ({
                           />
                         </td>
 
+                        {/* PHASE RADIO BUTTON */}
                         <td>
-                          <select
-                            value={row.phase}
-                            onChange={(e) => handleEditPhaseChange(e, index)}
-                          >
-                            <option value="Single Phase">Single Phase</option>
-                            <option value="Three Phase">Three Phase</option>
-                          </select>
+                          <div className="phase-radio-group">
+                            <label>
+                              <input
+                                type="radio"
+                                name={`phase-${index}`}
+                                value="Single Phase"
+                                checked={row.phase === "Single Phase"}
+                                onChange={(e) =>
+                                  handleEditPhaseChange(e, index)
+                                }
+                              />
+                              Single
+                            </label>
+
+                            <label>
+                              <input
+                                type="radio"
+                                name={`phase-${index}`}
+                                value="Three Phase"
+                                checked={row.phase === "Three Phase"}
+                                onChange={(e) =>
+                                  handleEditPhaseChange(e, index)
+                                }
+                              />
+                              Three
+                            </label>
+                          </div>
                         </td>
 
-                        <td>{total}</td>
+                        {/* TOTAL AUTO */}
+                        <td className="readonly-cell">{total}</td>
                       </tr>
                     );
                   })}
@@ -346,9 +378,34 @@ const PowerRequirementSection = ({
               </table>
 
               <div className="popup-buttons">
-                <button onClick={handleCloseEditPopup}>Cancel</button>
+                <button className="cancel-btn" onClick={handleCloseEditPopup}>
+                  Cancel
+                </button>
 
-                <button onClick={handleUpdatePower}>Update Power</button>
+                <button
+                  className="update-btn"
+                  onClick={() =>
+                    toast.promise(
+                      (async () => {
+                        await handleUpdatePower(editPowerData);
+                        await sendPowerRevisedMail(
+                          currentExhibitor.company_name,
+                          currentExhibitor.email,
+                        );
+                        await sendPowerVendorMail(
+                          currentExhibitor.company_name,
+                        );
+                      })(),
+                      {
+                        loading: "Sending update mail...",
+                        success: "Updated power mail sent successfully",
+                        error: "Failed to send mail",
+                      },
+                    )
+                  }
+                >
+                  Update Power
+                </button>
               </div>
             </div>
           </div>

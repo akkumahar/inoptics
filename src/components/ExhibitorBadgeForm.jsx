@@ -1229,7 +1229,7 @@ const isFree = index < totalFree;
 
                       <div className="form-group">
                         <label className="label-with-error">
-                          Candidate Name *
+                          Exhibitor Name *
                           {fieldErrors.name && (
                             <span className="field-error">
                               {fieldErrors.name}
@@ -1250,7 +1250,7 @@ const isFree = index < totalFree;
                       <div className="candicate-preview">
                         <div className="form-group">
                           <label className="label-with-error">
-                            Candidate Photo * (Max 2MB) (This time is optional, Next Time it will be mandatory)
+                            Exhibitor Photo * (Max 2MB) (This time is optional, Next Time it will be mandatory)
                             {fieldErrors.photo && (
                               <span className="field-error">
                                 {fieldErrors.photo}

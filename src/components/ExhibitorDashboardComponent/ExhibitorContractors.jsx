@@ -595,7 +595,7 @@ useEffect(() => {
                       </td>
                       <td className="d-only">{c.email}</td>
                       <td className="d-only">
-                        {selectedContractorId === c.id ? (
+                        {/* {selectedContractorId === c.id ? (
                           <button
                             className="ExhibitorContractors-unselect-btn"
                             onClick={unselectContractor}
@@ -613,7 +613,7 @@ useEffect(() => {
                           >
                             Select
                           </button>
-                        )}
+                        )} */}
                       </td>
                       <td className="m-only" colSpan="7">
                         <div className="cm-card">
