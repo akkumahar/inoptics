@@ -12,11 +12,58 @@ const AdminPowerRequirement = ({ exhibitorData }) => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingRow, setEditingRow] = useState(null);
 
+  const [powerPaymentSummary, setPowerPaymentSummary] = useState({});
+
   /* ================= FETCH DATA ================= */
 
   useEffect(() => {
     fetchAllPower();
   }, []);
+
+
+  useEffect(() => {
+  const summary = {};
+
+  rows.forEach((row) => {
+    const company = row.company_name;
+    const amount = Number(row.total_amount || 0);
+    const state = (row.state || "").toLowerCase();
+
+    let cgst = 0;
+    let sgst = 0;
+    let igst = 0;
+
+    if (state === "delhi") {
+      cgst = amount * 0.09;
+      sgst = amount * 0.09;
+    } else if (state) {
+      igst = amount * 0.18;
+    }
+
+    const total = amount + cgst + sgst + igst;
+
+    if (!summary[company]) {
+      summary[company] = {
+        amount: 0,
+        cgst: 0,
+        sgst: 0,
+        igst: 0,
+        total: 0,
+        cleared: 0,
+        pending: 0,
+      };
+    }
+
+    summary[company].amount += amount;
+    summary[company].cgst += cgst;
+    summary[company].sgst += sgst;
+    summary[company].igst += igst;
+    summary[company].total += total;
+  });
+
+  setPowerPaymentSummary(summary);
+}, [rows]);
+
 
   const fetchAllPower = async () => {
     setLoading(true);
@@ -198,6 +245,26 @@ const AdminPowerRequirement = ({ exhibitorData }) => {
                 onClick={() => setOpenCompany(isOpen ? null : company)}
               >
                 {company}
+                <div className="power-summary">
+  {powerPaymentSummary[company] && (
+    <>
+      <span>Power Amount: ₹{powerPaymentSummary[company].amount.toFixed(2)}</span>
+
+      {companyRows?.[0]?.state?.toLowerCase() === "delhi" ? (
+        <>
+          <span>CGST: ₹{powerPaymentSummary[company].cgst.toFixed(2)}</span>
+          <span>SGST: ₹{powerPaymentSummary[company].sgst.toFixed(2)}</span>
+        </>
+      ) : (
+        <span>IGST: ₹{powerPaymentSummary[company].igst.toFixed(2)}</span>
+      )}
+
+      <span>Grand Total: ₹{powerPaymentSummary[company].total.toFixed(2)}</span>
+      <span>Cleared: ₹{powerPaymentSummary[company].cleared.toFixed(2)}</span>
+      <span>Pending: ₹{powerPaymentSummary[company].pending.toFixed(2)}</span>
+    </>
+  )}
+</div>
                 <span>{isOpen ? "▲" : "▼"}</span>
               </div>
 

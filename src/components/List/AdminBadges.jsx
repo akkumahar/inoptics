@@ -212,7 +212,7 @@ const AdminBadges = () => {
   }, [companies]);
 
   const getBadgeRate = () => {
-    return new Date() > new Date("2026-02-28") ? 200 : 100;
+    return new Date() > new Date("2026-03-20") ? 200 : 100;
   };
 
   useEffect(() => {
@@ -243,7 +243,23 @@ const AdminBadges = () => {
         );
 
         const rate = getBadgeRate();
-        const totalAmount = paidBadgeCount * rate;
+        const amount = paidBadgeCount * rate;
+
+       let cgst = 0;
+let sgst = 0;
+let igst = 0;
+
+// state badge se lo
+const badgeState = company.badges?.find((b) => b.state)?.state?.toLowerCase() || "";
+
+if (badgeState === "delhi") {
+  cgst = amount * 0.09;
+  sgst = amount * 0.09;
+} else {
+  igst = amount * 0.18;
+}
+
+        const totalAmount = Number(amount) + Number(cgst) + Number(sgst) + Number(igst);
 
         const pending = Math.max(0, totalAmount - cleared);
 
@@ -251,6 +267,10 @@ const AdminBadges = () => {
           ...prev,
           [company.company_name]: {
             paidBadgeCount,
+            amount,
+            cgst,
+            sgst,
+            igst,
             totalAmount,
             cleared,
             pending,
@@ -317,24 +337,46 @@ const AdminBadges = () => {
             <div>
               {badgePaymentSummary[company.company_name] && (
                 <div className="badge-pay-summary">
-                  <span> Badges: {company.badges.length} </span>{" "}
-                  <span>
-                    Paid Badges:{" "}
-                    {badgePaymentSummary[company.company_name].paidBadgeCount}
-                  </span>
-                  <span>
-                    Total: ₹{" "}
-                    {badgePaymentSummary[company.company_name].totalAmount}
-                  </span>
-                  <span>
-                    Cleared: ₹{" "}
-                    {badgePaymentSummary[company.company_name].cleared}
-                  </span>
-                  <span>
-                    Pending: ₹{" "}
-                    {badgePaymentSummary[company.company_name].pending}
-                  </span>
-                </div>
+
+<span>Badges: {company.badges.length}</span>
+
+<span>
+Paid Badges: {badgePaymentSummary[company.company_name]?.paidBadgeCount || 0}
+</span>
+
+<span>
+Amount: ₹{badgePaymentSummary[company.company_name]?.amount?.toFixed(2) || "0.00"}
+</span>
+
+{(company.badges?.[0]?.state || "").toLowerCase() === "delhi" ? (
+<>
+<span>
+CGST: ₹{badgePaymentSummary[company.company_name]?.cgst?.toFixed(2) || "0.00"}
+</span>
+
+<span>
+SGST: ₹{badgePaymentSummary[company.company_name]?.sgst?.toFixed(2) || "0.00"}
+</span>
+</>
+) : (
+<span>
+IGST: ₹{badgePaymentSummary[company.company_name]?.igst?.toFixed(2) || "0.00"}
+</span>
+)}
+
+<span>
+Total: ₹{badgePaymentSummary[company.company_name]?.totalAmount?.toFixed(2) || "0.00"}
+</span>
+
+<span>
+Cleared: ₹{badgePaymentSummary[company.company_name]?.cleared?.toFixed(2) || "0.00"}
+</span>
+
+<span>
+Pending: ₹{badgePaymentSummary[company.company_name]?.pending?.toFixed(2) || "0.00"}
+</span>
+
+</div>
               )}
             </div>
 

@@ -29,6 +29,7 @@ import ExhibitorPowerRequirement from "./ExhibitorDashboardComponent/ExhibitorPo
 import ExhibitorContractors from "./ExhibitorDashboardComponent/ExhibitorContractors";
 import ContractorBadgeForm from "./ExhibitorDashboardComponent/ContractorBadgeForm";
 import ExhibitorFaciaForm from "./ExhibitorDashboardComponent/ExhibitorFacia";
+import VisitorBadgePage from "./ExhibitorDashboardComponent/VisitorRegistration";
 
 const ExhibitorDashboard = () => {
   const navigate = useNavigate();
@@ -347,6 +348,7 @@ const ExhibitorDashboard = () => {
     { name: "Mandatory Forms", icon: <FaRegHandshake /> },
     { name: "Exhibitor Badges", icon: <FaRegIdBadge /> },
     { name: "Contractor Badges", icon: <FaIdCard /> },
+    { name: "Visitor Badges Registration", icon: <FaIdCard /> },
     { name: "Fascia Name", icon: <FaIdCard /> },
     { name: "Payment", icon: <FaMoneyBill /> },
   ];
@@ -4133,6 +4135,13 @@ const data = await res.json();
                   setHasUnlockedBadge={setHasUnlockedBadge}
                 />
               )}
+              {activeMenu === "Visitor Badges Registration" && currentExhibitor && (
+                <VisitorBadgePage
+                  company={currentExhibitor.company_name}
+                  email={currentExhibitor.email}
+                />
+              )}
+                 
 
               {activeMenu === "Fascia Name" && currentExhibitor && (
                 <ExhibitorFaciaForm

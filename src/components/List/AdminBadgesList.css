@@ -2,7 +2,7 @@
    BADGE DASHBOARD
 ================================ */
 .badge-dashboard {
-  max-width: 1000px;
+  max-width: 70vw;
   margin: auto;
   height: 80vh;              /* 🔥 Important */
   overflow-y: auto;           /* enable scroll */

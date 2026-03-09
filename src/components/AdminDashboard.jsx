@@ -5372,6 +5372,8 @@ const AdminDashboard = () => {
 
     try {
       const res = await fetch(apiUrl);
+      console.log("rishab all payment inoptics",res);
+      
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
       const data = await res.json();
@@ -7808,6 +7810,8 @@ const AdminDashboard = () => {
       setActiveNavbarItem("FURNITURE REQUIREMENT");
     }
   }, [overlayContent]);
+  
+
 
   const handleUpdateFurniture = async () => {
     if (!editFurnitureName || !editFurniturePrice) {
@@ -11813,6 +11817,13 @@ const AdminDashboard = () => {
   useEffect(() => {
     fetchMediaGalleryDetails();
   }, []);
+
+
+  useEffect(() => {
+  if (overlayContent === "Exhibitor Badges") {
+    setActiveNavbarItem("EXHIBITOR BADGES");
+  }
+}, [overlayContent]);
 
   // Fetch all Media Gallery entries
   const fetchMediaGalleryDetails = async () => {
@@ -16054,7 +16065,7 @@ const data = await res.json();
                         className="icon-btn copy"
                         onClick={() => handleCopyUrl(img.image_url)}
                       >
-                        <FaExternalLinkAlt />
+                        <FaExternalLinkAlt /> Copy URL
                       </button>
                     </div>
                   </div>
@@ -17429,7 +17440,7 @@ const data = await res.json();
                                   <label>
                                     COMPANY NAME{" "}
                                     <span style={{ color: "red" }}>
-                                      rishab*
+                                      *
                                     </span>
                                   </label>
                                   <input
@@ -25451,13 +25462,13 @@ const data = await res.json();
                   </li>
                   <li
                     onClick={() =>
-                      setActiveNavbarItem("EXHIBITOR BADGES SERIES")
+                      setActiveNavbarItem("EXHIBITOR BADGES UNLOCK REQUEST")
                     }
                     // className={
                     //   activeNavbarItem === "Exhibitor Series" ? "active" : ""
                     // }
                   >
-                    Exhibitor Series Edit
+                    EXHIBITOR BADGES UNLOCK REQUEST
                   </li>
                 </ul>
               </div>
@@ -25468,7 +25479,7 @@ const data = await res.json();
                   <AdminBadges />
                 </div>
               )}
-              {activeNavbarItem === "EXHIBITOR BADGES SERIES" && (
+              {activeNavbarItem === "EXHIBITOR BADGES UNLOCK REQUEST" && (
                 <div style={{ padding: "10px" }}>
                   <ExhibitorBadgeSeries />
                 </div>
@@ -28702,6 +28713,7 @@ const data = await res.json();
                                   "Contractor Badges Submit",
                                   "UnderTaking and Declaration Accept",
                                   "Contractor Selection",
+                                  "Fascia Email",
                                 ].map((place) => (
                                   <label key={place}>
                                     <input
@@ -28828,6 +28840,7 @@ const data = await res.json();
                                   "Contractor Badges Submit",
                                   "UnderTaking and Declaration Accept",
                                   "Contractor Selection",
+                                  "Fascia Email",
                                 ].map((place) => (
                                   <label key={place}>
                                     <input
