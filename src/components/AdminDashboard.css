@@ -10442,6 +10442,19 @@ margin-top: -720px;
 
 
 
+.brands-container{
+display:flex;
+gap:30px;
+align-items:flex-start;
+}
 
+.brands-form-admin {
+  background: #f9fafc;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 500px;
+}
 
-
+.brands-container .brands-form-admin{
+flex:1;
+}

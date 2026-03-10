@@ -72,6 +72,7 @@ import AdminPowerRequirement from "./List/AdminPowerRequirement";
 import AdminBadgeSeries from "./List/AdminBadgeSeries";
 import MessageRulesManager from "./List/MessageRulesManager";
 import ExtraFurnitureManager from "./List/ExtraFurnitureManager";
+import UnlockContractor from "./List/UnlockContractor";
 // import { useMemo } from 'react';
 
 const AdminDashboard = () => {
@@ -4047,6 +4048,17 @@ const AdminDashboard = () => {
   };
 
   const handleSubmitBrands = async () => {
+    const payload = {
+      Company_name: formData.company_name,
+      website: brandsData.website,
+      products: (brandsData.products || []).join(","),
+      home_brands: brandsData.home_brands,
+      distributors: brandsData.distributors,
+      international_brands: brandsData.international_brands,
+    };
+
+    // console.log("SUBMIT / UPDATE:", payload);
+
     try {
       const response = await fetch(
         "https://inoptics.in/api/add_exhibitor_brands.php",
@@ -4055,15 +4067,14 @@ const AdminDashboard = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            Company_name: formData.company_name,
-            ...brandsData,
-          }),
+          body: JSON.stringify(payload),
         },
       );
 
       const data = await response.json();
       if (data.status === "success") {
+        console.log("brands data submit rishab",data);
+        
         alert("Brands submitted successfully!");
         setShowBrandsEditForm(true);
       } else if (data.status === "exists") {
@@ -4079,6 +4090,17 @@ const AdminDashboard = () => {
   };
 
   const handleUpdateBrands = async () => {
+    const payload = {
+      Company_name: formData.company_name,
+      website: brandsData.website,
+      products: (brandsData.products || []).join(","),
+      home_brands: brandsData.home_brands,
+      distributors: brandsData.distributors,
+      international_brands: brandsData.international_brands,
+    };
+
+    // console.log("SUBMIT / UPDATE:", payload);
+
     try {
       const response = await fetch(
         "https://inoptics.in/api/update_exhibitor_brands.php",
@@ -4087,15 +4109,14 @@ const AdminDashboard = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            Company_name: formData.company_name,
-            ...brandsData,
-          }),
+          body: JSON.stringify(payload),
         },
       );
 
       const data = await response.json();
       if (data.status === "success") {
+        console.log("brands data rishab",data);
+        
         alert("Brands updated successfully!");
       } else {
         alert("Update failed: " + data.message);
@@ -4113,37 +4134,49 @@ const AdminDashboard = () => {
   }, [activeNavbarItem, formData.company_name]);
 
   const fetchBrandsData = async () => {
-    try {
-      const response = await fetch(
-        `https://inoptics.in/api/get_exhibitor_brands.php?Company_name=${encodeURIComponent(
-          formData.company_name,
-        )}`,
-      );
-      const data = await response.json();
+  try {
+    const response = await fetch(
+      `https://inoptics.in/api/get_exhibitor_brands.php?Company_name=${encodeURIComponent(
+        formData.company_name
+      )}`
+    );
 
-      if (data.status === "success") {
-        setBrandsData({
-          website: data.Website || "",
-          products: data.Products || "",
-          home_brands: data.Home_brands || "",
-          distributors: data.Distributors || "",
-          international_brands: data.International_brands || "",
-        });
-        setShowBrandsEditForm(true);
-      } else {
-        setBrandsData({
-          website: "",
-          products: "",
-          home_brands: "",
-          distributors: "",
-          international_brands: "",
-        });
-      }
-    } catch (error) {
-      console.error("Fetch Brands Error:", error);
-      // alert("Could not fetch brands data.");
+    const data = await response.json();
+
+    if (data.status === "success") {
+      console.log("brands data rishab", data);
+
+      setBrandsData({
+        website: data.Website || "",
+
+        // 🔥 IMPORTANT FIX
+        products: data.Products
+          ? data.Products.split(",").map((p) => p.trim())
+          : [],
+
+        home_brands: data.Home_brands || "",
+        distributors: data.Distributors || "",
+        international_brands: data.International_brands || "",
+      });
+
+      setShowBrandsEditForm(true);
+
+    } else {
+
+      setBrandsData({
+        website: "",
+        products: [],
+        home_brands: "",
+        distributors: "",
+        international_brands: "",
+      });
+
     }
-  };
+
+  } catch (error) {
+    console.error("Fetch Brands Error:", error);
+  }
+};
 
   useEffect(() => {
     if (activeNavbarItem === "BRANDS") {
@@ -13473,6 +13506,15 @@ const data = await res.json();
           </li>
           <li onClick={() => openOverlay("Extra Furniture")}>
             <MdChair  /> {!collapsed && "Extra Furniture"}
+          </li>
+          <li onClick={() => openOverlay("Contractor Badges")}>
+            <MdChair  /> {!collapsed && "Contractor Badges"}
+          </li>
+          <li onClick={() => openOverlay("Exhibitor Mandotary Forms")}>
+            <MdChair  /> {!collapsed && "Exhibitor Mandotary Forms"}
+          </li>
+          <li onClick={() => openOverlay("Unlock Contractor")}>
+            <MdChair  /> {!collapsed && "Unlock Contractor"}
           </li>
           <li onClick={() => openOverlay("Payments")}>
             <FaMoneyBill /> {!collapsed && "Payments"}
@@ -23208,144 +23250,202 @@ const data = await res.json();
                             </div>
                           )}
 
-                          {activeNavbarItem === "BRANDS" && (
-                            <div className="brands-form slide-up-form">
-                              <h2 className="brands-heading">Brands</h2>
+                         {activeNavbarItem === "BRANDS" && (
 
-                              <div className="brands-input-row">
-                                <div className="brands-field-group">
-                                  <label>Website:</label>
-                                  <input
-                                    type="text"
-                                    value={brandsData.website}
-                                    onChange={(e) =>
-                                      setBrandsData((prev) => ({
-                                        ...prev,
-                                        website: e.target.value,
-                                      }))
-                                    }
-                                  />
-                                </div>
+<div className="brands-container">
 
-                                <div className="brands-field-group">
-                                  <label>Products:</label>
+  {/* ================= LEFT SIDE VIEW ================= */}
 
-                                  {/* Display selected products with remove option */}
-                                  <div className="selected-products-container">
-                                    {Array.isArray(brandsData.products) &&
-                                      brandsData.products.map(
-                                        (product, index) => (
-                                          <div
-                                            key={index}
-                                            className="selected-product"
-                                          >
-                                            {product}
-                                            <span
-                                              className="remove-icon"
-                                              onClick={() =>
-                                                setBrandsData((prev) => ({
-                                                  ...prev,
-                                                  products:
-                                                    prev.products.filter(
-                                                      (p) => p !== product,
-                                                    ),
-                                                }))
-                                              }
-                                            >
-                                              ✖
-                                            </span>
-                                          </div>
-                                        ),
-                                      )}
-                                  </div>
+  <div className="brands-form-admin slide-up-form">
 
-                                  {/* Multi-select dropdown */}
-                                  <select
-                                    value=""
-                                    onChange={(e) => {
-                                      const selected = e.target.value;
-                                      if (
-                                        selected &&
-                                        !brandsData.products.includes(selected)
-                                      ) {
-                                        setBrandsData((prev) => ({
-                                          ...prev,
-                                          products: [
-                                            ...prev.products,
-                                            selected,
-                                          ],
-                                        }));
-                                      }
-                                    }}
-                                  >
-                                    <option value="">
-                                      -- Select Product --
-                                    </option>
-                                    {products.map((product, index) => (
-                                      <option key={index} value={product.name}>
-                                        {product.name}
-                                      </option>
-                                    ))}
-                                  </select>
-                                </div>
+    <h2 className="brands-heading">Brands Preview</h2>
 
-                                <div className="brands-field-group">
-                                  <label>Home Brands:</label>
-                                  <input
-                                    type="text"
-                                    value={brandsData.home_brands}
-                                    onChange={(e) =>
-                                      setBrandsData((prev) => ({
-                                        ...prev,
-                                        home_brands: e.target.value,
-                                      }))
-                                    }
-                                  />
-                                </div>
+    <div className="brands-input-row">
 
-                                <div className="brands-field-group">
-                                  <label>Distributors of Brands:</label>
-                                  <input
-                                    type="text"
-                                    value={brandsData.distributors}
-                                    onChange={(e) =>
-                                      setBrandsData((prev) => ({
-                                        ...prev,
-                                        distributors: e.target.value,
-                                      }))
-                                    }
-                                  />
-                                </div>
+      <div className="brands-field-group">
+        <label>Website:</label>
+        <p>{brandsData.website || "-"}</p>
+      </div>
 
-                                <div className="brands-field-group">
-                                  <label>International Brands:</label>
-                                  <input
-                                    type="text"
-                                    value={brandsData.international_brands}
-                                    onChange={(e) =>
-                                      setBrandsData((prev) => ({
-                                        ...prev,
-                                        international_brands: e.target.value,
-                                      }))
-                                    }
-                                  />
-                                </div>
-                              </div>
+      <div className="brands-field-group">
+        <label>Products:</label>
 
-                              <div className="brands-button-section">
-                                <button
-                                  className="brands-details-add-brands-btn"
-                                  onClick={
-                                    showBrandsEditForm
-                                      ? handleUpdateBrands
-                                      : handleSubmitBrands
-                                  }
-                                >
-                                  {showBrandsEditForm ? "Update" : "Submit"}
-                                </button>
-                              </div>
-                            </div>
-                          )}
+        <div className="selected-products-container">
+
+          {(brandsData.products || []).length > 0 &&
+            brandsData.products.length > 0 ? (
+              brandsData.products.map((product, index) => (
+                <div key={index} className="selected-product">
+                  {product}
+                </div>
+              ))
+            ) : (
+              <p>-</p>
+            )}
+
+        </div>
+      </div>
+
+      <div className="brands-field-group">
+        <label>Home Brands:</label>
+        <p>{brandsData.home_brands || "-"}</p>
+      </div>
+
+      <div className="brands-field-group">
+        <label>Distributors of Brands:</label>
+        <p>{brandsData.distributors || "-"}</p>
+      </div>
+
+      <div className="brands-field-group">
+        <label>International Brands:</label>
+        <p>{brandsData.international_brands || "-"}</p>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  {/* ================= RIGHT SIDE FORM ================= */}
+
+  <div className="brands-form slide-up-form">
+
+    <h2 className="brands-heading">Brands</h2>
+
+    <div className="brands-input-row">
+
+      <div className="brands-field-group">
+        <label>Website:</label>
+        <input
+          type="text"
+          value={brandsData.website}
+          onChange={(e) =>
+            setBrandsData((prev) => ({
+              ...prev,
+              website: e.target.value,
+            }))
+          }
+        />
+      </div>
+
+
+      <div className="brands-field-group">
+        <label>Products:</label>
+
+        <div className="selected-products-container">
+          {Array.isArray(brandsData.products) &&
+            brandsData.products.map((product, index) => (
+              <div key={index} className="selected-product">
+                {product}
+
+                <span
+                  className="remove-icon"
+                  onClick={() =>
+                    setBrandsData((prev) => ({
+                      ...prev,
+                      products: prev.products.filter(
+                        (p) => p !== product
+                      ),
+                    }))
+                  }
+                >
+                  ✖
+                </span>
+              </div>
+            ))}
+        </div>
+
+        <select
+          value=""
+          onChange={(e) => {
+            const selected = e.target.value;
+
+            if (
+              selected &&
+              !brandsData.products.includes(selected)
+            ) {
+              setBrandsData((prev) => ({
+                ...prev,
+                products: [...prev.products, selected],
+              }));
+            }
+          }}
+        >
+          <option value="">-- Select Product --</option>
+
+          {products.map((product, index) => (
+            <option key={index} value={product.name}>
+              {product.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+
+      <div className="brands-field-group">
+        <label>Home Brands:</label>
+        <input
+          type="text"
+          value={brandsData.home_brands}
+          onChange={(e) =>
+            setBrandsData((prev) => ({
+              ...prev,
+              home_brands: e.target.value,
+            }))
+          }
+        />
+      </div>
+
+
+      <div className="brands-field-group">
+        <label>Distributors of Brands:</label>
+        <input
+          type="text"
+          value={brandsData.distributors}
+          onChange={(e) =>
+            setBrandsData((prev) => ({
+              ...prev,
+              distributors: e.target.value,
+            }))
+          }
+        />
+      </div>
+
+
+      <div className="brands-field-group">
+        <label>International Brands:</label>
+        <input
+          type="text"
+          value={brandsData.international_brands}
+          onChange={(e) =>
+            setBrandsData((prev) => ({
+              ...prev,
+              international_brands: e.target.value,
+            }))
+          }
+        />
+      </div>
+
+    </div>
+
+    <div className="brands-button-section">
+      <button
+        className="brands-details-add-brands-btn"
+        onClick={
+          showBrandsEditForm
+            ? handleUpdateBrands
+            : handleSubmitBrands
+        }
+      >
+        {showBrandsEditForm ? "Update" : "Submit"}
+      </button>
+    </div>
+
+  </div>
+
+</div>
+
+)}
                         </div>
                       </>
                     )}
@@ -24942,6 +25042,26 @@ const data = await res.json();
           {overlayContent === "Extra Furniture" && (
             <>
              <ExtraFurnitureManager  />             
+            </>
+          )}
+          {overlayContent === "Exhibitor Mandotary Forms" && (
+            <>
+            <ContractorStepsUnlockAdmin />            
+            </>
+          )}
+          {overlayContent === "Unlock Contractor" && (
+            <>
+            <UnlockContractor 
+            unlockRequests={unlockRequests}
+            loading={loading}
+            processing={processing}
+            handleUnlock={handleUnlock}
+  />            
+            </>
+          )}
+          {overlayContent === "Contractor Badges" && (
+            <>
+             <ContractorBadgeAdmin />    
             </>
           )}
 

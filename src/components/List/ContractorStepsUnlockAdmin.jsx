@@ -175,7 +175,7 @@ const ContractorStepsUnlockAdmin = () => {
                               updateStatus(company, stepNumber)
                             }
                           >
-                            Accept
+                            Unlock
                           </button>
                         )}
                       </td>

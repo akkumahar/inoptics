@@ -348,7 +348,7 @@ const ExhibitorDashboard = () => {
     { name: "Mandatory Forms", icon: <FaRegHandshake /> },
     { name: "Exhibitor Badges", icon: <FaRegIdBadge /> },
     { name: "Contractor Badges", icon: <FaIdCard /> },
-    { name: "Visitor Badges Registration", icon: <FaIdCard /> },
+    // { name: "Visitor Badges Registration", icon: <FaIdCard /> },
     { name: "Fascia Name", icon: <FaIdCard /> },
     { name: "Payment", icon: <FaMoneyBill /> },
   ];
@@ -423,34 +423,39 @@ const ExhibitorDashboard = () => {
   }, [exhibitorData]);
 
   const fetchcontractorBadgeStatus = async (companyName) => {
-    try {
-      const res = await fetch(
-        `https://inoptics.in/api/get_all_contractor_badges.php?exhibitor_company_name=${encodeURIComponent(
-          companyName,
-        )}`,
+  try {
+    const res = await fetch(
+      `https://inoptics.in/api/get_all_contractor_badges.php?exhibitor_company_name=${encodeURIComponent(
+        companyName
+      )}`
+    );
+
+    const data = await res.json();
+    console.log("contractor badges rishab", data);
+
+    if (!data.success) return;
+
+    // 🔥 check if any record is locked
+    const isLocked = data.records?.some(
+      (row) => Number(row.is_locked) === 1
+    );
+
+    if (isLocked) {
+      setActivities((prev) =>
+        prev.map((act) =>
+          act.id === 3
+            ? { ...act, done: true }
+            : act
+        )
       );
-
-      const badgeData = await res.json();
-
-      if (!badgeData.success) return;
-
-      const badgeSubmitted = badgeData.badge_submitted;
-      const isLocked = badgeData.is_locked;
-
-      // ✅ Condition: badge submitted OR unlocked
-      if (badgeSubmitted || isLocked === 0) {
-        setActivities((prev) =>
-          prev.map((act) =>
-            act.name === "APPOINTED CONTRACTOR & BADGES"
-              ? { ...act, done: true }
-              : act,
-          ),
-        );
-      }
-    } catch (err) {
-      console.error("Error fetching contractor badge status:", err);
     }
-  };
+
+  } catch (err) {
+    console.error("Error fetching contractor badge status:", err);
+  }
+};
+
+
 
   // ✅ Accept undertaking
   const handleAgree = async () => {
@@ -3456,9 +3461,13 @@ const data = await res.json();
         const contractorLocked = contractorData?.is_locked === 1;
 
         // Update Contractor Activity (ID 8)
-        setActivities((prev) =>
-          prev.map((a) => (a.id === 8 ? { ...a, done: contractorLocked } : a)),
-        );
+         setActivities((prev) =>
+    prev.map((a) =>
+      a.id === 5 || a.id === 8
+        ? { ...a, done: true }
+        : a
+    )
+  );
       } catch (err) {
         console.error("Fetch error:", err);
       }
