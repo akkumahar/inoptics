@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import * as XLSX from "xlsx";
 import "./ContractorBadgeAdmin.css";
 
 const ContractorBadgeAdmin = () => {
@@ -10,6 +11,8 @@ const ContractorBadgeAdmin = () => {
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [editData, setEditData] = useState(null);
 
+  const [searchTerm, setSearchTerm] = useState("");
+
   /* ================= FETCH ================= */
   useEffect(() => {
     fetchBadges();
@@ -18,7 +21,7 @@ const ContractorBadgeAdmin = () => {
   const fetchBadges = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_all_contractor_badges.php"
+        "https://inoptics.in/api/get_all_contractor_badges.php",
       );
 
       const data = await res.json();
@@ -48,7 +51,7 @@ const ContractorBadgeAdmin = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -78,7 +81,7 @@ const ContractorBadgeAdmin = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -109,7 +112,7 @@ const ContractorBadgeAdmin = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(editData),
-        }
+        },
       );
 
       const data = await res.json();
@@ -127,15 +130,70 @@ const ContractorBadgeAdmin = () => {
     }
   };
 
+  const filteredRows = rows.filter((row) => {
+    const term = searchTerm.toLowerCase();
+
+    return (
+      row.exhibitor_company_name?.toLowerCase().includes(term) ||
+      row.contractor_company_name?.toLowerCase().includes(term)
+    );
+  });
+
+  /* ================= EXPORT EXCEL ================= */
+
+  const exportToExcel = () => {
+    if (!rows.length) {
+      toast.error("No data to export");
+      return;
+    }
+
+    const exportData = rows.map((row, index) => {
+      let status = "Unlocked";
+
+      if (Number(row.is_locked) === 1) status = "Locked";
+      if (Number(row.is_locked) === 2) status = "Unlock Requested";
+
+      return {
+        ID: index + 1,
+        "Exhibitor Company": row.exhibitor_company_name,
+        "Contractor Company": row.contractor_company_name,
+        "Badge Quantity": row.badge_quantity,
+        Status: status,
+      };
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Contractor Badges");
+
+    XLSX.writeFile(workbook, "Contractor_Badge_Report.xlsx");
+
+    toast.success("Excel exported successfully");
+  };
+
   /* ================= RENDER ================= */
 
   return (
     <div className="table-scroll-wrapper">
       <div className="contractor-table-container">
+        <div className="contractor-top-bar">
+          <button className="contractor-export-btn" onClick={exportToExcel}>
+            Export Excel
+          </button>
+
+          <input
+            type="text"
+            placeholder="Search Exhibitor / Contractor..."
+            value={searchTerm}
+            className="contractor-search"
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
         <table className="contractor-table">
           <thead>
             <tr>
-              <th>#</th>
+              <th>Id</th>
               <th>Exhibitor Company</th>
               <th>Contractor Company</th>
               <th>Badge Quantity</th>
@@ -154,7 +212,7 @@ const ContractorBadgeAdmin = () => {
                 <td colSpan="6">No badge records</td>
               </tr>
             ) : (
-              rows.map((row, index) => {
+              filteredRows.map((row, index) => {
                 const lockStatus = Number(row.is_locked);
 
                 return (
@@ -199,9 +257,7 @@ const ContractorBadgeAdmin = () => {
                           disabled={processing === row.id}
                           onClick={() => handleUnlock(row.id)}
                         >
-                          {processing === row.id
-                            ? "Processing..."
-                            : "Unlock"}
+                          {processing === row.id ? "Processing..." : "Unlock"}
                         </button>
                       )}
                     </td>

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import * as XLSX from "xlsx";
 import "./AdminPowerRequirement.css";
 
 const AdminPowerRequirement = ({ exhibitorData }) => {
@@ -20,50 +21,48 @@ const AdminPowerRequirement = ({ exhibitorData }) => {
     fetchAllPower();
   }, []);
 
-
   useEffect(() => {
-  const summary = {};
+    const summary = {};
 
-  rows.forEach((row) => {
-    const company = row.company_name;
-    const amount = Number(row.total_amount || 0);
-    const state = (row.state || "").toLowerCase();
+    rows.forEach((row) => {
+      const company = row.company_name;
+      const amount = Number(row.total_amount || 0);
+      const state = (row.state || "").toLowerCase();
 
-    let cgst = 0;
-    let sgst = 0;
-    let igst = 0;
+      let cgst = 0;
+      let sgst = 0;
+      let igst = 0;
 
-    if (state === "delhi") {
-      cgst = amount * 0.09;
-      sgst = amount * 0.09;
-    } else if (state) {
-      igst = amount * 0.18;
-    }
+      if (state === "delhi") {
+        cgst = amount * 0.09;
+        sgst = amount * 0.09;
+      } else if (state) {
+        igst = amount * 0.18;
+      }
 
-    const total = amount + cgst + sgst + igst;
+      const total = amount + cgst + sgst + igst;
 
-    if (!summary[company]) {
-      summary[company] = {
-        amount: 0,
-        cgst: 0,
-        sgst: 0,
-        igst: 0,
-        total: 0,
-        cleared: 0,
-        pending: 0,
-      };
-    }
+      if (!summary[company]) {
+        summary[company] = {
+          amount: 0,
+          cgst: 0,
+          sgst: 0,
+          igst: 0,
+          total: 0,
+          cleared: 0,
+          pending: 0,
+        };
+      }
 
-    summary[company].amount += amount;
-    summary[company].cgst += cgst;
-    summary[company].sgst += sgst;
-    summary[company].igst += igst;
-    summary[company].total += total;
-  });
+      summary[company].amount += amount;
+      summary[company].cgst += cgst;
+      summary[company].sgst += sgst;
+      summary[company].igst += igst;
+      summary[company].total += total;
+    });
 
-  setPowerPaymentSummary(summary);
-}, [rows]);
-
+    setPowerPaymentSummary(summary);
+  }, [rows]);
 
   const fetchAllPower = async () => {
     setLoading(true);
@@ -217,13 +216,310 @@ const AdminPowerRequirement = ({ exhibitorData }) => {
     });
   };
 
+  /* ================= EXPORT EXCEL ================= */
+
+  const exportToExcel = () => {
+    if (rows.length === 0) {
+      toast.error("No data available");
+      return;
+    }
+
+    const exportData = rows.map((row, index) => {
+      const amount = Number(row.total_amount || 0);
+      const state = (row.state || "").toLowerCase();
+
+      let sgst = 0;
+      let cgst = 0;
+      let igst = 0;
+
+      if (state === "delhi") {
+        sgst = amount * 0.09;
+        cgst = amount * 0.09;
+      } else if (state) {
+        igst = amount * 0.18;
+      }
+
+      const grandTotal = amount + sgst + cgst + igst;
+
+      return {
+        ID: index + 1,
+        "Company Name": row.company_name,
+        Day: row.day,
+        "Price Per KW": row.price_per_kw,
+        "Power Required": row.power_required,
+        Phase: row.phase,
+        Amount: amount,
+        SGST: sgst,
+        CGST: cgst,
+        IGST: igst,
+        "Grand Total": grandTotal,
+      };
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Power Requirement");
+
+    XLSX.writeFile(workbook, "Power_Requirement.xlsx");
+  };
+
+  const handlePrint = (company) => {
+    const companyRows = groupedData[company] || [];
+
+    let html = `
+  <html>
+  <head>
+  <title>Power Requirement</title>
+
+  <style>
+
+  body{
+  font-family:Arial;
+  padding:20px;
+  }
+
+  h2{
+  text-align:center;
+  }
+
+  table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:20px;
+  }
+
+  th,td{
+  border:1px solid #000;
+  padding:8px;
+  text-align:center;
+  }
+
+  th{
+  background:#f2f2f2;
+  }
+
+  </style>
+
+  </head>
+
+  <body>
+
+  <h2>Power Requirement</h2>
+
+  <h3>${company}</h3>
+
+  <table>
+
+  <thead>
+  <tr>
+  <th>ID</th>
+  <th>Day</th>
+  <th>Price/KW</th>
+  <th>Power</th>
+  <th>Phase</th>
+  <th>Amount</th>
+  <th>SGST</th>
+  <th>CGST</th>
+  <th>IGST</th>
+  <th>Grand Total</th>
+  </tr>
+  </thead>
+
+  <tbody>
+  `;
+
+    companyRows.forEach((row, i) => {
+      const amount = Number(row.total_amount || 0);
+
+      const state = (row.state || "").toLowerCase();
+
+      let sgst = 0;
+      let cgst = 0;
+      let igst = 0;
+
+      if (state === "delhi") {
+        sgst = amount * 0.09;
+        cgst = amount * 0.09;
+      } else if (state) {
+        igst = amount * 0.18;
+      }
+
+      const total = amount + sgst + cgst + igst;
+
+      html += `
+    <tr>
+    <td>${i + 1}</td>
+    <td>${row.day}</td>
+    <td>${row.price_per_kw}</td>
+    <td>${row.power_required}</td>
+    <td>${row.phase}</td>
+    <td>${amount.toFixed(2)}</td>
+    <td>${sgst.toFixed(2)}</td>
+    <td>${cgst.toFixed(2)}</td>
+    <td>${igst.toFixed(2)}</td>
+    <td>${total.toFixed(2)}</td>
+    </tr>
+    `;
+    });
+
+    html += `
+  </tbody>
+  </table>
+  </body>
+  </html>
+  `;
+
+    const printWindow = window.open("", "", "width=900,height=650");
+
+    printWindow.document.write(html);
+    printWindow.document.close();
+
+    printWindow.print();
+  };
+
+
+
+
+
+  const handlePrintAll = () => {
+    let html = `
+  <html>
+  <head>
+
+  <title>Power Requirement Report</title>
+
+  <style>
+
+  body{
+  font-family:Arial;
+  padding:20px;
+  }
+
+  h2{
+  text-align:center;
+  margin-bottom:40px;
+  }
+
+  h3{
+  margin-top:40px;
+  }
+
+  table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+  }
+
+  th,td{
+  border:1px solid #000;
+  padding:8px;
+  text-align:center;
+  }
+
+  th{
+  background:#f2f2f2;
+  }
+
+  </style>
+
+  </head>
+
+  <body>
+
+  <h2>Power Requirement Report</h2>
+
+  `;
+
+    companies.forEach((company) => {
+      const companyRows = groupedData[company] || [];
+
+      html += `<h3>${company}</h3>`;
+
+      html += `
+    <table>
+    <thead>
+    <tr>
+    <th>ID</th>
+    <th>Day</th>
+    <th>Price/KW</th>
+    <th>Power</th>
+    <th>Phase</th>
+    <th>Amount</th>
+    <th>SGST</th>
+    <th>CGST</th>
+    <th>IGST</th>
+    <th>Grand Total</th>
+    </tr>
+    </thead>
+    <tbody>
+    `;
+
+      companyRows.forEach((row, i) => {
+        const amount = Number(row.total_amount || 0);
+        const state = (row.state || "").toLowerCase();
+
+        let sgst = 0;
+        let cgst = 0;
+        let igst = 0;
+
+        if (state === "delhi") {
+          sgst = amount * 0.09;
+          cgst = amount * 0.09;
+        } else if (state) {
+          igst = amount * 0.18;
+        }
+
+        const total = amount + sgst + cgst + igst;
+
+        html += `
+      <tr>
+      <td>${i + 1}</td>
+      <td>${row.day}</td>
+      <td>${row.price_per_kw}</td>
+      <td>${row.power_required}</td>
+      <td>${row.phase}</td>
+      <td>${amount.toFixed(2)}</td>
+      <td>${sgst.toFixed(2)}</td>
+      <td>${cgst.toFixed(2)}</td>
+      <td>${igst.toFixed(2)}</td>
+      <td>${total.toFixed(2)}</td>
+      </tr>
+      `;
+      });
+
+      html += `</tbody></table>`;
+    });
+
+    html += `
+  </body>
+  </html>
+  `;
+
+    const printWindow = window.open("", "", "width=1200,height=700");
+
+    printWindow.document.write(html);
+    printWindow.document.close();
+
+    printWindow.print();
+  };
+
   return (
     <div className="admin-power-wrapper">
-      <div className="search-bar">
+      <div className="power-top-bar">
+        <button className="power-export-btn" onClick={exportToExcel}>
+          Export Excel
+        </button>
+
+        <button className="print-all-btn" onClick={handlePrintAll}>
+          Print All
+        </button>
+
         <input
           type="text"
           placeholder="Search company..."
           value={searchTerm}
+          className="power-name-search"
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
@@ -246,25 +542,54 @@ const AdminPowerRequirement = ({ exhibitorData }) => {
               >
                 {company}
                 <div className="power-summary">
-  {powerPaymentSummary[company] && (
-    <>
-      <span>Power Amount: ₹{powerPaymentSummary[company].amount.toFixed(2)}</span>
+                  {powerPaymentSummary[company] && (
+                    <>
+                      <span>
+                        Power Amount: ₹
+                        {powerPaymentSummary[company].amount.toFixed(2)}
+                      </span>
 
-      {companyRows?.[0]?.state?.toLowerCase() === "delhi" ? (
-        <>
-          <span>CGST: ₹{powerPaymentSummary[company].cgst.toFixed(2)}</span>
-          <span>SGST: ₹{powerPaymentSummary[company].sgst.toFixed(2)}</span>
-        </>
-      ) : (
-        <span>IGST: ₹{powerPaymentSummary[company].igst.toFixed(2)}</span>
-      )}
+                      {companyRows?.[0]?.state?.toLowerCase() === "delhi" ? (
+                        <>
+                          <span>
+                            CGST: ₹
+                            {powerPaymentSummary[company].cgst.toFixed(2)}
+                          </span>
+                          <span>
+                            SGST: ₹
+                            {powerPaymentSummary[company].sgst.toFixed(2)}
+                          </span>
+                        </>
+                      ) : (
+                        <span>
+                          IGST: ₹{powerPaymentSummary[company].igst.toFixed(2)}
+                        </span>
+                      )}
 
-      <span>Grand Total: ₹{powerPaymentSummary[company].total.toFixed(2)}</span>
-      <span>Cleared: ₹{powerPaymentSummary[company].cleared.toFixed(2)}</span>
-      <span>Pending: ₹{powerPaymentSummary[company].pending.toFixed(2)}</span>
-    </>
-  )}
-</div>
+                      <span>
+                        Grand Total: ₹
+                        {powerPaymentSummary[company].total.toFixed(2)}
+                      </span>
+                      <span>
+                        Cleared: ₹
+                        {powerPaymentSummary[company].cleared.toFixed(2)}
+                      </span>
+                      <span>
+                        Pending: ₹
+                        {powerPaymentSummary[company].pending.toFixed(2)}
+                      </span>
+                    </>
+                  )}
+                </div>
+                <button
+                  className="power-print-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handlePrint(company);
+                  }}
+                >
+                  Print
+                </button>
                 <span>{isOpen ? "▲" : "▼"}</span>
               </div>
 

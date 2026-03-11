@@ -42,6 +42,8 @@ import ExhibitorExhibitionMap from "./components/ExhibitorExhibitionMap";
 import UnSubscribe from "./components/UnSubscribe";
 import Benefactors from "./components/Benefactors";
 import AdminBadges from "./components/List/AdminBadges";
+import AdminPanel from "./components/AdminPanel";
+import AdminLogin from "./components/AdminLogin";
 
 
 // ================= ROUTES =================
@@ -91,6 +93,8 @@ const AnimatedRoutes = () => {
         <Route path="/unsubscribe" element={<UnSubscribe />} />
         <Route path="/benefactors" element={<Benefactors />} />
         <Route path="/exhibit-badges" element={<AdminBadges />} />
+        <Route path="/admin-panel-login" element={<AdminLogin />} />
+        <Route path="/admin-panel" element={<AdminPanel />} />
       </Routes>
     </AnimatePresence>
   );
@@ -105,22 +109,26 @@ const NavbarAndRoutes = () => {
   // 🔥 normalize trailing slash
   const path = location.pathname.replace(/\/+$/, "") || "/";
 
-  const hideNavbarRoutes = [
-    "/",
-    "/dashboard",
-    "/exhibitor-dashboard",
-    "/exhibitor-login",
-    "/unsubscribe",
-  ];
+const hideNavbarRoutes = [
+  "/",
+  "/dashboard",
+  "/exhibitor-dashboard",
+  "/exhibitor-login",
+  "/unsubscribe",
+  "/admin-panel",
+  "/admin-panel-login"
+];
 
-  const hideFloatingCardRoutes = [
-    "/",
-    "/dashboard",
-    "/exhibitor-dashboard",
-    "/exhibitor-login",
-    "/unsubscribe",
-    "/admin-login",
-  ];
+ const hideFloatingCardRoutes = [
+  "/",
+  "/dashboard",
+  "/exhibitor-dashboard",
+  "/exhibitor-login",
+  "/unsubscribe",
+  "/admin-login",
+  "/admin-panel",
+  "/admin-panel-login"
+];
 
   const exhibitorRoutes = [
     "/for-exhibitors",

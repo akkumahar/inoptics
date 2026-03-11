@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import "./AdminBadgesList.css";
+import * as XLSX from "xlsx";
+import "./AdminBadges.css";
 import { toast } from "react-toastify";
 import {
   FaChevronDown,
@@ -32,6 +33,7 @@ const AdminBadges = () => {
 
   const [freeQuotaMap, setFreeQuotaMap] = useState({});
   const [badgePaymentSummary, setBadgePaymentSummary] = useState({});
+  const [badgePaymentSummaryTable, setBadgePaymentSummaryTable] = useState({});
 
   /* ================= FETCH ================= */
   useEffect(() => {
@@ -245,25 +247,40 @@ const AdminBadges = () => {
         const rate = getBadgeRate();
         const amount = paidBadgeCount * rate;
 
-       let cgst = 0;
-let sgst = 0;
-let igst = 0;
+        let cgst = 0;
+        let sgst = 0;
+        let igst = 0;
 
-// state badge se lo
-const badgeState = company.badges?.find((b) => b.state)?.state?.toLowerCase() || "";
+        // state badge se lo
+        const badgeState =
+          company.badges?.find((b) => b.state)?.state?.toLowerCase() || "";
 
-if (badgeState === "delhi") {
-  cgst = amount * 0.09;
-  sgst = amount * 0.09;
-} else {
-  igst = amount * 0.18;
-}
+        if (badgeState === "delhi") {
+          cgst = amount * 0.09;
+          sgst = amount * 0.09;
+        } else {
+          igst = amount * 0.18;
+        }
 
-        const totalAmount = Number(amount) + Number(cgst) + Number(sgst) + Number(igst);
+        const totalAmount =
+          Number(amount) + Number(cgst) + Number(sgst) + Number(igst);
 
         const pending = Math.max(0, totalAmount - cleared);
 
         setBadgePaymentSummary((prev) => ({
+          ...prev,
+          [company.company_name]: {
+            paidBadgeCount,
+            amount,
+            cgst,
+            sgst,
+            igst,
+            totalAmount,
+            cleared,
+            pending,
+          },
+        }));
+        setBadgePaymentSummaryTable((prev) => ({
           ...prev,
           [company.company_name]: {
             paidBadgeCount,
@@ -293,24 +310,102 @@ if (badgeState === "delhi") {
     setPreviewBadgeId(null);
   };
 
+  /* ================= EXPORT BADGES ================= */
+
+  const exportBadgesExcel = () => {
+  if (!companies.length) {
+    toast.error("No data to export");
+    return;
+  }
+
+  const exportData = [];
+
+  companies.forEach((company) => {
+    const freeQuota = Number(freeQuotaMap[company.company_name] || 0);
+
+    const sortedBadges = [...(company.badges || [])].sort(
+      (a, b) => a.id - b.id
+    );
+
+    sortedBadges.forEach((badge, index) => {
+
+      const isFree = index < freeQuota;
+
+      const rate = getBadgeRate();
+      const amount = isFree ? 0 : rate;
+
+      const state = (
+        badge.state ||
+        company.badges?.[0]?.state ||
+        ""
+      ).toLowerCase();
+
+      let cgst = 0;
+      let sgst = 0;
+      let igst = 0;
+
+      if (!isFree) {
+        if (state === "delhi") {
+          cgst = amount * 0.09;
+          sgst = amount * 0.09;
+        } else {
+          igst = amount * 0.18;
+        }
+      }
+
+      const total = amount + cgst + sgst + igst;
+
+      exportData.push({
+        "Company Name": company.company_name,
+        "Badge Name": badge.name,
+        "Stall No": badge.stall_no,
+        State: badge.state || "",
+        City: badge.city || "",
+
+        Type: isFree ? "FREE" : "PAID",
+
+        Amount: amount.toFixed(2),
+
+        CGST: cgst ? cgst.toFixed(2) : "-",
+        SGST: sgst ? sgst.toFixed(2) : "-",
+        IGST: igst ? igst.toFixed(2) : "-",
+
+        Total: total.toFixed(2),
+
+        "Print Status":
+          badge.print_status === "ready" ? "READY" : "DISABLED",
+      });
+    });
+  });
+
+  const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+  const workbook = XLSX.utils.book_new();
+
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Badge Report");
+
+  XLSX.writeFile(workbook, "Exhibitor_Badges_Report.xlsx");
+
+  toast.success("Excel exported successfully");
+};
+
   if (loading) return <p style={{ textAlign: "center" }}>Loading badges...</p>;
 
   return (
     <div className="badge-dashboard">
       {/* 🔍 SEARCH */}
-      <div style={{ marginBottom: 18 }}>
+      <div style={{ marginBottom: 18 }} className="badge-top-bar">
+        <button className="badge-export-btn" onClick={exportBadgesExcel}>
+          Export Excel
+        </button>
+
         <input
           type="text"
           placeholder="Search by company or badge name..."
           value={search}
+          className="badge-name-search"
           onChange={(e) => setSearch(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "12px 14px",
-            borderRadius: 8,
-            border: "1px solid #ddd",
-            fontSize: 14,
-          }}
+          style={{}}
         />
       </div>
 
@@ -337,46 +432,68 @@ if (badgeState === "delhi") {
             <div>
               {badgePaymentSummary[company.company_name] && (
                 <div className="badge-pay-summary">
+                  <span>Badges: {company.badges.length}</span>
 
-<span>Badges: {company.badges.length}</span>
+                  <span>
+                    Paid Badges:{" "}
+                    {badgePaymentSummary[company.company_name]
+                      ?.paidBadgeCount || 0}
+                  </span>
 
-<span>
-Paid Badges: {badgePaymentSummary[company.company_name]?.paidBadgeCount || 0}
-</span>
+                  <span>
+                    Amount: ₹
+                    {badgePaymentSummary[company.company_name]?.amount?.toFixed(
+                      2,
+                    ) || "0.00"}
+                  </span>
 
-<span>
-Amount: ₹{badgePaymentSummary[company.company_name]?.amount?.toFixed(2) || "0.00"}
-</span>
+                  {(company.badges?.[0]?.state || "").toLowerCase() ===
+                  "delhi" ? (
+                    <>
+                      <span>
+                        CGST: ₹
+                        {badgePaymentSummary[
+                          company.company_name
+                        ]?.cgst?.toFixed(2) || "0.00"}
+                      </span>
 
-{(company.badges?.[0]?.state || "").toLowerCase() === "delhi" ? (
-<>
-<span>
-CGST: ₹{badgePaymentSummary[company.company_name]?.cgst?.toFixed(2) || "0.00"}
-</span>
+                      <span>
+                        SGST: ₹
+                        {badgePaymentSummary[
+                          company.company_name
+                        ]?.sgst?.toFixed(2) || "0.00"}
+                      </span>
+                    </>
+                  ) : (
+                    <span>
+                      IGST: ₹
+                      {badgePaymentSummary[company.company_name]?.igst?.toFixed(
+                        2,
+                      ) || "0.00"}
+                    </span>
+                  )}
 
-<span>
-SGST: ₹{badgePaymentSummary[company.company_name]?.sgst?.toFixed(2) || "0.00"}
-</span>
-</>
-) : (
-<span>
-IGST: ₹{badgePaymentSummary[company.company_name]?.igst?.toFixed(2) || "0.00"}
-</span>
-)}
+                  <span>
+                    Total: ₹
+                    {badgePaymentSummary[
+                      company.company_name
+                    ]?.totalAmount?.toFixed(2) || "0.00"}
+                  </span>
 
-<span>
-Total: ₹{badgePaymentSummary[company.company_name]?.totalAmount?.toFixed(2) || "0.00"}
-</span>
+                  <span>
+                    Cleared: ₹
+                    {badgePaymentSummary[
+                      company.company_name
+                    ]?.cleared?.toFixed(2) || "0.00"}
+                  </span>
 
-<span>
-Cleared: ₹{badgePaymentSummary[company.company_name]?.cleared?.toFixed(2) || "0.00"}
-</span>
-
-<span>
-Pending: ₹{badgePaymentSummary[company.company_name]?.pending?.toFixed(2) || "0.00"}
-</span>
-
-</div>
+                  <span>
+                    Pending: ₹
+                    {badgePaymentSummary[
+                      company.company_name
+                    ]?.pending?.toFixed(2) || "0.00"}
+                  </span>
+                </div>
               )}
             </div>
 
@@ -396,72 +513,184 @@ Pending: ₹{badgePaymentSummary[company.company_name]?.pending?.toFixed(2) || "
                       <th>Name</th>
                       <th>Stall</th>
                       <th>Type</th>
+                      <th>Amount</th>
+                      <th>Free Badge</th>
+                      <th>Paid Badge</th>
+                      <th>CGST</th>
+                      <th>SGST</th>
+                      <th>IGST</th>
+                      <th>Total</th>
                       <th>Actions</th>
                       <th>Preview</th>
                     </tr>
                   </thead>
 
                   <tbody>
-                    {[...(company.badges || [])]
-                      .sort((a, b) => a.id - b.id)
-                      .map((badge, index) => {
-                        // ✅ CORRECT SOURCE
-                        const freeQuota =
-                          freeQuotaMap[company.company_name] || 0;
-                        const isFree = index < freeQuota;
+                    {(() => {
+                      const freeQuota = Number(
+                        freeQuotaMap[company.company_name] || 0,
+                      );
 
-                        return (
-                          <tr key={badge.id}>
-                            <td>{badge.name}</td>
-                            <td>{badge.stall_no}</td>
+                      let totalFree = 0;
+                      let totalPaid = 0;
+                      let totalAmount = 0;
+                      let totalCGST = 0;
+                      let totalSGST = 0;
+                      let totalIGST = 0;
+                      let grandTotalAll = 0;
 
-                            {/* ✅ TYPE COLUMN */}
+                      const sortedBadges = [...(company.badges || [])].sort(
+                        (a, b) => a.id - b.id,
+                      );
+
+                      return (
+                        <>
+                          {sortedBadges.map((badge, index) => {
+                            const isFree = index < freeQuota;
+                            const rate = getBadgeRate();
+
+                            const amount = isFree ? 0 : rate;
+
+                            const state = (
+                              badge.state ||
+                              company.badges?.[0]?.state ||
+                              ""
+                            ).toLowerCase();
+
+                            let cgst = 0;
+                            let sgst = 0;
+                            let igst = 0;
+
+                            if (!isFree) {
+                              if (state === "delhi") {
+                                cgst = amount * 0.09;
+                                sgst = amount * 0.09;
+                              } else {
+                                igst = amount * 0.18;
+                              }
+                            }
+
+                            const total = amount + cgst + sgst + igst;
+
+                            if (isFree) totalFree++;
+                            else totalPaid++;
+
+                            totalAmount += amount;
+                            totalCGST += cgst;
+                            totalSGST += sgst;
+                            totalIGST += igst;
+                            grandTotalAll += total;
+
+                            return (
+                              <tr key={badge.id}>
+                                <td>{badge.name}</td>
+
+                                <td>{badge.stall_no}</td>
+
+                                <td>
+                                  {isFree ? (
+                                    <span className="badge-flag free">
+                                      <MdVerified /> FREE
+                                    </span>
+                                  ) : (
+                                    <span className="badge-flag paid">
+                                      <RiMoneyRupeeCircleFill className="badge-rupee-icon" />
+                                      PAID
+                                    </span>
+                                  )}
+                                </td>
+
+                                <td>₹{amount.toFixed(2)}</td>
+
+                                <td>{isFree ? 1 : 0}</td>
+
+                                <td>{!isFree ? 1 : 0}</td>
+
+                                <td>{cgst ? `₹${cgst.toFixed(2)}` : "-"}</td>
+
+                                <td>{sgst ? `₹${sgst.toFixed(2)}` : "-"}</td>
+
+                                <td>{igst ? `₹${igst.toFixed(2)}` : "-"}</td>
+
+                                <td>₹{total.toFixed(2)}</td>
+
+                                <td className="actions">
+                                  <button
+                                    onClick={() => togglePrintStatus(badge)}
+                                  >
+                                    <FaPrint />
+
+                                    {printToggle[badge.id] ? (
+                                      <MdToggleOn size={36} color="#16a34a" />
+                                    ) : (
+                                      <MdToggleOff size={36} color="#9ca3af" />
+                                    )}
+                                  </button>
+
+                                  <button onClick={() => openEditModal(badge)}>
+                                    <FaEdit />
+                                  </button>
+
+                                  <button
+                                    className="danger"
+                                    onClick={() => deleteBadge(badge.id)}
+                                  >
+                                    <FaTrash />
+                                  </button>
+                                </td>
+
+                                <td>
+                                  <button
+                                    className="eye-btn"
+                                    onClick={() => openPreview(badge.id)}
+                                  >
+                                    <FaEye />
+                                  </button>
+                                </td>
+                              </tr>
+                            );
+                          })}
+
+                          {/* ===== TOTAL ROW ===== */}
+
+                          <tr className="badge-total-row">
+                            <td colSpan="3">
+                              <strong>Total</strong>
+                            </td>
+
                             <td>
-                              {isFree ? (
-                                <span className="badge-flag free">
-                                  <MdVerified /> FREE
-                                </span>
-                              ) : (
-                                <span className="badge-flag paid">
-                                  <RiMoneyRupeeCircleFill className="badge-rupee-icon" />
-                                  PAID
-                                </span>
-                              )}
-                            </td>
-
-                            <td className="actions">
-                              <button onClick={() => togglePrintStatus(badge)}>
-                                <FaPrint />
-                                {printToggle[badge.id] ? (
-                                  <MdToggleOn size={36} color="#16a34a" />
-                                ) : (
-                                  <MdToggleOff size={36} color="#9ca3af" />
-                                )}
-                              </button>
-
-                              <button onClick={() => openEditModal(badge)}>
-                                <FaEdit />
-                              </button>
-
-                              <button
-                                className="danger"
-                                onClick={() => deleteBadge(badge.id)}
-                              >
-                                <FaTrash />
-                              </button>
+                              <strong>₹{totalAmount.toFixed(2)}</strong>
                             </td>
 
                             <td>
-                              <button
-                                className="eye-btn"
-                                onClick={() => openPreview(badge.id)}
-                              >
-                                <FaEye />
-                              </button>
+                              <strong>{totalFree}</strong>
                             </td>
+
+                            <td>
+                              <strong>{totalPaid}</strong>
+                            </td>
+
+                            <td>
+                              <strong>₹{totalCGST.toFixed(2)}</strong>
+                            </td>
+
+                            <td>
+                              <strong>₹{totalSGST.toFixed(2)}</strong>
+                            </td>
+
+                            <td>
+                              <strong>₹{totalIGST.toFixed(2)}</strong>
+                            </td>
+
+                            <td>
+                              <strong>₹{grandTotalAll.toFixed(2)}</strong>
+                            </td>
+
+                            <td colSpan="3"></td>
                           </tr>
-                        );
-                      })}
+                        </>
+                      );
+                    })()}
                   </tbody>
                 </table>
               </div>

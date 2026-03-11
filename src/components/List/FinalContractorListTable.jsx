@@ -60,27 +60,27 @@ const FinalContractorListTable = ({
 
                   {/* FORMS */}
                   <td>
-  <div className="forms-icons-row">
-    {(() => {
-      const boothFile = forms.find(
-        (f) => f.booth_design && f.booth_design.trim() !== ""
-      );
+                    <div className="forms-icons-row">
+                      {(() => {
+                        const boothFile = forms.find(
+                          (f) => f.booth_design && f.booth_design.trim() !== "",
+                        );
 
-      return boothFile ? (
-        <a
-          href={`https://inoptics.in/api/${boothFile.booth_design}`}
-          target="_blank"
-          rel="noreferrer"
-          className="form-view-icon"
-        >
-         View Booth Design
-        </a>
-      ) : (
-        <span style={{ color: "#999" }}>—</span>
-      );
-    })()}
-  </div>
-</td>
+                        return boothFile ? (
+                          <a
+                            href={`https://inoptics.in/api/${boothFile.booth_design}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="form-view-icon"
+                          >
+                            View Booth Design
+                          </a>
+                        ) : (
+                          <span style={{ color: "#999" }}>—</span>
+                        );
+                      })()}
+                    </div>
+                  </td>
 
                   {/* SECURITY */}
                   {/* <td>{item.security_status || "-"}</td> */}
@@ -94,15 +94,13 @@ const FinalContractorListTable = ({
                   {/* ACTION */}
                   <td>
                     <div className="contractor-final-list-btn">
-
-                        {/* Approve */}
+                      {/* Approve */}
                       <button
                         onClick={() => approveBooth(company)}
                         className="btn approve"
                       >
                         Approve
                       </button>
-
 
                       {/* Reject */}
                       <button
@@ -121,8 +119,6 @@ const FinalContractorListTable = ({
                       >
                         Reject
                       </button>
-
-                      
                     </div>
                   </td>
                 </tr>

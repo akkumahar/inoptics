@@ -28,7 +28,7 @@ import ExhibitorFurnitureRequirements from "./ExhibitorDashboardComponent/Exhibi
 import ExhibitorPowerRequirement from "./ExhibitorDashboardComponent/ExhibitorPowerRequirement";
 import ExhibitorContractors from "./ExhibitorDashboardComponent/ExhibitorContractors";
 import ContractorBadgeForm from "./ExhibitorDashboardComponent/ContractorBadgeForm";
-import ExhibitorFaciaForm from "./ExhibitorDashboardComponent/ExhibitorFacia";
+import ExhibitorFacia from "./ExhibitorDashboardComponent/ExhibitorFacia";
 import VisitorBadgePage from "./ExhibitorDashboardComponent/VisitorRegistration";
 
 const ExhibitorDashboard = () => {
@@ -654,6 +654,7 @@ const ExhibitorDashboard = () => {
     try {
       const res = await fetch("https://inoptics.in/api/get_exhibitors.php");
       const data = await res.json();
+console.log('exhibitor data fetch form db rishb', data);
 
       if (Array.isArray(data)) {
         const matched = data.find(
@@ -686,6 +687,8 @@ const ExhibitorDashboard = () => {
 
       if (response.ok) {
         const data = await response.json();
+        console.log("exhibitor stall data print rishab", data);
+        
         setStallList(Array.isArray(data) ? data : [data]); // ensure array
       } else {
         console.error("Failed to fetch stall data");
@@ -4153,9 +4156,10 @@ const data = await res.json();
                  
 
               {activeMenu === "Fascia Name" && currentExhibitor && (
-                <ExhibitorFaciaForm
+                <ExhibitorFacia
                   companyName={currentExhibitor.company_name}
                   stallNo={currentExhibitor.stall_no}
+                  stallList={stallList}
                   city={currentExhibitor.city}
                 />
               )}

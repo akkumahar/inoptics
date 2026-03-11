@@ -4,6 +4,7 @@ import "./ExhibitorFacia.css";
 const ExhibitorFaciaForm = ({
   companyName,
   stallNo,
+  stallList,
   city,
 }) => {
   const [faciaCompanyName, setFaciaCompanyName] = useState("");
@@ -69,7 +70,7 @@ setExistingData(data);
           body: JSON.stringify({
             exhibitor_company_name: companyName,
             facia_company_name: faciaCompanyName.toUpperCase(),
-            stall_no: stallNo,
+            stall_no: stallDisplay,
             city: city,
           }),
         }
@@ -91,6 +92,11 @@ setExistingData(data);
     setLoading(false);
   };
 
+
+const stallDisplay = Array.isArray(stallList)
+  ? stallList.map((item) => item.stall_number).filter(Boolean).join(", ")
+  : stallList?.stall_number || stallList || "";
+
   return (
     <div className="facia-wrapper">
       {/* LEFT SIDE FORM */}
@@ -105,7 +111,7 @@ setExistingData(data);
 
           <div className="form-group">
             <label>Stall No</label>
-            <input type="text" value={stallNo || ""} disabled />
+            <input type="text" value={stallDisplay} disabled />
           </div>
 
           <div className="form-group">

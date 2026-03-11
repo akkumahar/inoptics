@@ -73,6 +73,7 @@ import AdminBadgeSeries from "./List/AdminBadgeSeries";
 import MessageRulesManager from "./List/MessageRulesManager";
 import ExtraFurnitureManager from "./List/ExtraFurnitureManager";
 import UnlockContractor from "./List/UnlockContractor";
+import UpdateCompanyName from "./List/UpdateCompanyName";
 // import { useMemo } from 'react';
 
 const AdminDashboard = () => {
@@ -6066,23 +6067,44 @@ const AdminDashboard = () => {
     }
   };
 
-  const deleteExhibitor = async (id) => {
+  const deleteExhibitor = async (company_name) => {
     if (!window.confirm("Are you sure you want to delete this exhibitor?"))
       return;
 
     try {
-      const res = await fetch("https://inoptics.in/api/delete_exhibitor.php", {
+      const res = await fetch("https://inoptics.in/api/delete_company_details_everywhere.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id }),
+        body: JSON.stringify({
+          company_name: company_name
+        }),
       });
       const data = await res.json();
+      console.log("delete exhibitor data", data);
+      
       alert(data.message);
       fetchExhibitorData();
     } catch (error) {
       console.error("Delete exhibitor error:", error);
     }
   };
+  // const deleteExhibitor = async (id) => {
+  //   if (!window.confirm("Are you sure you want to delete this exhibitor?"))
+  //     return;
+
+  //   try {
+  //     const res = await fetch("https://inoptics.in/api/delete_exhibitor.php", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ id }),
+  //     });
+  //     const data = await res.json();
+  //     alert(data.message);
+  //     fetchExhibitorData();
+  //   } catch (error) {
+  //     console.error("Delete exhibitor error:", error);
+  //   }
+  // };
 
   const addExhibitorSelectedFurniture = async (payload) => {
     try {
@@ -16691,7 +16713,7 @@ const data = await res.json();
                                       fax: item.fax || "",
                                       gst: item.gst || "",
                                       secondary_emails:
-                                        item.secondary_emails || "",
+                                      item.secondary_emails || "",
                                       password: item.password || "",
                                       stall_no: item.stall_no || "",
                                       category: item.category || "",
@@ -16713,7 +16735,8 @@ const data = await res.json();
                                 <button
                                   className="action-btn delete-btn"
                                   title="Delete"
-                                  onClick={() => deleteExhibitor(item.id)}
+                                  // onClick={() => deleteExhibitor(item.id)}
+                                  onClick={() => deleteExhibitor(item.company_name)}
                                 >
                                   <FontAwesomeIcon icon={faTrash} />
                                 </button>
@@ -17472,7 +17495,9 @@ const data = await res.json();
 
                         <div className="modal-content">
                           {activeNavbarItem === "BASIC DETAILS" && (
-                            <div className="basic-details-form slide-up-form">
+                            <>                            
+                            <div className="basic-details-form-with-chnage-company-name">
+                              <div className="basic-details-form slide-up-form">
                               <form
                                 className="form-grid"
                                 onSubmit={handleSubmit}
@@ -17739,7 +17764,13 @@ const data = await res.json();
                                   <p>Sending mail, please wait...</p>
                                 </div>
                               )}
+
                             </div>
+                              <div>
+                                <UpdateCompanyName  fetchExhibitorData={fetchExhibitorData}/>
+                              </div>
+                            </div>
+                          </>
                           )}
 
                           {activeNavbarItem === "STALLS" && (

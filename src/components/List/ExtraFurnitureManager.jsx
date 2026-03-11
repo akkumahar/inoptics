@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FaPlus, FaMinus, FaTrash } from "react-icons/fa";
+import * as XLSX from "xlsx";
 import "./ExtraFurnitureManager.css";
 import toast from "react-hot-toast";
 
@@ -49,7 +50,9 @@ const ExtraFurnitureManager = () => {
 
     try {
       // Step 1: Get unique company names that have selected furniture
-      const res = await fetch("https://inoptics.in/api/get_all_selected_furniture_by_exhibitor.php");
+      const res = await fetch(
+        "https://inoptics.in/api/get_all_selected_furniture_by_exhibitor.php",
+      );
       const data = await res.json();
 
       console.log("📋 get_all_selected_furniture_by_exhibitor RAW:", data);
@@ -57,8 +60,8 @@ const ExtraFurnitureManager = () => {
       const allEntries = Array.isArray(data)
         ? data
         : Array.isArray(data.data)
-        ? data.data
-        : [];
+          ? data.data
+          : [];
 
       if (allEntries.length === 0) {
         console.warn("⚠️ No companies found from API");
@@ -95,11 +98,13 @@ const ExtraFurnitureManager = () => {
             }));
 
             // Exhibitor details — check multiple possible locations in response
-            const exhibitor = d.exhibitor || d.company || d.exhibitor_details || {};
+            const exhibitor =
+              d.exhibitor || d.company || d.exhibitor_details || {};
             const firstFurItem = furnitureList[0] || {};
 
             // Match from allEntries too (company list API might have email/mobile)
-            const fromList = allEntries.find((e) => e.company_name === companyName) || {};
+            const fromList =
+              allEntries.find((e) => e.company_name === companyName) || {};
 
             return {
               company: {
@@ -156,7 +161,11 @@ const ExtraFurnitureManager = () => {
         companiesList.push(company);
       });
 
-      console.log("✅ Final companies with furniture:", companiesList.length, companiesList);
+      console.log(
+        "✅ Final companies with furniture:",
+        companiesList.length,
+        companiesList,
+      );
 
       setFurnitureCache(cache);
       setCompanies(companiesList);
@@ -171,7 +180,7 @@ const ExtraFurnitureManager = () => {
 
   const fetchExhibitors = async () => {
     try {
-      const res = await fetch('https://inoptics.in/api/get_exhibitors.php');
+      const res = await fetch("https://inoptics.in/api/get_exhibitors.php");
       const data = await res.json();
 
       const map = {};
@@ -192,9 +201,13 @@ const ExtraFurnitureManager = () => {
       });
 
       setExhibitorMap(map);
-      console.log('✅ Exhibitor map loaded:', Object.keys(map).length, 'companies');
+      console.log(
+        "✅ Exhibitor map loaded:",
+        Object.keys(map).length,
+        "companies",
+      );
     } catch (err) {
-      console.error('❌ fetchExhibitors error:', err);
+      console.error("❌ fetchExhibitors error:", err);
     }
   };
 
@@ -320,121 +333,117 @@ const ExtraFurnitureManager = () => {
 
   /* ================= UPDATE ================= */
 
- const updateSelectedFurniture = async () => {
-  try {
+  const updateSelectedFurniture = async () => {
+    try {
+      const payload = {
+        company_name: currentCompany,
+        furniture: selectedFurniture.map((item) => ({
+          image: item.image,
+          name: item.name,
+          price: Number(item.price),
+          quantity: Number(item.quantity),
+          total: Number(item.price) * Number(item.quantity),
+        })),
+      };
 
-    const payload = {
-      company_name: currentCompany,
-      furniture: selectedFurniture.map((item) => ({
-        image: item.image,
-        name: item.name,
-        price: Number(item.price),
-        quantity: Number(item.quantity),
-        total: Number(item.price) * Number(item.quantity),
-      })),
-    };
+      // check if furniture already exists for this company
+      const hasExistingFurniture = furnitureCache[currentCompany]?.length > 0;
 
-    // check if furniture already exists for this company
-    const hasExistingFurniture = furnitureCache[currentCompany]?.length > 0;
+      const apiUrl = hasExistingFurniture
+        ? "https://inoptics.in/api/Update_selected_furniture.php"
+        : "https://inoptics.in/api/add_selected_furniture.php";
 
-    const apiUrl = hasExistingFurniture
-      ? "https://inoptics.in/api/Update_selected_furniture.php"
-      : "https://inoptics.in/api/add_selected_furniture.php";
+      const res = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
-    const res = await fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
+      const data = await res.json();
 
-    const data = await res.json();
+      if (data.status === "success") {
+        // update cache
+        setFurnitureCache((prev) => ({
+          ...prev,
+          [currentCompany]: [...selectedFurniture],
+        }));
 
-    if (data.status === "success") {
+        toast.success("Furniture saved successfully");
 
-      // update cache
-      setFurnitureCache((prev) => ({
-        ...prev,
-        [currentCompany]: [...selectedFurniture],
-      }));
-
-      toast.success("Furniture saved successfully");
-
-      fetchLockedCompanies(); // refresh list
-    } else {
-      toast.error(data.message || "Failed to save furniture");
+        fetchLockedCompanies(); // refresh list
+      } else {
+        toast.error(data.message || "Failed to save furniture");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Server error");
     }
-
-  } catch (err) {
-    console.error(err);
-    toast.error("Server error");
-  }
-};
+  };
   /* ================= SEND MAIL ================= */
 
   const handleSendFurnitureMail = async (emailTemplateName) => {
-  const sendMail = async () => {
+    const sendMail = async () => {
+      const vendorTemplate = emailMasterData.find(
+        (t) => t.email_name === emailTemplateName,
+      );
 
-    const vendorTemplate = emailMasterData.find(
-      (t) => t.email_name === emailTemplateName
-    );
+      const exhibitorTemplate = emailMasterData.find(
+        (t) =>
+          t.email_name ===
+          "InOptics 2026 @ Extra Furniture Request Confirmation Exhibitor",
+      );
 
-    const exhibitorTemplate = emailMasterData.find(
-      (t) =>
-        t.email_name ===
-        "InOptics 2026 @ Extra Furniture Request Confirmation Exhibitor"
-    );
+      if (!vendorTemplate || !exhibitorTemplate) {
+        throw new Error("Email template not found");
+      }
 
-    if (!vendorTemplate || !exhibitorTemplate) {
-      throw new Error("Email template not found");
-    }
+      const { company_name, name, mobile, email, stall_no } = formData;
 
-    const { company_name, name, mobile, email, stall_no } = formData;
+      if (!company_name || !email) {
+        throw new Error("Missing exhibitor data");
+      }
 
-    if (!company_name || !email) {
-      throw new Error("Missing exhibitor data");
-    }
+      const vendor = furnitureVendorDetails?.[0] || {};
 
-    const vendor = furnitureVendorDetails?.[0] || {};
+      const vendorEmail =
+        vendor.email ||
+        vendor.vendor_email ||
+        vendor.vendorEmail ||
+        vendor.contact_email;
 
-    const vendorEmail =
-      vendor.email ||
-      vendor.vendor_email ||
-      vendor.vendorEmail ||
-      vendor.contact_email;
+      if (!vendorEmail) {
+        throw new Error("Vendor email missing");
+      }
 
-    if (!vendorEmail) {
-      throw new Error("Vendor email missing");
-    }
+      if (!selectedFurniture || selectedFurniture.length === 0) {
+        throw new Error("No furniture selected");
+      }
 
-    if (!selectedFurniture || selectedFurniture.length === 0) {
-      throw new Error("No furniture selected");
-    }
+      /* ================= TABLE CALCULATION ================= */
 
-    /* ================= TABLE CALCULATION ================= */
+      let totalAmount = 0;
+      let totalSGST = 0;
+      let totalCGST = 0;
+      let grandTotal = 0;
 
-    let totalAmount = 0;
-    let totalSGST = 0;
-    let totalCGST = 0;
-    let grandTotal = 0;
+      const rows = selectedFurniture
+        .map((item) => {
+          const qty = Number(item.quantity);
+          const rate = Number(item.price);
 
-    const rows = selectedFurniture
-      .map((item) => {
-        const qty = Number(item.quantity);
-        const rate = Number(item.price);
+          const amount = qty * rate;
+          const sgst = amount * 0.09;
+          const cgst = amount * 0.09;
+          const total = amount + sgst + cgst;
 
-        const amount = qty * rate;
-        const sgst = amount * 0.09;
-        const cgst = amount * 0.09;
-        const total = amount + sgst + cgst;
+          totalAmount += amount;
+          totalSGST += sgst;
+          totalCGST += cgst;
+          grandTotal += total;
 
-        totalAmount += amount;
-        totalSGST += sgst;
-        totalCGST += cgst;
-        grandTotal += total;
-
-        return `
+          return `
         <tr>
           <td>${item.name}</td>
           <td align="center">${qty}</td>
@@ -444,69 +453,69 @@ const ExtraFurnitureManager = () => {
           <td align="right">${cgst.toFixed(2)}</td>
           <td align="right">${total.toFixed(2)}</td>
         </tr>`;
-      })
-      .join("");
+        })
+        .join("");
 
-    const furnitureTable = `
+      const furnitureTable = `
       <table border="1" cellpadding="6" cellspacing="0"
       style="border-collapse:collapse;width:100%">
       <tbody>${rows}</tbody></table>
     `;
 
-    const replaceTemplate = (template) => {
-      let html = template;
+      const replaceTemplate = (template) => {
+        let html = template;
 
-      const replaceData = {
-        "[Company_Name]": company_name,
-        "[Contact_Person_Name]": name,
-        "[Mobile_Number]": mobile,
-        "[Email_Address]": email,
-        "[Stall_No]": stall_no,
-        "[Furniture_Table]": furnitureTable,
+        const replaceData = {
+          "[Company_Name]": company_name,
+          "[Contact_Person_Name]": name,
+          "[Mobile_Number]": mobile,
+          "[Email_Address]": email,
+          "[Stall_No]": stall_no,
+          "[Furniture_Table]": furnitureTable,
+        };
+
+        Object.keys(replaceData).forEach((key) => {
+          html = html.replaceAll(key, replaceData[key]);
+        });
+
+        return html.replace(/&n/g, "<br>");
       };
 
-      Object.keys(replaceData).forEach((key) => {
-        html = html.replaceAll(key, replaceData[key]);
+      const vendorHTML = replaceTemplate(vendorTemplate.content);
+      const exhibitorHTML = replaceTemplate(exhibitorTemplate.content);
+
+      /* ===== Vendor mail ===== */
+
+      await fetch("https://inoptics.in/api/send_furniture_vendor_mail.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email_name: emailTemplateName,
+          to: vendorEmail,
+          html: vendorHTML,
+        }),
       });
 
-      return html.replace(/&n/g, "<br>");
+      /* ===== Exhibitor mail ===== */
+
+      await fetch("https://inoptics.in/api/send_furniture_vendor_mail.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email_name:
+            "InOptics 2026 @ Extra Furniture Request Confirmation Exhibitor",
+          to: email,
+          html: exhibitorHTML,
+        }),
+      });
     };
 
-    const vendorHTML = replaceTemplate(vendorTemplate.content);
-    const exhibitorHTML = replaceTemplate(exhibitorTemplate.content);
-
-    /* ===== Vendor mail ===== */
-
-    await fetch("https://inoptics.in/api/send_furniture_vendor_mail.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email_name: emailTemplateName,
-        to: vendorEmail,
-        html: vendorHTML,
-      }),
-    });
-
-    /* ===== Exhibitor mail ===== */
-
-    await fetch("https://inoptics.in/api/send_furniture_vendor_mail.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email_name:
-          "InOptics 2026 @ Extra Furniture Request Confirmation Exhibitor",
-        to: email,
-        html: exhibitorHTML,
-      }),
+    toast.promise(sendMail(), {
+      loading: "Sending email...",
+      success: "Mail sent successfully",
+      error: (err) => err.message || "Failed to send email",
     });
   };
-
-  toast.promise(sendMail(), {
-    loading: "Sending email...",
-    success: "Mail sent successfully",
-    error: (err) => err.message || "Failed to send email",
-  });
-};
 
   /* ================= ACCORDION ================= */
 
@@ -537,23 +546,87 @@ const ExtraFurnitureManager = () => {
 
   /* ================= INIT ================= */
 
-useEffect(() => {
-  const loadAllData = async () => {
-    try {
-      await Promise.all([
-        fetchLockedCompanies(),
-        fetchFurniture(),
-        fetchEmailMessages(),
-        fetchFurnitureVendor(),
-        fetchExhibitors()
-      ]);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  useEffect(() => {
+    const loadAllData = async () => {
+      try {
+        await Promise.all([
+          fetchLockedCompanies(),
+          fetchFurniture(),
+          fetchEmailMessages(),
+          fetchFurnitureVendor(),
+          fetchExhibitors(),
+        ]);
+      } catch (err) {
+        console.error(err);
+      }
+    };
 
-  loadAllData();
-}, []);
+    loadAllData();
+  }, []);
+
+  /* ================= EXPORT FURNITURE ================= */
+
+  const exportFurnitureExcel = () => {
+    if (!companies.length) {
+      toast.error("No data to export");
+      return;
+    }
+
+    const exportData = [];
+
+    companies.forEach((company) => {
+      const companyName = company.company_name;
+      const furnitureList = furnitureCache[companyName] || [];
+
+      const exhibitor = exhibitorMap[companyName] || {};
+      const stateValue = (exhibitor.state || "").toLowerCase();
+
+      furnitureList.forEach((item, index) => {
+        const qty = Number(item.quantity);
+        const price = Number(item.price);
+
+        const amount = qty * price;
+
+        let cgst = 0;
+        let sgst = 0;
+        let igst = 0;
+
+        if (stateValue === "delhi") {
+          cgst = amount * 0.09;
+          sgst = amount * 0.09;
+        } else {
+          igst = amount * 0.18;
+        }
+
+        const total = amount + cgst + sgst + igst;
+
+        exportData.push({
+          "Company Name": companyName,
+          "Contact Person": exhibitor.name || "",
+          Email: exhibitor.email || "",
+          Mobile: exhibitor.mobile || "",
+          "Stall No": exhibitor.stall_no || "",
+          State: exhibitor.state || "",
+          "Furniture Name": item.name,
+          Price: price,
+          Quantity: qty,
+          Amount: amount,
+          "CGST (9%)": cgst,
+          "SGST (9%)": sgst,
+          "IGST (18%)": igst,
+          Total: total,
+        });
+      });
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+    const workbook = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Extra Furniture");
+
+    XLSX.writeFile(workbook, "Extra_Furniture_Report.xlsx");
+  };
 
   const filteredCompanies = companies.filter((c) =>
     (c.company_name || "").toLowerCase().includes(search.toLowerCase()),
@@ -563,20 +636,25 @@ useEffect(() => {
 
   return (
     <div className="accordion-container">
-      <div className="company-search">
+      <div className="furniture-company-search">
+        <button className="furniture-export-btn" onClick={exportFurnitureExcel}>
+          Export Excel
+        </button>
         <input
           placeholder="Search company..."
           value={search}
+          className="furniture-name-search"
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
-      {loadingCompanies && <div className="loader-box">
-        <div className="loader"></div>
-        
-        <h5>Loading...</h5>
-        
-        </div>}
+      {loadingCompanies && (
+        <div className="loader-box">
+          <div className="loader"></div>
+
+          <h5>Loading...</h5>
+        </div>
+      )}
 
       {filteredCompanies.map((company, index) => (
         <div key={company.company_name} className="accordion-item">
@@ -699,76 +777,94 @@ useEffect(() => {
       ))}
 
       {showFurnitureList && (
-  <div className="exfurn-overlay" onClick={() => setShowFurnitureList(false)}>
-    <div className="exfurn-modal" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="exfurn-overlay"
+          onClick={() => setShowFurnitureList(false)}
+        >
+          <div className="exfurn-modal" onClick={(e) => e.stopPropagation()}>
+            {/* HEADER */}
+            <div className="exfurn-header">
+              <div className="exfurn-header-left">
+                <span className="exfurn-header-icon"></span>
+                <div>
+                  <h2 className="exfurn-title">Furniture Catalog</h2>
+                  <p className="exfurn-subtitle">
+                    {furniture.length} items available
+                  </p>
+                </div>
+              </div>
+              <button
+                className="exfurn-close"
+                onClick={() => setShowFurnitureList(false)}
+              >
+                ✕
+              </button>
+            </div>
 
-      {/* HEADER */}
-      <div className="exfurn-header">
-        <div className="exfurn-header-left">
-          <span className="exfurn-header-icon"></span>
-          <div>
-            <h2 className="exfurn-title">Furniture Catalog</h2>
-            <p className="exfurn-subtitle">{furniture.length} items available</p>
+            {/* BODY */}
+            <div className="exfurn-body">
+              {loadingFurniture ? (
+                <div className="exfurn-loading">
+                  <div className="exfurn-spinner" />
+                  <p>Loading furniture...</p>
+                </div>
+              ) : (
+                <div className="exfurn-grid">
+                  {furniture.map((item) => {
+                    const alreadyAdded = selectedFurniture.some(
+                      (f) => f.id === item.id,
+                    );
+                    return (
+                      <div
+                        key={item.id}
+                        className={`exfurn-card${alreadyAdded ? " exfurn-card--added" : ""}`}
+                      >
+                        {/* IMAGE */}
+                        <div className="exfurn-img-wrap">
+                          <img
+                            src={`https://inoptics.in/api/uploads/${item.image}`}
+                            alt={item.name}
+                            onError={(e) => {
+                              e.target.style.display = "none";
+                              e.target.nextSibling.style.display = "flex";
+                            }}
+                          />
+                          <div
+                            className="exfurn-img-fallback"
+                            style={{ display: "none" }}
+                          >
+                            🪑
+                          </div>
+                          {alreadyAdded && (
+                            <div className="exfurn-badge">✓ Added</div>
+                          )}
+                        </div>
+
+                        {/* INFO */}
+                        <div className="exfurn-info">
+                          <p className="exfurn-name">{item.name}</p>
+                          <p className="exfurn-price">
+                            ₹{Number(item.price).toLocaleString("en-IN")}
+                          </p>
+                        </div>
+
+                        {/* BUTTON */}
+                        <button
+                          className={`exfurn-btn${alreadyAdded ? " exfurn-btn--added" : ""}`}
+                          onClick={() => !alreadyAdded && addFurniture(item)}
+                          disabled={alreadyAdded}
+                        >
+                          {alreadyAdded ? "✓ Added" : "+ Add to List"}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
         </div>
-        <button className="exfurn-close" onClick={() => setShowFurnitureList(false)}>
-          ✕
-        </button>
-      </div>
-
-      {/* BODY */}
-      <div className="exfurn-body">
-        {loadingFurniture ? (
-          <div className="exfurn-loading">
-            <div className="exfurn-spinner" />
-            <p>Loading furniture...</p>
-          </div>
-        ) : (
-          <div className="exfurn-grid">
-            {furniture.map((item) => {
-              const alreadyAdded = selectedFurniture.some((f) => f.id === item.id);
-              return (
-                <div key={item.id} className={`exfurn-card${alreadyAdded ? " exfurn-card--added" : ""}`}>
-
-                  {/* IMAGE */}
-                  <div className="exfurn-img-wrap">
-                    <img
-                      src={`https://inoptics.in/api/uploads/${item.image}`}
-                      alt={item.name}
-                      onError={(e) => {
-                        e.target.style.display = "none";
-                        e.target.nextSibling.style.display = "flex";
-                      }}
-                    />
-                    <div className="exfurn-img-fallback" style={{ display: "none" }}>🪑</div>
-                    {alreadyAdded && <div className="exfurn-badge">✓ Added</div>}
-                  </div>
-
-                  {/* INFO */}
-                  <div className="exfurn-info">
-                    <p className="exfurn-name">{item.name}</p>
-                    <p className="exfurn-price">₹{Number(item.price).toLocaleString("en-IN")}</p>
-                  </div>
-
-                  {/* BUTTON */}
-                  <button
-                    className={`exfurn-btn${alreadyAdded ? " exfurn-btn--added" : ""}`}
-                    onClick={() => !alreadyAdded && addFurniture(item)}
-                    disabled={alreadyAdded}
-                  >
-                    {alreadyAdded ? "✓ Added" : "+ Add to List"}
-                  </button>
-
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-    </div>
-  </div>
-)}
+      )}
     </div>
   );
 };

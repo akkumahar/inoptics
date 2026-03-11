@@ -136,6 +136,57 @@
 }
 
 
+
+.fascia-top-bar{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin:12px 0;
+}
+
+.fascia-export-btn{
+  background:#6A2BC2;
+  color:#fff;
+  padding:8px 14px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:14px;
+  white-space:nowrap;
+}
+
+.print-btn{
+  background:#2DAC5C;
+  border:1px solid #333;
+  padding:8px 14px;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:14px;
+  white-space:nowrap;
+}
+.particular-print-btn{
+  background:#ffff;
+  border:1px solid #333;
+  padding:8px 14px;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:14px;
+  white-space:nowrap;
+}
+
+.fascia-name-search{
+  flex:1;
+  padding:8px 12px;
+  border-radius:6px;
+  border:1px solid #ccc;
+  font-size:14px;
+}
+/* hide print sections normally */
+
+
+
+
+
 /* ================= RESPONSIVE ================= */
 
 @media (max-width: 768px) {

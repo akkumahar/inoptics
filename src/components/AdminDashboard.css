@@ -10458,3 +10458,9 @@ align-items:flex-start;
 .brands-container .brands-form-admin{
 flex:1;
 }
+
+
+.basic-details-form-with-chnage-company-name{
+  display: flex;
+  gap: 10px;
+}

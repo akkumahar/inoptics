@@ -1,5 +1,5 @@
 .accordion-container{
-padding:20px;
+padding: 0 20px;
 font-family:Segoe UI;
 background:#f5f5f5;
 }
@@ -645,6 +645,28 @@ background:#0f5ec7;
   color: #2e7d32;
   cursor: not-allowed;
   font-weight: 700;
+}
+
+
+.furniture-company-search{
+  display: flex;
+  margin: 12px 0;
+  justify-content: space-between;
+}
+.furniture-export-btn{
+  background-color: #2DAC5C !important;
+  padding: 6px 20px !important;
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
+  margin-right: 6px;
+  font-size: 13px;
+}
+.furniture-name-search{
+  width: 90%;
+  padding: 6px 20px !important;
+  border-radius: 6px;
+  border: 1px solid #cecece !important;
 }
 
 /* RESPONSIVE */

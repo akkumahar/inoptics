@@ -7,9 +7,9 @@
   min-height: 90vh;
   max-width: 100vw;
   margin: auto;
-  height: 80vh;              /* 🔥 Important */
-  overflow-y: auto;           /* enable scroll */
-  padding-right: 6px;         /* scrollbar space */
+  height: 80vh; /* 🔥 Important */
+  overflow-y: auto; /* enable scroll */
+  padding-right: 6px; /* scrollbar space */
   font-family: "Inter", system-ui, sans-serif;
 }
 
@@ -90,9 +90,6 @@ table tbody tr:hover {
    BUTTONS
 ========================= */
 
-
-
-
 /* Action Buttons */
 
 .action-buttons {
@@ -100,10 +97,6 @@ table tbody tr:hover {
   display: flex;
   gap: 10px;
 }
-
-
-
-
 
 /* =========================
    PAYMENT CARD
@@ -171,8 +164,6 @@ table tbody tr:hover {
   margin-bottom: 5px;
 }
 
-
-
 /* =========================
    RESPONSIVE
 ========================= */
@@ -207,10 +198,6 @@ table tbody tr:hover {
     transform: translateY(0);
   }
 }
-
-
-
-
 
 /* =========================
    MAIN WRAPPER
@@ -307,11 +294,10 @@ table tbody tr:hover {
    BUTTON
 ========================= */
 
-.btn-main-action{
+.btn-main-action {
   display: flex;
   gap: 10px;
   justify-content: center;
-
 }
 
 .delete-btn {
@@ -345,16 +331,6 @@ table tbody tr:hover {
 .payment-card p {
   margin: 4px 0;
 }
-
-
-
-
-
-
-
-
-
-
 
 /* =========================
    MAIN WRAPPER
@@ -465,8 +441,7 @@ table tbody tr:hover {
   border: none;
   cursor: pointer;
 }
-.power-edit-btn-update
-{
+.power-edit-btn-update {
   background: #16a34a;
   color: white;
   padding: 6px 12px;
@@ -504,13 +479,12 @@ table tbody tr:hover {
    MODAL
 ========================= */
 
-
- /* ================= MODAL OVERLAY ================= */
+/* ================= MODAL OVERLAY ================= */
 
 .power-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.35);
+  background: rgba(0, 0, 0, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -525,7 +499,7 @@ table tbody tr:hover {
   max-width: 90%;
   padding: 28px 30px;
   border-radius: 8px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -628,12 +602,10 @@ table tbody tr:hover {
   background: #b71c1c;
 }
 
-
-
 /* ================= SEND MAIL BUTTON ================= */
 
 .power-mail-btn {
-  background: #6F42C1;
+  background: #6f42c1;
   color: #fff;
   border: none;
   padding: 6px 10px;
@@ -645,13 +617,12 @@ table tbody tr:hover {
 }
 
 .power-mail-btn:hover {
-  background: #6F42C1cc;
+  background: #6f42c1cc;
 }
 
 .power-mail-btn:active {
   transform: scale(0.96);
 }
-
 
 .power-summary {
   display: flex;
@@ -668,6 +639,80 @@ table tbody tr:hover {
   border-radius: 6px;
 }
 
+.power-top-bar {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px 0;
+}
+
+/* Buttons common style */
+
+.power-export-btn,
+.print-all-btn {
+  padding: 10px 22px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Export button */
+
+.power-export-btn {
+  background: #7f36e4;
+  color: white;
+}
+
+.power-print-btn {
+  padding: 4px 12px;
+  background: #fff;
+  color: #000000;
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+}
+
+.power-export-btn:hover {
+  background: #6a2bc2;
+}
+
+/* Print button */
+
+.print-all-btn {
+  background: #1f9d48;
+  color: white;
+}
+
+.print-all-btn:hover {
+  background: #187a38;
+}
+
+/* Search box */
+
+.power-name-search {
+  flex: 1;
+  height: 40px;
+  padding: 0 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+@media print {
+  .power-action-cell,
+  .power-edit-btn,
+  .power-delete-btn,
+  .power-mail-btn {
+    display: none !important;
+  }
+}
+
 /* =========================
    ANIMATION
 ========================= */
@@ -682,4 +727,3 @@ table tbody tr:hover {
     transform: translateY(0);
   }
 }
-
