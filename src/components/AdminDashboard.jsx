@@ -18,6 +18,7 @@ import remaindersImg from "../assets/Admin_Remainder.jpg";
 import inquery from "../assets/feedbacks.jpg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ExhibitorBadgeSeries from "./List/ExhibitorBadgeSeries";
+import ExportContractorList from "./List/ExportContractorList";
 import {
   faPlus,
   faEdit,
@@ -31,7 +32,7 @@ import { LuFileBadge2 } from "react-icons/lu";
 
 import { FaFileImage, FaExternalLinkAlt, FaRegTrashAlt } from "react-icons/fa";
 
-import { FaCircleCheck, FaPowerOff  } from "react-icons/fa6";
+import { FaCircleCheck, FaPowerOff } from "react-icons/fa6";
 import { IoMdCloseCircle } from "react-icons/io";
 
 // React Icons package
@@ -104,6 +105,11 @@ const AdminDashboard = () => {
   const [remarkSaved, setRemarkSaved] = useState(false);
   const [companyRemarks, setCompanyRemarks] = useState([]);
   const [editingRemarkId, setEditingRemarkId] = useState(null);
+
+
+  const [companySearch, setCompanySearch] = useState("");
+const [bsSearch, setBsSearch] = useState("");
+
 
   const handleImageSelect = (e) => {
     const file = e.target.files[0];
@@ -3483,89 +3489,93 @@ const AdminDashboard = () => {
     setIsSendingMail(false);
   };
 
- const handleSendFurnitureMail = async (emailTemplateName) => {
-  if (isSendingMail) return;
-  setIsSendingMail(true);
+  const handleSendFurnitureMail = async (emailTemplateName) => {
+    if (isSendingMail) return;
+    setIsSendingMail(true);
 
-  try {
+    try {
+      /* ================= TEMPLATE FETCH ================= */
 
-    /* ================= TEMPLATE FETCH ================= */
+      const vendorTemplate = emailMasterData.find(
+        (t) => t.email_name === emailTemplateName,
+      );
 
-    const vendorTemplate = emailMasterData.find(
-      (t) => t.email_name === emailTemplateName
-    );
+      const exhibitorTemplate = emailMasterData.find(
+        (t) =>
+          t.email_name ===
+          "InOptics 2026 @ Extra Furniture Request Confirmation Exhibitor",
+      );
 
-    const exhibitorTemplate = emailMasterData.find(
-      (t) =>
-        t.email_name ===
-        "InOptics 2026 @ Extra Furniture Request Confirmation Exhibitor"
-    );
+      if (!vendorTemplate || !exhibitorTemplate) {
+        alert("Email template not found");
+        return;
+      }
 
-    if (!vendorTemplate || !exhibitorTemplate) {
-      alert("Email template not found");
-      return;
-    }
+      /* ================= EXHIBITOR DETAILS ================= */
 
-    /* ================= EXHIBITOR DETAILS ================= */
+      const { company_name, name, mobile, email, stall_no } = formData;
 
-    const { company_name, name, mobile, email, stall_no } = formData;
+      console.log("Exhibitor rishab furnicuture email details:", {
+        company_name,
+        name,
+        mobile,
+        email,
+        stall_no,
+      });
+      if (!company_name || !email) {
+        alert("Missing exhibitor data");
+        return;
+      }
 
-    console.log("Exhibitor rishab furnicuture email details:", { company_name, name, mobile, email, stall_no });
-    if (!company_name || !email) {
-      alert("Missing exhibitor data");
-      return;
-    }
+      /* ================= VENDOR DETAILS ================= */
 
-    /* ================= VENDOR DETAILS ================= */
+      const vendor = furnitureVendorDetails?.[0] || {};
 
-    const vendor = furnitureVendorDetails?.[0] || {};
+      const vendorName = vendor.vendor_name || "";
+      const vendorEmail =
+        vendor.email ||
+        vendor.vendor_email ||
+        vendor.vendorEmail ||
+        vendor.contact_email;
 
-    const vendorName = vendor.vendor_name || "";
-    const vendorEmail =
-      vendor.email ||
-      vendor.vendor_email ||
-      vendor.vendorEmail ||
-      vendor.contact_email;
+      const vendorCompany = vendor.company_name || "";
+      const vendorPhone = vendor.contact_number || vendor.mobile || "";
 
-    const vendorCompany = vendor.company_name || "";
-    const vendorPhone = vendor.contact_number || vendor.mobile || "";
+      if (!vendorEmail) {
+        alert("Vendor email missing");
+        return;
+      }
 
-    if (!vendorEmail) {
-      alert("Vendor email missing");
-      return;
-    }
+      /* ================= VALIDATE FURNITURE ================= */
 
-    /* ================= VALIDATE FURNITURE ================= */
+      if (!selectedFurniture || selectedFurniture.length === 0) {
+        alert("No furniture selected");
+        return;
+      }
 
-    if (!selectedFurniture || selectedFurniture.length === 0) {
-      alert("No furniture selected");
-      return;
-    }
+      /* ================= TABLE CALCULATION ================= */
 
-    /* ================= TABLE CALCULATION ================= */
+      let totalAmount = 0;
+      let totalSGST = 0;
+      let totalCGST = 0;
+      let grandTotal = 0;
 
-    let totalAmount = 0;
-    let totalSGST = 0;
-    let totalCGST = 0;
-    let grandTotal = 0;
+      const rows = selectedFurniture
+        .map((item) => {
+          const qty = Number(item.quantity);
+          const rate = Number(item.price);
 
-    const rows = selectedFurniture
-      .map((item) => {
+          const amount = qty * rate;
+          const sgst = amount * 0.09;
+          const cgst = amount * 0.09;
+          const total = amount + sgst + cgst;
 
-        const qty = Number(item.quantity);
-        const rate = Number(item.price);
+          totalAmount += amount;
+          totalSGST += sgst;
+          totalCGST += cgst;
+          grandTotal += total;
 
-        const amount = qty * rate;
-        const sgst = amount * 0.09;
-        const cgst = amount * 0.09;
-        const total = amount + sgst + cgst;
-
-        totalAmount += amount;
-        totalSGST += sgst;
-        totalCGST += cgst;
-        grandTotal += total;
-
-        return `
+          return `
         <tr>
           <td>${item.name}</td>
           <td align="center">${qty}</td>
@@ -3576,12 +3586,12 @@ const AdminDashboard = () => {
           <td align="right">${total.toFixed(2)}</td>
         </tr>
         `;
-      })
-      .join("");
+        })
+        .join("");
 
-    /* ================= FURNITURE TABLE ================= */
+      /* ================= FURNITURE TABLE ================= */
 
-    const furnitureTable = `
+      const furnitureTable = `
       <table border="1" cellpadding="6" cellspacing="0"
       style="border-collapse:collapse;width:100%;font-family:Arial;font-size:13px">
 
@@ -3614,98 +3624,97 @@ const AdminDashboard = () => {
       </table>
     `;
 
-    /* ================= PLACEHOLDER DATA ================= */
+      /* ================= PLACEHOLDER DATA ================= */
 
-    const replaceData = {
-      "[Company_Name]": company_name,
-      "[Contact_Person_Name]": name,
-      "[Mobile_Number]": mobile,
-      "[Email_Address]": email,
-      "[Stall_No]": stall_no,
+      const replaceData = {
+        "[Company_Name]": company_name,
+        "[Contact_Person_Name]": name,
+        "[Mobile_Number]": mobile,
+        "[Email_Address]": email,
+        "[Stall_No]": stall_no,
 
-      "[Vendor_Name]": vendorName,
-      "[Vendor_Company]": vendorCompany,
-      "[Vendor_Email]": vendorEmail,
-      "[Vendor_Phone]": vendorPhone,
+        "[Vendor_Name]": vendorName,
+        "[Vendor_Company]": vendorCompany,
+        "[Vendor_Email]": vendorEmail,
+        "[Vendor_Phone]": vendorPhone,
 
-      "[Furniture_Table]": furnitureTable,
+        "[Furniture_Table]": furnitureTable,
 
-      "[Exhibitor_Name]": name,
-      "[Phone_Number]": mobile
-    };
+        "[Exhibitor_Name]": name,
+        "[Phone_Number]": mobile,
+      };
 
-    /* ================= TEMPLATE REPLACEMENT ================= */
+      /* ================= TEMPLATE REPLACEMENT ================= */
 
-    const replaceTemplate = (template) => {
-      let html = template;
+      const replaceTemplate = (template) => {
+        let html = template;
 
-      Object.keys(replaceData).forEach((key) => {
-        html = html.replaceAll(key, replaceData[key]);
-      });
+        Object.keys(replaceData).forEach((key) => {
+          html = html.replaceAll(key, replaceData[key]);
+        });
 
-      return html.replace(/&n/g, "<br>");
-    };
+        return html.replace(/&n/g, "<br>");
+      };
 
-    const vendorHTML = replaceTemplate(vendorTemplate.content);
-    const exhibitorHTML = replaceTemplate(exhibitorTemplate.content);
+      const vendorHTML = replaceTemplate(vendorTemplate.content);
+      const exhibitorHTML = replaceTemplate(exhibitorTemplate.content);
 
-    /* ================= SEND VENDOR MAIL ================= */
+      /* ================= SEND VENDOR MAIL ================= */
 
-    const vendorRes = await fetch(
-      "https://inoptics.in/api/send_furniture_vendor_mail.php",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
+      const vendorRes = await fetch(
+        "https://inoptics.in/api/send_furniture_vendor_mail.php",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email_name: emailTemplateName,
+            to: vendorEmail,
+            html: vendorHTML,
+          }),
         },
-        body: JSON.stringify({
-          email_name: emailTemplateName,
-          to: vendorEmail,
-          html: vendorHTML
-        })
+      );
+
+      const vendorResult = await vendorRes.json();
+
+      if (!vendorResult.message?.includes("successfully")) {
+        alert("Vendor mail failed");
+        return;
       }
-    );
 
-    const vendorResult = await vendorRes.json();
+      /* ================= SEND EXHIBITOR MAIL ================= */
 
-    if (!vendorResult.message?.includes("successfully")) {
-      alert("Vendor mail failed");
-      return;
-    }
-
-    /* ================= SEND EXHIBITOR MAIL ================= */
-
-    const exhibitorRes = await fetch(
-      "https://inoptics.in/api/send_furniture_vendor_mail.php",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
+      const exhibitorRes = await fetch(
+        "https://inoptics.in/api/send_furniture_vendor_mail.php",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email_name:
+              "InOptics 2026 @ Extra Furniture Request Confirmation Exhibitor",
+            to: email,
+            html: exhibitorHTML,
+          }),
         },
-        body: JSON.stringify({
-          email_name:
-            "InOptics 2026 @ Extra Furniture Request Confirmation Exhibitor",
-          to: email,
-          html: exhibitorHTML
-        })
+      );
+
+      const exhibitorResult = await exhibitorRes.json();
+
+      if (exhibitorResult.message?.includes("successfully")) {
+        alert("✅ Mail sent successfully!");
+      } else {
+        alert("Vendor mail sent but exhibitor mail failed.");
       }
-    );
-
-    const exhibitorResult = await exhibitorRes.json();
-
-    if (exhibitorResult.message?.includes("successfully")) {
-      alert("✅ Mail sent successfully!");
-    } else {
-      alert("Vendor mail sent but exhibitor mail failed.");
+    } catch (error) {
+      console.error("Mail error:", error);
+      alert("Error sending mail");
+    } finally {
+      setIsSendingMail(false);
     }
-
-  } catch (error) {
-    console.error("Mail error:", error);
-    alert("Error sending mail");
-  } finally {
-    setIsSendingMail(false);
-  }
-};
+  };
 
   const handleSaveRegistrationItem = (item, index) => {
     // console.log("Saving item:", index, item);
@@ -4074,8 +4083,8 @@ const AdminDashboard = () => {
 
       const data = await response.json();
       if (data.status === "success") {
-        console.log("brands data submit rishab",data);
-        
+        console.log("brands data submit rishab", data);
+
         alert("Brands submitted successfully!");
         setShowBrandsEditForm(true);
       } else if (data.status === "exists") {
@@ -4116,8 +4125,8 @@ const AdminDashboard = () => {
 
       const data = await response.json();
       if (data.status === "success") {
-        console.log("brands data rishab",data);
-        
+        console.log("brands data rishab", data);
+
         alert("Brands updated successfully!");
       } else {
         alert("Update failed: " + data.message);
@@ -4135,49 +4144,45 @@ const AdminDashboard = () => {
   }, [activeNavbarItem, formData.company_name]);
 
   const fetchBrandsData = async () => {
-  try {
-    const response = await fetch(
-      `https://inoptics.in/api/get_exhibitor_brands.php?Company_name=${encodeURIComponent(
-        formData.company_name
-      )}`
-    );
+    try {
+      const response = await fetch(
+        `https://inoptics.in/api/get_exhibitor_brands.php?Company_name=${encodeURIComponent(
+          formData.company_name,
+        )}`,
+      );
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (data.status === "success") {
-      console.log("brands data rishab", data);
+      if (data.status === "success") {
+        console.log("brands data rishab", data);
 
-      setBrandsData({
-        website: data.Website || "",
+        setBrandsData({
+          website: data.Website || "",
 
-        // 🔥 IMPORTANT FIX
-        products: data.Products
-          ? data.Products.split(",").map((p) => p.trim())
-          : [],
+          // 🔥 IMPORTANT FIX
+          products: data.Products
+            ? data.Products.split(",").map((p) => p.trim())
+            : [],
 
-        home_brands: data.Home_brands || "",
-        distributors: data.Distributors || "",
-        international_brands: data.International_brands || "",
-      });
+          home_brands: data.Home_brands || "",
+          distributors: data.Distributors || "",
+          international_brands: data.International_brands || "",
+        });
 
-      setShowBrandsEditForm(true);
-
-    } else {
-
-      setBrandsData({
-        website: "",
-        products: [],
-        home_brands: "",
-        distributors: "",
-        international_brands: "",
-      });
-
+        setShowBrandsEditForm(true);
+      } else {
+        setBrandsData({
+          website: "",
+          products: [],
+          home_brands: "",
+          distributors: "",
+          international_brands: "",
+        });
+      }
+    } catch (error) {
+      console.error("Fetch Brands Error:", error);
     }
-
-  } catch (error) {
-    console.error("Fetch Brands Error:", error);
-  }
-};
+  };
 
   useEffect(() => {
     if (activeNavbarItem === "BRANDS") {
@@ -5406,8 +5411,8 @@ const AdminDashboard = () => {
 
     try {
       const res = await fetch(apiUrl);
-      console.log("rishab all payment inoptics",res);
-      
+      console.log("rishab all payment inoptics", res);
+
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
       const data = await res.json();
@@ -6072,16 +6077,19 @@ const AdminDashboard = () => {
       return;
 
     try {
-      const res = await fetch("https://inoptics.in/api/delete_company_details_everywhere.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          company_name: company_name
-        }),
-      });
+      const res = await fetch(
+        "https://inoptics.in/api/delete_company_details_everywhere.php",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            company_name: company_name.trim(),
+          }),
+        },
+      );
       const data = await res.json();
       console.log("delete exhibitor data", data);
-      
+
       alert(data.message);
       fetchExhibitorData();
     } catch (error) {
@@ -6649,12 +6657,13 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleEditExhibitorStall = (index) => {
+  const handleEditExhibitorStall = (stall, index) => {
     const stallToEdit = stallList[index];
     setEditingIndex(index);
 
     setFormData((prev) => ({
       ...prev,
+      id: stall.id,
       company_name: stallToEdit.company_name || "",
       stall_number: stallToEdit.stall_number || "",
       hall_number: stallToEdit.hall_number || "",
@@ -6678,9 +6687,13 @@ const AdminDashboard = () => {
   const handleUpdateExhibitorStall = async (e) => {
     e.preventDefault();
 
-    if (editingIndex === null) return;
+    if (!formData.id) {
+      alert("Invalid stall ID");
+      return;
+    }
 
     const stallData = {
+      id: Number(formData.id),
       company_name: formData.company_name || "",
       stall_number: formData.stall_number || "",
       hall_number: formData.hall_number || "",
@@ -6703,18 +6716,24 @@ const AdminDashboard = () => {
         "https://inoptics.in/api/edit_exhibitor_stall.php",
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify(stallData),
         },
       );
 
       const result = await response.json();
 
-      if (response.ok) {
-        alert(result.message || "Stall updated successfully");
-        fetchStallsByCompany(formData.company_name);
+      if (response.ok && result.message) {
+        alert(result.message);
 
+        // 🔄 refresh stalls list
+        await fetchStallsByCompany(formData.company_name);
+
+        // reset form
         setFormData({
+          id: "",
           company_name: "",
           stall_number: "",
           hall_number: "",
@@ -6738,7 +6757,7 @@ const AdminDashboard = () => {
       }
     } catch (error) {
       console.error("Update error:", error);
-      alert("Error updating stall");
+      alert("Server error while updating stall");
     }
   };
 
@@ -7865,8 +7884,6 @@ const AdminDashboard = () => {
       setActiveNavbarItem("FURNITURE REQUIREMENT");
     }
   }, [overlayContent]);
-  
-
 
   const handleUpdateFurniture = async () => {
     if (!editFurnitureName || !editFurniturePrice) {
@@ -11873,12 +11890,11 @@ const AdminDashboard = () => {
     fetchMediaGalleryDetails();
   }, []);
 
-
   useEffect(() => {
-  if (overlayContent === "Exhibitor Badges") {
-    setActiveNavbarItem("EXHIBITOR BADGES");
-  }
-}, [overlayContent]);
+    if (overlayContent === "Exhibitor Badges") {
+      setActiveNavbarItem("EXHIBITOR BADGES");
+    }
+  }, [overlayContent]);
 
   // Fetch all Media Gallery entries
   const fetchMediaGalleryDetails = async () => {
@@ -12299,11 +12315,6 @@ const AdminDashboard = () => {
 
   // --- EXPORT BASIC DETAILS ---
   const handleExportSelected = async () => {
-    if (selectedFields.length === 0) {
-      alert("Please select at least one field to export.");
-      return;
-    }
-
     try {
       const res = await fetch(
         "https://inoptics.in/api/fetch_excel_basic_details.php",
@@ -12314,26 +12325,38 @@ const AdminDashboard = () => {
         },
       );
 
-      const data = await res.json();
+      const text = await res.text();
 
-      if (!data || data.length === 0) {
-        alert("No data found for selected fields.");
+      // console.log("API RESPONSE:", text);
+
+      if (!text) {
+        alert("Server returned empty response.");
         return;
       }
 
-      // Convert JSON to worksheet
-      const ws = XLSX.utils.json_to_sheet(data);
+      const result = JSON.parse(text);
 
-      // Create a new workbook and append worksheet
+      if (!result.success) {
+        alert(result.error);
+        return;
+      }
+
+      const data = result.data;
+
+      const ws = XLSX.utils.json_to_sheet(data);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Exhibitors");
 
-      // Write workbook and trigger download
       const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-      const blob = new Blob([wbout], { type: "application/octet-stream" });
+
+      const blob = new Blob([wbout], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+
       saveAs(blob, "Exhibitors_Basic_Details.xlsx");
     } catch (err) {
-      console.error("Export failed:", err);
+      console.error(err);
+      alert("Export failed. Check console.");
     }
   };
 
@@ -12441,36 +12464,66 @@ const AdminDashboard = () => {
 
   const handleLabelPrint = async () => {
     try {
-      const res = await fetch("https://inoptics.in/api/fetch_label_data.php");
-      const data = await res.json();
+      const res = await fetch("https://inoptics.in/api/fetch_label_data.php", {
+        method: "GET",
+        headers: { Accept: "application/json" },
+      });
 
-      if (!data || data.length === 0) {
+      const raw = await res.text();
+      if (!raw) {
+        alert("Empty response from server.");
+        return;
+      }
+
+      let data;
+      try {
+        data = JSON.parse(raw);
+      } catch (e) {
+        console.error("Non-JSON response:", raw);
+        alert("API response JSON nahi hai. Console me response dekho.");
+        return;
+      }
+
+      // If API returns {success:true,data:[...]} convert to array
+      if (data && !Array.isArray(data) && Array.isArray(data.data)) {
+        data = data.data;
+      }
+
+      if (!Array.isArray(data) || data.length === 0) {
         alert("No label data found.");
         return;
       }
 
-      const sortedData = [...data].sort((a, b) =>
-        a.company_name
+      // Normalize keys (pin/mobile naming issues)
+      const normalized = data.map((item) => ({
+        name: item.name ?? item.Name ?? "",
+        company_name: item.company_name ?? item["Company Name"] ?? "",
+        address: item.address ?? item.Address ?? "",
+        city: item.city ?? item.City ?? "",
+        state: item.state ?? item.State ?? "",
+        pincode: item.pincode ?? item.pin ?? item.Pincode ?? "",
+        mobile_no: item.mobile_no ?? item.mobile ?? item["Mobile No"] ?? "",
+      }));
+
+      const sortedData = [...normalized].sort((a, b) =>
+        (a.company_name || "")
           .toLowerCase()
-          .localeCompare(b.company_name.toLowerCase()),
+          .localeCompare((b.company_name || "").toLowerCase()),
       );
 
       const printWindow = window.open("", "_blank");
+      if (!printWindow) {
+        alert("Popup blocked. Please allow popups for this site.");
+        return;
+      }
+
       printWindow.document.write(`
       <html>
         <head>
           <title>Label Print</title>
           <style>
-            @page {
-              size: A4;
-              margin: 0;
-            }
-            body {
-              margin: 0;
-              padding: 0;
-              font-family: "Segoe UI", Arial, sans-serif;
-              background: white;
-            }
+            @page { size: A4; margin: 0; }
+            body { margin: 0; padding: 0; font-family: "Segoe UI", Arial, sans-serif; background: white; }
             .page-container {
               width: 20.0cm;
               height: 27.12cm;
@@ -12483,10 +12536,7 @@ const AdminDashboard = () => {
               box-sizing: border-box;
               justify-content: center;
             }
-            .page-container:not(:first-child) {
-              page-break-before: always;
-              padding-top: 1.3cm;
-            }
+            .page-container:not(:first-child) { page-break-before: always; padding-top: 1.3cm; }
             .label {
               width: 9.91cm;
               height: 3.39cm;
@@ -12500,52 +12550,15 @@ const AdminDashboard = () => {
               overflow: hidden;
               page-break-inside: avoid;
             }
-              .label-id {
-              font-weight: bold;
-              font-size: 9.4pt;
-              margin-bottom: 2px;
-              text-align: left;
-              text-transform: uppercase;
-              letter-spacing: 0.3px;
-            }
-            .kind-attention {
-              font-weight: bold;
-              font-size: 9.4pt;
-              text-transform: uppercase;
-              margin-left: 5px;
-              letter-spacing: 0.3px;
-            }
-            .company-name {
-              font-weight: bold;
-              text-transform: uppercase;
-              font-size: 9.4pt;
-              margin-bottom: 2px;
-              text-align: left;
-            }
-            .address, .state, .phone {
-              font-weight: bold;
-              text-transform: uppercase;
-              font-size: 9.4pt;
-              letter-spacing: -0.5px;
-            }
-            .city-pincode {
-              display: flex;
-              gap: 5px;
-              font-weight: bold;
-              text-transform: uppercase;
-            }
+            .label-id { font-weight: bold; font-size: 9.4pt; margin-bottom: 2px; text-align: left; text-transform: uppercase; letter-spacing: 0.3px; }
+            .kind-attention { font-weight: bold; font-size: 9.4pt; text-transform: uppercase; margin-left: 5px; letter-spacing: 0.3px; }
+            .company-name { font-weight: bold; text-transform: uppercase; font-size: 9.4pt; margin-bottom: 2px; text-align: left; }
+            .address, .state, .phone { font-weight: bold; text-transform: uppercase; font-size: 9.4pt; letter-spacing: -0.5px; }
+            .city-pincode { display: flex; gap: 5px; font-weight: bold; text-transform: uppercase; }
             @media print {
-              body {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-                margin: 0 !important;
-              }
-              .page-container {
-                margin: 1.29cm auto !important;
-              }
-              .page-container:not(:first-child) {
-                padding-top: 1.29cm !important;
-              }
+              body { -webkit-print-color-adjust: exact; print-color-adjust: exact; margin: 0 !important; }
+              .page-container { margin: 1.29cm auto !important; }
+              .page-container:not(:first-child) { padding-top: 1.29cm !important; }
             }
           </style>
         </head>
@@ -12557,38 +12570,32 @@ const AdminDashboard = () => {
           )
             .map(
               (pageData, pageIndex) => `
-                <div class="page-container">
-                  ${pageData
-                    .map((item, i) => {
-                      const labelId = (pageIndex * 16 + i + 1)
-                        .toString()
-                        .padStart(3, "0");
-                      return `
-                        <div class="label">
-                          <div class="label-id">
-                            (${labelId})
-                            <span class="kind-attention">
-                              ATTN: ${item.name || ""}
-                            </span>
-                          </div>
-                          <div class="company-name">M/S ${
-                            item.company_name || ""
-                          }</div>
-                          <div class="address">${item.address || ""}</div>
-                          <div class="city-pincode">
-                            <span>${item.city || ""}</span>
-                            <span>${item.pincode || ""}</span>
-                          </div>
-                          <div class="state">${item.state || ""}</div>
-                          <div class="phone">MOBILE : ${
-                            item.mobile_no || ""
-                          }</div>
-                        </div>
-                      `;
-                    })
-                    .join("")}
-                </div>
-              `,
+            <div class="page-container">
+              ${pageData
+                .map((item, i) => {
+                  const labelId = (pageIndex * 16 + i + 1)
+                    .toString()
+                    .padStart(3, "0");
+                  return `
+                  <div class="label">
+                    <div class="label-id">
+                      (${labelId})
+                      <span class="kind-attention">ATTN: ${item.name || ""}</span>
+                    </div>
+                    <div class="company-name">M/S ${item.company_name || ""}</div>
+                    <div class="address">${item.address || ""}</div>
+                    <div class="city-pincode">
+                      <span>${item.city || ""}</span>
+                      <span>${item.pincode || ""}</span>
+                    </div>
+                    <div class="state">${item.state || ""}</div>
+                    <div class="phone">MOBILE : ${item.mobile_no || ""}</div>
+                  </div>
+                `;
+                })
+                .join("")}
+            </div>
+          `,
             )
             .join("")}
         </body>
@@ -12596,32 +12603,63 @@ const AdminDashboard = () => {
     `);
 
       printWindow.document.close();
-      printWindow.focus();
-      printWindow.print();
+
+      // Ensure content is rendered before print (important)
+      printWindow.onload = () => {
+        printWindow.focus();
+        printWindow.print();
+      };
     } catch (error) {
       console.error("Label print failed:", error);
+      alert("Label print failed. Console check karo.");
     }
   };
 
   const labelBoxRef = useRef(null);
 
   useEffect(() => {
-    if (showBasicExport) {
-      fetch("https://inoptics.in/api/fetch_label_data.php")
-        .then((res) => res.json())
-        .then((data) => {
-          if (Array.isArray(data)) {
-            // ✅ Sort alphabetically by company_name (A → Z)
-            const sortedData = data.sort((a, b) =>
-              a.company_name.localeCompare(b.company_name),
-            );
-            setLabelData(sortedData);
-          } else {
-            setLabelData([]);
-          }
-        })
-        .catch((err) => console.error("Failed to fetch label data:", err));
-    }
+    if (!showBasicExport) return;
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const res = await fetch(
+          "https://inoptics.in/api/fetch_label_data.php",
+          {
+            method: "GET",
+            headers: { Accept: "application/json" },
+          },
+        );
+
+        const result = await res.json();
+
+        // handle both shapes:
+        const arr = Array.isArray(result)
+          ? result
+          : Array.isArray(result?.data)
+            ? result.data
+            : [];
+
+        const sortedData = [...arr].sort((a, b) =>
+          (a?.company_name || "")
+            .toLowerCase()
+            .localeCompare((b?.company_name || "").toLowerCase()),
+        );
+
+        if (!cancelled) {
+          setLabelData(sortedData);
+          setCurrentLabelIndex(0); // important for preview navigation
+        }
+      } catch (err) {
+        console.error("Failed to fetch label data:", err);
+        if (!cancelled) setLabelData([]);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [showBasicExport]);
 
   const handleNextLabel = () => {
@@ -13267,56 +13305,52 @@ const AdminDashboard = () => {
     }
   };
 
-
-const sendPowerRevisedMail = async (companyName, email) => {
-
-  try {
-
-    const res = await fetch(
-      "https://inoptics.in/api/send_power_revised_mail.php",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
+  const sendPowerRevisedMail = async (companyName, email) => {
+    try {
+      const res = await fetch(
+        "https://inoptics.in/api/send_power_revised_mail.php",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            company_name: companyName,
+            template_name: "POWER LOAD INCREASED",
+            email: email,
+          }),
         },
-        body: JSON.stringify({
-          company_name: companyName,
-          template_name: "POWER LOAD INCREASED",
-          email: email
-        })
-      }
-    );
+      );
 
-    const data = await res.json();
-    console.log(data);
+      const data = await res.json();
+      console.log(data);
+    } catch (error) {
+      console.error("Failed to send power revised mail:", error);
+    }
+  };
 
-  } catch (error) {
-    console.error("Failed to send power revised mail:", error);
-  }
+  const sendPowerVendorMail = async (companyName) => {
+    try {
+      const res = await fetch(
+        "https://inoptics.in/api/send_power_vendor_mail.php",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            template_name: "Revised Power Load Vendor",
+            company_name: companyName,
+          }),
+        },
+      );
 
-};
-
-const sendPowerVendorMail = async (companyName) => {
-  try {
-    const res = await fetch("https://inoptics.in/api/send_power_vendor_mail.php", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-    template_name: "Revised Power Load Vendor",
-    company_name: companyName
-  })
-});
-
-const data = await res.json();
-    console.log(data);
-
-
-  } catch (error) {
-    console.error("Failed to send vendor mail:", error);
-  }
-};
+      const data = await res.json();
+      console.log(data);
+    } catch (error) {
+      console.error("Failed to send vendor mail:", error);
+    }
+  };
 
   const sendPowerMailToAdmin = async (companyName) => {
     try {
@@ -13489,6 +13523,70 @@ const data = await res.json();
     }
   };
 
+  const exportTableData = () => {
+    const dataArray = Object.values(groupedData); // object → array convert
+
+    const exportData = dataArray
+      .sort((a, b) =>
+        a.company_name.localeCompare(b.company_name, undefined, {
+          sensitivity: "base",
+        }),
+      )
+      .map((item, index) => {
+        const stallWithCat = (item.stall_no || []).map((stall, i) => {
+          const cat = (item.category?.[i] || "").toLowerCase();
+
+          let suffix = "";
+
+          if (cat.includes("bare")) suffix = "B";
+          else if (cat.includes("shell")) suffix = "S";
+
+          return `${stall}(${suffix})`;
+        });
+
+        const stallAreas = item.stall_area || [];
+
+        const bsValues = [
+          ...new Set(
+            (item.category || []).map((cat) => {
+              const c = (cat || "").toLowerCase();
+
+              if (c.includes("bare")) return "B";
+              if (c.includes("shell")) return "S";
+
+              return "";
+            }),
+          ),
+        ].filter(Boolean);
+
+        const mobileNumbers = item.mobile
+          ? item.mobile.split(",").map((m) => m.trim())
+          : [];
+
+        return {
+          ID: index + 1,
+          "Company Name": item.company_name,
+          "Stall No": stallWithCat.join(", "),
+          "Stall Area": stallAreas.map((area) => `${area} sq mtr`).join(", "),
+          "B/S": bsValues.join(", "),
+          Email: item.email,
+          Mobile: mobileNumbers.join(", "),
+        };
+      });
+
+    if (exportData.length === 0) {
+      toast.error("No data to export");
+      return;
+    }
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Exhibitors");
+
+    XLSX.writeFile(workbook, "Exhibitor_List.xlsx");
+  };
+
   return (
     <div className="dashboard-container">
       <aside className={`sidebar ${collapsed ? "collapsed" : ""}`}>
@@ -13514,12 +13612,12 @@ const data = await res.json();
             <FaBullhorn /> {!collapsed && "Promotes Your Brands"}{" "}
           </li>
           <li onClick={() => openOverlay("Fascia Name")}>
-            <BsBuildingsFill  /> {!collapsed && "Fascia Name"}{" "}
+            <BsBuildingsFill /> {!collapsed && "Fascia Name"}{" "}
           </li>
           <li onClick={() => openOverlay("Exhibitor Power")}>
             <FaPowerOff /> {!collapsed && "Exhibitor Power"}{" "}
           </li>
-         
+
           <li onClick={() => openOverlay("Exhibitor Forms")}>
             <FaWpforms /> {!collapsed && "Exhibitor Forms"}
           </li>
@@ -13527,16 +13625,16 @@ const data = await res.json();
             <LuFileBadge2 /> {!collapsed && "Exhibitor Badges"}
           </li>
           <li onClick={() => openOverlay("Extra Furniture")}>
-            <MdChair  /> {!collapsed && "Extra Furniture"}
+            <MdChair /> {!collapsed && "Extra Furniture"}
           </li>
           <li onClick={() => openOverlay("Contractor Badges")}>
-            <MdChair  /> {!collapsed && "Contractor Badges"}
+            <MdChair /> {!collapsed && "Contractor Badges"}
           </li>
           <li onClick={() => openOverlay("Exhibitor Mandotary Forms")}>
-            <MdChair  /> {!collapsed && "Exhibitor Mandotary Forms"}
+            <MdChair /> {!collapsed && "Exhibitor Mandotary Forms"}
           </li>
           <li onClick={() => openOverlay("Unlock Contractor")}>
-            <MdChair  /> {!collapsed && "Unlock Contractor"}
+            <MdChair /> {!collapsed && "Unlock Contractor"}
           </li>
           <li onClick={() => openOverlay("Payments")}>
             <FaMoneyBill /> {!collapsed && "Payments"}
@@ -13557,7 +13655,7 @@ const data = await res.json();
             </ul>
           )}
 
-           <li onClick={() => setShowFormsMenu(!showFormsMenu)}>
+          <li onClick={() => setShowFormsMenu(!showFormsMenu)}>
             <FaWpforms /> {!collapsed && "Forms"}
           </li>
           {!collapsed && showFormsMenu && (
@@ -13597,6 +13695,9 @@ const data = await res.json();
           <li onClick={() => openOverlay("New Exhibitor Request")}>
             <FaUserPlus /> {!collapsed && "New Exhibitor Request"}
           </li>
+          {/* <li onClick={() => openOverlay("Export Contractor")}>
+            <FaUserPlus /> {!collapsed && "Export Contractor"}
+          </li> */}
           <li onClick={() => openOverlay("Contact Support")}>
             <FaEnvelope /> {!collapsed && "Contact Support"}
           </li>
@@ -14046,7 +14147,7 @@ const data = await res.json();
                           onClick={() => setShowAddFurnitureForm(true)}
                         >
                           + Add Furniture
-                        </button>                        
+                        </button>
                       </div>
                     )}
                     {overlayContent === "Power Requirement" && (
@@ -14056,7 +14157,7 @@ const data = await res.json();
                           onClick={() => setShowAddForm(true)}
                         >
                           + Add Power
-                        </button>                        
+                        </button>
                       </div>
                     )}
                     {overlayContent === "Badges Limit" && (
@@ -14066,7 +14167,7 @@ const data = await res.json();
                           onClick={() => setShowBadgeLimitsAddForm(true)}
                         >
                           + Add Badge Limits
-                        </button>                        
+                        </button>
                       </div>
                     )}
                     {overlayContent === "Exhibitor Series Edit" && (
@@ -14076,7 +14177,7 @@ const data = await res.json();
                           onClick={() => setShowBadgeLimitsAddForm(true)}
                         >
                           + Add Badge Limits
-                        </button>                        
+                        </button>
                       </div>
                     )}
 
@@ -14292,8 +14393,33 @@ const data = await res.json();
                       type="text"
                       className="search-box"
                       placeholder="Search by company name..."
-                      value={exhibitorSearchQuery}
-                      onChange={(e) => setExhibitorSearchQuery(e.target.value)}
+                      value={companySearch}
+                     onChange={(e) => setCompanySearch(e.target.value)}
+                      style={{ marginLeft: "10px", marginRight: "5px" }}
+                    />
+                    <button
+                      className="Exhibitor-top-bar-button"
+                      onClick={() => {
+                        // Trigger search logic here
+                        handleExhibitorSearch(exhibitorSearchQuery);
+                      }}
+                    >
+                      Search
+                    </button>
+
+                    <button
+                      className="Exhibitor-top-bar-export-button"
+                      onClick={exportTableData}
+                    >
+                      Export Excel
+                    </button>
+
+                    <input
+                      type="text"
+                      className="search-box"
+                      placeholder="B/S"
+                      value={bsSearch}
+                      onChange={(e) => setBsSearch(e.target.value.toUpperCase())}
                       style={{ marginLeft: "10px", marginRight: "5px" }}
                     />
                     <button
@@ -14493,379 +14619,359 @@ const data = await res.json();
           )}
 
           {overlayContent === "Power Requirement" && (
-            <>         
-              
-                
-                  <div className="table-scroll-wrapper">
-                    <div className="table-container">
-                      <table>
-                        <thead>
-                          <tr>
-                            <th>ID</th>
-                            <th>POWER TYPE</th>
-                            <th>PRICE</th>
-                            <th>Action</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {filteredPowerData.length > 0 ? (
-                            filteredPowerData
-                              .slice()
-                              .sort((a, b) =>
-                                a.power_type.localeCompare(b.power_type),
-                              )
-                              .map((item, index) => (
-                                <tr key={item.id}>
-                                  <td>{index + 1}</td>
-                                  <td>{item.power_type}</td>
-                                  <td>{item.price}</td>
-                                  <td>
-                                    <button
-                                      className="action-btn edit-btn"
-                                      onClick={() => handleEdit(item)}
-                                    >
-                                      Edit
-                                    </button>
-                                    <button
-                                      className="action-btn delete-btn"
-                                      onClick={() => handleDelete(item.id)}
-                                    >
-                                      Delete
-                                    </button>
-                                  </td>
-                                </tr>
-                              ))
-                          ) : (
-                            <tr>
-                              <td colSpan="4">No data found</td>
+            <>
+              <div className="table-scroll-wrapper">
+                <div className="table-container">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>POWER TYPE</th>
+                        <th>PRICE</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredPowerData.length > 0 ? (
+                        filteredPowerData
+                          .slice()
+                          .sort((a, b) =>
+                            a.power_type.localeCompare(b.power_type),
+                          )
+                          .map((item, index) => (
+                            <tr key={item.id}>
+                              <td>{index + 1}</td>
+                              <td>{item.power_type}</td>
+                              <td>{item.price}</td>
+                              <td>
+                                <button
+                                  className="action-btn edit-btn"
+                                  onClick={() => handleEdit(item)}
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  className="action-btn delete-btn"
+                                  onClick={() => handleDelete(item.id)}
+                                >
+                                  Delete
+                                </button>
+                              </td>
                             </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
+                          ))
+                      ) : (
+                        <tr>
+                          <td colSpan="4">No data found</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
 
-                  {showAddForm && (
-                    <div className="modal-form">
-                      <h3>Add Power Requirement</h3>
-                      <input
-                        type="text"
-                        ref={stallInputRef}
-                        placeholder="Power Type"
-                        value={powerType}
-                        onChange={(e) => setPowerType(e.target.value)}
-                      />
-                      <input
-                        type="number"
-                        placeholder="Price"
-                        value={price}
-                        onChange={(e) => setPrice(e.target.value)}
-                      />
-                      <button onClick={addPowerRequirement}>Submit</button>
-                      <button onClick={() => setShowAddForm(false)}>
-                        Cancel
-                      </button>
-                    </div>
-                  )}
+              {showAddForm && (
+                <div className="modal-form">
+                  <h3>Add Power Requirement</h3>
+                  <input
+                    type="text"
+                    ref={stallInputRef}
+                    placeholder="Power Type"
+                    value={powerType}
+                    onChange={(e) => setPowerType(e.target.value)}
+                  />
+                  <input
+                    type="number"
+                    placeholder="Price"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                  />
+                  <button onClick={addPowerRequirement}>Submit</button>
+                  <button onClick={() => setShowAddForm(false)}>Cancel</button>
+                </div>
+              )}
 
-                  {showEditForm && (
-                    <div className="modal-form">
-                      <h3>Edit Power Requirement</h3>
-                      <input
-                        type="text"
-                        ref={editStallInputRef}
-                        placeholder="Power Type"
-                        value={editPowerType}
-                        onChange={(e) => setEditPowerType(e.target.value)}
-                      />
-                      <input
-                        type="number"
-                        placeholder="Price"
-                        value={editPrice}
-                        onChange={(e) => setEditPrice(e.target.value)}
-                      />
-                      <button onClick={handleUpdate}>Update</button>
-                      <button onClick={() => setShowEditForm(false)}>
-                        Cancel
-                      </button>
-                    </div>
-                  )}
-                </>
+              {showEditForm && (
+                <div className="modal-form">
+                  <h3>Edit Power Requirement</h3>
+                  <input
+                    type="text"
+                    ref={editStallInputRef}
+                    placeholder="Power Type"
+                    value={editPowerType}
+                    onChange={(e) => setEditPowerType(e.target.value)}
+                  />
+                  <input
+                    type="number"
+                    placeholder="Price"
+                    value={editPrice}
+                    onChange={(e) => setEditPrice(e.target.value)}
+                  />
+                  <button onClick={handleUpdate}>Update</button>
+                  <button onClick={() => setShowEditForm(false)}>Cancel</button>
+                </div>
+              )}
+            </>
           )}
           {overlayContent === "Furniture Requirement" && (
             <>
-           
-                  <div className="add-furniture-grid-wrapper">
-                    {filteredFurnitureData.length > 0 ? (
-                      <div className="add-furniture-grid">
-                        {[...filteredFurnitureData]
-                          .sort((a, b) => {
-                            const piA = parseInt(
-                              a.name.match(/PI-(\d+)/)?.[1] || 0,
-                            );
-                            const piB = parseInt(
-                              b.name.match(/PI-(\d+)/)?.[1] || 0,
-                            );
-                            return piA - piB;
-                          })
-                          .map((item, index) => {
-                            const match = item.name.match(/PI-(\d+)/);
-                            const displayId = match ? parseInt(match[1]) : "?";
+              <div className="add-furniture-grid-wrapper">
+                {filteredFurnitureData.length > 0 ? (
+                  <div className="add-furniture-grid">
+                    {[...filteredFurnitureData]
+                      .sort((a, b) => {
+                        const piA = parseInt(
+                          a.name.match(/PI-(\d+)/)?.[1] || 0,
+                        );
+                        const piB = parseInt(
+                          b.name.match(/PI-(\d+)/)?.[1] || 0,
+                        );
+                        return piA - piB;
+                      })
+                      .map((item, index) => {
+                        const match = item.name.match(/PI-(\d+)/);
+                        const displayId = match ? parseInt(match[1]) : "?";
 
-                            return (
-                              <div className="add-furniture-card" key={item.id}>
-                                <div className="add-furniture-id">
-                                  ID: {displayId}
-                                </div>
+                        return (
+                          <div className="add-furniture-card" key={item.id}>
+                            <div className="add-furniture-id">
+                              ID: {displayId}
+                            </div>
 
-                                <div className="add-furniture-image-wrapper">
-                                  <img
-                                    src={`https://www.inoptics.in/api/uploads/${item.image}`}
-                                    alt={item.name}
-                                    className="add-furniture-image"
-                                  />
-                                </div>
+                            <div className="add-furniture-image-wrapper">
+                              <img
+                                src={`https://www.inoptics.in/api/uploads/${item.image}`}
+                                alt={item.name}
+                                className="add-furniture-image"
+                              />
+                            </div>
 
-                                <div className="add-furniture-name">
-                                  {item.name}
-                                </div>
-                                <div className="add-furniture-price">
-                                  ₹{item.price}
-                                </div>
+                            <div className="add-furniture-name">
+                              {item.name}
+                            </div>
+                            <div className="add-furniture-price">
+                              ₹{item.price}
+                            </div>
 
-                                <div className="add-furniture-actions">
+                            <div className="add-furniture-actions">
+                              <button
+                                className="action-btn edit-btn"
+                                onClick={() => handleEditFurniture(item)}
+                              >
+                                Edit
+                              </button>
+                              <button
+                                className="action-btn delete-btn"
+                                onClick={() => handleDeleteFurniture(item.id)}
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                ) : (
+                  <p style={{ padding: "10px" }}>No data found</p>
+                )}
+              </div>
+
+              {showAddFurnitureForm && (
+                <div className="modal-form">
+                  <h3>Add Furniture Requirement</h3>
+
+                  <input
+                    type="text"
+                    ref={stallInputRef}
+                    placeholder="Name"
+                    value={furnitureName}
+                    onChange={(e) => setFurnitureName(e.target.value)}
+                  />
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setFurnitureImage(e.target.files[0])}
+                  />
+
+                  <input
+                    type="number"
+                    placeholder="Price"
+                    value={furniturePrice}
+                    onChange={(e) => setFurniturePrice(e.target.value)}
+                  />
+
+                  <button onClick={addFurnitureRequirement}>Submit</button>
+                  <button onClick={() => setShowAddFurnitureForm(false)}>
+                    Cancel
+                  </button>
+                </div>
+              )}
+
+              {showEditFurnitureForm && (
+                <div className="modal-form">
+                  <h3>Edit Furniture Requirement</h3>
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setEditFurnitureImage(e.target.files[0])}
+                  />
+
+                  <input
+                    type="text"
+                    ref={editStallInputRef}
+                    value={editFurnitureName}
+                    onChange={(e) => setEditFurnitureName(e.target.value)}
+                    placeholder="Name"
+                  />
+
+                  <input
+                    type="number"
+                    placeholder="Price"
+                    value={editFurniturePrice}
+                    onChange={(e) => setEditFurniturePrice(e.target.value)}
+                  />
+
+                  <button onClick={handleUpdateFurniture}>Update</button>
+                  <button onClick={() => setShowEditFurnitureForm(false)}>
+                    Cancel
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+          {overlayContent === "Badges Limit" && (
+            <>
+              <>
+                <div className="table-scroll-wrapper">
+                  <div className="table-container">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>ID</th>
+                          <th>Min Square Footage</th>
+                          <th>Max Square Footage</th>
+                          <th>No Of Badges</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {badgeLimitsData && badgeLimitsData.length > 0 ? (
+                          badgeLimitsData
+                            .filter(
+                              (item) =>
+                                (item.min_sq_ft?.toString() || "").includes(
+                                  searchBadgeQuery,
+                                ) ||
+                                (item.max_sq_ft?.toString() || "").includes(
+                                  searchBadgeQuery,
+                                ),
+                            )
+                            .map((item, index) => (
+                              <tr key={item.id || index}>
+                                <td>{index + 1}</td>
+                                <td>{item.min_sq_ft}</td>
+                                <td>{item.max_sq_ft}</td>
+                                <td>{item.no_of_badges}</td>
+                                <td>
                                   <button
                                     className="action-btn edit-btn"
-                                    onClick={() => handleEditFurniture(item)}
+                                    onClick={() => handleBadgeLimitsEdit(item)}
                                   >
                                     Edit
                                   </button>
                                   <button
                                     className="action-btn delete-btn"
-                                    onClick={() =>
-                                      handleDeleteFurniture(item.id)
-                                    }
+                                    onClick={() => deleteBadgeLimit(item.id)}
                                   >
                                     Delete
                                   </button>
-                                </div>
-                              </div>
-                            );
-                          })}
-                      </div>
-                    ) : (
-                      <p style={{ padding: "10px" }}>No data found</p>
-                    )}
-                  </div>
-
-                  {showAddFurnitureForm && (
-                    <div className="modal-form">
-                      <h3>Add Furniture Requirement</h3>
-
-                      <input
-                        type="text"
-                        ref={stallInputRef}
-                        placeholder="Name"
-                        value={furnitureName}
-                        onChange={(e) => setFurnitureName(e.target.value)}
-                      />
-
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => setFurnitureImage(e.target.files[0])}
-                      />
-
-                      <input
-                        type="number"
-                        placeholder="Price"
-                        value={furniturePrice}
-                        onChange={(e) => setFurniturePrice(e.target.value)}
-                      />
-
-                      <button onClick={addFurnitureRequirement}>Submit</button>
-                      <button onClick={() => setShowAddFurnitureForm(false)}>
-                        Cancel
-                      </button>
-                    </div>
-                  )}
-
-                  {showEditFurnitureForm && (
-                    <div className="modal-form">
-                      <h3>Edit Furniture Requirement</h3>
-
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) =>
-                          setEditFurnitureImage(e.target.files[0])
-                        }
-                      />
-
-                      <input
-                        type="text"
-                        ref={editStallInputRef}
-                        value={editFurnitureName}
-                        onChange={(e) => setEditFurnitureName(e.target.value)}
-                        placeholder="Name"
-                      />
-
-                      <input
-                        type="number"
-                        placeholder="Price"
-                        value={editFurniturePrice}
-                        onChange={(e) => setEditFurniturePrice(e.target.value)}
-                      />
-
-                      <button onClick={handleUpdateFurniture}>Update</button>
-                      <button onClick={() => setShowEditFurnitureForm(false)}>
-                        Cancel
-                      </button>
-                    </div>
-                  )}
-              
-              
-            </>
-          )}
-          {overlayContent === "Badges Limit" && (
-            <>
-               <>
-                  <div className="table-scroll-wrapper">
-                    <div className="table-container">
-                      <table>
-                        <thead>
+                                </td>
+                              </tr>
+                            ))
+                        ) : (
                           <tr>
-                            <th>ID</th>
-                            <th>Min Square Footage</th>
-                            <th>Max Square Footage</th>
-                            <th>No Of Badges</th>
-                            <th>Action</th>
+                            <td colSpan="5">No data found</td>
                           </tr>
-                        </thead>
-                        <tbody>
-                          {badgeLimitsData && badgeLimitsData.length > 0 ? (
-                            badgeLimitsData
-                              .filter(
-                                (item) =>
-                                  (item.min_sq_ft?.toString() || "").includes(
-                                    searchBadgeQuery,
-                                  ) ||
-                                  (item.max_sq_ft?.toString() || "").includes(
-                                    searchBadgeQuery,
-                                  ),
-                              )
-                              .map((item, index) => (
-                                <tr key={item.id || index}>
-                                  <td>{index + 1}</td>
-                                  <td>{item.min_sq_ft}</td>
-                                  <td>{item.max_sq_ft}</td>
-                                  <td>{item.no_of_badges}</td>
-                                  <td>
-                                    <button
-                                      className="action-btn edit-btn"
-                                      onClick={() =>
-                                        handleBadgeLimitsEdit(item)
-                                      }
-                                    >
-                                      Edit
-                                    </button>
-                                    <button
-                                      className="action-btn delete-btn"
-                                      onClick={() => deleteBadgeLimit(item.id)}
-                                    >
-                                      Delete
-                                    </button>
-                                  </td>
-                                </tr>
-                              ))
-                          ) : (
-                            <tr>
-                              <td colSpan="5">No data found</td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
+                        )}
+                      </tbody>
+                    </table>
                   </div>
-
-                  {showBadgeLimitsAddForm && (
-                    <div className="modal-form">
-                      <h3>Add Badge Limit</h3>
-                      <input
-                        type="number"
-                        placeholder="Min Square Footage"
-                        value={minSqFt}
-                        onChange={(e) => setMinSqFt(e.target.value)}
-                      />
-                      <input
-                        type="number"
-                        placeholder="Max Square Footage"
-                        value={maxSqFt}
-                        onChange={(e) => setMaxSqFt(e.target.value)}
-                      />
-                      <input
-                        type="number"
-                        placeholder="No Of Badges"
-                        value={noOfBadges}
-                        onChange={(e) => setNoOfBadges(e.target.value)}
-                      />
-                      <button onClick={addBadgeLimit}>Add</button>
-                      <button onClick={() => setShowBadgeLimitsAddForm(false)}>
-                        Cancel
-                      </button>
-                    </div>
-                  )}
-
-                  {showBadgeLimitsEditForm && (
-                    <div className="modal-form">
-                      <h3>Edit Badge Limit</h3>
-                      <input
-                        type="number"
-                        placeholder="Min Square Footage"
-                        value={editMinSqFt}
-                        onChange={(e) => setEditMinSqFt(e.target.value)}
-                      />
-                      <input
-                        type="number"
-                        placeholder="Max Square Footage"
-                        value={editMaxSqFt}
-                        onChange={(e) => setEditMaxSqFt(e.target.value)}
-                      />
-                      <input
-                        type="number"
-                        placeholder="No Of Badges"
-                        value={editNoOfBadges}
-                        onChange={(e) => setEditNoOfBadges(e.target.value)}
-                      />
-                      <button onClick={updateBadgeLimit}>Update</button>
-                      <button onClick={() => setShowBadgeLimitsEditForm(false)}>
-                        Cancel
-                      </button>
-                    </div>
-                  )}
-                </>
-              
-              
-            </>
-          )}
-
-
-           {overlayContent === "Exhibitor Series Edit" && (
-            <>
-            <div style={{ padding: "10px" }}>
-                  <AdminBadgeSeries />
                 </div>
+
+                {showBadgeLimitsAddForm && (
+                  <div className="modal-form">
+                    <h3>Add Badge Limit</h3>
+                    <input
+                      type="number"
+                      placeholder="Min Square Footage"
+                      value={minSqFt}
+                      onChange={(e) => setMinSqFt(e.target.value)}
+                    />
+                    <input
+                      type="number"
+                      placeholder="Max Square Footage"
+                      value={maxSqFt}
+                      onChange={(e) => setMaxSqFt(e.target.value)}
+                    />
+                    <input
+                      type="number"
+                      placeholder="No Of Badges"
+                      value={noOfBadges}
+                      onChange={(e) => setNoOfBadges(e.target.value)}
+                    />
+                    <button onClick={addBadgeLimit}>Add</button>
+                    <button onClick={() => setShowBadgeLimitsAddForm(false)}>
+                      Cancel
+                    </button>
+                  </div>
+                )}
+
+                {showBadgeLimitsEditForm && (
+                  <div className="modal-form">
+                    <h3>Edit Badge Limit</h3>
+                    <input
+                      type="number"
+                      placeholder="Min Square Footage"
+                      value={editMinSqFt}
+                      onChange={(e) => setEditMinSqFt(e.target.value)}
+                    />
+                    <input
+                      type="number"
+                      placeholder="Max Square Footage"
+                      value={editMaxSqFt}
+                      onChange={(e) => setEditMaxSqFt(e.target.value)}
+                    />
+                    <input
+                      type="number"
+                      placeholder="No Of Badges"
+                      value={editNoOfBadges}
+                      onChange={(e) => setEditNoOfBadges(e.target.value)}
+                    />
+                    <button onClick={updateBadgeLimit}>Update</button>
+                    <button onClick={() => setShowBadgeLimitsEditForm(false)}>
+                      Cancel
+                    </button>
+                  </div>
+                )}
+              </>
             </>
           )}
-           {overlayContent === "Message Rules" && (
+
+          {overlayContent === "Exhibitor Series Edit" && (
             <>
-            <div style={{ padding: "10px" }}>
-                  <MessageRulesManager />
-                </div>
+              <div style={{ padding: "10px" }}>
+                <AdminBadgeSeries />
+              </div>
             </>
           )}
-
-
+          {overlayContent === "Message Rules" && (
+            <>
+              <div style={{ padding: "10px" }}>
+                <MessageRulesManager />
+              </div>
+            </>
+          )}
 
           {overlayContent === "Business Requirement" && (
             <>
@@ -15936,6 +16042,12 @@ const data = await res.json();
             </div>
           )}
 
+          {overlayContent === "Export Contractor" && (
+            <>
+              <ExportContractorList />
+            </>
+          )}
+
           {overlayContent === "New Exhibitor Request" && (
             <div className="overlay-section">
               {loadingNewExhibitors ? (
@@ -16600,17 +16712,41 @@ const data = await res.json();
                           rowNumber: index + 1,
                         }))
                         // ✅ Now filter after assigning row numbers
-                        .filter((item) =>
-                          item.company_name
-                            .toLowerCase()
-                            .includes(exhibitorSearchQuery.toLowerCase()),
-                        )
+                        .filter((item) => {
+
+  // B / S values
+  const bsValues = [
+    ...new Set(
+      item.category.map((cat) => {
+        const c = (cat || "").toLowerCase().trim();
+
+        if (c.includes("bare")) return "B";
+        if (c.includes("shell")) return "S";
+
+        return "";
+      })
+    )
+  ].filter(Boolean);
+
+  const companyMatch = item.company_name
+    .toLowerCase()
+    .includes(companySearch.toLowerCase());
+
+  const bsMatch =
+    bsSearch === "" ||
+    bsValues.includes(bsSearch);
+
+  return companyMatch && bsMatch;
+})
                         .map((item) => {
                           const stallWithCat = item.stall_no.map((stall, i) => {
-                            const cat = item.category[i] || "";
-                            const suffix = cat
-                              .replace("Bare Space ", "")
-                              .replace("Shell Scheme ", "");
+                            const cat = (item.category[i] || "").toLowerCase();
+
+                            let suffix = "";
+
+                            if (cat.includes("bare")) suffix = "B";
+                            else if (cat.includes("shell")) suffix = "S";
+
                             return `${stall}(${suffix})`;
                           });
 
@@ -16631,15 +16767,16 @@ const data = await res.json();
                           // B/S values
                           const bsValues = [
                             ...new Set(
-                              item.category.map((cat) =>
-                                cat.startsWith("Bare Space")
-                                  ? "B"
-                                  : cat.startsWith("Shell Scheme")
-                                    ? "S"
-                                    : "",
-                              ),
+                              item.category.map((cat) => {
+                                const c = (cat || "").toLowerCase().trim();
+
+                                if (c.includes("bare")) return "B";
+                                if (c.includes("shell")) return "S";
+
+                                return "";
+                              }),
                             ),
-                          ];
+                          ].filter(Boolean);
 
                           // Mobile numbers split by comma
                           const mobileNumbers = item.mobile
@@ -16713,7 +16850,7 @@ const data = await res.json();
                                       fax: item.fax || "",
                                       gst: item.gst || "",
                                       secondary_emails:
-                                      item.secondary_emails || "",
+                                        item.secondary_emails || "",
                                       password: item.password || "",
                                       stall_no: item.stall_no || "",
                                       category: item.category || "",
@@ -16736,7 +16873,9 @@ const data = await res.json();
                                   className="action-btn delete-btn"
                                   title="Delete"
                                   // onClick={() => deleteExhibitor(item.id)}
-                                  onClick={() => deleteExhibitor(item.company_name)}
+                                  onClick={() =>
+                                    deleteExhibitor(item.company_name)
+                                  }
                                 >
                                   <FontAwesomeIcon icon={faTrash} />
                                 </button>
@@ -17495,282 +17634,298 @@ const data = await res.json();
 
                         <div className="modal-content">
                           {activeNavbarItem === "BASIC DETAILS" && (
-                            <>                            
-                            <div className="basic-details-form-with-chnage-company-name">
-                              <div className="basic-details-form slide-up-form">
-                              <form
-                                className="form-grid"
-                                onSubmit={handleSubmit}
-                              >
-                                {/* COMPANY NAME */}
-                                <div className="form-group full-width">
-                                  <label>
-                                    COMPANY NAME{" "}
-                                    <span style={{ color: "red" }}>
-                                      *
-                                    </span>
-                                  </label>
-                                  <input
-                                    type="text"
-                                    name="company_name"
-                                    value={formData.company_name || ""}
-                                    onChange={handleChange}
-                                    className={
-                                      errors.company_name ? "input-error" : ""
-                                    }
-                                  />
-                                  {errors.company_name && (
-                                    <span className="error-text">
-                                      This field is required
-                                    </span>
-                                  )}
-                                </div>
-
-                                {/* NAME */}
-                                <div className="form-group full-width">
-                                  <label>
-                                    NAME <span style={{ color: "red" }}>*</span>
-                                  </label>
-                                  <input
-                                    type="text"
-                                    name="name"
-                                    value={formData.name || ""}
-                                    onChange={handleChange}
-                                    className={errors.name ? "input-error" : ""}
-                                  />
-                                  {errors.name && (
-                                    <span className="error-text">
-                                      This field is required
-                                    </span>
-                                  )}
-                                </div>
-
-                                {/* ADDRESS */}
-                                <div className="form-group full-width">
-                                  <label>
-                                    ADDRESS{" "}
-                                    <span style={{ color: "red" }}>*</span>
-                                  </label>
-                                  <input
-                                    type="text"
-                                    name="address"
-                                    value={formData.address || ""}
-                                    onChange={handleChange}
-                                    className={
-                                      errors.address ? "input-error" : ""
-                                    }
-                                  />
-                                  {errors.address && (
-                                    <span className="error-text">
-                                      This field is required
-                                    </span>
-                                  )}
-                                </div>
-
-                                {/* CITY / STATE / PIN */}
-                                <div className="row-group">
-                                  <div className="form-subgroup">
-                                    <label>
-                                      CITY{" "}
-                                      <span style={{ color: "red" }}>*</span>
-                                    </label>
-                                    <input
-                                      type="text"
-                                      name="city"
-                                      value={formData.city || ""}
-                                      onChange={handleChange}
-                                      className={
-                                        errors.city ? "input-error" : ""
-                                      }
-                                    />
-                                    {errors.city && (
-                                      <span className="error-text">
-                                        This field is required
-                                      </span>
-                                    )}
-                                  </div>
-                                  <div className="form-subgroup">
-                                    <label>
-                                      STATE{" "}
-                                      <span style={{ color: "red" }}>*</span>
-                                    </label>
-                                    <input
-                                      type="text"
-                                      name="state"
-                                      value={formData.state || ""}
-                                      onChange={handleChange}
-                                      className={
-                                        errors.state ? "input-error" : ""
-                                      }
-                                    />
-                                    {errors.state && (
-                                      <span className="error-text">
-                                        This field is required
-                                      </span>
-                                    )}
-                                  </div>
-                                  <div className="form-subgroup">
-                                    <label>
-                                      PINCODE{" "}
-                                      <span style={{ color: "red" }}>*</span>
-                                    </label>
-                                    <input
-                                      type="text"
-                                      name="pin"
-                                      value={formData.pin || ""}
-                                      onChange={handleChange}
-                                      className={
-                                        errors.pin ? "input-error" : ""
-                                      }
-                                    />
-                                    {errors.pin && (
-                                      <span className="error-text">
-                                        This field is required
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-
-                                {/* MOBILE / TELEPHONE */}
-                                {/* MOBILE / TELEPHONE */}
-                                <div className="row-group">
-                                  <div className="form-subgroup">
-                                    <label>
-                                      MOBILE{" "}
-                                      <span style={{ color: "red" }}>*</span>
-                                    </label>
-                                    <input
-                                      type="text"
-                                      name="mobile"
-                                      placeholder="9876543210, 8765432109" // ✅ allow comma-separated mobiles
-                                      value={formData.mobile || ""}
-                                      onChange={handleChange}
-                                      className={
-                                        errors.mobile ? "input-error" : ""
-                                      }
-                                    />
-                                    {errors.mobile && (
-                                      <span className="error-text">
-                                        This field is required
-                                      </span>
-                                    )}
-                                  </div>
-                                  <div className="form-subgroup">
-                                    <label>TELEPHONE</label>
-                                    <input
-                                      type="text"
-                                      name="telephone"
-                                      value={formData.telephone || ""}
-                                      onChange={handleChange}
-                                    />
-                                  </div>
-                                </div>
-
-                                {/* EMAIL / SECONDARY EMAILS */}
-                                <div className="row-group">
-                                  <div className="form-subgroup">
-                                    <label>
-                                      EMAIL{" "}
-                                      <span style={{ color: "red" }}>*</span>
-                                    </label>
-                                    <input
-                                      type="text"
-                                      name="email"
-                                      value={formData.email || ""}
-                                      onChange={handleChange}
-                                      className={
-                                        errors.email ? "input-error" : ""
-                                      }
-                                    />
-                                    {errors.email && (
-                                      <span className="error-text">
-                                        This field is required
-                                      </span>
-                                    )}
-                                  </div>
-                                  <div className="form-subgroup">
-                                    <label>SECONDARY EMAILS</label>
-                                    <input
-                                      type="text"
-                                      name="secondary_emails"
-                                      placeholder="email1@example.com, email2@example.com"
-                                      value={formData.secondary_emails || ""}
-                                      onChange={handleChange}
-                                    />
-                                  </div>
-                                </div>
-
-                                {/* GST & Submit Button in same row */}
-                                <div className="row-group gst-row">
-                                  {/* GST Input */}
-                                  <div className="form-subgroup">
-                                    <label>GST</label>
-                                    <input
-                                      type="text"
-                                      name="gst"
-                                      value={formData.gst || ""}
-                                      onChange={handleChange}
-                                    />
-                                  </div>
-
-                                  {/* Buttons group */}
-                                  <div className="form-subgroup button-group">
-                                    {showExhibitorEditForm && (
-                                      <button
-                                        type="button"
-                                        className="send-mail-btn"
-                                        onClick={() =>
-                                          handleSendMail(
-                                            "Exhibitor Login & Password",
-                                          )
+                            <>
+                              <div className="basic-details-form-with-chnage-company-name">
+                                <div className="basic-details-form slide-up-form">
+                                  <form
+                                    className="form-grid"
+                                    onSubmit={handleSubmit}
+                                  >
+                                    {/* COMPANY NAME */}
+                                    <div className="form-group full-width">
+                                      <label>
+                                        COMPANY NAME{" "}
+                                        <span style={{ color: "red" }}>*</span>
+                                      </label>
+                                      <input
+                                        type="text"
+                                        name="company_name"
+                                        value={formData.company_name || ""}
+                                        onChange={handleChange}
+                                        className={
+                                          errors.company_name
+                                            ? "input-error"
+                                            : ""
                                         }
-                                      >
-                                        Send Mail
-                                      </button>
-                                    )}
-                                    <button
-                                      type="submit"
-                                      className="update-btn"
-                                    >
-                                      {showExhibitorEditForm
-                                        ? "Update"
-                                        : "Submit"}
-                                    </button>
-                                  </div>
-                                </div>
-
-                                {/* Password display */}
-                                {showExhibitorEditForm && (
-                                  <div className="form-row">
-                                    <div className="form-group password-label">
-                                      <p
-                                        style={{
-                                          fontWeight: "600",
-                                          fontFamily: "montserrat",
-                                        }}
-                                      >
-                                        Password:{" "}
-                                        <span>
-                                          {formData.password || "N/A"}
+                                      />
+                                      {errors.company_name && (
+                                        <span className="error-text">
+                                          This field is required
                                         </span>
-                                      </p>
+                                      )}
                                     </div>
-                                  </div>
-                                )}
-                              </form>
-                              {isSendingMail && (
-                                <div className="waiting-overlay">
-                                  <div className="waiting-loader"></div>
-                                  <p>Sending mail, please wait...</p>
-                                </div>
-                              )}
 
-                            </div>
-                              <div>
-                                <UpdateCompanyName  fetchExhibitorData={fetchExhibitorData}/>
+                                    {/* NAME */}
+                                    <div className="form-group full-width">
+                                      <label>
+                                        NAME{" "}
+                                        <span style={{ color: "red" }}>*</span>
+                                      </label>
+                                      <input
+                                        type="text"
+                                        name="name"
+                                        value={formData.name || ""}
+                                        onChange={handleChange}
+                                        className={
+                                          errors.name ? "input-error" : ""
+                                        }
+                                      />
+                                      {errors.name && (
+                                        <span className="error-text">
+                                          This field is required
+                                        </span>
+                                      )}
+                                    </div>
+
+                                    {/* ADDRESS */}
+                                    <div className="form-group full-width">
+                                      <label>
+                                        ADDRESS{" "}
+                                        <span style={{ color: "red" }}>*</span>
+                                      </label>
+                                      <input
+                                        type="text"
+                                        name="address"
+                                        value={formData.address || ""}
+                                        onChange={handleChange}
+                                        className={
+                                          errors.address ? "input-error" : ""
+                                        }
+                                      />
+                                      {errors.address && (
+                                        <span className="error-text">
+                                          This field is required
+                                        </span>
+                                      )}
+                                    </div>
+
+                                    {/* CITY / STATE / PIN */}
+                                    <div className="row-group">
+                                      <div className="form-subgroup">
+                                        <label>
+                                          CITY{" "}
+                                          <span style={{ color: "red" }}>
+                                            *
+                                          </span>
+                                        </label>
+                                        <input
+                                          type="text"
+                                          name="city"
+                                          value={formData.city || ""}
+                                          onChange={handleChange}
+                                          className={
+                                            errors.city ? "input-error" : ""
+                                          }
+                                        />
+                                        {errors.city && (
+                                          <span className="error-text">
+                                            This field is required
+                                          </span>
+                                        )}
+                                      </div>
+                                      <div className="form-subgroup">
+                                        <label>
+                                          STATE{" "}
+                                          <span style={{ color: "red" }}>
+                                            *
+                                          </span>
+                                        </label>
+                                        <input
+                                          type="text"
+                                          name="state"
+                                          value={formData.state || ""}
+                                          onChange={handleChange}
+                                          className={
+                                            errors.state ? "input-error" : ""
+                                          }
+                                        />
+                                        {errors.state && (
+                                          <span className="error-text">
+                                            This field is required
+                                          </span>
+                                        )}
+                                      </div>
+                                      <div className="form-subgroup">
+                                        <label>
+                                          PINCODE{" "}
+                                          <span style={{ color: "red" }}>
+                                            *
+                                          </span>
+                                        </label>
+                                        <input
+                                          type="text"
+                                          name="pin"
+                                          value={formData.pin || ""}
+                                          onChange={handleChange}
+                                          className={
+                                            errors.pin ? "input-error" : ""
+                                          }
+                                        />
+                                        {errors.pin && (
+                                          <span className="error-text">
+                                            This field is required
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    {/* MOBILE / TELEPHONE */}
+                                    {/* MOBILE / TELEPHONE */}
+                                    <div className="row-group">
+                                      <div className="form-subgroup">
+                                        <label>
+                                          MOBILE{" "}
+                                          <span style={{ color: "red" }}>
+                                            *
+                                          </span>
+                                        </label>
+                                        <input
+                                          type="text"
+                                          name="mobile"
+                                          placeholder="9876543210, 8765432109" // ✅ allow comma-separated mobiles
+                                          value={formData.mobile || ""}
+                                          onChange={handleChange}
+                                          className={
+                                            errors.mobile ? "input-error" : ""
+                                          }
+                                        />
+                                        {errors.mobile && (
+                                          <span className="error-text">
+                                            This field is required
+                                          </span>
+                                        )}
+                                      </div>
+                                      <div className="form-subgroup">
+                                        <label>TELEPHONE</label>
+                                        <input
+                                          type="text"
+                                          name="telephone"
+                                          value={formData.telephone || ""}
+                                          onChange={handleChange}
+                                        />
+                                      </div>
+                                    </div>
+
+                                    {/* EMAIL / SECONDARY EMAILS */}
+                                    <div className="row-group">
+                                      <div className="form-subgroup">
+                                        <label>
+                                          EMAIL{" "}
+                                          <span style={{ color: "red" }}>
+                                            *
+                                          </span>
+                                        </label>
+                                        <input
+                                          type="text"
+                                          name="email"
+                                          value={formData.email || ""}
+                                          onChange={handleChange}
+                                          className={
+                                            errors.email ? "input-error" : ""
+                                          }
+                                        />
+                                        {errors.email && (
+                                          <span className="error-text">
+                                            This field is required
+                                          </span>
+                                        )}
+                                      </div>
+                                      <div className="form-subgroup">
+                                        <label>SECONDARY EMAILS</label>
+                                        <input
+                                          type="text"
+                                          name="secondary_emails"
+                                          placeholder="email1@example.com, email2@example.com"
+                                          value={
+                                            formData.secondary_emails || ""
+                                          }
+                                          onChange={handleChange}
+                                        />
+                                      </div>
+                                    </div>
+
+                                    {/* GST & Submit Button in same row */}
+                                    <div className="row-group gst-row">
+                                      {/* GST Input */}
+                                      <div className="form-subgroup">
+                                        <label>GST</label>
+                                        <input
+                                          type="text"
+                                          name="gst"
+                                          value={formData.gst || ""}
+                                          onChange={handleChange}
+                                        />
+                                      </div>
+
+                                      {/* Buttons group */}
+                                      <div className="form-subgroup button-group">
+                                        {showExhibitorEditForm && (
+                                          <button
+                                            type="button"
+                                            className="send-mail-btn"
+                                            onClick={() =>
+                                              handleSendMail(
+                                                "Exhibitor Login & Password",
+                                              )
+                                            }
+                                          >
+                                            Send Mail
+                                          </button>
+                                        )}
+                                        <button
+                                          type="submit"
+                                          className="update-btn"
+                                        >
+                                          {showExhibitorEditForm
+                                            ? "Update"
+                                            : "Submit"}
+                                        </button>
+                                      </div>
+                                    </div>
+
+                                    {/* Password display */}
+                                    {showExhibitorEditForm && (
+                                      <div className="form-row">
+                                        <div className="form-group password-label">
+                                          <p
+                                            style={{
+                                              fontWeight: "600",
+                                              fontFamily: "montserrat",
+                                            }}
+                                          >
+                                            Password:{" "}
+                                            <span>
+                                              {formData.password || "N/A"}
+                                            </span>
+                                          </p>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </form>
+                                  {isSendingMail && (
+                                    <div className="waiting-overlay">
+                                      <div className="waiting-loader"></div>
+                                      <p>Sending mail, please wait...</p>
+                                    </div>
+                                  )}
+                                </div>
+                                <div>
+                                  <UpdateCompanyName
+                                    fetchExhibitorData={fetchExhibitorData}
+                                  />
+                                </div>
                               </div>
-                            </div>
-                          </>
+                            </>
                           )}
 
                           {activeNavbarItem === "STALLS" && (
@@ -18212,6 +18367,7 @@ const data = await res.json();
                                                 className="edit-btn"
                                                 onClick={() =>
                                                   handleEditExhibitorStall(
+                                                    stall,
                                                     rowIndex,
                                                   )
                                                 }
@@ -18576,44 +18732,53 @@ const data = await res.json();
                                   <div className="power-requirement-top-buttons-inside-box">
                                     {/* Send Mail button always visible */}
                                     {showExhibitorEditForm && (
-  <button
-    className="power-btn send-mail-btn"
-    onClick={() =>
-      toast.promise(
-        (async () => {
-          await sendPowerRevisedMail(formData.company_name, formData.email);
-          await sendPowerVendorMail(formData.company_name);
-        })(),
-        {
-          loading: "Sending update mail...",
-          success: "Updated power mail sent successfully",
-          error: "Failed to send mail",
-        }
-      )
-    }
-  >
-    Send Update Power Mail
-  </button>
-)}
-  <button
-    className="power-btn send-mail-btn"
-    onClick={() =>
-      toast.promise(
-        (async () => {
-          await sendPowerMailToAdmin(formData.company_name);
-          await handleSendPowerDetailsMail(formData.company_name);
-        })(),
-        {
-          loading: "Sending mail...",
-          success: "Mail sent successfully",
-          error: "Failed to send mail",
-        }
-      )
-    }
-  >
-    Send Mail
-  </button>
-
+                                      <button
+                                        className="power-btn send-mail-btn"
+                                        onClick={() =>
+                                          toast.promise(
+                                            (async () => {
+                                              await sendPowerRevisedMail(
+                                                formData.company_name,
+                                                formData.email,
+                                              );
+                                              await sendPowerVendorMail(
+                                                formData.company_name,
+                                              );
+                                            })(),
+                                            {
+                                              loading: "Sending update mail...",
+                                              success:
+                                                "Updated power mail sent successfully",
+                                              error: "Failed to send mail",
+                                            },
+                                          )
+                                        }
+                                      >
+                                        Send Update Power Mail
+                                      </button>
+                                    )}
+                                    <button
+                                      className="power-btn send-mail-btn"
+                                      onClick={() =>
+                                        toast.promise(
+                                          (async () => {
+                                            await sendPowerMailToAdmin(
+                                              formData.company_name,
+                                            );
+                                            await handleSendPowerDetailsMail(
+                                              formData.company_name,
+                                            );
+                                          })(),
+                                          {
+                                            loading: "Sending mail...",
+                                            success: "Mail sent successfully",
+                                            error: "Failed to send mail",
+                                          },
+                                        )
+                                      }
+                                    >
+                                      Send Mail
+                                    </button>
 
                                     {!isViewOnly && (
                                       <>
@@ -18625,7 +18790,6 @@ const data = await res.json();
                                             ? "Update"
                                             : "Submit"}
                                         </button>
-                                        
 
                                         {/* 🔹 Show Unlock button only if locked */}
                                         {isLocked && (
@@ -18758,9 +18922,7 @@ const data = await res.json();
                                 </div>
                               </div>
                             </>
-                          )}  
-
-                          
+                          )}
 
                           {activeNavbarItem === "EXHIBITOR BADGES" && (
                             <div className="exhibitor-badges-form slide-up-form">
@@ -18788,8 +18950,8 @@ const data = await res.json();
                                       Additional badges can be requested at a
                                       cost of ₹100 per badge. However, any badge
                                       requests made after{" "}
-                                      <strong>20th March 2026</strong> will
-                                      be charged at ₹200 per badge.
+                                      <strong>20th March 2026</strong> will be
+                                      charged at ₹200 per badge.
                                       <br />
                                       <br />
                                       We kindly request you to order only the
@@ -19597,7 +19759,7 @@ const data = await res.json();
                                                 price: item.price,
                                                 quantity: item.quantity,
                                                 total:
-                                                item.quantity * item.price,
+                                                  item.quantity * item.price,
                                               }),
                                             ),
                                           };
@@ -23281,202 +23443,208 @@ const data = await res.json();
                             </div>
                           )}
 
-                         {activeNavbarItem === "BRANDS" && (
+                          {activeNavbarItem === "BRANDS" && (
+                            <div className="brands-container">
+                              {/* ================= LEFT SIDE VIEW ================= */}
 
-<div className="brands-container">
+                              <div className="brands-form-admin slide-up-form">
+                                <h2 className="brands-heading">
+                                  Brands Preview
+                                </h2>
 
-  {/* ================= LEFT SIDE VIEW ================= */}
+                                <div className="brands-input-row">
+                                  <div className="brands-field-group">
+                                    <label>Website:</label>
+                                    <p>{brandsData.website || "-"}</p>
+                                  </div>
 
-  <div className="brands-form-admin slide-up-form">
+                                  <div className="brands-field-group">
+                                    <label>Products:</label>
 
-    <h2 className="brands-heading">Brands Preview</h2>
+                                    <div className="selected-products-container">
+                                      {(brandsData.products || []).length > 0 &&
+                                      brandsData.products.length > 0 ? (
+                                        brandsData.products.map(
+                                          (product, index) => (
+                                            <div
+                                              key={index}
+                                              className="selected-product"
+                                            >
+                                              {product}
+                                            </div>
+                                          ),
+                                        )
+                                      ) : (
+                                        <p>-</p>
+                                      )}
+                                    </div>
+                                  </div>
 
-    <div className="brands-input-row">
+                                  <div className="brands-field-group">
+                                    <label>Home Brands:</label>
+                                    <p>{brandsData.home_brands || "-"}</p>
+                                  </div>
 
-      <div className="brands-field-group">
-        <label>Website:</label>
-        <p>{brandsData.website || "-"}</p>
-      </div>
+                                  <div className="brands-field-group">
+                                    <label>Distributors of Brands:</label>
+                                    <p>{brandsData.distributors || "-"}</p>
+                                  </div>
 
-      <div className="brands-field-group">
-        <label>Products:</label>
+                                  <div className="brands-field-group">
+                                    <label>International Brands:</label>
+                                    <p>
+                                      {brandsData.international_brands || "-"}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
 
-        <div className="selected-products-container">
+                              {/* ================= RIGHT SIDE FORM ================= */}
 
-          {(brandsData.products || []).length > 0 &&
-            brandsData.products.length > 0 ? (
-              brandsData.products.map((product, index) => (
-                <div key={index} className="selected-product">
-                  {product}
-                </div>
-              ))
-            ) : (
-              <p>-</p>
-            )}
+                              <div className="brands-form slide-up-form">
+                                <h2 className="brands-heading">Brands</h2>
 
-        </div>
-      </div>
+                                <div className="brands-input-row">
+                                  <div className="brands-field-group">
+                                    <label>Website:</label>
+                                    <input
+                                      type="text"
+                                      value={brandsData.website}
+                                      onChange={(e) =>
+                                        setBrandsData((prev) => ({
+                                          ...prev,
+                                          website: e.target.value,
+                                        }))
+                                      }
+                                    />
+                                  </div>
 
-      <div className="brands-field-group">
-        <label>Home Brands:</label>
-        <p>{brandsData.home_brands || "-"}</p>
-      </div>
+                                  <div className="brands-field-group">
+                                    <label>Products:</label>
 
-      <div className="brands-field-group">
-        <label>Distributors of Brands:</label>
-        <p>{brandsData.distributors || "-"}</p>
-      </div>
+                                    <div className="selected-products-container">
+                                      {Array.isArray(brandsData.products) &&
+                                        brandsData.products.map(
+                                          (product, index) => (
+                                            <div
+                                              key={index}
+                                              className="selected-product"
+                                            >
+                                              {product}
 
-      <div className="brands-field-group">
-        <label>International Brands:</label>
-        <p>{brandsData.international_brands || "-"}</p>
-      </div>
+                                              <span
+                                                className="remove-icon"
+                                                onClick={() =>
+                                                  setBrandsData((prev) => ({
+                                                    ...prev,
+                                                    products:
+                                                      prev.products.filter(
+                                                        (p) => p !== product,
+                                                      ),
+                                                  }))
+                                                }
+                                              >
+                                                ✖
+                                              </span>
+                                            </div>
+                                          ),
+                                        )}
+                                    </div>
 
-    </div>
+                                    <select
+                                      value=""
+                                      onChange={(e) => {
+                                        const selected = e.target.value;
 
-  </div>
+                                        if (
+                                          selected &&
+                                          !brandsData.products.includes(
+                                            selected,
+                                          )
+                                        ) {
+                                          setBrandsData((prev) => ({
+                                            ...prev,
+                                            products: [
+                                              ...prev.products,
+                                              selected,
+                                            ],
+                                          }));
+                                        }
+                                      }}
+                                    >
+                                      <option value="">
+                                        -- Select Product --
+                                      </option>
 
+                                      {products.map((product, index) => (
+                                        <option
+                                          key={index}
+                                          value={product.name}
+                                        >
+                                          {product.name}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
 
-  {/* ================= RIGHT SIDE FORM ================= */}
+                                  <div className="brands-field-group">
+                                    <label>Home Brands:</label>
+                                    <input
+                                      type="text"
+                                      value={brandsData.home_brands}
+                                      onChange={(e) =>
+                                        setBrandsData((prev) => ({
+                                          ...prev,
+                                          home_brands: e.target.value,
+                                        }))
+                                      }
+                                    />
+                                  </div>
 
-  <div className="brands-form slide-up-form">
+                                  <div className="brands-field-group">
+                                    <label>Distributors of Brands:</label>
+                                    <input
+                                      type="text"
+                                      value={brandsData.distributors}
+                                      onChange={(e) =>
+                                        setBrandsData((prev) => ({
+                                          ...prev,
+                                          distributors: e.target.value,
+                                        }))
+                                      }
+                                    />
+                                  </div>
 
-    <h2 className="brands-heading">Brands</h2>
+                                  <div className="brands-field-group">
+                                    <label>International Brands:</label>
+                                    <input
+                                      type="text"
+                                      value={brandsData.international_brands}
+                                      onChange={(e) =>
+                                        setBrandsData((prev) => ({
+                                          ...prev,
+                                          international_brands: e.target.value,
+                                        }))
+                                      }
+                                    />
+                                  </div>
+                                </div>
 
-    <div className="brands-input-row">
-
-      <div className="brands-field-group">
-        <label>Website:</label>
-        <input
-          type="text"
-          value={brandsData.website}
-          onChange={(e) =>
-            setBrandsData((prev) => ({
-              ...prev,
-              website: e.target.value,
-            }))
-          }
-        />
-      </div>
-
-
-      <div className="brands-field-group">
-        <label>Products:</label>
-
-        <div className="selected-products-container">
-          {Array.isArray(brandsData.products) &&
-            brandsData.products.map((product, index) => (
-              <div key={index} className="selected-product">
-                {product}
-
-                <span
-                  className="remove-icon"
-                  onClick={() =>
-                    setBrandsData((prev) => ({
-                      ...prev,
-                      products: prev.products.filter(
-                        (p) => p !== product
-                      ),
-                    }))
-                  }
-                >
-                  ✖
-                </span>
-              </div>
-            ))}
-        </div>
-
-        <select
-          value=""
-          onChange={(e) => {
-            const selected = e.target.value;
-
-            if (
-              selected &&
-              !brandsData.products.includes(selected)
-            ) {
-              setBrandsData((prev) => ({
-                ...prev,
-                products: [...prev.products, selected],
-              }));
-            }
-          }}
-        >
-          <option value="">-- Select Product --</option>
-
-          {products.map((product, index) => (
-            <option key={index} value={product.name}>
-              {product.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-
-      <div className="brands-field-group">
-        <label>Home Brands:</label>
-        <input
-          type="text"
-          value={brandsData.home_brands}
-          onChange={(e) =>
-            setBrandsData((prev) => ({
-              ...prev,
-              home_brands: e.target.value,
-            }))
-          }
-        />
-      </div>
-
-
-      <div className="brands-field-group">
-        <label>Distributors of Brands:</label>
-        <input
-          type="text"
-          value={brandsData.distributors}
-          onChange={(e) =>
-            setBrandsData((prev) => ({
-              ...prev,
-              distributors: e.target.value,
-            }))
-          }
-        />
-      </div>
-
-
-      <div className="brands-field-group">
-        <label>International Brands:</label>
-        <input
-          type="text"
-          value={brandsData.international_brands}
-          onChange={(e) =>
-            setBrandsData((prev) => ({
-              ...prev,
-              international_brands: e.target.value,
-            }))
-          }
-        />
-      </div>
-
-    </div>
-
-    <div className="brands-button-section">
-      <button
-        className="brands-details-add-brands-btn"
-        onClick={
-          showBrandsEditForm
-            ? handleUpdateBrands
-            : handleSubmitBrands
-        }
-      >
-        {showBrandsEditForm ? "Update" : "Submit"}
-      </button>
-    </div>
-
-  </div>
-
-</div>
-
-)}
+                                <div className="brands-button-section">
+                                  <button
+                                    className="brands-details-add-brands-btn"
+                                    onClick={
+                                      showBrandsEditForm
+                                        ? handleUpdateBrands
+                                        : handleSubmitBrands
+                                    }
+                                  >
+                                    {showBrandsEditForm ? "Update" : "Submit"}
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </>
                     )}
@@ -25062,37 +25230,37 @@ const data = await res.json();
           )}
           {overlayContent === "Fascia Name" && (
             <>
-             <FasciaNameAdmin />             
+              <FasciaNameAdmin />
             </>
           )}
           {overlayContent === "Exhibitor Power" && (
             <>
-             <AdminPowerRequirement exhibitorData={exhibitorData} />             
+              <AdminPowerRequirement exhibitorData={exhibitorData} />
             </>
           )}
           {overlayContent === "Extra Furniture" && (
             <>
-             <ExtraFurnitureManager  />             
+              <ExtraFurnitureManager />
             </>
           )}
           {overlayContent === "Exhibitor Mandotary Forms" && (
             <>
-            <ContractorStepsUnlockAdmin />            
+              <ContractorStepsUnlockAdmin />
             </>
           )}
           {overlayContent === "Unlock Contractor" && (
             <>
-            <UnlockContractor 
-            unlockRequests={unlockRequests}
-            loading={loading}
-            processing={processing}
-            handleUnlock={handleUnlock}
-  />            
+              <UnlockContractor
+                unlockRequests={unlockRequests}
+                loading={loading}
+                processing={processing}
+                handleUnlock={handleUnlock}
+              />
             </>
           )}
           {overlayContent === "Contractor Badges" && (
             <>
-             <ContractorBadgeAdmin />    
+              <ContractorBadgeAdmin />
             </>
           )}
 
@@ -26415,7 +26583,6 @@ const data = await res.json();
 
               {/* Contractor Content */}
               <div className="contractor-tab-content">
-                
                 {activeContractorTab === "Contractor Badges" && (
                   <>
                     <ContractorBadgeAdmin />
@@ -28865,6 +29032,7 @@ const data = await res.json();
                                   "UnderTaking and Declaration Accept",
                                   "Contractor Selection",
                                   "Fascia Email",
+                                  "Booth Design Approve",
                                 ].map((place) => (
                                   <label key={place}>
                                     <input
@@ -28992,6 +29160,7 @@ const data = await res.json();
                                   "UnderTaking and Declaration Accept",
                                   "Contractor Selection",
                                   "Fascia Email",
+                                  "Booth Design Approve",
                                 ].map((place) => (
                                   <label key={place}>
                                     <input

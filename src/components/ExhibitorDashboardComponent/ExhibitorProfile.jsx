@@ -87,7 +87,11 @@ const StallDetailsCard = ({ stallList }) => (
             {/* <Detail label="Stall Category" value={stall.stall_category} /> */}
             <Detail
               label="Stall Price"
-              value={stall.stall_price ? `₹${stall.stall_price}` : null}
+              value={
+                stall.stall_price
+                  ? `${stall.currency || stallList?.[0]?.currency || "₹"} ${stall.stall_price}`
+                  : null
+              }
             />
             <Detail
               label="Stall Area"

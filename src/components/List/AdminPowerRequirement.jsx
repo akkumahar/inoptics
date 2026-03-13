@@ -14,7 +14,13 @@ const AdminPowerRequirement = ({ exhibitorData }) => {
   const [editingRow, setEditingRow] = useState(null);
 
   const [powerPaymentSummary, setPowerPaymentSummary] = useState({});
+  const [unlockRequests, setUnlockRequests] = useState({});
 
+  const [showExhibitorList, setShowExhibitorList] = useState(false);
+  const [showAddPowerModal, setShowAddPowerModal] = useState(false);
+  const [selectedExhibitor, setSelectedExhibitor] = useState(null);
+
+  const [exhibitorSearch, setExhibitorSearch] = useState("");
   /* ================= FETCH DATA ================= */
 
   useEffect(() => {
@@ -25,7 +31,7 @@ const AdminPowerRequirement = ({ exhibitorData }) => {
     const summary = {};
 
     rows.forEach((row) => {
-      const company = row.company_name;
+      const company = row.company_name?.trim();
       const amount = Number(row.total_amount || 0);
       const state = (row.state || "").toLowerCase();
 
@@ -81,11 +87,23 @@ const AdminPowerRequirement = ({ exhibitorData }) => {
           ...new Set(
             result.data
               .filter((i) => i.company_name)
-              .map((i) => i.company_name.trim()),
+              .map((i) => i.company_name?.trim()),
           ),
         ];
 
         setCompanies(uniqueCompanies);
+        const requestMap = {};
+
+        result.data.forEach((row) => {
+          const company = row.company_name?.trim();
+          if (!company) return;
+
+          if (row.unlock_requested == 1) {
+            requestMap[company] = true;
+          }
+        });
+
+        setUnlockRequests(requestMap);
       } else {
         toast.error("No data found");
       }
@@ -99,13 +117,15 @@ const AdminPowerRequirement = ({ exhibitorData }) => {
   /* ================= GROUP DATA ================= */
 
   const groupedData = rows.reduce((acc, row) => {
-    if (!row.company_name) return acc;
+    const name = row.company_name?.trim();
 
-    if (!acc[row.company_name]) {
-      acc[row.company_name] = [];
+    if (!name) return acc;
+
+    if (!acc[name]) {
+      acc[name] = [];
     }
 
-    acc[row.company_name].push(row);
+    acc[name].push(row);
     return acc;
   }, {});
 
@@ -378,10 +398,6 @@ const AdminPowerRequirement = ({ exhibitorData }) => {
     printWindow.print();
   };
 
-
-
-
-
   const handlePrintAll = () => {
     let html = `
   <html>
@@ -504,6 +520,113 @@ const AdminPowerRequirement = ({ exhibitorData }) => {
     printWindow.print();
   };
 
+  const handleUnlockPowerRequirement = async (companyName) => {
+    if (!companyName) return alert("Company name missing!");
+
+    try {
+      const res = await fetch(
+        "https://inoptics.in/api/update_unlock_power_requirement.php",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ company_name: companyName }),
+        },
+      );
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        toast.success("Power Requirement unlocked successfully");
+
+        await fetch("https://inoptics.in/api/send_power_unlocked_mail.php", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            company_name: companyName,
+            template_name:
+              "InOptics 2026 @ Successfully Unlocked Power Requirement",
+          }),
+        });
+
+        fetchAllPower();
+      } else {
+        toast.error(data.message || "Failed to unlock panel");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Unlock failed");
+    }
+  };
+
+  const handleAddPower = async () => {
+    if (!editingRow.company_name) {
+      toast.error("Company name missing");
+      return;
+    }
+
+    if (!editingRow.day) {
+      toast.error("Please select day");
+      return;
+    }
+
+    if (!editingRow.power_required) {
+      toast.error("Enter power required");
+      return;
+    }
+
+    try {
+      const price = Number(editingRow.price_per_kw || 4000);
+      const power = Number(editingRow.power_required);
+      const total = price * power;
+
+      const payload = {
+        entries: [
+          {
+            company_name: editingRow.company_name,
+            day: editingRow.day,
+            price_per_kw: price,
+            power_required: power,
+            phase: editingRow.phase || "Single",
+            total_amount: total,
+            is_locked: 0,
+          },
+        ],
+      };
+
+      console.log("Sending payload:", payload);
+
+      const response = await fetch(
+        "https://inoptics.in/api/add_Exhibitor_power_requirement.php",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        },
+      );
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast.success(`Power added for ${editingRow.company_name}`);
+
+        setShowAddPowerModal(false);
+        setEditingRow(null);
+
+        fetchAllPower();
+      } else {
+        console.error(result);
+        toast.error("Submission failed");
+      }
+    } catch (error) {
+      console.error("Add power error:", error);
+      toast.error("Server error");
+    }
+  };
+
   return (
     <div className="admin-power-wrapper">
       <div className="power-top-bar">
@@ -513,6 +636,13 @@ const AdminPowerRequirement = ({ exhibitorData }) => {
 
         <button className="print-all-btn" onClick={handlePrintAll}>
           Print All
+        </button>
+
+        <button
+          className="power-add-btn"
+          onClick={() => setShowExhibitorList(true)}
+        >
+          Add New Exhibitor Power
         </button>
 
         <input
@@ -532,7 +662,11 @@ const AdminPowerRequirement = ({ exhibitorData }) => {
         )
         .map((company, index) => {
           const isOpen = openCompany === company;
-          const companyRows = groupedData[company] || [];
+          const companyRows =
+            rows.filter(
+              (r) =>
+                r.company_name?.trim().toLowerCase() === company.toLowerCase(),
+            ) || [];
 
           return (
             <div key={index} className="power-accordion">
@@ -590,6 +724,18 @@ const AdminPowerRequirement = ({ exhibitorData }) => {
                 >
                   Print
                 </button>
+
+                {unlockRequests[company] && (
+                  <button
+                    className="power-unlock-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleUnlockPowerRequirement(company);
+                    }}
+                  >
+                    Unlock Power
+                  </button>
+                )}
                 <span>{isOpen ? "▲" : "▼"}</span>
               </div>
 
@@ -734,9 +880,164 @@ const AdminPowerRequirement = ({ exhibitorData }) => {
             </div>
 
             <div className="btn-main-action">
-              <button onClick={() => setShowEditModal(false)}>Cancel</button>
+              <button
+                className="power-cancle-btn"
+                onClick={() => setShowEditModal(false)}
+              >
+                Cancel
+              </button>
 
-              <button onClick={handleUpdate}>Update</button>
+              <button className="power-update-btn" onClick={handleUpdate}>
+                Update
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showExhibitorList && (
+        <div className="power-modal-overlay">
+          <div className="power-modal large">
+            <h3>Select Exhibitor</h3>
+            <input
+              type="text"
+              placeholder="Search exhibitor..."
+              className="exhibitor-search"
+              value={exhibitorSearch}
+              onChange={(e) => setExhibitorSearch(e.target.value)}
+            />
+
+            <div className="exhibitor-list">
+              {exhibitorData
+                .filter((ex) =>
+                  ex.company_name
+                    .toLowerCase()
+                    .includes(exhibitorSearch.toLowerCase()),
+                )
+                .map((ex, i) => (
+                  <div key={i} className="exhibitor-row">
+                    <span>{ex.company_name}</span>
+
+                    <button
+                      className="select-btn"
+                      onClick={() => {
+                        setSelectedExhibitor(ex);
+                        setShowExhibitorList(false);
+
+                        setEditingRow({
+                          company_name: ex.company_name,
+                          day: "Setup Days",
+                          price_per_kw: 4000,
+                          power_required: "",
+                          total_amount: 0,
+                          phase: "Single",
+                        });
+
+                        setShowAddPowerModal(true);
+                      }}
+                    >
+                      Select
+                    </button>
+                  </div>
+                ))}
+            </div>
+
+            <button
+              className="power-cancle-btn"
+              onClick={() => setShowExhibitorList(false)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showAddPowerModal && editingRow && (
+        <div className="power-modal-overlay">
+          <div className="power-modal">
+            <h3>Add Power Requirement</h3>
+
+            <label>Company</label>
+            <input value={editingRow.company_name} readOnly />
+
+            <label>Day</label>
+            <select
+              value={editingRow.day}
+              onChange={(e) =>
+                setEditingRow({ ...editingRow, day: e.target.value })
+              }
+            >
+              <option value="">Select Day</option>
+              <option value="Setup Days">Setup Days</option>
+              <option value="Exhibition Days">Exhibition Days</option>
+            </select>
+
+            <label>Price Per KW</label>
+            <input
+              type="number"
+              value={editingRow.price_per_kw || 4000}
+              readOnly
+            />
+
+            <label>Power Required (KW)</label>
+            <input
+              type="number"
+              value={editingRow.power_required}
+              onChange={(e) => {
+                const power = Number(e.target.value) || 0;
+                const price = 4000;
+
+                setEditingRow((prev) => ({
+                  ...prev,
+                  power_required: power,
+                  price_per_kw: price,
+                  total_amount: power * price,
+                }));
+              }}
+            />
+
+            <label>Total Amount</label>
+            <input type="number" value={editingRow.total_amount} readOnly />
+
+            <label>Phase</label>
+
+            <div className="phase-radio">
+              <label>
+                <input
+                  type="radio"
+                  value="Single"
+                  checked={editingRow.phase === "Single"}
+                  onChange={(e) =>
+                    setEditingRow({ ...editingRow, phase: e.target.value })
+                  }
+                />
+                Single Phase
+              </label>
+
+              <label>
+                <input
+                  type="radio"
+                  value="Three"
+                  checked={editingRow.phase === "Three"}
+                  onChange={(e) =>
+                    setEditingRow({ ...editingRow, phase: e.target.value })
+                  }
+                />
+                Three Phase
+              </label>
+            </div>
+
+            <div className="btn-main-action">
+              <button
+                className="power-cancle-btn"
+                onClick={() => setShowAddPowerModal(false)}
+              >
+                Cancel
+              </button>
+
+              <button className="power-update-btn" onClick={handleAddPower}>
+                Add Power
+              </button>
             </div>
           </div>
         </div>

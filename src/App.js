@@ -42,8 +42,10 @@ import ExhibitorExhibitionMap from "./components/ExhibitorExhibitionMap";
 import UnSubscribe from "./components/UnSubscribe";
 import Benefactors from "./components/Benefactors";
 import AdminBadges from "./components/List/AdminBadges";
-import AdminPanel from "./components/AdminPanel";
-import AdminLogin from "./components/AdminLogin";
+import AdminOnePanel from "./components/AdminOnePanel";
+import AdminOneLogin from "./components/AdminOneLogin";
+import AdminTwoPanel from "./components/AdminTwoPanel";
+import AdminTwoLogin from "./components/AdminTwoLogin";
 
 
 // ================= ROUTES =================
@@ -93,8 +95,10 @@ const AnimatedRoutes = () => {
         <Route path="/unsubscribe" element={<UnSubscribe />} />
         <Route path="/benefactors" element={<Benefactors />} />
         <Route path="/exhibit-badges" element={<AdminBadges />} />
-        <Route path="/admin-panel-login" element={<AdminLogin />} />
-        <Route path="/admin-panel" element={<AdminPanel />} />
+        <Route path="/admin1" element={<AdminOneLogin />} />
+        <Route path="/admin1-dashboard" element={<AdminOnePanel />} />
+        <Route path="/exhibitor-badges-printing" element={<AdminTwoLogin />} />
+        <Route path="/exhibitor-badges-dashboard" element={<AdminTwoPanel />} />
       </Routes>
     </AnimatePresence>
   );
@@ -115,8 +119,10 @@ const hideNavbarRoutes = [
   "/exhibitor-dashboard",
   "/exhibitor-login",
   "/unsubscribe",
-  "/admin-panel",
-  "/admin-panel-login"
+  "/admin1-dashboard",
+  "/admin1",
+  "/exhibitor-badges-dashboard",
+  "/exhibitor-badges-printing",
 ];
 
  const hideFloatingCardRoutes = [
@@ -126,8 +132,10 @@ const hideNavbarRoutes = [
   "/exhibitor-login",
   "/unsubscribe",
   "/admin-login",
-  "/admin-panel",
-  "/admin-panel-login"
+  "/admin1-dashboard",
+  "/admin1",
+  "/exhibitor-badges-dashboard",
+  "/exhibitor-badges-printing"
 ];
 
   const exhibitorRoutes = [

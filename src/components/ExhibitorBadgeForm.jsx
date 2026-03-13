@@ -21,6 +21,8 @@ const ExhibitorBadgeForm = ({
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingBadge, setEditingBadge] = useState(null);
 
+  const prevFreeRemaining = useRef(null);
+
   const [showFreeOverPopup, setShowFreeOverPopup] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({
     name: "",
@@ -753,21 +755,37 @@ const ExhibitorBadgeForm = ({
     }
   };
 
-  useEffect(() => {
-    if (loadingCompanyBadges) return;
+useEffect(() => {
+  if (loadingCompanyBadges) return;
 
-    // only when freeRemaining becomes 0
-    if (Number(freeRemaining) !== 0) return;
+  const remaining = Number(freeRemaining);
 
-    // global one-time flag
+  // first load par sirf value store karo
+  if (prevFreeRemaining.current === null) {
+    prevFreeRemaining.current = remaining;
+    return;
+  }
+
+  // popup only when it changes from >0 to 0
+  if (prevFreeRemaining.current > 0 && remaining === 0) {
+
     const alreadyShown = localStorage.getItem("freeRemainingPopupShown");
 
     if (!alreadyShown) {
-      console.log("🔥 Showing freeRemaining popup");
+      console.log("🔥 Free badges finished - showing popup");
+
       setShowFreeOverPopup(true);
+
       localStorage.setItem("freeRemainingPopupShown", "1");
     }
-  }, [freeRemaining, loadingCompanyBadges]);
+  }
+
+  // update previous value
+  prevFreeRemaining.current = remaining;
+
+}, [freeRemaining, loadingCompanyBadges]);
+
+
 
   // ===== LOADING STATE =====
   if (loading && exhibitors.length === 0) {

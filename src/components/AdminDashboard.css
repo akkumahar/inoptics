@@ -278,6 +278,23 @@
   align-items: center;
   justify-content: center;
 }
+.Exhibitor-top-bar-export-button{
+  background-color: #eeb312;
+  color: rgb(0, 0, 0);
+  padding: 12px 18px;          
+  border: none;
+  border-radius: 0;            
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  font-size: 16px;
+  height: 50px;                
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
 /* 
 .right-section {
   display: flex;

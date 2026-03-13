@@ -432,7 +432,7 @@ const AdminBadges = () => {
             <div>
               {badgePaymentSummary[company.company_name] && (
                 <div className="badge-pay-summary">
-                  <span>Badges: {company.badges.length}</span>
+                  <span>Free Badges: {freeQuotaMap[company.company_name] || 0}</span>
 
                   <span>
                     Paid Badges:{" "}

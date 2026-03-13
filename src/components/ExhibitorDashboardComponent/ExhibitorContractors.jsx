@@ -345,13 +345,11 @@ const ExhibitorContractors = (props) => {
   //   }
   // };
 
-useEffect(() => {
-  if (formData?.company_name) {
-    fetchSelectedContractor(formData.company_name);
-  }
-}, [formData?.company_name]);
-
-
+  useEffect(() => {
+    if (formData?.company_name) {
+      fetchSelectedContractor(formData.company_name);
+    }
+  }, [formData?.company_name]);
 
   useEffect(() => {
     if (workflowActive && formData?.company_name) {
@@ -487,9 +485,9 @@ useEffect(() => {
         <div className="ec-action-bar">
           <button
             className="ec-ab-btn unlock"
-             onClick={() =>
-    requestContractorChange(selectedContractor, formData)
-  }
+            onClick={() =>
+              requestContractorChange(selectedContractor, formData)
+            }
           >
             <FaLockOpen /> Unlock
           </button>
@@ -1080,7 +1078,7 @@ useEffect(() => {
 
                       <button
                         className="doc-btn Workflow-next-btn"
-                        style={{ opacity: uploadedSteps?.step1}}
+                        style={{ opacity: uploadedSteps?.step1 }}
                         onClick={() => handleNext(1)}
                       >
                         Next →
