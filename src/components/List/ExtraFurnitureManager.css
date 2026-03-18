@@ -663,10 +663,25 @@ background:#0f5ec7;
   font-size: 13px;
 }
 .furniture-name-search{
-  width: 90%;
+  width: 77%;
   padding: 6px 20px !important;
   border-radius: 6px;
   border: 1px solid #cecece !important;
+}
+
+.new-furniture-add-btn {
+  padding: 10px 22px;
+  border: none;
+  background-color: #09C0CD;
+  color: #fff;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* RESPONSIVE */

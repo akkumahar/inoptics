@@ -164,14 +164,13 @@ table tbody tr:hover {
   margin-bottom: 5px;
 }
 
-
-.power-unlock-btn{
-background:#ef4444;
-color:white;
-padding:6px 12px;
-border:none;
-border-radius:6px;
-cursor:pointer;
+.power-unlock-btn {
+  background: #ef4444;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
 /* =========================
@@ -618,7 +617,7 @@ table tbody tr:hover {
 }
 
 .power-update-btn {
-  background: #2DAC5C;
+  background: #2dac5c;
   color: white;
   border: none;
   padding: 8px 14px;
@@ -757,139 +756,151 @@ table tbody tr:hover {
   }
 }
 
-
-
 /* new css */
-
 
 /* Modal overlay */
 
-.power-modal-overlay{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,0.5);
-display:flex;
-align-items:center;
-justify-content:center;
-z-index:9999;
+.power-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
 }
 
 /* Modal */
 
-.power-modal{
-background:#fff;
-padding:25px;
-border-radius:8px;
-width:400px;
-max-height:80vh;
-overflow:auto;
-box-shadow:0 5px 20px rgba(0,0,0,0.2);
+.power-modal {
+  background: #fff;
+  padding: 25px;
+  border-radius: 8px;
+  width: 400px;
+  max-height: 80vh;
+  overflow: auto;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
 }
 
-.power-modal.large{
-width:550px;
+.power-modal.large {
+  width: 550px;
 }
 
 /* Modal title */
 
-.power-modal h3{
-margin-bottom:15px;
-font-size:20px;
+.power-modal h3 {
+  margin-bottom: 15px;
+  font-size: 20px;
 }
 
 /* Inputs */
 
 .power-modal input,
-.power-modal select{
-width:100%;
-padding:8px;
-margin-bottom:12px;
-border:1px solid #ccc;
-border-radius:4px;
-font-size:14px;
+.power-modal select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
 }
 
 /* Radio */
 
-.phase-radio{
-display:flex;
-gap:20px;
-margin-bottom:15px;
+.phase-radio {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 15px;
 }
 
 /* Buttons container */
 
-.btn-main-action{
-display:flex;
-justify-content:flex-end;
-gap:10px;
-margin-top:10px;
+.btn-main-action {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 /* Buttons */
 
-.power-update-btn{
-background:#2e7d32;
-color:#fff;
-border:none;
-padding:8px 16px;
-cursor:pointer;
-border-radius:4px;
+.power-update-btn {
+  background: #2e7d32;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 4px;
 }
 
-.power-cancle-btn{
-background:#d32f2f;
-color:#fff;
-border:none;
-padding:8px 16px;
-cursor:pointer;
-border-radius:4px;
+.power-cancle-btn {
+  background: #d32f2f;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 4px;
 }
 
 /* Exhibitor list */
 
-.exhibitor-list{
-max-height:350px;
-overflow:auto;
-margin-top:10px;
+.exhibitor-list {
+  max-height: 350px;
+  overflow: auto;
+  margin-top: 10px;
 }
 
 /* Exhibitor row */
 
-.exhibitor-row{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:10px;
-border-bottom:1px solid #eee;
+.exhibitor-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
 }
 
 /* Select button */
 
-.select-btn{
-background:#1976d2;
-color:#fff;
-border:none;
-padding:6px 12px;
-border-radius:4px;
-cursor:pointer;
+.select-btn {
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 /* Search */
 
-.exhibitor-search{
-width:100%;
-padding:8px;
-border:1px solid #ccc;
-border-radius:4px;
-margin-bottom:10px;
+.exhibitor-search {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 10px;
 }
 
 /* Hover */
 
-.exhibitor-row:hover{
-background:#f7f7f7;
+.exhibitor-row:hover {
+  background: #f7f7f7;
+}
+
+.new-power-add-btn {
+  padding: 10px 22px;
+  border: none;
+  background-color: #09C0CD;
+  color: #fff;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

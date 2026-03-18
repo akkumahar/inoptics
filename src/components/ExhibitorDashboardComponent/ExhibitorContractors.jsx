@@ -951,7 +951,15 @@ const ExhibitorContractors = (props) => {
                           <td className="m-only" colSpan="7">
                             <div className="cm-card">
                               <div className="cm-top">
-                                <div className="cm-id">{i + 1}</div>
+                                <div className="cm-id">
+                                  <div className="cm-name">
+                                    {i + 1} {c.name
+                                      ?.toLowerCase()
+                                      .replace(/\b\w/g, (ch) =>
+                                        ch.toUpperCase(),
+                                      )}
+                                  </div>
+                                </div>
                                 <button
                                   className="cm-btn"
                                   disabled={!!selectedContractorId}
@@ -963,12 +971,7 @@ const ExhibitorContractors = (props) => {
                                   Select
                                 </button>
                               </div>
-                              <div className="cm-name">
-                                <FaUser className="cm-icon" />{" "}
-                                {c.name
-                                  ?.toLowerCase()
-                                  .replace(/\b\w/g, (ch) => ch.toUpperCase())}
-                              </div>
+
                               <div className="cm-company">
                                 <FaBuilding className="cm-icon" />{" "}
                                 {c.company_name

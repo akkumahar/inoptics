@@ -1,36 +1,38 @@
-.contractor-wrapper{
-padding:20px;
+.contractor-wrapper {
+  padding: 20px;
+  max-height: 90vh; /* 👈 height ya max-height zaroori hai */
+  overflow: auto;
 }
 
-.contractor-table{
-width:100%;
-border-collapse:collapse;
+.contractor-table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
 .contractor-table th,
-.contractor-table td{
-border:1px solid #ddd;
-padding:10px;
-text-align:left;
+.contractor-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
 }
 
-.contractor-table th{
-background:#f4f4f4;
+.contractor-table th {
+  background: #f4f4f4;
 }
 
-.action-buttons button{
-margin-right:6px;
-padding:6px 12px;
-border:none;
-cursor:pointer;
+.action-buttons button {
+  margin-right: 6px;
+  padding: 6px 12px;
+  border: none;
+  cursor: pointer;
 }
 
-.edit-btn{
-background:#1976d2;
-color:white;
+.edit-btn {
+  background: #1976d2;
+  color: white;
 }
 
-.delete-btn{
-background:#e53935;
-color:white;
+.delete-btn {
+  background: #e53935;
+  color: white;
 }

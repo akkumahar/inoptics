@@ -79,7 +79,6 @@ const ExhibitorDashboard = () => {
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [editPowerData, setEditPowerData] = useState({});
 
-
   const [isBareSpace, setIsBareSpace] = useState(false);
 
   const handleEditPower = (row) => {
@@ -355,6 +354,48 @@ const ExhibitorDashboard = () => {
     { name: "Fascia Name", icon: <FaIdCard /> },
     { name: "Payment", icon: <FaMoneyBill /> },
   ];
+
+  const fetchContractorUndertakingStatus = async (companyName) => {
+    try {
+      const res = await fetch(
+        `https://inoptics.in/api/get_contractor_undertaking_status.php?company_name=${encodeURIComponent(
+          companyName,
+        )}`,
+      );
+
+      const statusData = await res.json();
+
+      if (statusData.undertaking_accepted) {
+        setActivities((prev) =>
+          prev.map((act) =>
+            act.name === "CONTRACTOR UNDERTAKING & REGISTRATION"
+              ? { ...act, done: true }
+              : act,
+          ),
+        );
+      } else {
+        setActivities((prev) =>
+          prev.map((act) =>
+            act.name === "CONTRACTOR UNDERTAKING & REGISTRATION"
+              ? { ...act, done: false }
+              : act,
+          ),
+        );
+      }
+    } catch (err) {
+      console.error("Error fetching undertaking status:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (!formData?.company_name) return;
+
+    const companyName = formData.company_name;
+
+    /* ================= UNDERTAKING STATUS ================= */
+
+    fetchContractorUndertakingStatus(companyName);
+  }, [formData.company_name]);
 
   // ✅ Load login data
   useEffect(() => {
@@ -671,27 +712,21 @@ const ExhibitorDashboard = () => {
     }
   };
 
+  const checkBareShell = (stalls = []) => {
+    const hasBare = stalls.some((s) =>
+      s.stall_category?.toLowerCase().includes("bare space"),
+    );
 
-  
+    const hasShell = stalls.every((s) =>
+      s.stall_category?.toLowerCase().includes("shell scheme"),
+    );
 
- const checkBareShell = (stalls = []) => {
-
-  const hasBare = stalls.some((s) =>
-    s.stall_category?.toLowerCase().includes("bare space")
-  );
-
-  const hasShell = stalls.every((s) =>
-    s.stall_category?.toLowerCase().includes("shell scheme")
-  );
-
-  if (hasBare) {
-    setIsBareSpace(true);   // show contractor component
-  } else if (hasShell) {
-    setIsBareSpace(false);  // hide contractor component
-  }
-};
-
-
+    if (hasBare) {
+      setIsBareSpace(true); // show contractor component
+    } else if (hasShell) {
+      setIsBareSpace(false); // hide contractor component
+    }
+  };
 
   const fetchStallsByCompany = async (companyName) => {
     try {
@@ -706,9 +741,8 @@ const ExhibitorDashboard = () => {
         console.log("exhibitor stall data print rishab", data);
 
         setStallList(Array.isArray(data) ? data : [data]); // ensure array
-         // ✅ Bare / Shell check
-    checkBareShell(data);;
-
+        // ✅ Bare / Shell check
+        checkBareShell(data);
       } else {
         console.error("Failed to fetch stall data");
       }
@@ -3450,6 +3484,8 @@ const ExhibitorDashboard = () => {
 
         /* ================= CONTRACTOR API ================= */
 
+        /* ================= CONTRACTOR API ================= */
+
         const contractorRes = await fetch(
           `https://inoptics.in/api/get_selected_exhibitors_contractors.php?exhibitor_company_name=${encodeURIComponent(
             companyName,
@@ -3457,16 +3493,26 @@ const ExhibitorDashboard = () => {
         );
 
         const contractorData = await contractorRes.json();
-        console.log("CONTRACTOR API:", contractorData);
 
-        const contractorLocked = contractorData?.is_locked === 1;
+        console.log("CONTRACTOR rishab API:", contractorData);
 
-        // Update Contractor Activity (ID 8)
+        /*
+contractor selected tab hoga jab API me data aaye
+*/
+       const contractorSelected =
+  contractorData &&
+  contractorData.contractor_company_name &&
+  Number(contractorData.is_locked) === 1;
+
+        /* Update Activities */
+
         setActivities((prev) =>
-          prev.map((a) =>
-            a.id === 5 || a.id === 8 ? { ...a, done: true } : a,
-          ),
-        );
+  prev.map((a) =>
+    a.id === 5 || a.id === 8
+      ? { ...a, done: contractorSelected }
+      : a,
+  ),
+);
       } catch (err) {
         console.error("Fetch error:", err);
       }
@@ -4062,69 +4108,73 @@ const ExhibitorDashboard = () => {
               )}
 
               <div className="contractor-ui-root">
-                {!importantPage && activeMenu === "Mandatory Forms" && isBareSpace && (
-                  <ExhibitorContractors
-                    handleBoothDesignUpload={handleBoothDesignUpload}
-                    stepSubmitted={stepSubmitted}
-                    fetchSelectedContractor={fetchSelectedContractor}
-                    unlockStatus={unlockStatus}
-                    setStepSubmitted={setStepSubmitted}
-                    fetchUnlockStatus={fetchUnlockStatus}
-                    importantPage={importantPage}
-                    contractorViewStep={contractorViewStep}
-                    activeMenu={activeMenu}
-                    setActiveMenu={setActiveMenu}
-                    showPopup={showPopup}
-                    setShowPopup={setShowPopup}
-                    selectedContractorTemp={selectedContractorTemp}
-                    cancelSelect={cancelSelect}
-                    confirmSelect={confirmSelect}
-                    showContractorListOverlay={showContractorListOverlay}
-                    setShowContractorListOverlay={setShowContractorListOverlay}
-                    contractorData={contractorData}
-                    selectedContractorId={selectedContractorId}
-                    unselectContractor={unselectContractor}
-                    setSelectedContractorTemp={setSelectedContractorTemp}
-                    workflowActive={workflowActive}
-                    contractorEmail={contractorEmail}
-                    setContractorEmail={setContractorEmail}
-                    handleSendRegistrationMail={handleSendRegistrationMail}
-                    requestContractorChange={requestContractorChange}
-                    uploadedFiles={uploadedFiles}
-                    setSelectedPreviewStep={setSelectedPreviewStep}
-                    setPdfUrl={setPdfUrl}
-                    setShowPdfPreview={setShowPdfPreview}
-                    showPdfPreview={showPdfPreview}
-                    forceDownload={forceDownload}
-                    downloadBoothDesign={downloadBoothDesign}
-                    formData={formData}
-                    selectedContractor={selectedContractor}
-                    currentStep={currentStep}
-                    setCurrentStep={setCurrentStep}
-                    uploadedSteps={uploadedSteps}
-                    showPreview={showPreview}
-                    setShowPreview={setShowPreview}
-                    previewURL={previewURL}
-                    setPreviewURL={setPreviewURL}
-                    setSelectedFile={setSelectedFile}
-                    handleFinalUpload={handleFinalUpload}
-                    handleDownload={handleDownload}
-                    sendFormToContractor={sendFormToContractor}
-                    handleFileSelect={handleFileSelect}
-                    setIsReuploading={setIsReuploading}
-                    boothDesignStatus={boothDesignStatus}
-                    setBoothDesignStatus={setBoothDesignStatus}
-                    boothRejectReason={boothRejectReason}
-                    setBoothRejectReason={setBoothRejectReason}
-                    showBoothDesignPreview={showBoothDesignPreview}
-                    setShowBoothDesignPreview={setShowBoothDesignPreview}
-                  />
+                {!importantPage &&
+                  activeMenu === "Mandatory Forms" &&
+                  isBareSpace && (
+                    <ExhibitorContractors
+                      handleBoothDesignUpload={handleBoothDesignUpload}
+                      stepSubmitted={stepSubmitted}
+                      fetchSelectedContractor={fetchSelectedContractor}
+                      unlockStatus={unlockStatus}
+                      setStepSubmitted={setStepSubmitted}
+                      fetchUnlockStatus={fetchUnlockStatus}
+                      importantPage={importantPage}
+                      contractorViewStep={contractorViewStep}
+                      activeMenu={activeMenu}
+                      setActiveMenu={setActiveMenu}
+                      showPopup={showPopup}
+                      setShowPopup={setShowPopup}
+                      selectedContractorTemp={selectedContractorTemp}
+                      cancelSelect={cancelSelect}
+                      confirmSelect={confirmSelect}
+                      showContractorListOverlay={showContractorListOverlay}
+                      setShowContractorListOverlay={
+                        setShowContractorListOverlay
+                      }
+                      contractorData={contractorData}
+                      selectedContractorId={selectedContractorId}
+                      unselectContractor={unselectContractor}
+                      setSelectedContractorTemp={setSelectedContractorTemp}
+                      workflowActive={workflowActive}
+                      contractorEmail={contractorEmail}
+                      setContractorEmail={setContractorEmail}
+                      handleSendRegistrationMail={handleSendRegistrationMail}
+                      requestContractorChange={requestContractorChange}
+                      uploadedFiles={uploadedFiles}
+                      setSelectedPreviewStep={setSelectedPreviewStep}
+                      setPdfUrl={setPdfUrl}
+                      setShowPdfPreview={setShowPdfPreview}
+                      showPdfPreview={showPdfPreview}
+                      forceDownload={forceDownload}
+                      downloadBoothDesign={downloadBoothDesign}
+                      formData={formData}
+                      selectedContractor={selectedContractor}
+                      currentStep={currentStep}
+                      setCurrentStep={setCurrentStep}
+                      uploadedSteps={uploadedSteps}
+                      showPreview={showPreview}
+                      setShowPreview={setShowPreview}
+                      previewURL={previewURL}
+                      setPreviewURL={setPreviewURL}
+                      setSelectedFile={setSelectedFile}
+                      handleFinalUpload={handleFinalUpload}
+                      handleDownload={handleDownload}
+                      sendFormToContractor={sendFormToContractor}
+                      handleFileSelect={handleFileSelect}
+                      setIsReuploading={setIsReuploading}
+                      boothDesignStatus={boothDesignStatus}
+                      setBoothDesignStatus={setBoothDesignStatus}
+                      boothRejectReason={boothRejectReason}
+                      setBoothRejectReason={setBoothRejectReason}
+                      showBoothDesignPreview={showBoothDesignPreview}
+                      setShowBoothDesignPreview={setShowBoothDesignPreview}
+                    />
 
-                  // <div className="contractor-ui-body">
-                  //   {!importantPage && activeMenu === "Contractors" && (
-                  //   )}
-                  // </div>
-                )}
+                    // <div className="contractor-ui-body">
+                    //   {!importantPage && activeMenu === "Contractors" && (
+                    //   )}
+                    // </div>
+                  )}
               </div>
 
               {activeMenu === "Exhibitor Badges" && (
@@ -4137,6 +4187,7 @@ const ExhibitorDashboard = () => {
 
               {activeMenu === "Contractor Badges" && currentExhibitor && (
                 <ContractorBadgeForm
+                exhibitorData={exhibitorData}
                   setActiveMenu={setActiveMenu}
                   setCurrentStep={setCurrentStep}
                   setContractorViewStep={setContractorViewStep} // 👈 NEW

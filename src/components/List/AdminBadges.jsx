@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import * as XLSX from "xlsx";
+import * as XLSX from "xlsx-js-style";
 import "./AdminBadges.css";
 import { toast } from "react-toastify";
 import {
@@ -319,16 +319,22 @@ const AdminBadges = () => {
   }
 
   const exportData = [];
+  const merges = [];
+
+  let rowIndex = 1; // header ke baad start
 
   companies.forEach((company) => {
     const freeQuota = Number(freeQuotaMap[company.company_name] || 0);
 
     const sortedBadges = [...(company.badges || [])].sort(
-      (a, b) => a.id - b.id
+      (a, b) => a.id - b.id,
     );
 
-    sortedBadges.forEach((badge, index) => {
+    let companyPaidTotal = 0;
+    let paidRowStart = null;
+    let paidRowEnd = null;
 
+    sortedBadges.forEach((badge, index) => {
       const isFree = index < freeQuota;
 
       const rate = getBadgeRate();
@@ -340,9 +346,9 @@ const AdminBadges = () => {
         ""
       ).toLowerCase();
 
-      let cgst = 0;
-      let sgst = 0;
-      let igst = 0;
+      let cgst = 0,
+        sgst = 0,
+        igst = 0;
 
       if (!isFree) {
         if (state === "delhi") {
@@ -355,6 +361,14 @@ const AdminBadges = () => {
 
       const total = amount + cgst + sgst + igst;
 
+      // 🔥 ONLY PAID total
+      if (!isFree) {
+        companyPaidTotal += total;
+
+        if (paidRowStart === null) paidRowStart = rowIndex;
+        paidRowEnd = rowIndex;
+      }
+
       exportData.push({
         "Company Name": company.company_name,
         "Badge Name": badge.name,
@@ -362,7 +376,8 @@ const AdminBadges = () => {
         State: badge.state || "",
         City: badge.city || "",
 
-        Type: isFree ? "FREE" : "PAID",
+        Type: isFree ? "FREE" : "",
+        Paid: !isFree ? "PAID" : "",
 
         Amount: amount.toFixed(2),
 
@@ -372,19 +387,40 @@ const AdminBadges = () => {
 
         Total: total.toFixed(2),
 
+        "Grand Total (Paid Only)": "", // fill later
+
         "Print Status":
           badge.print_status === "ready" ? "READY" : "DISABLED",
       });
+
+      rowIndex++;
     });
+
+    // 🔥 APPLY GRAND TOTAL + MERGE
+    if (paidRowStart !== null && paidRowEnd !== null) {
+      // column index (Grand Total)
+      const colIndex = 12; // adjust if needed
+
+      // set value only in first row
+      exportData[paidRowStart - 1]["Grand Total (Paid Only)"] =
+        companyPaidTotal.toFixed(2);
+
+      // merge rows
+      merges.push({
+        s: { r: paidRowStart, c: colIndex },
+        e: { r: paidRowEnd, c: colIndex },
+      });
+    }
   });
 
-  const worksheet = XLSX.utils.json_to_sheet(exportData);
+  const ws = XLSX.utils.json_to_sheet(exportData);
 
-  const workbook = XLSX.utils.book_new();
+  ws["!merges"] = merges;
 
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Badge Report");
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Badge Report");
 
-  XLSX.writeFile(workbook, "Exhibitor_Badges_Report.xlsx");
+  XLSX.writeFile(wb, "Exhibitor_Badges_Report.xlsx");
 
   toast.success("Excel exported successfully");
 };
@@ -432,7 +468,9 @@ const AdminBadges = () => {
             <div>
               {badgePaymentSummary[company.company_name] && (
                 <div className="badge-pay-summary">
-                  <span>Free Badges: {freeQuotaMap[company.company_name] || 0}</span>
+                  <span>
+                    Free Badges: {freeQuotaMap[company.company_name] || 0}
+                  </span>
 
                   <span>
                     Paid Badges:{" "}

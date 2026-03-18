@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import * as XLSX from "xlsx";
 import "./FasciaNameAdmin.css";
 
-const FasciaNameAdmin = () => {
+const FasciaNameAdmin = ({}) => {
   const [companies, setCompanies] = useState([]);
   const [rows, setRows] = useState([]);
   const [openCompany, setOpenCompany] = useState(null);
@@ -12,11 +12,72 @@ const FasciaNameAdmin = () => {
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [editData, setEditData] = useState(null);
 
+  const [exhibitorData, setExhibitorData] = useState([]);
+
   /* ================= FETCH ================= */
 
   useEffect(() => {
     fetchAllFascia();
+    fetchExhibitorData(); // 👈 IMPORTANT
   }, []);
+
+  const fetchExhibitorData = async () => {
+    try {
+      const res = await fetch("https://inoptics.in/api/get_exhibitors.php");
+      const data = await res.json();
+      setExhibitorData(data);
+    } catch (error) {
+      console.error("Failed to fetch exhibitors:", error);
+    }
+  };
+
+  const exhibitorGrouped = Object.values(
+    exhibitorData.reduce((acc, item) => {
+      if (!acc[item.company_name]) {
+        acc[item.company_name] = {
+          company_name: item.company_name,
+          category: [],
+          stall_no: [],
+        };
+      }
+
+      if (item.category) acc[item.company_name].category.push(item.category);
+      if (item.stall_no) acc[item.company_name].stall_no.push(item.stall_no);
+
+      return acc;
+    }, {}),
+  );
+
+  const getStallWithBS = (company) => {
+    if (!company) return "";
+
+  const normalize = (str) =>
+    str?.toLowerCase().replace(/\s+/g, " ").trim();
+
+  const exhibitor = exhibitorGrouped.find(
+    (e) => normalize(e.company_name) === normalize(company)
+  );
+
+  if (!exhibitor) {
+    console.log("❌ Not matched:", company); // debug
+    return "";
+  }
+
+  const values = [
+    ...new Set(
+      exhibitor.category.map((cat) => {
+        const c = (cat || "").toLowerCase();
+
+        if (c.includes("bare")) return "Bare";
+        if (c.includes("shell")) return "Shell";
+
+        return "";
+      })
+    ),
+  ].filter(Boolean);
+
+  return values.join(", ");
+  };
 
   const fetchAllFascia = async () => {
     try {
@@ -186,6 +247,7 @@ const FasciaNameAdmin = () => {
     <th>ID</th>
     <th>Fascia Name</th>
     <th>Stall No</th>
+    <th>Bare/Shell</th>
     <th>City</th>
     </tr>
     </thead>
@@ -198,6 +260,7 @@ const FasciaNameAdmin = () => {
       <td>${i + 1}</td>
       <td>${row.facia_company_name}</td>
       <td>${row.stall_no}</td>
+      <td>${getStallWithBS(row.exhibitor_company_name)}</td>
       <td>${row.city}</td>
       </tr>
       `;
@@ -272,6 +335,7 @@ const FasciaNameAdmin = () => {
   <th>ID</th>
   <th>Fascia Name</th>
   <th>Stall No</th>
+  <th>Bare/Shell</th>
   <th>City</th>
   </tr>
   </thead>
@@ -285,6 +349,7 @@ const FasciaNameAdmin = () => {
     <td>${i + 1}</td>
     <td>${row.facia_company_name}</td>
     <td>${row.stall_no}</td>
+   <td>${getStallWithBS(row.exhibitor_company_name)}</td>
     <td>${row.city}</td>
     </tr>
     `;
@@ -374,6 +439,7 @@ const FasciaNameAdmin = () => {
                           <th>ID</th>
                           <th>Fascia Name</th>
                           <th>Stall No</th>
+                          <th>Bare/Shell</th>
                           <th>City</th>
                           <th>Edit</th>
                           <th>Delete</th>
@@ -386,6 +452,9 @@ const FasciaNameAdmin = () => {
                             <td>{i + 1}</td>
                             <td>{row.facia_company_name}</td>
                             <td>{row.stall_no}</td>
+                            <td>
+                              {getStallWithBS(row.exhibitor_company_name)}
+                            </td>
                             <td>{row.city}</td>
 
                             <td>

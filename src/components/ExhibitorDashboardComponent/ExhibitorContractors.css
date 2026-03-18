@@ -698,8 +698,9 @@
 .ExhibitorContractors-exhibitor-cont-table-container {
   max-height: 1020px;
   overflow-y: auto;
-  overflow-x: hidden !important;
 }
+
+
 
 .ExhibitorContractors-exhibitor-cont-table-container {
   overflow-x: auto;
@@ -816,7 +817,6 @@
 
 /* --- Approved Contractor Table row (inside workflow) --- */
 .ec-table-section {
-  padding: 20px 24px;
   border-bottom: 1px solid var(--ec-border);
 }
 
@@ -1361,7 +1361,6 @@ button:disabled {
 
   .ec-header { padding: 14px 18px; }
   .ec-action-bar { padding: 12px 18px; }
-  .ec-table-section { padding: 16px 18px; }
   .ec-step-panels { padding: 0 18px 20px; }
 
   .ec-step-panel-body { flex-direction: column; }
@@ -1371,4 +1370,16 @@ button:disabled {
   .m-only { display: table-cell; }
 
   .mobile-step-spacer { display: block; height: 20px; }
+}
+
+@media (max-width:600px) {
+  .ExhibitorContractors-appointed-contractor-table thead th{
+    display: none;
+  }
+  .ec-bw-table td{
+    padding: 0;
+  }
+  .ec-bw-table-wrap {
+    border: none;
+  }
 }

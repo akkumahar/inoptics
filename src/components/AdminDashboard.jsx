@@ -106,10 +106,8 @@ const AdminDashboard = () => {
   const [companyRemarks, setCompanyRemarks] = useState([]);
   const [editingRemarkId, setEditingRemarkId] = useState(null);
 
-
   const [companySearch, setCompanySearch] = useState("");
-const [bsSearch, setBsSearch] = useState("");
-
+  const [bsSearch, setBsSearch] = useState("");
 
   const handleImageSelect = (e) => {
     const file = e.target.files[0];
@@ -13695,9 +13693,9 @@ const [bsSearch, setBsSearch] = useState("");
           <li onClick={() => openOverlay("New Exhibitor Request")}>
             <FaUserPlus /> {!collapsed && "New Exhibitor Request"}
           </li>
-          {/* <li onClick={() => openOverlay("Export Contractor")}>
+          <li onClick={() => openOverlay("Export Contractor")}>
             <FaUserPlus /> {!collapsed && "Export Contractor"}
-          </li> */}
+          </li>
           <li onClick={() => openOverlay("Contact Support")}>
             <FaEnvelope /> {!collapsed && "Contact Support"}
           </li>
@@ -14394,7 +14392,7 @@ const [bsSearch, setBsSearch] = useState("");
                       className="search-box"
                       placeholder="Search by company name..."
                       value={companySearch}
-                     onChange={(e) => setCompanySearch(e.target.value)}
+                      onChange={(e) => setCompanySearch(e.target.value)}
                       style={{ marginLeft: "10px", marginRight: "5px" }}
                     />
                     <button
@@ -14419,7 +14417,9 @@ const [bsSearch, setBsSearch] = useState("");
                       className="search-box"
                       placeholder="B/S"
                       value={bsSearch}
-                      onChange={(e) => setBsSearch(e.target.value.toUpperCase())}
+                      onChange={(e) =>
+                        setBsSearch(e.target.value.toUpperCase())
+                      }
                       style={{ marginLeft: "10px", marginRight: "5px" }}
                     />
                     <button
@@ -16698,7 +16698,7 @@ const [bsSearch, setBsSearch] = useState("");
                     </thead>
                     <tbody>
                       {groupedData
-                        // ✅ First, sort alphabetically
+                        // First, sort alphabetically
                         .sort((a, b) =>
                           a.company_name.localeCompare(
                             b.company_name,
@@ -16706,38 +16706,36 @@ const [bsSearch, setBsSearch] = useState("");
                             { sensitivity: "base" },
                           ),
                         )
-                        // ✅ Then, assign a fixed row number to each item
+                        // Then, assign a fixed row number to each item
                         .map((item, index) => ({
                           ...item,
                           rowNumber: index + 1,
                         }))
-                        // ✅ Now filter after assigning row numbers
+                        // Now filter after assigning row numbers
                         .filter((item) => {
+                          // B / S values
+                          const bsValues = [
+                            ...new Set(
+                              item.category.map((cat) => {
+                                const c = (cat || "").toLowerCase().trim();
 
-  // B / S values
-  const bsValues = [
-    ...new Set(
-      item.category.map((cat) => {
-        const c = (cat || "").toLowerCase().trim();
+                                if (c.includes("bare")) return "B";
+                                if (c.includes("shell")) return "S";
 
-        if (c.includes("bare")) return "B";
-        if (c.includes("shell")) return "S";
+                                return "";
+                              }),
+                            ),
+                          ].filter(Boolean);
 
-        return "";
-      })
-    )
-  ].filter(Boolean);
+                          const companyMatch = item.company_name
+                            .toLowerCase()
+                            .includes(companySearch.toLowerCase());
 
-  const companyMatch = item.company_name
-    .toLowerCase()
-    .includes(companySearch.toLowerCase());
+                          const bsMatch =
+                            bsSearch === "" || bsValues.includes(bsSearch);
 
-  const bsMatch =
-    bsSearch === "" ||
-    bsValues.includes(bsSearch);
-
-  return companyMatch && bsMatch;
-})
+                          return companyMatch && bsMatch;
+                        })
                         .map((item) => {
                           const stallWithCat = item.stall_no.map((stall, i) => {
                             const cat = (item.category[i] || "").toLowerCase();
@@ -25240,7 +25238,7 @@ const [bsSearch, setBsSearch] = useState("");
           )}
           {overlayContent === "Extra Furniture" && (
             <>
-              <ExtraFurnitureManager />
+              <ExtraFurnitureManager exhibitorData={exhibitorData} />
             </>
           )}
           {overlayContent === "Exhibitor Mandotary Forms" && (
@@ -25260,7 +25258,7 @@ const [bsSearch, setBsSearch] = useState("");
           )}
           {overlayContent === "Contractor Badges" && (
             <>
-              <ContractorBadgeAdmin />
+              <ContractorBadgeAdmin exhibitorData={exhibitorData} />
             </>
           )}
 

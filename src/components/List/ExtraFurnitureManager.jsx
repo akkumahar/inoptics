@@ -4,7 +4,7 @@ import * as XLSX from "xlsx";
 import "./ExtraFurnitureManager.css";
 import toast from "react-hot-toast";
 
-const ExtraFurnitureManager = () => {
+const ExtraFurnitureManager = ({ exhibitorData }) => {
   const [companies, setCompanies] = useState([]);
   const [furniture, setFurniture] = useState([]);
   const [selectedFurniture, setSelectedFurniture] = useState([]);
@@ -30,6 +30,9 @@ const ExtraFurnitureManager = () => {
 
   // Cache: company_name -> exhibitor details (name, email, mobile, stall_no, state)
   const [exhibitorMap, setExhibitorMap] = useState({});
+  const [showExhibitorList, setShowExhibitorList] = useState(false);
+  const [exhibitorSearch, setExhibitorSearch] = useState("");
+  const [selectedNewExhibitor, setSelectedNewExhibitor] = useState(null);
 
   /* ================= FETCH COMPANIES ================= */
 
@@ -188,9 +191,14 @@ const ExtraFurnitureManager = () => {
 
       list.forEach((item) => {
         if (!item.company_name) return;
-        // Keep first occurrence per company (or overwrite — same exhibitor)
-        if (!map[item.company_name]) {
-          map[item.company_name] = {
+
+        const key = item.company_name
+          ?.replace(/\s+/g, " ")
+          .trim()
+          .toLowerCase();
+
+        if (!map[key]) {
+          map[key] = {
             name: item.name || item.contact_person || "",
             email: item.email || "",
             mobile: item.mobile || item.phone || "",
@@ -201,6 +209,7 @@ const ExtraFurnitureManager = () => {
       });
 
       setExhibitorMap(map);
+
       console.log(
         "✅ Exhibitor map loaded:",
         Object.keys(map).length,
@@ -364,7 +373,6 @@ const ExtraFurnitureManager = () => {
       const data = await res.json();
 
       if (data.status === "success") {
-        // update cache
         setFurnitureCache((prev) => ({
           ...prev,
           [currentCompany]: [...selectedFurniture],
@@ -372,7 +380,20 @@ const ExtraFurnitureManager = () => {
 
         toast.success("Furniture saved successfully");
 
-        fetchLockedCompanies(); // refresh list
+        // ✅ modal close
+        setShowFurnitureList(false);
+
+        // ✅ refresh list
+        await fetchLockedCompanies();
+
+        // ✅ auto open accordion
+        const index = companies.findIndex(
+          (c) => c.company_name === currentCompany,
+        );
+
+        if (index !== -1) {
+          setOpenIndex(index);
+        }
       } else {
         toast.error(data.message || "Failed to save furniture");
       }
@@ -529,7 +550,9 @@ const ExtraFurnitureManager = () => {
     setCurrentCompany(company.company_name);
 
     // ✅ Get exhibitor details from exhibitorMap (fetched from get_exhibitors.php)
-    const exhibitor = exhibitorMap[company.company_name] || {};
+    const key = company.company_name?.replace(/\s+/g, " ").trim().toLowerCase();
+
+    const exhibitor = exhibitorMap[key] || {};
 
     setState(exhibitor.state || company.state || "");
 
@@ -640,6 +663,13 @@ const ExtraFurnitureManager = () => {
         <button className="furniture-export-btn" onClick={exportFurnitureExcel}>
           Export Excel
         </button>
+
+        <button
+          className="new-furniture-add-btn"
+          onClick={() => setShowExhibitorList(true)}
+        >
+          Add New Exhibitor Furniture
+        </button>
         <input
           placeholder="Search company..."
           value={search}
@@ -662,7 +692,27 @@ const ExtraFurnitureManager = () => {
             className="accordion-header"
             onClick={() => toggleAccordion(index, company)}
           >
-            <span>{company.company_name}</span>
+            <span>
+              {company.company_name}{" "}
+              <span
+                style={{
+                  background: "red",
+                  color: "#fff",
+                  padding: "3px 8px",
+                  marginLeft: "10px",
+                  borderRadius: "4px",
+                  fontSize: "12px",
+                }}
+              >
+                Stall No:{" "}
+                {exhibitorMap[
+                  company.company_name
+                    ?.replace(/\s+/g, " ")
+                    .trim()
+                    .toLowerCase()
+                ]?.stall_no || "N/A"}
+              </span>
+            </span>
 
             <span>{openIndex === index ? "▲" : "▼"}</span>
           </div>
@@ -702,6 +752,7 @@ const ExtraFurnitureManager = () => {
                   <tr>
                     <th>ID</th>
                     <th>Name</th>
+                    <th>Stall No.</th>
                     <th>Price</th>
                     <th>Qty</th>
                     <th>Amount</th>
@@ -733,6 +784,7 @@ const ExtraFurnitureManager = () => {
                         <td>{index + 1}</td>
 
                         <td>{item.name}</td>
+                        <td>{formData.stall_no || "-"}</td>
 
                         <td>₹{price.toFixed(2)}</td>
 
@@ -862,6 +914,83 @@ const ExtraFurnitureManager = () => {
                 </div>
               )}
             </div>
+            <div className="exfurn-footer">
+              <button
+                className="exfurn-save-btn"
+                onClick={updateSelectedFurniture}
+              >
+                Save Furniture
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showExhibitorList && (
+        <div className="power-modal-overlay">
+          <div className="power-modal large">
+            <h3>Select Exhibitor</h3>
+            <input
+              type="text"
+              placeholder="Search exhibitor..."
+              className="exhibitor-search"
+              value={exhibitorSearch}
+              onChange={(e) => setExhibitorSearch(e.target.value)}
+            />
+
+            <div className="exhibitor-list">
+              {exhibitorData
+                .filter((ex) =>
+                  ex.company_name
+                    ?.toLowerCase()
+                    .includes(exhibitorSearch.toLowerCase()),
+                )
+                .map((ex, i) => (
+                  <div key={i} className="exhibitor-row">
+                    <span>{ex.company_name}</span>
+
+                    <button
+                      className="select-btn"
+                      onClick={() => {
+                        setShowExhibitorList(false);
+
+                        // ✅ selected exhibitor set
+                        setSelectedNewExhibitor(ex);
+
+                        // ✅ set current company
+                        setCurrentCompany(ex.company_name);
+
+                        // ✅ set form data (IMPORTANT)
+                        setFormData({
+                          company_name: ex.company_name,
+                          name: ex.name || "",
+                          email: ex.email || "",
+                          mobile: ex.mobile || "",
+                          stall_no: ex.stall_no || "",
+                        });
+
+                        // ✅ set state
+                        setState(ex.state || "");
+
+                        // ✅ reset furniture
+                        setSelectedFurniture([]);
+
+                        // ✅ open furniture modal
+                        setShowFurnitureList(true);
+                      }}
+                    >
+                      Select
+                    </button>
+                  </div>
+                ))}
+            </div>
+
+            <button
+              className="power-cancle-btn"
+              onClick={() => setShowExhibitorList(false)}
+            >
+              Close
+            </button>
           </div>
         </div>
       )}

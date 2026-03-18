@@ -95,7 +95,7 @@ const StallDetailsCard = ({ stallList }) => (
             />
             <Detail
               label="Stall Area"
-              value={stall.stall_area ? `${stall.stall_area} sq. ft.` : null}
+              value={stall.stall_area ? `${stall.stall_area} sq. mtr.` : null}
             />
           </div>
         ))
