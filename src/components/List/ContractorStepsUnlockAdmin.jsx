@@ -8,6 +8,8 @@ const ContractorStepsUnlockAdmin = () => {
   const [loading, setLoading] = useState(false);
   const [openCompany, setOpenCompany] = useState(null);
 
+  const [search, setSearch] = useState("");
+
   const stepFormMap = {
     1: "appointed",
     2: "undertaking",
@@ -21,7 +23,7 @@ const ContractorStepsUnlockAdmin = () => {
     try {
       setLoading(true);
       const res = await fetch(
-        "https://inoptics.in/api/get_all_contractor_unlock_requests.php"
+        "https://inoptics.in/api/get_all_contractor_unlock_requests.php",
       );
       const data = await res.json();
       if (data.success) setRequests(data.data);
@@ -35,7 +37,7 @@ const ContractorStepsUnlockAdmin = () => {
   const fetchUploadedForms = async () => {
     try {
       const res = await fetch(
-        "https://inoptics.in/api/get_all_uploaded_exhibitor_forms.php"
+        "https://inoptics.in/api/get_all_uploaded_exhibitor_forms.php",
       );
       const json = await res.json();
 
@@ -72,7 +74,7 @@ const ContractorStepsUnlockAdmin = () => {
 
       const res = await fetch(
         "https://inoptics.in/api/admin_contractor_step_unlock.php",
-        { method: "POST", body: fd }
+        { method: "POST", body: fd },
       );
 
       const data = await res.json();
@@ -86,11 +88,24 @@ const ContractorStepsUnlockAdmin = () => {
     }
   };
 
+  const filteredCompanies = Object.entries(formsMap).filter(([company]) =>
+    company.toLowerCase().includes(search.toLowerCase()),
+  );
+
   /* ================= UI ================= */
 
   return (
     <div className="admin-container">
       <h2 className="admin-heading">Contractor Unlock Requests</h2>
+      <div className="search-wrapper">
+        <input
+          type="text"
+          placeholder="Search company..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="search-input"
+        />
+      </div>
 
       {loading && <p className="loading">Loading...</p>}
 
@@ -98,7 +113,7 @@ const ContractorStepsUnlockAdmin = () => {
         <p className="empty">No data found</p>
       )}
 
-      {Object.entries(formsMap).map(([company, forms]) => (
+      {filteredCompanies.map(([company, forms]) => (
         <div key={company} className="company-card">
           {/* HEADER */}
           <div
@@ -129,13 +144,13 @@ const ContractorStepsUnlockAdmin = () => {
                   <tbody>
                     {forms.map((form) => {
                       const stepNumber = Object.keys(stepFormMap).find(
-                        (key) => stepFormMap[key] === form.form_type
+                        (key) => stepFormMap[key] === form.form_type,
                       );
 
                       const companyRequests = requests[company] || [];
 
                       const matchedRequest = companyRequests.find(
-                        (r) => r.step_number == stepNumber
+                        (r) => r.step_number == stepNumber,
                       );
 
                       return (
@@ -159,7 +174,9 @@ const ContractorStepsUnlockAdmin = () => {
                           </td>
 
                           <td>
-                            <span className={`status ${matchedRequest?.status || "locked"}`}>
+                            <span
+                              className={`status ${matchedRequest?.status || "locked"}`}
+                            >
                               {matchedRequest?.status || "locked"}
                             </span>
                           </td>

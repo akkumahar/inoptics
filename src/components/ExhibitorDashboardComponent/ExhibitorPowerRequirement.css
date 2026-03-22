@@ -372,6 +372,127 @@ padding:5px;
 /* =====================================================
    MOBILE (≤600px)
    ===================================================== */
+
+   /* 📱 MOBILE RESPONSIVE ONLY */
+@media (max-width: 768px) {
+
+  /* 🔥 Overlay */
+  .power-edit-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    padding: 10px;
+  }
+
+  /* 🔥 Popup box */
+  .power-edit-popup {
+    width: 100%;
+    max-width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 10px;
+    padding: 15px;
+  }
+
+  .power-edit-popup h3 {
+    font-size: 16px;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  /* 🔥 Table scrollable */
+  .edit-power-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .edit-power-table thead {
+    display: table;
+    width: 100%;
+  }
+
+  .edit-power-table tbody {
+    display: table;
+    width: 100%;
+  }
+
+  .edit-power-table th,
+  .edit-power-table td {
+    border: 1px solid #ddd;
+    padding: 6px;
+    text-align: center;
+    font-size: 11px;
+  }
+
+  .edit-power-table th {
+    background: #f2f2f2;
+    font-weight: 600;
+  }
+
+  /* 🔥 Inputs */
+  .edit-power-table input[type="number"] {
+    width: 60px;
+    padding: 4px;
+    font-size: 12px;
+  }
+
+  /* 🔥 Phase radio */
+  .phase-radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 11px;
+  }
+
+  .phase-radio-group input {
+    margin-right: 4px;
+  }
+
+  /* 🔥 Readonly */
+  .readonly-cell {
+    background: #f9f9f9;
+    font-size: 11px;
+  }
+
+  /* 🔥 Buttons */
+  .popup-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 15px;
+  }
+
+  .popup-buttons button {
+    flex: 1;
+    padding: 10px;
+    font-size: 13px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .cancel-btn {
+    background: #ccc;
+  }
+
+  .update-btn {
+    background: #007bff;
+    color: #fff;
+  }
+
+}
 /* ================================
    ONLY POWER TABLE — MOBILE SCROLL
    ================================ */

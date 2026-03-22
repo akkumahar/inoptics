@@ -237,6 +237,24 @@ const PowerRequirementSection = ({
                           </strong>
                         </div>
 
+                        <div>
+                            {!item.is_locked ? (
+                              <button
+                                className="power-edit-btn"
+                                onClick={() => {
+                                  setEditPowerData([...powerData]);
+                                  setShowEditPopup(true);
+                                }}
+                              >
+                                Edit
+                              </button>
+                            ):(
+                              <span style={{ color: "#000000", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                <FaLock />
+                              </span>
+                            )}
+                          </div>
+
                         {/* {!isViewOnly &&
                       previewTableList.length > 0 &&
                       index === 0 && (

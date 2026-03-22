@@ -75,6 +75,8 @@ import MessageRulesManager from "./List/MessageRulesManager";
 import ExtraFurnitureManager from "./List/ExtraFurnitureManager";
 import UnlockContractor from "./List/UnlockContractor";
 import UpdateCompanyName from "./List/UpdateCompanyName";
+import ExhibitorPowerHistory from "./List/ExhibitorPowerHistory";
+import ExhibitorsPanel from "./List/Sachin";
 // import { useMemo } from 'react';
 
 const AdminDashboard = () => {
@@ -2592,7 +2594,7 @@ const AdminDashboard = () => {
 
   const getExhibitorBadgeBilling = () => {
     const count = parseInt(formData.extra_badges, 10) || 0;
-    const rate = new Date() > new Date("2026-03-20") ? 200 : 100;
+    const rate = new Date() > new Date("2026-03-21") ? 200 : 100;
     const total = count * rate;
 
     const isDelhi = formData?.state?.trim().toLowerCase() === "delhi";
@@ -3326,7 +3328,7 @@ const AdminDashboard = () => {
       // Get billing details
       const { count, total, cgst, sgst, igst, grandTotal } =
         getExhibitorBadgeBilling();
-      const rate = new Date() > new Date("2026-02-28") ? 200 : 100;
+      const rate = new Date() > new Date("2026-03-21") ? 200 : 100;
 
       // Clean the template by removing backslashes and normalizing newlines
       parsedContent = parsedContent
@@ -13615,9 +13617,12 @@ const AdminDashboard = () => {
           <li onClick={() => openOverlay("Exhibitor Power")}>
             <FaPowerOff /> {!collapsed && "Exhibitor Power"}{" "}
           </li>
+          <li onClick={() => openOverlay("Exhibitor Panel")}>
+            <FaPowerOff /> {!collapsed && "Exhibitor Panel"}{" "}
+          </li>
 
-          <li onClick={() => openOverlay("Exhibitor Forms")}>
-            <FaWpforms /> {!collapsed && "Exhibitor Forms"}
+          <li onClick={() => openOverlay("Exhibitor History")}>
+            <FaWpforms /> {!collapsed && "Exhibitor History"}
           </li>
           <li onClick={() => openOverlay("Exhibitor Badges")}>
             <LuFileBadge2 /> {!collapsed && "Exhibitor Badges"}
@@ -19041,7 +19046,7 @@ const AdminDashboard = () => {
                                       10,
                                     );
                                     const rate =
-                                      new Date() > new Date("2026-03-20")
+                                      new Date() > new Date("2026-03-21")
                                         ? 200
                                         : 100; // Corrected date to '2026-03-20'
                                     const total = count * rate;
@@ -25231,6 +25236,60 @@ const AdminDashboard = () => {
               <FasciaNameAdmin />
             </>
           )}
+          {overlayContent === "Exhibitor Panel" && (
+            <>
+              <ExhibitorsPanel
+                groupedData={groupedData}
+                companySearch={companySearch}
+                setCompanySearch={setCompanySearch}
+                bsSearch={bsSearch}
+                setBsSearch={setBsSearch}
+                formData={formData}
+                setFormData={setFormData}
+                editExhibitor={editExhibitor}
+                setEditExhibitor={setEditExhibitor}
+                showExhibitorEditForm={showExhibitorEditForm}
+                setShowExhibitorEditForm={setShowExhibitorEditForm}
+                showExhibitorAddForm={showExhibitorAddForm}
+                setShowExhibitorAddForm={setShowExhibitorAddForm}
+                isViewOnly={isViewOnly}
+                setIsViewOnly={setIsViewOnly}
+                modalVisible={modalVisible}
+                setModalVisible={setModalVisible}
+                activeNavbarItem={activeNavbarItem}
+                setActiveNavbarItem={setActiveNavbarItem}
+                handleChange={handleChange}
+                handleSubmit={handleSubmit}
+                errors={errors}
+                deleteExhibitor={deleteExhibitor}
+                fetchSelectedFurniture={fetchSelectedFurniture}
+                handleSendMail={handleSendMail}
+                isSendingMail={isSendingMail}
+                showTermsDeclaration={showTermsDeclaration}
+                setShowTermsDeclaration={setShowTermsDeclaration}
+                setHideMainDashboard={setHideMainDashboard}
+                selectedCompanyName={selectedCompanyName}
+                setSelectedCompanyName={setSelectedCompanyName}
+                undertakingStatus={undertakingStatus}
+                declarationUndertakingData={declarationUndertakingData}
+                handleUnlockUndertaking={handleUnlockUndertaking}
+                stallList={stallList}
+                stallSummary={stallSummary}
+                pendingAmount={pendingAmount}
+                powerPendingAmount={powerPendingAmount}
+                getDiscountPercent={getDiscountPercent}
+                exhibitorPreviewList={exhibitorPreviewList}
+                totalPrice={totalPrice}
+                cgst={cgst}
+                sgst={sgst}
+                igst={igst}
+                grandTotal={grandTotal}
+                selectedFurniture={selectedFurniture}
+                furnitureBilling={furnitureBilling}
+                getExhibitorBadgeBilling={getExhibitorBadgeBilling}
+              />
+            </>
+          )}
           {overlayContent === "Exhibitor Power" && (
             <>
               <AdminPowerRequirement exhibitorData={exhibitorData} />
@@ -25741,7 +25800,7 @@ const AdminDashboard = () => {
 
           {/* testing */}
 
-          {overlayContent === "Exhibitor Forms" && (
+          {overlayContent === "Exhibitor History" && (
             <>
               <div className="admin-sub-navbar">
                 <ul className="admin-sub-navbar-list">
@@ -25753,6 +25812,16 @@ const AdminDashboard = () => {
                   >
                     Exhibitor Forms
                   </li>
+                  <li
+                    onClick={() =>
+                      setActiveNavbarItem("EXHIBITOR POWER HISTORY")
+                    }
+                    // className={
+                    //   activeNavbarItem === "Exhibitor Forms" ? "active" : ""
+                    // }
+                  >
+                    Exhibitor Power History
+                  </li>
                 </ul>
               </div>
 
@@ -25760,6 +25829,11 @@ const AdminDashboard = () => {
               {activeNavbarItem === "EXHIBITOR FORMS" && (
                 <div style={{ padding: "10px" }}>
                   <ExhibitorForms />
+                </div>
+              )}
+              {activeNavbarItem === "EXHIBITOR POWER HISTORY" && (
+                <div style={{ padding: "10px" }}>
+                  <ExhibitorPowerHistory />
                 </div>
               )}
             </>

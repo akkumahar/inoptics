@@ -7,6 +7,8 @@ import AdminPowerRequirement from "./List/AdminPowerRequirement";
 import AdminBadges from "./List/AdminBadges";
 import ExtraFurnitureManager from "./List/ExtraFurnitureManager";
 import ContractorBadgesAdmin from "./List/ContractorBadgeAdmin";
+import ExhibitorForms from "./List/ExhibitorForms";
+import ExhibitorPowerHistory from "./List/ExhibitorPowerHistory";
 
 const AdminOnePanel = () => {
   const [activeMenu, setActiveMenu] = useState("fascia");
@@ -17,7 +19,7 @@ const AdminOnePanel = () => {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
 
     if (!isLoggedIn) {
-      navigate("/admin1");
+      navigate("/sachin");
     }
   }, [navigate]);
 
@@ -27,7 +29,7 @@ const AdminOnePanel = () => {
     localStorage.removeItem("adminEmail");
     sessionStorage.clear();
 
-    navigate("/admin1");
+    navigate("/sachin");
   };
 
   const renderComponent = () => {
@@ -47,6 +49,12 @@ const AdminOnePanel = () => {
       case "contractor":
         return <ContractorBadgesAdmin />;
 
+      case "Exhibitor Forms History":
+        return <ExhibitorForms />;
+
+      case "Exhibitor Power History":
+        return <ExhibitorPowerHistory />;
+
       default:
         return <FasciaNameAdmin />;
     }
@@ -56,7 +64,7 @@ const AdminOnePanel = () => {
     <div className="admin-layout">
       {/* Sidebar */}
       <div className="admin-sidebar">
-        <h2>Admin One</h2>
+        <h2>Admin sachin</h2>
 
         
         <ul>
@@ -94,6 +102,23 @@ const AdminOnePanel = () => {
           >
             Contractor Badges
           </li>
+
+          <li
+            className={activeMenu === "Exhibitor Forms History" ? "active" : ""}
+            onClick={() => setActiveMenu("Exhibitor Forms History")}
+          >
+            Exhibitor Forms History
+          </li>
+
+          <li
+            className={activeMenu === "Exhibitor Power History" ? "active" : ""}
+            onClick={() => setActiveMenu("Exhibitor Power History")}
+          >
+            Exhibitor Power History
+          </li>
+
+          
+
         </ul>
 
         {/* Logout */}

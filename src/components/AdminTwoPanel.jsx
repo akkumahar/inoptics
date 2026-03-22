@@ -7,6 +7,7 @@ import AdminPowerRequirement from "./List/AdminPowerRequirement";
 import AdminTwoBadges from "./badgesAdmin/AdminTwoBadges";
 import ExtraFurnitureManager from "./List/ExtraFurnitureManager";
 import ContractorBadgesAdmin from "./List/ExtraFurnitureManager";
+import AdminBadges from "./List/AdminBadges";
 
 const AdminTwoPanel = () => {
   const [activeMenu, setActiveMenu] = useState("fascia");
@@ -38,8 +39,11 @@ const AdminTwoPanel = () => {
       // case "power":
       //   return <AdminPowerRequirement />;
 
-      case "badges":
-        return <AdminTwoBadges />;
+      // case "badges":
+      //   return <AdminTwoBadges />;
+
+        case "badges":
+        return <AdminBadges />;
 
       // case "furniture":
       //   return <ExtraFurnitureManager />;

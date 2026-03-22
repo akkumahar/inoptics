@@ -35,6 +35,41 @@ const AdminBadges = () => {
   const [badgePaymentSummary, setBadgePaymentSummary] = useState({});
   const [badgePaymentSummaryTable, setBadgePaymentSummaryTable] = useState({});
 
+  const [showExhibitorPopup, setShowExhibitorPopup] = useState(false);
+  const [showBadgePopup, setShowBadgePopup] = useState(false);
+
+  const [selectedCompany, setSelectedCompany] = useState(null);
+  const [exhibitors, setExhibitors] = useState([]);
+
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const [fieldErrors, setFieldErrors] = useState({ name: "", photo: "" });
+
+  const [allExhibitors, setAllExhibitors] = useState([]);
+  const [exhibitorSearch, setExhibitorSearch] = useState("");
+
+  const [formData, setFormData] = useState({
+    exhibitor_company_name: "",
+    stall_no: "",
+    state: "",
+    city: "",
+    name: "",
+    candidate_photo: null,
+  });
+
+  const filteredExhibitors = allExhibitors.filter((ex) =>
+    ex.company_name?.toLowerCase().includes(exhibitorSearch.toLowerCase()),
+  );
+
+  useEffect(() => {
+    fetch("https://inoptics.in/api/get_exhibitors.php")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setAllExhibitors(data);
+        }
+      })
+      .catch(() => toast.error("Failed to load exhibitors"));
+  }, []);
   /* ================= FETCH ================= */
   useEffect(() => {
     fetch(`${SITE}/api/get_exhibitor_badges_grouped.php`)
@@ -63,15 +98,15 @@ const AdminBadges = () => {
 
       const companyMatch = company.company_name?.toLowerCase().includes(term);
 
-      const badgeMatches = (company.badges || []).filter((b) =>
-        b.name?.toLowerCase().includes(term),
-      );
+      // const badgeMatches = (company.badges || []).filter((b) =>
+      //   b.name?.toLowerCase().includes(term),
+      // );
 
       if (companyMatch) return company;
 
-      if (badgeMatches.length > 0) {
-        return { ...company, badges: badgeMatches };
-      }
+      // if (badgeMatches.length > 0) {
+      //   return { ...company, badges: badgeMatches };
+      // }
 
       return null;
     })
@@ -214,7 +249,7 @@ const AdminBadges = () => {
   }, [companies]);
 
   const getBadgeRate = () => {
-    return new Date() > new Date("2026-03-20") ? 200 : 100;
+    return new Date() > new Date("2026-03-21") ? 200 : 100;
   };
 
   useEffect(() => {
@@ -313,126 +348,275 @@ const AdminBadges = () => {
   /* ================= EXPORT BADGES ================= */
 
   const exportBadgesExcel = () => {
-  if (!companies.length) {
-    toast.error("No data to export");
-    return;
-  }
+    if (!companies.length) {
+      toast.error("No data to export");
+      return;
+    }
 
-  const exportData = [];
-  const merges = [];
+    const exportData = [];
+    const merges = [];
 
-  let rowIndex = 1; // header ke baad start
+    let rowIndex = 1; // header ke baad start
 
-  companies.forEach((company) => {
-    const freeQuota = Number(freeQuotaMap[company.company_name] || 0);
+    companies.forEach((company) => {
+      const freeQuota = Number(freeQuotaMap[company.company_name] || 0);
 
-    const sortedBadges = [...(company.badges || [])].sort(
-      (a, b) => a.id - b.id,
-    );
+      const sortedBadges = [...(company.badges || [])].sort(
+        (a, b) => a.id - b.id,
+      );
 
-    let companyPaidTotal = 0;
-    let paidRowStart = null;
-    let paidRowEnd = null;
+      let companyPaidTotal = 0;
+      let paidRowStart = null;
+      let paidRowEnd = null;
 
-    sortedBadges.forEach((badge, index) => {
-      const isFree = index < freeQuota;
+      sortedBadges.forEach((badge, index) => {
+        const isFree = index < freeQuota;
 
-      const rate = getBadgeRate();
-      const amount = isFree ? 0 : rate;
+        const rate = getBadgeRate();
+        const amount = isFree ? 0 : rate;
 
-      const state = (
-        badge.state ||
-        company.badges?.[0]?.state ||
-        ""
-      ).toLowerCase();
+        const state = (
+          badge.state ||
+          company.badges?.[0]?.state ||
+          ""
+        ).toLowerCase();
 
-      let cgst = 0,
-        sgst = 0,
-        igst = 0;
+        let cgst = 0,
+          sgst = 0,
+          igst = 0;
 
-      if (!isFree) {
-        if (state === "delhi") {
-          cgst = amount * 0.09;
-          sgst = amount * 0.09;
-        } else {
-          igst = amount * 0.18;
+        if (!isFree) {
+          if (state === "delhi") {
+            cgst = amount * 0.09;
+            sgst = amount * 0.09;
+          } else {
+            igst = amount * 0.18;
+          }
         }
-      }
 
-      const total = amount + cgst + sgst + igst;
+        const total = amount + cgst + sgst + igst;
 
-      // 🔥 ONLY PAID total
-      if (!isFree) {
-        companyPaidTotal += total;
+        // 🔥 ONLY PAID total
+        if (!isFree) {
+          companyPaidTotal += total;
 
-        if (paidRowStart === null) paidRowStart = rowIndex;
-        paidRowEnd = rowIndex;
-      }
+          if (paidRowStart === null) paidRowStart = rowIndex;
+          paidRowEnd = rowIndex;
+        }
 
-      exportData.push({
-        "Company Name": company.company_name,
-        "Badge Name": badge.name,
-        "Stall No": badge.stall_no,
-        State: badge.state || "",
-        City: badge.city || "",
+        exportData.push({
+          "Company Name": company.company_name,
+          "Badge Name": badge.name,
+          "Stall No": badge.stall_no,
+          State: badge.state || "",
+          City: badge.city || "",
 
-        Type: isFree ? "FREE" : "",
-        Paid: !isFree ? "PAID" : "",
+          Type: isFree ? "FREE" : "",
+          Paid: !isFree ? "PAID" : "",
 
-        Amount: amount.toFixed(2),
+          Amount: amount.toFixed(2),
 
-        CGST: cgst ? cgst.toFixed(2) : "-",
-        SGST: sgst ? sgst.toFixed(2) : "-",
-        IGST: igst ? igst.toFixed(2) : "-",
+          CGST: cgst ? cgst.toFixed(2) : "-",
+          SGST: sgst ? sgst.toFixed(2) : "-",
+          IGST: igst ? igst.toFixed(2) : "-",
 
-        Total: total.toFixed(2),
+          Total: total.toFixed(2),
 
-        "Grand Total (Paid Only)": "", // fill later
+          "Grand Total (Paid Only)": "", // fill later
 
-        "Print Status":
-          badge.print_status === "ready" ? "READY" : "DISABLED",
+          "Print Status": badge.print_status === "ready" ? "READY" : "DISABLED",
+        });
+
+        rowIndex++;
       });
 
-      rowIndex++;
+      // 🔥 APPLY GRAND TOTAL + MERGE
+      if (paidRowStart !== null && paidRowEnd !== null) {
+        // column index (Grand Total)
+        const colIndex = 12; // adjust if needed
+
+        // set value only in first row
+        exportData[paidRowStart - 1]["Grand Total (Paid Only)"] =
+          companyPaidTotal.toFixed(2);
+
+        // merge rows
+        merges.push({
+          s: { r: paidRowStart, c: colIndex },
+          e: { r: paidRowEnd, c: colIndex },
+        });
+      }
     });
 
-    // 🔥 APPLY GRAND TOTAL + MERGE
-    if (paidRowStart !== null && paidRowEnd !== null) {
-      // column index (Grand Total)
-      const colIndex = 12; // adjust if needed
+    const ws = XLSX.utils.json_to_sheet(exportData);
 
-      // set value only in first row
-      exportData[paidRowStart - 1]["Grand Total (Paid Only)"] =
-        companyPaidTotal.toFixed(2);
+    ws["!merges"] = merges;
 
-      // merge rows
-      merges.push({
-        s: { r: paidRowStart, c: colIndex },
-        e: { r: paidRowEnd, c: colIndex },
-      });
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Badge Report");
+
+    XLSX.writeFile(wb, "Exhibitor_Badges_Report.xlsx");
+
+    toast.success("Excel exported successfully");
+  };
+
+  const selectedCompanyData = companies.find(
+    (c) => c.company_name === selectedCompany?.company_name,
+  );
+
+  const freeRemaining =
+    (freeQuotaMap[selectedCompany?.company_name] || 0) -
+    (selectedCompanyData?.badges?.length || 0);
+
+  const isFree = freeRemaining > 0;
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Max 2MB allowed");
+      return;
     }
-  });
 
-  const ws = XLSX.utils.json_to_sheet(exportData);
+    setFormData((prev) => ({
+      ...prev,
+      candidate_photo: file,
+    }));
 
-  ws["!merges"] = merges;
+    setPhotoPreview(URL.createObjectURL(file));
+  };
 
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Badge Report");
+  const fetchExhibitorData = async (email) => {
+    setLoading(true);
 
-  XLSX.writeFile(wb, "Exhibitor_Badges_Report.xlsx");
+    try {
+      const res = await fetch("https://inoptics.in/api/get_exhibitors.php");
+      const data = await res.json();
 
-  toast.success("Excel exported successfully");
-};
+      if (Array.isArray(data)) {
+        const matched = data.find(
+          (ex) => ex.email.toLowerCase() === email.toLowerCase(),
+        );
+
+        if (matched) {
+          setExhibitors([matched]);
+
+          setFormData((prev) => ({
+            ...prev,
+            exhibitor_company_name: matched.company_name || "",
+            state: matched.state || "",
+            city: matched.city || "",
+            exhibitor_id: matched.id || "",
+            exhibitor_email: matched.email || "",
+          }));
+        } else {
+          setExhibitors([]);
+        }
+      }
+    } catch (error) {
+      alert({ type: "error", text: "Network error. Please try again." });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!formData.name.trim()) {
+      setFieldErrors({ name: "Name required" });
+      return;
+    }
+
+    if (!formData.exhibitor_company_name) {
+      toast.error("Company missing");
+      return;
+    }
+
+    try {
+      const fd = new FormData();
+
+      fd.append("name", formData.name.trim());
+      fd.append("company_name", formData.exhibitor_company_name);
+      fd.append("stall_no", formData.stall_no);
+      fd.append("state", formData.state || "");
+      fd.append("city", formData.city || "");
+
+      // 🔥 MOST IMPORTANT (API REQUIREMENT)
+      fd.append("exhibitor_id", formData.exhibitor_id || "");
+
+      if (formData.candidate_photo) {
+        fd.append("candidate_photo", formData.candidate_photo);
+      }
+
+      console.log("📤 Sending Data:", Object.fromEntries(fd));
+
+      const res = await fetch("https://inoptics.in/api/submit-badge.php", {
+        method: "POST",
+        body: fd,
+      });
+
+      const text = await res.text();
+
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        console.error("❌ Invalid JSON:", text);
+        throw new Error("Server error (invalid response)");
+      }
+
+      if (!data.success) {
+        throw new Error(data.message || "Badge creation failed");
+      }
+
+      toast.success("✅ Badge created successfully");
+
+      // ✅ modal close
+      setShowBadgePopup(false);
+      setPhotoPreview(null);
+
+      // ✅ form reset
+      setFormData((prev) => ({
+        ...prev,
+        name: "",
+        candidate_photo: null,
+      }));
+
+      // 🔥 IMPORTANT: REFRESH DATA PROPERLY
+      const updated = await fetch(
+        `${SITE}/api/get_exhibitor_badges_grouped.php`,
+      );
+      const fresh = await updated.json();
+
+      if (Array.isArray(fresh)) {
+        setCompanies(fresh);
+      }
+    } catch (err) {
+      console.error("❌ Submit error:", err);
+      toast.error(err.message || "Error creating badge");
+    }
+  };
 
   if (loading) return <p style={{ textAlign: "center" }}>Loading badges...</p>;
 
   return (
-    <div className="badge-dashboard">
+    <div className="badge-dashboard-admin">
       {/* 🔍 SEARCH */}
       <div style={{ marginBottom: 18 }} className="badge-top-bar">
         <button className="badge-export-btn" onClick={exportBadgesExcel}>
           Export Excel
+        </button>
+        <button
+          className="add-exhibitor-new-badge-btn"
+          onClick={() => setShowExhibitorPopup(true)}
+        >
+          Add Exhibitor Badge
         </button>
 
         <input
@@ -471,11 +655,39 @@ const AdminBadges = () => {
                   <span>
                     Free Badges: {freeQuotaMap[company.company_name] || 0}
                   </span>
+                  <span
+                    className="badge-flag"
+                    style={{
+                      background:
+                        (freeQuotaMap[company.company_name] || 0) -
+                          (company.badges?.length || 0) >
+                        0
+                          ? "#d1fae5" // green light
+                          : "#fee2e2", // red light
+                      color:
+                        (freeQuotaMap[company.company_name] || 0) -
+                          (company.badges?.length || 0) >
+                        0
+                          ? "#065f46"
+                          : "#991b1b",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    REMAINING:{" "}
+                    {Math.max(
+                      0,
+                      (freeQuotaMap[company.company_name] || 0) -
+                        (company.badges?.length || 0),
+                    )}
+                  </span>
 
                   <span>
                     Paid Badges:{" "}
-                    {badgePaymentSummary[company.company_name]
-                      ?.paidBadgeCount || 0}
+                    {Math.max(
+                      0,
+                      (company.badges?.length || 0) -
+                        (freeQuotaMap[company.company_name] || 0),
+                    )}
                   </span>
 
                   <span>
@@ -534,6 +746,38 @@ const AdminBadges = () => {
                 </div>
               )}
             </div>
+
+            <button
+              className="add-badge-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+
+                const exhibitor = allExhibitors.find(
+                  (ex) => ex.company_name === company.company_name,
+                );
+
+                if (!exhibitor) {
+                  toast.error("Exhibitor not found");
+                  return;
+                }
+
+                setSelectedCompany(exhibitor);
+
+                setFormData({
+                  exhibitor_company_name: exhibitor.company_name,
+                  stall_no: exhibitor.stall_no || "",
+                  state: exhibitor.state || "",
+                  city: exhibitor.city || "",
+                  exhibitor_id: exhibitor.id || "", // 🔥 MOST IMPORTANT
+                  name: "",
+                  candidate_photo: null,
+                });
+
+                setShowBadgePopup(true);
+              }}
+            >
+              Add Badge
+            </button>
 
             {openCompany === company.company_name ? (
               <FaChevronUp className="badge-table-icon" />
@@ -835,6 +1079,152 @@ const AdminBadges = () => {
 
             <button className="update-btn" onClick={updateBadge}>
               Update Badge
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showBadgePopup && (
+        <div className="modal-overlay">
+          <div className="exhibitor-form-container">
+            <div className="form-wrapper">
+              <button
+                className="exhibitor-modal-close"
+                onClick={() => {
+                  setShowBadgePopup(false);
+                  setPhotoPreview(null);
+                }}
+              >
+                <IoClose />
+              </button>
+
+              <h2>Add Exhibitor Badge</h2>
+
+              <div className="badge-header-row">
+                {isFree ? (
+                  <span className="badge-flag free">
+                    <MdVerified /> FREE
+                  </span>
+                ) : (
+                  <span className="badge-flag paid">
+                    <RiMoneyRupeeCircleFill /> PAID
+                  </span>
+                )}
+
+                <span className="badge-remaining">
+                  Remaining: {freeRemaining}
+                </span>
+              </div>
+
+              <form onSubmit={handleSubmit} className="badge-form">
+                <input
+                  className="badge-input"
+                  value={formData.exhibitor_company_name}
+                  disabled
+                />
+                <input
+                  className="badge-input"
+                  value={formData.stall_no}
+                  disabled
+                />
+                <input
+                  className="badge-input"
+                  value={formData.state}
+                  disabled
+                />
+                <input className="badge-input" value={formData.city} disabled />
+
+                <input
+                  className="badge-input"
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  placeholder="Enter Name"
+                />
+
+                <input
+                  className="badge-file"
+                  type="file"
+                  onChange={handlePhotoChange}
+                />
+
+                {photoPreview && (
+                  <img
+                    src={photoPreview}
+                    className="badge-preview"
+                    width={80}
+                  />
+                )}
+
+                <button type="submit" className="badge-submit-btn">
+                  Generate Badge
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showExhibitorPopup && (
+        <div className="modal-overlay">
+          <div className="power-modal large">
+            <h3>Select Exhibitor</h3>
+
+            {/* 🔍 SEARCH */}
+            <input
+              type="text"
+              placeholder="Search exhibitor..."
+              value={exhibitorSearch}
+              onChange={(e) => setExhibitorSearch(e.target.value)}
+              className="badge-name-search"
+              style={{ marginBottom: 10 }}
+            />
+
+            <div className="exhibitor-list">
+              {filteredExhibitors.length === 0 ? (
+                <p>No exhibitors found</p>
+              ) : (
+                filteredExhibitors.map((ex, i) => (
+                  <div key={i} className="exhibitor-row">
+                    <span>{ex.company_name}</span>
+
+                    <button
+                      className="select-btn"
+                      onClick={() => {
+                        const fullCompany = companies.find(
+                          (c) => c.company_name === ex.company_name,
+                        );
+
+                        setSelectedCompany(fullCompany || ex);
+                        setShowExhibitorPopup(false);
+
+                        // 🔥 FORM AUTO FILL
+                        setFormData({
+                          exhibitor_company_name: ex.company_name,
+                          stall_no: ex.stall_no || "",
+                          state: ex.state || "",
+                          city: ex.city || "",
+                          exhibitor_id: ex.id || "",
+                          name: "",
+                          candidate_photo: null,
+                        });
+
+                        setShowBadgePopup(true);
+                      }}
+                    >
+                      Select
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <button
+              className="power-cancle-btn"
+              onClick={() => setShowExhibitorPopup(false)}
+            >
+              Close
             </button>
           </div>
         </div>

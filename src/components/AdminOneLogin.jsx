@@ -31,7 +31,7 @@ const AdminOneLogin = () => {
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("adminEmail", email);
 
-       navigate("/admin1-dashboard");
+       navigate("/sachin-dashboard");
       } else {
         setError(result.message || "Login failed. Please check credentials.");
       }
@@ -45,12 +45,12 @@ const AdminOneLogin = () => {
     <div className="main-content-wrapper">
       <div className="main-login-container">
         <div className="login-text-container">
-          <h2>Welcome Admin One to In-Optics Portal</h2>
+          <h2>Welcome Admin Sachin to In-Optics Portal</h2>
         </div>
 
         <div className="login-columns">
           <div className="login-container">
-            <h2 className="login-main-heading">Admin One</h2>
+            <h2 className="login-main-heading">Admin Sachin</h2>
 
             <div className="login-form-container">
               <form onSubmit={handleSubmit} className="login-form">
@@ -89,7 +89,7 @@ const AdminOneLogin = () => {
 
                 {error && <p className="error-text">{error}</p>}
 
-                <button type="submit">Admin One Login</button>
+                <button type="submit">Admin Sachin Login</button>
 
               </form>
             </div>

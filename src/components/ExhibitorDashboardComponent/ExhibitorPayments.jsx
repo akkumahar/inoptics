@@ -214,7 +214,7 @@ const ExhibitorPaymentCards = ({
             const b = getExhibitorBadgeBilling() || {};
 
             // ✅ date based badge price
-            const cutoff = new Date("2026-03-20T23:59:59");
+            const cutoff = new Date("2026-03-21");
             const now = new Date();
             const amountPerBadge = now <= cutoff ? 100 : 200;
 

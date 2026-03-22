@@ -217,6 +217,7 @@ const ExhibitorBadgeForm = ({
         );
 
         const badgeData = await badgeRes.json();
+        console.log("exhibitor badge print", badgeData);
 
         if (!cancelled && badgeData.success) {
           const badges = badgeData.badges || [];
@@ -347,9 +348,9 @@ const ExhibitorBadgeForm = ({
         throw new Error(data.message || "Failed to create badge");
       }
 
-//       if (freeRemaining === 0) {
-//    await autoIncrementExtraBadge();
-// }
+      //       if (freeRemaining === 0) {
+      //    await autoIncrementExtraBadge();
+      // }
 
       // ===== SUCCESS UI =====
       setFieldErrors({ name: "", photo: "" });
@@ -401,34 +402,30 @@ const ExhibitorBadgeForm = ({
 
   // ===== AUTO INCREMENT EXTRA BADGE =====
   const autoIncrementExtraBadge = async () => {
+    if (!currentExhibitor?.company_name) return;
 
-  if (!currentExhibitor?.company_name) return;
+    try {
+      const res = await fetch(
+        "https://inoptics.in/api/update_Exhibitor_badges.php",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            company_name: currentExhibitor.company_name,
+            increment_extra: true,
+          }),
+        },
+      );
 
-  try {
-    const res = await fetch(
-      "https://inoptics.in/api/update_Exhibitor_badges.php",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          company_name: currentExhibitor.company_name,
-          increment_extra: true
-        }),
+      const data = await res.json();
+
+      if (data.success) {
+        setExtraPaidBadges((prev) => prev + 1); // 🔥 local update
       }
-    );
-
-    const data = await res.json();
-
-    if (data.success) {
-      setExtraPaidBadges((prev) => prev + 1); // 🔥 local update
+    } catch (error) {
+      console.error("Extra badge increment error:", error);
     }
-
-  } catch (error) {
-    console.error("Extra badge increment error:", error);
-  }
-};
-
-
+  };
 
   // ===== LOCK ALL BADGES =====
   const handleLockBadgesAfterSubmit = async (e) => {
@@ -755,37 +752,33 @@ const ExhibitorBadgeForm = ({
     }
   };
 
-useEffect(() => {
-  if (loadingCompanyBadges) return;
+  useEffect(() => {
+    if (loadingCompanyBadges) return;
 
-  const remaining = Number(freeRemaining);
+    const remaining = Number(freeRemaining);
 
-  // first load par sirf value store karo
-  if (prevFreeRemaining.current === null) {
-    prevFreeRemaining.current = remaining;
-    return;
-  }
-
-  // popup only when it changes from >0 to 0
-  if (prevFreeRemaining.current > 0 && remaining === 0) {
-
-    const alreadyShown = localStorage.getItem("freeRemainingPopupShown");
-
-    if (!alreadyShown) {
-      console.log("🔥 Free badges finished - showing popup");
-
-      setShowFreeOverPopup(true);
-
-      localStorage.setItem("freeRemainingPopupShown", "1");
+    // first load par sirf value store karo
+    if (prevFreeRemaining.current === null) {
+      prevFreeRemaining.current = remaining;
+      return;
     }
-  }
 
-  // update previous value
-  prevFreeRemaining.current = remaining;
+    // popup only when it changes from >0 to 0
+    if (prevFreeRemaining.current > 0 && remaining === 0) {
+      const alreadyShown = localStorage.getItem("freeRemainingPopupShown");
 
-}, [freeRemaining, loadingCompanyBadges]);
+      if (!alreadyShown) {
+        console.log("🔥 Free badges finished - showing popup");
 
+        setShowFreeOverPopup(true);
 
+        localStorage.setItem("freeRemainingPopupShown", "1");
+      }
+    }
+
+    // update previous value
+    prevFreeRemaining.current = remaining;
+  }, [freeRemaining, loadingCompanyBadges]);
 
   // ===== LOADING STATE =====
   if (loading && exhibitors.length === 0) {
@@ -856,8 +849,8 @@ useEffect(() => {
                     <br />
                     Additional badges can be requested at a cost of ₹100 per
                     badge. However, any badge requests made after{" "}
-                    <strong>20th March 2026</strong> will be charged at ₹200
-                    per badge.
+                    <strong>20th March 2026</strong> will be charged at ₹200 per
+                    badge.
                     <br />
                     <br />
                     Once submitted, changes will be locked. Any updates can be
@@ -873,7 +866,7 @@ useEffect(() => {
               <div className="exhibitor-extra-badges-payment">
                 {(() => {
                   const count = parseInt(extraPaidBadges || 0, 10);
-                  const rate = new Date() > new Date("2026-03-20") ? 200 : 100;
+                  const rate = new Date() > new Date("2026-03-21") ? 200 : 100;
                   const total = count * rate;
 
                   const companyState =
@@ -971,7 +964,9 @@ useEffect(() => {
             <p className="loading-text">Loading badges...</p>
           ) : (
             <div className="badge-table-wrapper">
-              <h6 className="only-for-mobile-version badge-list-table">Badges List</h6>
+              <h6 className="only-for-mobile-version badge-list-table">
+                Badges List
+              </h6>
               {companyBadges.length === 0 ? (
                 <div className="no-badges">
                   <p className="no-data">
@@ -997,10 +992,10 @@ useEffect(() => {
                       .sort((a, b) => a.badge_series_num - b.badge_series_num)
                       .map((badge, index) => {
                         const totalFree = Number(freeBadges) || 0;
-const isFree = index < totalFree;
+                        const isFree = index < totalFree;
 
                         return (
-                          <tr key={badge.id}  className="badge-row-card">
+                          <tr key={badge.id} className="badge-row-card">
                             <td>
                               <img
                                 src={`https://inoptics.in/${badge.photo}`}
@@ -1194,9 +1189,10 @@ const isFree = index < totalFree;
                     Additional badges can be requested at a cost of ₹100 + GST
                     per badge.
                     <br />
-                    Badge requests made after{" "}
-                    <strong>20th March 2026</strong> will be charged at ₹200
-                    per badge.
+                    Badge requests made after <strong>
+                      20th March 2026
+                    </strong>{" "}
+                    will be charged at ₹200 per badge.
                   </p>
 
                   {exhibitors && exhibitors.length > 0 ? (
@@ -1261,14 +1257,14 @@ const isFree = index < totalFree;
                           onChange={handleInputChange}
                           placeholder="Enter candidate name"
                           className="input-field"
-                          
                         />
                       </div>
 
                       <div className="candicate-preview">
                         <div className="form-group">
                           <label className="label-with-error">
-                            Exhibitor Photo * (Max 2MB) (This time is optional, Next Time it will be mandatory)
+                            Exhibitor Photo * (Max 2MB) (This time is optional,
+                            Next Time it will be mandatory)
                             {fieldErrors.photo && (
                               <span className="field-error">
                                 {fieldErrors.photo}
@@ -1281,7 +1277,6 @@ const isFree = index < totalFree;
                             accept="image/*"
                             onChange={handlePhotoChange}
                             className="file-input candicate-preview-input"
-                            
                           />
                         </div>
 

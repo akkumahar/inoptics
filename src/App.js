@@ -95,8 +95,8 @@ const AnimatedRoutes = () => {
         <Route path="/unsubscribe" element={<UnSubscribe />} />
         <Route path="/benefactors" element={<Benefactors />} />
         <Route path="/exhibit-badges" element={<AdminBadges />} />
-        <Route path="/admin1" element={<AdminOneLogin />} />
-        <Route path="/admin1-dashboard" element={<AdminOnePanel />} />
+        <Route path="/sachin" element={<AdminOneLogin />} />
+        <Route path="/sachin-dashboard" element={<AdminOnePanel />} />
         <Route path="/exhibitor-badges-printing" element={<AdminTwoLogin />} />
         <Route path="/exhibitor-badges-dashboard" element={<AdminTwoPanel />} />
       </Routes>
@@ -119,8 +119,8 @@ const hideNavbarRoutes = [
   "/exhibitor-dashboard",
   "/exhibitor-login",
   "/unsubscribe",
-  "/admin1-dashboard",
-  "/admin1",
+  "/sachin-dashboard",
+  "/sachin",
   "/exhibitor-badges-dashboard",
   "/exhibitor-badges-printing",
 ];
@@ -132,8 +132,8 @@ const hideNavbarRoutes = [
   "/exhibitor-login",
   "/unsubscribe",
   "/admin-login",
-  "/admin1-dashboard",
-  "/admin1",
+  "/sachin-dashboard",
+  "/sachin",
   "/exhibitor-badges-dashboard",
   "/exhibitor-badges-printing"
 ];
