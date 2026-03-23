@@ -25,6 +25,8 @@ const FasciaNameAdmin = ({}) => {
     try {
       const res = await fetch("https://inoptics.in/api/get_exhibitors.php");
       const data = await res.json();
+      console.log("sfskjfhsd",data);
+      
       setExhibitorData(data);
     } catch (error) {
       console.error("Failed to fetch exhibitors:", error);

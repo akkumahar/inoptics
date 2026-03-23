@@ -1,0 +1,1277 @@
+/* =========================
+   MAIN WRAPPER
+========================= */
+
+.admin-power-wrapper {
+  padding: 20px;
+  min-height: 90vh;
+  max-width: 100vw;
+  margin: auto;
+  height: 80vh; /* 🔥 Important */
+  overflow-y: auto; /* enable scroll */
+  padding-right: 6px; /* scrollbar space */
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+.admin-power-wrapper h2 {
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+/* =========================
+   ACCORDION
+========================= */
+
+.accordion {
+  background: #ffffff;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.accordion-header {
+  padding: 15px 20px;
+  cursor: pointer;
+  background: #1e293b;
+  color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: 0.3s;
+}
+
+.accordion-header:hover {
+  background: #334155;
+}
+
+.accordion-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.accordion-body {
+  padding: 20px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* =========================
+   TABLE
+========================= */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+table thead {
+  background: #f1f5f9;
+}
+
+table th,
+table td {
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 14px;
+}
+
+table th {
+  font-weight: 600;
+}
+
+table tbody tr:hover {
+  background: #f9fafb;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+/* Action Buttons */
+
+.action-buttons {
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
+}
+
+/* =========================
+   PAYMENT CARD
+========================= */
+
+.payment-card {
+  background: #f8fafc;
+  padding: 15px;
+  border-radius: 6px;
+  margin-top: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.payment-card h4 {
+  margin-bottom: 10px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.payment-card p {
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+/* =========================
+   MODAL
+========================= */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal {
+  background: #ffffff;
+  padding: 25px;
+  width: 350px;
+  border-radius: 8px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+.modal h3 {
+  margin-bottom: 15px;
+}
+
+.modal input[type="number"] {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+}
+
+.modal label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.power-unlock-btn {
+  background: #ef4444;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 768px) {
+  table th,
+  table td {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .modal {
+    width: 90%;
+  }
+
+  .accordion-header h3 {
+    font-size: 14px;
+  }
+}
+
+/* =========================
+   ANIMATION
+========================= */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================
+   MAIN WRAPPER
+========================= */
+
+.admin-power-wrapper {
+  padding: 20px;
+  overflow-y: scroll; /* 🔥 Scroll enabled */
+  font-family: Arial, sans-serif;
+}
+
+/* =========================
+   SEARCH BAR
+========================= */
+
+.search-bar {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.search-bar input {
+  width: 260px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.search-bar input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+/* =========================
+   ACCORDION
+========================= */
+
+.accordion {
+  background: #ffffff;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.accordion-header {
+  padding: 15px 20px;
+  cursor: pointer;
+  background: #1e293b;
+  color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.accordion-header:hover {
+  background: #334155;
+}
+
+.accordion-body {
+  padding: 20px;
+}
+
+/* =========================
+   TABLE
+========================= */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+table th,
+table td {
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 14px;
+}
+
+table thead {
+  background: #f1f5f9;
+}
+
+table tbody tr:hover {
+  background: #f9fafb;
+}
+
+/* =========================
+   BUTTON
+========================= */
+
+.btn-main-action {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.delete-btn {
+  background: #ef4444;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  opacity: 0.85;
+}
+
+/* =========================
+   PAYMENT CARD
+========================= */
+
+.payment-card {
+  background: #f8fafc;
+  padding: 15px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.payment-card h4 {
+  margin-bottom: 10px;
+}
+
+.payment-card p {
+  margin: 4px 0;
+}
+
+/* =========================
+   MAIN WRAPPER
+========================= */
+
+.admin-power-wrapper {
+  padding: 20px;
+  height: 80vh;
+  overflow-y: auto;
+  font-family: Arial, sans-serif;
+}
+
+/* =========================
+   SEARCH BAR
+========================= */
+
+.search-bar {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.search-bar input {
+  width: 260px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  font-size: 14px;
+}
+
+.search-bar input:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+/* =========================
+   ACCORDION
+========================= */
+
+.power-accordion {
+  background: #ffffff;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.power-accordion-header {
+  padding: 15px 20px;
+  cursor: pointer;
+  background: #000000;
+  color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.power-accordion-header:hover {
+  background: #212224;
+}
+
+.power-accordion-body-power {
+
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* =========================
+   TABLE
+========================= */
+
+.power-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.power-table thead {
+  background: #f1f5f9;
+}
+
+.power-table th,
+.power-table td {
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 14px;
+}
+
+.power-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+/* =========================
+   ACTION BUTTONS
+========================= */
+
+.power-action-cell {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.power-edit-btn {
+  background: #2196f3;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+}
+.power-edit-btn-update {
+  background: #16a34a;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+}
+
+.power-delete-btn {
+  background: #ef4444;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+}
+
+.power-edit-btn:hover,
+.power-delete-btn:hover {
+  opacity: 0.85;
+}
+
+/* =========================
+   PAYMENT CARD
+========================= */
+
+.payment-card {
+  background: #f8fafc;
+  padding: 15px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+/* =========================
+   MODAL
+========================= */
+
+/* ================= MODAL OVERLAY ================= */
+
+.power-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+/* ================= MODAL BOX ================= */
+
+.power-modal {
+  background: #fff;
+  width: 420px;
+  max-width: 90%;
+  padding: 28px 30px;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ================= TITLE ================= */
+
+.power-modal h3 {
+  margin: 0 0 10px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #222;
+}
+
+/* ================= LABEL ================= */
+
+.power-modal label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #555;
+}
+
+/* ================= INPUT ================= */
+
+.power-modal input[type="text"],
+.power-modal input[type="number"] {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #dcdcdc;
+  border-radius: 5px;
+  font-size: 14px;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.power-modal input:focus {
+  border-color: #2e7d32;
+}
+
+/* ================= READONLY FIELD ================= */
+
+.readonly-field {
+  background: #f5f5f5;
+  cursor: not-allowed;
+}
+
+/* ================= PHASE RADIO ================= */
+
+.phase-radio-power {
+  display: flex;
+  gap: 25px;
+  margin-top: 5px;
+}
+
+.phase-radio-power label {
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ================= BUTTON AREA ================= */
+
+.btn-main-action {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* ================= UPDATE BUTTON ================= */
+
+.power-edit-btn-update {
+  background: #2e7d32;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 5px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.power-edit-btn-update:hover {
+  background: #256628;
+}
+
+/* ================= CANCEL BUTTON ================= */
+
+.power-delete-btn {
+  background: #d32f2f;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 5px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.power-cancle-btn {
+  background: #d32f2f;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 5px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.power-update-btn {
+  background: #2dac5c;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 5px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.power-delete-btn:hover {
+  background: #b71c1c;
+}
+
+/* ================= SEND MAIL BUTTON ================= */
+
+.power-mail-btn {
+  background: #6f42c1;
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  margin-left: 6px;
+  transition: 0.2s ease;
+}
+
+.power-mail-btn:hover {
+  background: #6f42c1cc;
+}
+
+.power-mail-btn:active {
+  transform: scale(0.96);
+}
+
+.power-summary {
+  display: flex;
+  gap: 14px;
+  font-size: 12px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+  color: #374151;
+}
+
+.power-summary span {
+  background: #f3f4f6;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.power-top-bar {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px 0;
+}
+
+/* Buttons common style */
+
+.power-export-btn,
+.print-all-btn {
+  padding: 10px 22px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Export button */
+
+.power-export-btn {
+  background: #7f36e4;
+  color: white;
+}
+
+.power-print-btn {
+  padding: 4px 12px;
+  background: #fff;
+  color: #000000;
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+}
+.power-unlock-btn {
+  padding: 4px 12px;
+  background: #fff;
+  color: #000000;
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+}
+
+.power-export-btn:hover {
+  background: #6a2bc2;
+}
+
+/* Print button */
+
+.print-all-btn {
+  background: #1f9d48;
+  color: white;
+}
+
+.print-all-btn:hover {
+  background: #187a38;
+}
+
+/* Search box */
+
+.power-name-search {
+  flex: 1;
+  height: 40px;
+  padding: 0 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+
+.search-bar-only-power{
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+@media print {
+  .power-action-cell,
+  .power-edit-btn,
+  .power-delete-btn,
+  .power-mail-btn {
+    display: none !important;
+  }
+}
+
+/* =========================
+   ANIMATION
+========================= */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* new css */
+
+/* Modal overlay */
+
+.power-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* Modal */
+
+.power-modal {
+  background: #fff;
+  padding: 25px;
+  border-radius: 8px;
+  width: 400px;
+  max-height: 80vh;
+  overflow: auto;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+}
+
+.power-modal.large {
+  width: 550px;
+}
+
+/* Modal title */
+
+.power-modal h3 {
+  margin-bottom: 15px;
+  font-size: 20px;
+}
+
+/* Inputs */
+
+.power-modal input,
+.power-modal select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+/* Radio */
+
+.phase-radio-power {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 15px;
+}
+
+/* Buttons container */
+
+.btn-main-action {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* Buttons */
+
+.power-update-btn {
+  background: #2e7d32;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.power-cancle-btn {
+  background: #d32f2f;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+/* Exhibitor list */
+
+.exhibitor-list {
+  max-height: 350px;
+  overflow: auto;
+  margin-top: 10px;
+}
+
+/* Exhibitor row */
+
+.exhibitor-row-power {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+/* Select button */
+
+.select-btn {
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Search */
+
+.exhibitor-search {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+/* Hover */
+
+.exhibitor-row-power:hover {
+  background: #f7f7f7;
+}
+
+.new-power-add-btn {
+  padding: 10px 22px;
+  border: none;
+  background-color: #09c0cd;
+  color: #fff;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.power-payment-flag {
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.power-payment-flag.paid {
+  background: #fff2e6;
+  color: #ff0000;
+  border: 1px solid #ff0000;
+}
+
+
+.power-payment-edit-btn {
+  background: #2196f3;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+}
+
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+
+
+@media (max-width: 1024px) {
+  .admin-power-wrapper {
+    padding: 10px;
+  }
+
+  .power-summary {
+    font-size: 11px;
+  }
+
+  .power-table th,
+  .power-table td {
+    font-size: 12px;
+    padding: 6px;
+  }
+}
+
+
+/* 🔥 Top bar responsive */
+@media (max-width: 768px) {
+  .power-top-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .power-name-search {
+    width: 100%;
+  }
+
+  .power-export-btn,
+  .print-all-btn,
+  .new-power-add-btn {
+    width: 100%;
+  }
+}
+
+
+
+@media (max-width: 600px) {
+  .power-table thead {
+    display: none;
+  }
+
+  .power-table,
+  .power-table tbody,
+  .power-table tr,
+  .power-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .power-table tr {
+    margin-bottom: 15px;
+    background: #fff;
+    border-radius: 8px;
+    padding: 10px;
+  }
+
+  .power-table td {
+    text-align: left;
+    padding: 8px 10px;
+    position: relative;
+    border-bottom: 1px solid #eee;
+  }
+
+  .power-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    display: block;
+    margin-bottom: 4px;
+    color: #555;
+  }
+}
+
+@media (max-width: 768px) {
+  .power-accordion-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .power-summary {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 768px) {
+  .power-action-cell {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .power-edit-btn,
+  .power-delete-btn,
+  .power-mail-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .power-modal {
+    width: 95%;
+    padding: 15px;
+  }
+
+  .phase-radio-power {
+    gap: 10px;
+  }
+}
+
+
+
+/* 🔥 Modal Responsive */
+.power-modal.large {
+  width: 600px;
+  max-width: 95%;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 🔥 Search */
+.exhibitor-search {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+/* 🔥 List scroll */
+.exhibitor-list {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 400px;
+  padding-right: 4px;
+}
+
+/* 🔥 Card style */
+.exhibitor-card {
+  display: flex;
+  justify-content: space-between; /* 🔥 left-right fix */
+  align-items: start;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+}
+
+.exhibitor-card:hover {
+  background: #f1f5f9;
+}
+
+/* Info */
+.exhibitor-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* 🔥 left align */
+}
+
+.company-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.stall-no {
+  font-size: 12px;
+  color: #666;
+}
+
+/* Button */
+.select-btn {
+  margin-left: auto; /* 🔥 push right */
+}
+
+/* 🔥 MOBILE */
+@media (max-width: 768px) {
+  .power-modal.large {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    padding: 15px;
+  }
+
+  .exhibitor-card {
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .select-btn {
+    width: 100%;
+  }
+
+  .exhibitor-list {
+    max-height: unset;
+  }
+}
+
+/* 🔥 TABLET */
+@media (max-width: 1024px) {
+  .power-modal.large {
+    width: 90%;
+  }
+
+  .company-name {
+    font-size: 13px;
+  }
+}
+
+
+@media (max-width: 768px) {
+  .exhibitor-card {
+    flex-direction: row; /* 🔥 row instead of column */
+    align-items:start;
+    text-align: left;
+  }
+
+  .select-btn {
+    width: auto; /* 🔥 full width हटाओ */
+  }
+}
+
+
+/* 🔥 POWER BOX (CARD STYLE) */
+.power-box {
+  background: #f9fafb;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 15px;
+}
+
+/* 🔥 GRID LAYOUT */
+.power-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* INPUT spacing */
+.power-modal input {
+  width: 100%;
+}
+
+/* 🔥 TWO COLUMN (DESKTOP) */
+@media (min-width: 768px) {
+  .power-box {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 15px;
+  }
+
+  .power-box h4 {
+    grid-column: span 2;
+  }
+
+  .power-box label {
+    grid-column: span 2;
+  }
+
+  .phase-radio-power {
+    grid-column: span 2;
+  }
+}
+
+/* 🔥 MOBILE (SINGLE COLUMN) */
+@media (max-width: 768px) {
+  .power-modal {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    padding: 15px;
+    overflow-y: auto;
+  }
+
+  .power-box {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .phase-radio-power {
+    gap: 8px;
+  }
+}
+
+/* 🔥 TABLET FIX */
+@media (max-width: 1024px) {
+  .power-modal {
+    width: 95%;
+  }
+}
+
+/* 🔥 BUTTONS */
+.btn-main-action {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Mobile buttons */
+@media (max-width: 600px) {
+  .btn-main-action {
+    flex-direction: column;
+  }
+
+  .power-update-btn,
+  .power-cancle-btn {
+    width: 100%;
+  }
+}
+
+
+

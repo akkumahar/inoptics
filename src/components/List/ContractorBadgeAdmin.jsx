@@ -107,7 +107,7 @@ const ContractorBadgeAdmin = ({ exhibitorData }) => {
             stall_no: stall_no,
             contractor_name: row.contractor_company_name,
             badge_quantity: row.badge_quantity,
-            payment: payments[key]?.payment || 0, // ✅ FIX
+            payment: payments[key]?.payment ?? "", // ✅ FIX
           }),
         },
       );
@@ -388,7 +388,7 @@ const ContractorBadgeAdmin = ({ exhibitorData }) => {
               <th>Contractor Company</th>
               <th>Badge Quantity</th>
               <th>Status</th>
-              <th>Payments</th>
+              <th>Others</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -434,8 +434,7 @@ const ContractorBadgeAdmin = ({ exhibitorData }) => {
 
                     {/* ✅ PAYMENT */}
                     <td className="contractor-table-input-row">
-                      <input
-                        type="number"
+                      <textarea
                         value={payments[key]?.payment || ""}
                         disabled={paidRows[key] && !editPaymentRow[key]}
                         onChange={(e) =>
@@ -467,7 +466,7 @@ const ContractorBadgeAdmin = ({ exhibitorData }) => {
                             }))
                           }
                         >
-                          Update
+                          Update/Edit
                         </button>
                       )}
                     </td>

@@ -76,7 +76,7 @@ import ExtraFurnitureManager from "./List/ExtraFurnitureManager";
 import UnlockContractor from "./List/UnlockContractor";
 import UpdateCompanyName from "./List/UpdateCompanyName";
 import ExhibitorPowerHistory from "./List/ExhibitorPowerHistory";
-import ExhibitorsPanel from "./List/Sachin";
+import ExhibitorsPanel from "./List/ExhibitorsPanel";
 // import { useMemo } from 'react';
 
 const AdminDashboard = () => {
@@ -13616,10 +13616,7 @@ const AdminDashboard = () => {
           </li>
           <li onClick={() => openOverlay("Exhibitor Power")}>
             <FaPowerOff /> {!collapsed && "Exhibitor Power"}{" "}
-          </li>
-          <li onClick={() => openOverlay("Exhibitor Panel")}>
-            <FaPowerOff /> {!collapsed && "Exhibitor Panel"}{" "}
-          </li>
+          </li>         
 
           <li onClick={() => openOverlay("Exhibitor History")}>
             <FaWpforms /> {!collapsed && "Exhibitor History"}
@@ -25236,60 +25233,7 @@ const AdminDashboard = () => {
               <FasciaNameAdmin />
             </>
           )}
-          {overlayContent === "Exhibitor Panel" && (
-            <>
-              <ExhibitorsPanel
-                groupedData={groupedData}
-                companySearch={companySearch}
-                setCompanySearch={setCompanySearch}
-                bsSearch={bsSearch}
-                setBsSearch={setBsSearch}
-                formData={formData}
-                setFormData={setFormData}
-                editExhibitor={editExhibitor}
-                setEditExhibitor={setEditExhibitor}
-                showExhibitorEditForm={showExhibitorEditForm}
-                setShowExhibitorEditForm={setShowExhibitorEditForm}
-                showExhibitorAddForm={showExhibitorAddForm}
-                setShowExhibitorAddForm={setShowExhibitorAddForm}
-                isViewOnly={isViewOnly}
-                setIsViewOnly={setIsViewOnly}
-                modalVisible={modalVisible}
-                setModalVisible={setModalVisible}
-                activeNavbarItem={activeNavbarItem}
-                setActiveNavbarItem={setActiveNavbarItem}
-                handleChange={handleChange}
-                handleSubmit={handleSubmit}
-                errors={errors}
-                deleteExhibitor={deleteExhibitor}
-                fetchSelectedFurniture={fetchSelectedFurniture}
-                handleSendMail={handleSendMail}
-                isSendingMail={isSendingMail}
-                showTermsDeclaration={showTermsDeclaration}
-                setShowTermsDeclaration={setShowTermsDeclaration}
-                setHideMainDashboard={setHideMainDashboard}
-                selectedCompanyName={selectedCompanyName}
-                setSelectedCompanyName={setSelectedCompanyName}
-                undertakingStatus={undertakingStatus}
-                declarationUndertakingData={declarationUndertakingData}
-                handleUnlockUndertaking={handleUnlockUndertaking}
-                stallList={stallList}
-                stallSummary={stallSummary}
-                pendingAmount={pendingAmount}
-                powerPendingAmount={powerPendingAmount}
-                getDiscountPercent={getDiscountPercent}
-                exhibitorPreviewList={exhibitorPreviewList}
-                totalPrice={totalPrice}
-                cgst={cgst}
-                sgst={sgst}
-                igst={igst}
-                grandTotal={grandTotal}
-                selectedFurniture={selectedFurniture}
-                furnitureBilling={furnitureBilling}
-                getExhibitorBadgeBilling={getExhibitorBadgeBilling}
-              />
-            </>
-          )}
+          
           {overlayContent === "Exhibitor Power" && (
             <>
               <AdminPowerRequirement exhibitorData={exhibitorData} />

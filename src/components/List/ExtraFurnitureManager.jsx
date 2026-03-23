@@ -34,6 +34,8 @@ const ExtraFurnitureManager = ({ exhibitorData }) => {
   const [exhibitorSearch, setExhibitorSearch] = useState("");
   const [selectedNewExhibitor, setSelectedNewExhibitor] = useState(null);
 
+  const [unlockStatus, setUnlockStatus] = useState({});
+
   /* ================= FETCH COMPANIES ================= */
 
   const fetchEmailMessages = async () => {
@@ -52,13 +54,11 @@ const ExtraFurnitureManager = ({ exhibitorData }) => {
     setLoadingCompanies(true);
 
     try {
-      // Step 1: Get unique company names that have selected furniture
       const res = await fetch(
         "https://inoptics.in/api/get_all_selected_furniture_by_exhibitor.php",
       );
       const data = await res.json();
-
-      console.log("📋 get_all_selected_furniture_by_exhibitor RAW:", data);
+      console.log("nsjsnfsf furniture", data);
 
       const allEntries = Array.isArray(data)
         ? data
@@ -67,29 +67,63 @@ const ExtraFurnitureManager = ({ exhibitorData }) => {
           : [];
 
       if (allEntries.length === 0) {
-        console.warn("⚠️ No companies found from API");
         setCompanies([]);
+        setUnlockStatus({});
         setLoadingCompanies(false);
         return;
       }
 
-      // Unique company names
+      // 🔥 NORMALIZE FUNCTION
+      const normalize = (str) => str?.replace(/\s+/g, " ").trim().toLowerCase();
+
+      // ================= STATUS MAP =================
+      const statusMap = {};
+
+      allEntries.forEach((item) => {
+        const key = item.company_name
+          ?.replace(/\s+/g, " ")
+          .trim()
+          .toLowerCase();
+
+        if (!key) return;
+
+        const lock = item.lockState || {};
+
+        statusMap[key] = {
+          is_locked: Number(lock.is_locked || 0),
+          unlock_requested: Number(lock.unlock_requested || 0),
+        };
+      });
+
+      setUnlockStatus(statusMap);
+
+      // ================= UNIQUE COMPANIES =================
       const uniqueCompanyNames = [
         ...new Set(allEntries.map((item) => item.company_name).filter(Boolean)),
       ];
 
-      console.log("🏢 Unique companies count:", uniqueCompanyNames.length);
+      // 🔥 FAST LOOKUP MAP (instead of find)
+      const entryMap = {};
+      allEntries.forEach((e) => {
+        const key = normalize(e.company_name);
+        if (!entryMap[key]) entryMap[key] = e;
+      });
 
-      // Step 2: Fetch furniture + exhibitor details for each company IN PARALLEL
+      // ================= FETCH DETAILS =================
       const results = await Promise.all(
         uniqueCompanyNames.map(async (companyName) => {
           try {
             const r = await fetch(
-              `https://inoptics.in/api/get_selected_furniture.php?company_name=${encodeURIComponent(companyName)}`,
+              `https://inoptics.in/api/get_selected_furniture.php?company_name=${encodeURIComponent(
+                companyName,
+              )}`,
             );
+
             const d = await r.json();
+            console.log("nsjsnfsf furniture", d);
 
             const furnitureList = Array.isArray(d.furniture) ? d.furniture : [];
+
             if (furnitureList.length === 0) return null;
 
             const parsedFurniture = furnitureList.map((item) => ({
@@ -100,14 +134,11 @@ const ExtraFurnitureManager = ({ exhibitorData }) => {
               quantity: Number(item.quantity),
             }));
 
-            // Exhibitor details — check multiple possible locations in response
+            const key = normalize(companyName);
+            const fromList = entryMap[key] || {};
             const exhibitor =
               d.exhibitor || d.company || d.exhibitor_details || {};
-            const firstFurItem = furnitureList[0] || {};
-
-            // Match from allEntries too (company list API might have email/mobile)
-            const fromList =
-              allEntries.find((e) => e.company_name === companyName) || {};
+            const firstItem = furnitureList[0] || {};
 
             return {
               company: {
@@ -115,37 +146,24 @@ const ExtraFurnitureManager = ({ exhibitorData }) => {
                 name:
                   exhibitor.name ||
                   exhibitor.contact_person ||
-                  d.name ||
                   fromList.name ||
-                  fromList.contact_person ||
-                  firstFurItem.contact_person ||
+                  firstItem.contact_person ||
                   "",
                 email:
-                  exhibitor.email ||
-                  d.email ||
-                  fromList.email ||
-                  firstFurItem.email ||
-                  "",
+                  exhibitor.email || fromList.email || firstItem.email || "",
                 mobile:
                   exhibitor.mobile ||
                   exhibitor.phone ||
-                  d.mobile ||
                   fromList.mobile ||
-                  fromList.phone ||
-                  firstFurItem.mobile ||
+                  firstItem.mobile ||
                   "",
                 stall_no:
                   exhibitor.stall_no ||
-                  d.stall_no ||
                   fromList.stall_no ||
-                  firstFurItem.stall_no ||
+                  firstItem.stall_no ||
                   "",
                 state:
-                  exhibitor.state ||
-                  d.state ||
-                  fromList.state ||
-                  firstFurItem.state ||
-                  "",
+                  exhibitor.state || fromList.state || firstItem.state || "",
               },
               furniture: parsedFurniture,
             };
@@ -163,12 +181,6 @@ const ExtraFurnitureManager = ({ exhibitorData }) => {
         cache[company.company_name] = furniture;
         companiesList.push(company);
       });
-
-      console.log(
-        "✅ Final companies with furniture:",
-        companiesList.length,
-        companiesList,
-      );
 
       setFurnitureCache(cache);
       setCompanies(companiesList);
@@ -655,6 +667,108 @@ const ExtraFurnitureManager = ({ exhibitorData }) => {
     (c.company_name || "").toLowerCase().includes(search.toLowerCase()),
   );
 
+  const handleAdminUnlock = async (companyName) => {
+    if (!companyName) return alert("Missing company name!");
+
+    if (!window.confirm(`Unlock furniture for ${companyName}?`)) return;
+
+    if (isSendingMail) return;
+
+    setIsSendingMail(true);
+
+    try {
+      // 🔥 STEP 1: UNLOCK API
+      const response = await fetch(
+        "https://inoptics.in/api/admin_unlock_furniture.php",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ company_name: companyName }),
+        },
+      );
+
+      const result = await response.json();
+
+      if (result.status !== "success" && result.status !== "unlocked") {
+        alert(result.message || "Unlock failed");
+        setIsSendingMail(false);
+        return;
+      }
+
+      // ✅ UI UPDATE
+      const key = companyName?.replace(/\s+/g, " ").trim().toLowerCase();
+
+      setUnlockStatus((prev) => ({
+        ...prev,
+        [key]: {
+          is_locked: 0,
+          unlock_requested: 0,
+        },
+      }));
+
+      // 🔥 STEP 2: EMAIL TEMPLATE
+      const emailTemplate = emailMasterData.find(
+        (t) =>
+          t.email_name === "InOptics 2026 @ Extra Furniture Section Unlocked",
+      );
+
+      if (!emailTemplate) {
+        toast.error("Email template not found");
+        setIsSendingMail(false);
+        return;
+      }
+
+      const { company_name, email } = formData;
+
+      if (!company_name || !email) {
+        toast.error("Missing company/email");
+        setIsSendingMail(false);
+        return;
+      }
+
+      // 🔥 TEMPLATE PARSE
+      let parsedContent = emailTemplate.content
+        .replace(/\[Company Name\]/gi, company_name)
+        .replace(/\[Email\]/gi, email)
+        .replace(/&n/g, "<br>");
+
+      parsedContent = `
+      <html>
+        <body style="font-family:Arial; font-size:14px;">
+          ${parsedContent}
+        </body>
+      </html>
+    `;
+
+      // 🔥 STEP 3: SEND MAIL
+      const mailRes = await fetch("https://inoptics.in/api/send_mail.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email_name: "InOptics 2026 @ Extra Furniture Section Unlocked",
+          to: email,
+          html: parsedContent,
+          company_name,
+        }),
+      });
+
+      const mailData = await mailRes.json();
+
+      if (mailRes.ok) {
+        toast.success("✅ Furniture unlocked + mail sent");
+      } else {
+        toast.error(mailData.message || "Mail failed");
+      }
+    } catch (error) {
+      console.error("Unlock error:", error);
+      toast.error("Something went wrong");
+    }
+
+    setIsSendingMail(false);
+  };
+
   /* ================= UI ================= */
 
   return (
@@ -713,6 +827,36 @@ const ExtraFurnitureManager = ({ exhibitorData }) => {
                 ]?.stall_no || "N/A"}
               </span>
             </span>
+
+            <button
+              style={{
+                background:
+                  unlockStatus[
+                    company.company_name
+                      ?.replace(/\s+/g, " ")
+                      .trim()
+                      .toLowerCase()
+                  ]?.unlock_requested === 1
+                    ? "#FFC107" // 🟡 Requested
+                    : "#f44336", // 🔴 Unlock
+                color: "#fff",
+                border: "none",
+                padding: "6px 12px",
+                borderRadius: "5px",
+                cursor: "pointer",
+                marginLeft: "10px",
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleAdminUnlock(company.company_name);
+              }}
+            >
+              {unlockStatus[
+                company.company_name?.replace(/\s+/g, " ").trim().toLowerCase()
+              ]?.unlock_requested === 1
+                ? "Unlock Requested"
+                : "Unlock"}
+            </button>
 
             <span>{openIndex === index ? "▲" : "▼"}</span>
           </div>

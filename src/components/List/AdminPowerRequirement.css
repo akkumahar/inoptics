@@ -950,3 +950,117 @@ input[type="number"]::-webkit-inner-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
+
+
+
+@media (max-width: 1024px) {
+  .admin-power-wrapper {
+    padding: 10px;
+  }
+
+  .power-summary {
+    font-size: 11px;
+  }
+
+  .power-table th,
+  .power-table td {
+    font-size: 12px;
+    padding: 6px;
+  }
+}
+
+
+/* 🔥 Top bar responsive */
+@media (max-width: 768px) {
+  .power-top-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .power-name-search {
+    width: 100%;
+  }
+
+  .power-export-btn,
+  .print-all-btn,
+  .new-power-add-btn {
+    width: 100%;
+  }
+}
+
+
+
+@media (max-width: 600px) {
+  .power-table thead {
+    display: none;
+  }
+
+  .power-table,
+  .power-table tbody,
+  .power-table tr,
+  .power-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .power-table tr {
+    margin-bottom: 15px;
+    background: #fff;
+    border-radius: 8px;
+    padding: 10px;
+  }
+
+  .power-table td {
+    text-align: left;
+    padding: 8px 10px;
+    position: relative;
+    border-bottom: 1px solid #eee;
+  }
+
+  .power-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    display: block;
+    margin-bottom: 4px;
+    color: #555;
+  }
+}
+
+@media (max-width: 768px) {
+  .power-accordion-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .power-summary {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 768px) {
+  .power-action-cell {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .power-edit-btn,
+  .power-delete-btn,
+  .power-mail-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .power-modal {
+    width: 95%;
+    padding: 15px;
+  }
+
+  .phase-radio {
+    flex-direction: column;
+    gap: 10px;
+  }
+}

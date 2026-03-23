@@ -46,6 +46,8 @@ import AdminOnePanel from "./components/AdminOnePanel";
 import AdminOneLogin from "./components/AdminOneLogin";
 import AdminTwoPanel from "./components/AdminTwoPanel";
 import AdminTwoLogin from "./components/AdminTwoLogin";
+import AdminThreeLogin from "./components/AdminThreelogin";
+import AdminThreePanel from "./components/AdminThreePanel";
 
 
 // ================= ROUTES =================
@@ -99,6 +101,8 @@ const AnimatedRoutes = () => {
         <Route path="/sachin-dashboard" element={<AdminOnePanel />} />
         <Route path="/exhibitor-badges-printing" element={<AdminTwoLogin />} />
         <Route path="/exhibitor-badges-dashboard" element={<AdminTwoPanel />} />
+        <Route path="/powerload" element={<AdminThreeLogin />} />
+        <Route path="/power-dashboard" element={<AdminThreePanel />} />
       </Routes>
     </AnimatePresence>
   );
@@ -123,6 +127,8 @@ const hideNavbarRoutes = [
   "/sachin",
   "/exhibitor-badges-dashboard",
   "/exhibitor-badges-printing",
+  "/power-dashboard",
+  "/powerload",
 ];
 
  const hideFloatingCardRoutes = [
@@ -135,7 +141,9 @@ const hideNavbarRoutes = [
   "/sachin-dashboard",
   "/sachin",
   "/exhibitor-badges-dashboard",
-  "/exhibitor-badges-printing"
+  "/exhibitor-badges-printing",
+  "/power-dashboard",
+  "/powerload",
 ];
 
   const exhibitorRoutes = [
