@@ -11,6 +11,7 @@ const ContractorBadgeForm = ({
 }) => {
   const [contractorCompany, setContractorCompany] = useState("");
   const [quantity, setQuantity] = useState("");
+  
 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -32,6 +33,30 @@ const ContractorBadgeForm = ({
     success_message: "",
     error_message: "",
   });
+
+  const [selectedContractorName, setSelectedContractorName] = useState("");
+  const [contractorName, setContractorName] = useState("");
+
+  useEffect(() => {
+  const fetchContractor = async () => {
+    try {
+      const response = await fetch(
+        `https://inoptics.in/api/get_selected_exhibitors_contractors.php?exhibitor_company_name=${encodeURIComponent(exhibitorCompany)}`
+      );
+
+      const data = await response.json();
+
+      setSelectedContractorName(data.contractor_company_name); // 👈 correct
+      setContractorName(data.contractor_name);
+    } catch (error) {
+      console.error("Error fetching contractor:", error);
+    }
+  };
+
+  if (exhibitorCompany) {
+    fetchContractor();
+  }
+}, [exhibitorCompany]);;
 
   /* ================= FETCH BADGE DATA ================= */
 
@@ -83,22 +108,27 @@ const ContractorBadgeForm = ({
   /* ================= SUBMIT ================= */
 
   const handleSubmit = async () => {
-    if (!contractorCompany || !quantity) {
-      toast.error("Please fill all fields");
-      return;
-    }
+    // if (!contractorCompany || !quantity) {
+    //   toast.error("Please fill all fields");
+    //   return;
+    // }
 
-    if (contractorValid !== true && !isContractorAutoFilled) {
-      toast.error("Contractor must be registered before submitting badge.");
-      return;
-    }
+    // if (contractorValid !== true && !isContractorAutoFilled) {
+    //   toast.error("Contractor must be registered before submitting badge.");
+    //   return;
+    // }
+
+    if (!quantity) {
+  toast.error("Please enter badge quantity");
+  return;
+}
 
     try {
       setLoading(true);
 
       const payload = {
         exhibitor_company_name: exhibitorCompany,
-        contractor_company_name: contractorCompany,
+        contractor_company_name: selectedContractorName,
         badge_quantity: Number(quantity),
       };
 
@@ -142,64 +172,62 @@ const ContractorBadgeForm = ({
   /* ================= UNLOCK ================= */
 
   const handleUnlock = async () => {
-  try {
-    const exhibitorCompany = exhibitorData?.company_name || "";
-    const exhibitorEmail = exhibitorData?.email || "";
+    try {
+      const exhibitorCompany = exhibitorData?.company_name || "";
+      const exhibitorEmail = exhibitorData?.email || "";
 
-    if (!exhibitorCompany) {
-      toast.error("Company name missing");
-      return;
-    }
-
-    /* ================= 1. UNLOCK REQUEST ================= */
-    const res = await fetch(
-      "https://inoptics.in/api/unlock_request_badge.php",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          exhibitor_company_name: exhibitorCompany,
-        }),
+      if (!exhibitorCompany) {
+        toast.error("Company name missing");
+        return;
       }
-    );
 
-    const data = await res.json();
-
-    if (!data.success) {
-      toast.error("Unlock request failed");
-      return;
-    }
-
-    /* ================= 2. SEND MAIL (NEW API) ================= */
-    await fetch(
-      "https://inoptics.in/api/send_power_unlocked_mail.php", // 👈 tumhari new API ka URL
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      /* ================= 1. UNLOCK REQUEST ================= */
+      const res = await fetch(
+        "https://inoptics.in/api/unlock_request_badge.php",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            exhibitor_company_name: exhibitorCompany,
+          }),
         },
-        body: JSON.stringify({
-          company_name: exhibitorCompany,
-          email: exhibitorEmail,
-          template_name: "InOptics 2026 @ Contractor Badges Unlock Request", // ✅ exact DB name
-        }),
+      );
+
+      const data = await res.json();
+
+      if (!data.success) {
+        toast.error("Unlock request failed");
+        return;
       }
-    );
 
-    /* ================= SUCCESS ================= */
-    toast.success("Unlock request sent to admin");
+      /* ================= 2. SEND MAIL (NEW API) ================= */
+      await fetch(
+        "https://inoptics.in/api/send_power_unlocked_mail.php", // 👈 tumhari new API ka URL
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            company_name: exhibitorCompany,
+            email: exhibitorEmail,
+            template_name: "InOptics 2026 @ Contractor Badges Unlock Request", // ✅ exact DB name
+          }),
+        },
+      );
 
-    setLockStatus(2);
-    setHasUnlockedBadge(false);
+      /* ================= SUCCESS ================= */
+      toast.success("Unlock request sent to admin");
 
-  } catch (err) {
-    console.error(err);
-    toast.error("Server error");
-  }
-};
-
+      setLockStatus(2);
+      setHasUnlockedBadge(false);
+    } catch (err) {
+      console.error(err);
+      toast.error("Server error");
+    }
+  };
 
   /* ================= CHECK CONTRACTOR ================= */
 
@@ -320,13 +348,9 @@ const ContractorBadgeForm = ({
 
           <input
             type="text"
-            value={contractorCompany}
-            onChange={(e) => {
-              const value = e.target.value;
-              setContractorCompany(value);
-              checkContractorCompany(value);
-            }}
-            disabled={!hasUnlockedBadge || isContractorAutoFilled}
+            value={selectedContractorName}
+            disabled
+            placeholder="Contractor Name"
           />
         </div>
 
@@ -345,12 +369,7 @@ const ContractorBadgeForm = ({
           <button
             className="primary-btn"
             onClick={handleSubmit}
-            disabled={
-              loading ||
-              (!isSubmitted &&
-                contractorValid !== true &&
-                !isContractorAutoFilled)
-            }
+            disabled={loading || !quantity}
           >
             {loading
               ? "Processing..."

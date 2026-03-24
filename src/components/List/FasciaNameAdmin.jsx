@@ -111,6 +111,7 @@ const FasciaNameAdmin = ({}) => {
     const exportData = rows.map((row, index) => ({
       ID: index + 1,
       "Stall No": row.stall_no,
+      "Bare/Shell": getStallWithBS(row.exhibitor_company_name),
       "Company Name": row.exhibitor_company_name,
       "Fascia Name": row.facia_company_name,
       City: row.city,

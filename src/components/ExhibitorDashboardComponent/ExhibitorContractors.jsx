@@ -307,6 +307,8 @@ const ExhibitorContractors = (props) => {
   const [viewStep, setViewStep] = useState(contractorViewStep);
   const [search, setSearch] = useState("");
 
+  // console.log("constavcbfkdjsb rishab", selectedContractor);
+  
   // unlockStatus: { [stepNumber]: { status: "pending"|"approved"|"rejected"|"locked" } }
   // const [unlockStatus, setUnlockStatus] = useState({});
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import "./ExhibitorBadgeForm.css";
 import { FaCirclePlus } from "react-icons/fa6";
 import { IoClose } from "react-icons/io5";
+import toast from "react-hot-toast";
 
 import { FaEdit, FaUpload, FaUnlock, FaLock } from "react-icons/fa";
 import { MdVerified } from "react-icons/md";
@@ -217,7 +218,7 @@ const ExhibitorBadgeForm = ({
         );
 
         const badgeData = await badgeRes.json();
-        console.log("exhibitor badge print", badgeData);
+        console.log("exhibitor badge rishab print", badgeData);
 
         if (!cancelled && badgeData.success) {
           const badges = badgeData.badges || [];
@@ -700,57 +701,102 @@ const ExhibitorBadgeForm = ({
 
   const isBadgeEditable = (badge) => badge.badge_lock === 0;
 
-  const handleRequestUnlock = async (badge) => {
-    if (!badge?.id) {
-      alert("Invalid badge");
-      return;
-    }
 
-    // 🚫 Already requested
-    if (badge.badge_lock === 2) {
-      alert("⏳ Unlock request already sent. Please wait for admin approval.");
-      return;
-    }
-
-    // 🚫 Already unlocked
-    if (badge.badge_lock === 0) {
-      alert("Badge is already unlocked");
-      return;
-    }
-
-    if (!window.confirm("Do you want to request unlock for this badge?")) {
-      return;
-    }
-
-    try {
-      const res = await fetch(
-        "https://inoptics.in/api/request_badge_unlock.php",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ badge_id: badge.id }),
+  const sendBadgeUnlockRequest = async (companyName) => {
+  try {
+    const response = await fetch(
+      "https://inoptics.in/api/exhibitor_badge_unlock_email.php",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+          company_name: companyName,
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (data.success) {
+      toast.success(data.message || "Unlock request sent!");
+      return { success: true };
+    } else {
+      toast.error(data.message || "Failed to send request");
+      return { success: false };
+    }
+  } catch (error) {
+    console.error("❌ Error:", error);
+    toast.error("Something went wrong");
+    return { success: false };
+  }
+};
+
+
+  const handleRequestUnlock = async (badge) => {
+  if (!badge?.id) {
+    toast.error("Invalid badge");
+    return;
+  }
+
+  // 🚫 Already requested
+  if (badge.badge_lock === 2) {
+    toast.error("⏳ Unlock request already sent");
+    return;
+  }
+
+  // 🚫 Already unlocked
+  if (badge.badge_lock === 0) {
+    toast("Badge is already unlocked");
+    return;
+  }
+
+  if (!window.confirm("Do you want to request unlock for this badge?")) {
+    return;
+  }
+
+  const toastId = toast.loading("Sending unlock request...");
+
+  try {
+    const res = await fetch(
+      "https://inoptics.in/api/request_badge_unlock.php",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ badge_id: badge.id }),
+      }
+    );
+
+    const data = await res.json();
+
+    if (data.success) {
+      // 🔥 CALL YOUR MAIL FUNCTION HERE
+      await sendBadgeUnlockRequest(formData.exhibitor_company_name);
+
+      toast.success(
+        `📨 Unlock request sent for ${badge.name}`,
+        { id: toastId }
       );
 
-      const data = await res.json();
-
-      if (data.success) {
-        alert(
-          `📨 Unlock request sent for ${badge.name}. Waiting for admin approval.`,
-        );
-
-        // ✅ ONLY mark as requested (NOT unlocked)
-        setCompanyBadges((prev) =>
-          prev.map((b) => (b.id === badge.id ? { ...b, badge_lock: 2 } : b)),
-        );
-      } else {
-        alert(data.message || "Failed to send unlock request");
-      }
-    } catch (error) {
-      console.error("Unlock request error:", error);
-      alert("Server error. Please try again.");
+      // ✅ update UI
+      setCompanyBadges((prev) =>
+        prev.map((b) =>
+          b.id === badge.id ? { ...b, badge_lock: 2 } : b
+        )
+      );
+    } else {
+      toast.error(data.message || "Failed to send request", {
+        id: toastId,
+      });
     }
-  };
+  } catch (error) {
+    console.error("Unlock request error:", error);
+    toast.error("Server error. Please try again.", {
+      id: toastId,
+    });
+  }
+};
 
   useEffect(() => {
     if (loadingCompanyBadges) return;
@@ -779,6 +825,15 @@ const ExhibitorBadgeForm = ({
     // update previous value
     prevFreeRemaining.current = remaining;
   }, [freeRemaining, loadingCompanyBadges]);
+
+  const getBadgeRate = (createdAt) => {
+    if (!createdAt) return 100;
+
+    const badgeDate = new Date(createdAt);
+    const cutoff = new Date("2026-03-20");
+
+    return badgeDate <= cutoff ? 100 : 200;
+  };
 
   // ===== LOADING STATE =====
   if (loading && exhibitors.length === 0) {
@@ -865,9 +920,32 @@ const ExhibitorBadgeForm = ({
 
               <div className="exhibitor-extra-badges-payment">
                 {(() => {
-                  const count = parseInt(extraPaidBadges || 0, 10);
-                  const rate = new Date() > new Date("2026-03-21") ? 200 : 100;
-                  const total = count * rate;
+                  let total = 0;
+                  let paidCount = 0;
+                  let rates = []; // ✅ ADD THIS
+
+                  (companyBadges || []).forEach((badge, index) => {
+                    const isFree = index < freeBadges;
+
+                    if (!isFree) {
+                      const rate = getBadgeRate(badge.created_at);
+
+                      total += rate;
+                      paidCount++;
+                      rates.push(rate); // ✅ store rate
+                    }
+                  });
+
+                  // unique rates
+                  const uniqueRates = [...new Set(rates)];
+
+                  let displayRate = "0";
+
+                  if (uniqueRates.length === 1) {
+                    displayRate = uniqueRates[0]; // 100 OR 200
+                  } else if (uniqueRates.length > 1) {
+                    displayRate = "100 / 200"; // mixed
+                  }
 
                   const companyState =
                     currentExhibitor?.state?.trim().toLowerCase() || "";
@@ -876,6 +954,7 @@ const ExhibitorBadgeForm = ({
                   const cgst = isDelhi ? total * 0.09 : 0;
                   const sgst = isDelhi ? total * 0.09 : 0;
                   const igst = !isDelhi ? total * 0.18 : 0;
+
                   const grandTotal = total + cgst + sgst + igst;
 
                   return (
@@ -886,11 +965,11 @@ const ExhibitorBadgeForm = ({
                         <div className="ExhibitorDashboard-billing-summary-container">
                           <div className="ExhibitorDashboard-billing-line">
                             <span>Extra Badges</span>
-                            <span>{count}</span>
+                            <span>{paidCount}</span>
                           </div>
                           <div className="ExhibitorDashboard-billing-line">
                             <span>Rate per Badge</span>
-                            <span>₹{rate}</span>
+                            <span>₹{uniqueRates}</span>
                           </div>
                           <div className="ExhibitorDashboard-billing-line">
                             <span>Subtotal</span>

@@ -74,8 +74,22 @@ const AdminBadges = () => {
   useEffect(() => {
     fetch(`${SITE}/api/get_exhibitor_badges_grouped.php`)
       .then((res) => res.json())
-      .then((data) => setCompanies(Array.isArray(data) ? data : []))
-      .catch(() => toast.error("Failed to load badges"))
+      .then((data) => {
+        console.log("🔥 API DATA:", data); // 👈 full response
+
+        if (Array.isArray(data)) {
+          data.forEach((company) => {
+            console.log("🏢 Company:", company.company_name);
+            console.log("📦 Badges:", company.badges);
+          });
+        }
+
+        setCompanies(Array.isArray(data) ? data : []);
+      })
+      .catch((err) => {
+        console.error("❌ Fetch error:", err);
+        toast.error("Failed to load badges");
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -248,8 +262,13 @@ const AdminBadges = () => {
     });
   }, [companies]);
 
-  const getBadgeRate = () => {
-    return new Date() > new Date("2026-03-21") ? 200 : 100;
+  const getBadgeRate = (createdAt) => {
+    if (!createdAt) return 100;
+
+    const badgeDate = new Date(createdAt);
+    const cutoff = new Date("2026-03-20");
+
+    return badgeDate <= cutoff ? 100 : 200;
   };
 
   useEffect(() => {
@@ -265,37 +284,46 @@ const AdminBadges = () => {
         const records = Array.isArray(data.records) ? data.records : [];
 
         // ✅ cleared amount
+        // ✅ cleared
         const cleared = records.reduce(
           (sum, r) => sum + Number(r.amount_paid || 0) + Number(r.tds || 0),
           0,
         );
 
         // ✅ free quota
-        const freeQuota = freeQuotaMap[company.company_name] || 0;
+        const freeQuota = Number(freeQuotaMap[company.company_name] || 0);
 
-        // ✅ paid badge count
-        const paidBadgeCount = Math.max(
-          0,
-          (company.badges?.length || 0) - freeQuota,
+        // ✅ SORT badges (IMPORTANT)
+        const badges = [...(company.badges || [])].sort(
+          (a, b) => new Date(a.created_at) - new Date(b.created_at),
         );
 
-        const rate = getBadgeRate();
-        const amount = paidBadgeCount * rate;
+        // ✅ CORRECT PAID BADGES (🔥 FIX)
+        const paidBadges = badges.slice(freeQuota);
 
+        // ✅ count
+        const paidBadgeCount = paidBadges.length;
+
+        // ✅ calculation
+        let amount = 0;
         let cgst = 0;
         let sgst = 0;
         let igst = 0;
 
-        // state badge se lo
-        const badgeState =
-          company.badges?.find((b) => b.state)?.state?.toLowerCase() || "";
+        paidBadges.forEach((badge) => {
+          const rate = getBadgeRate(badge?.created_at);
 
-        if (badgeState === "delhi") {
-          cgst = amount * 0.09;
-          sgst = amount * 0.09;
-        } else {
-          igst = amount * 0.18;
-        }
+          amount += rate;
+
+          const state = (badge.state || "").toLowerCase();
+
+          if (state === "delhi") {
+            cgst += rate * 0.09;
+            sgst += rate * 0.09;
+          } else {
+            igst += rate * 0.18;
+          }
+        });
 
         const totalAmount =
           Number(amount) + Number(cgst) + Number(sgst) + Number(igst);
@@ -650,101 +678,111 @@ const AdminBadges = () => {
               </div>{" "}
             </div>
             <div>
-              {badgePaymentSummary[company.company_name] && (
-                <div className="badge-pay-summary">
-                  <span>
-                    Free Badges: {freeQuotaMap[company.company_name] || 0}
-                  </span>
-                  <span
-                    className="badge-flag"
-                    style={{
-                      background:
-                        (freeQuotaMap[company.company_name] || 0) -
-                          (company.badges?.length || 0) >
-                        0
-                          ? "#d1fae5" // green light
-                          : "#fee2e2", // red light
-                      color:
-                        (freeQuotaMap[company.company_name] || 0) -
-                          (company.badges?.length || 0) >
-                        0
-                          ? "#065f46"
-                          : "#991b1b",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    REMAINING:{" "}
-                    {Math.max(
-                      0,
-                      (freeQuotaMap[company.company_name] || 0) -
-                        (company.badges?.length || 0),
-                    )}
-                  </span>
+              {(() => {
+  const freeQuota = Number(
+    freeQuotaMap[company.company_name] || 0
+  );
 
-                  <span>
-                    Paid Badges:{" "}
-                    {Math.max(
-                      0,
-                      (company.badges?.length || 0) -
-                        (freeQuotaMap[company.company_name] || 0),
-                    )}
-                  </span>
+  let totalFree = 0;
+  let totalPaid = 0;
+  let totalAmount = 0;
+  let totalCGST = 0;
+  let totalSGST = 0;
+  let totalIGST = 0;
+  let grandTotalAll = 0;
 
-                  <span>
-                    Amount: ₹
-                    {badgePaymentSummary[company.company_name]?.amount?.toFixed(
-                      2,
-                    ) || "0.00"}
-                  </span>
+  // ✅ cleared (API se)
+  const cleared =
+    badgePaymentSummary[company.company_name]?.cleared || 0;
 
-                  {(company.badges?.[0]?.state || "").toLowerCase() ===
-                  "delhi" ? (
-                    <>
-                      <span>
-                        CGST: ₹
-                        {badgePaymentSummary[
-                          company.company_name
-                        ]?.cgst?.toFixed(2) || "0.00"}
-                      </span>
+  const sortedBadges = [...(company.badges || [])].sort(
+    (a, b) =>
+      new Date(a.created_at) - new Date(b.created_at)
+  );
 
-                      <span>
-                        SGST: ₹
-                        {badgePaymentSummary[
-                          company.company_name
-                        ]?.sgst?.toFixed(2) || "0.00"}
-                      </span>
-                    </>
-                  ) : (
-                    <span>
-                      IGST: ₹
-                      {badgePaymentSummary[company.company_name]?.igst?.toFixed(
-                        2,
-                      ) || "0.00"}
-                    </span>
-                  )}
+  sortedBadges.forEach((badge, index) => {
+    const isFree = index < freeQuota;
+    const rate = getBadgeRate(badge?.created_at);
 
-                  <span>
-                    Total: ₹
-                    {badgePaymentSummary[
-                      company.company_name
-                    ]?.totalAmount?.toFixed(2) || "0.00"}
-                  </span>
+    const amount = isFree ? 0 : rate;
 
-                  <span>
-                    Cleared: ₹
-                    {badgePaymentSummary[
-                      company.company_name
-                    ]?.cleared?.toFixed(2) || "0.00"}
-                  </span>
+    const state = (
+      badge.state ||
+      company.badges?.[0]?.state ||
+      ""
+    ).toLowerCase();
 
-                  <span>
-                    Pending: ₹
-                    {badgePaymentSummary[
-                      company.company_name
-                    ]?.pending?.toFixed(2) || "0.00"}
-                  </span>
-                </div>
-              )}
+    let cgst = 0;
+    let sgst = 0;
+    let igst = 0;
+
+    if (!isFree) {
+      if (state === "delhi") {
+        cgst = amount * 0.09;
+        sgst = amount * 0.09;
+      } else {
+        igst = amount * 0.18;
+      }
+    }
+
+    const total = amount + cgst + sgst + igst;
+
+    if (isFree) totalFree++;
+    else totalPaid++;
+
+    totalAmount += amount;
+    totalCGST += cgst;
+    totalSGST += sgst;
+    totalIGST += igst;
+    grandTotalAll += total;
+  });
+
+  // ✅ pending
+  const pending = Math.max(0, grandTotalAll - cleared);
+
+  return (
+    <div className="badge-pay-summary">
+      <span>Free Badges: {totalFree}</span>
+
+      <span
+        className="badge-flag"
+        style={{
+          background:
+            freeQuota - sortedBadges.length > 0
+              ? "#d1fae5"
+              : "#fee2e2",
+          color:
+            freeQuota - sortedBadges.length > 0
+              ? "#065f46"
+              : "#991b1b",
+          fontWeight: "bold",
+        }}
+      >
+        REMAINING:{" "}
+        {Math.max(0, freeQuota - sortedBadges.length)}
+      </span>
+
+      <span>Paid Badges: {totalPaid}</span>
+
+      <span>Amount: ₹{totalAmount.toFixed(2)}</span>
+
+      {(company.badges?.[0]?.state || "").toLowerCase() === "delhi" ? (
+        <>
+          <span>CGST: ₹{totalCGST.toFixed(2)}</span>
+          <span>SGST: ₹{totalSGST.toFixed(2)}</span>
+        </>
+      ) : (
+        <span>IGST: ₹{totalIGST.toFixed(2)}</span>
+      )}
+
+      <span>Total: ₹{grandTotalAll.toFixed(2)}</span>
+
+      <span>Cleared: ₹{Number(cleared).toFixed(2)}</span>
+
+      <span>Pending: ₹{pending.toFixed(2)}</span>
+    </div>
+  );
+})()}
             </div>
 
             <button
@@ -822,14 +860,15 @@ const AdminBadges = () => {
                       let grandTotalAll = 0;
 
                       const sortedBadges = [...(company.badges || [])].sort(
-                        (a, b) => a.id - b.id,
+                        (a, b) =>
+                          new Date(a.created_at) - new Date(b.created_at),
                       );
 
                       return (
                         <>
                           {sortedBadges.map((badge, index) => {
                             const isFree = index < freeQuota;
-                            const rate = getBadgeRate();
+                            const rate = getBadgeRate(badge?.created_at);
 
                             const amount = isFree ? 0 : rate;
 
