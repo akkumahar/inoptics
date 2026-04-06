@@ -613,7 +613,13 @@ const ExtraFurnitureManager = ({ exhibitorData }) => {
       const companyName = company.company_name;
       const furnitureList = furnitureCache[companyName] || [];
 
-      const exhibitor = exhibitorMap[companyName] || {};
+      const key = companyName
+  ?.replace(/\s+/g, " ")
+  .trim()
+  .toLowerCase();
+
+const exhibitor = exhibitorMap[key] || {};
+
       const stateValue = (exhibitor.state || "").toLowerCase();
 
       furnitureList.forEach((item, index) => {
@@ -637,11 +643,7 @@ const ExtraFurnitureManager = ({ exhibitorData }) => {
 
         exportData.push({
           "Company Name": companyName,
-          "Contact Person": exhibitor.name || "",
-          Email: exhibitor.email || "",
-          Mobile: exhibitor.mobile || "",
-          "Stall No": exhibitor.stall_no || "",
-          State: exhibitor.state || "",
+         "Stall No": exhibitor?.stall_no || company?.stall_no || "N/A",
           "Furniture Name": item.name,
           Price: price,
           Quantity: qty,

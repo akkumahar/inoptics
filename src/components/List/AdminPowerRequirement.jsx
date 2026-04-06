@@ -362,25 +362,31 @@ th {
       // 🔥 FUNCTION TO GENERATE TABLE
       const generateTable = () => {
         let table = `
-        <h3>${company} (Stall No: ${stallNo})</h3>
+    <h3>${company} (Stall No: ${stallNo})</h3>
 
-        <table>
-        <thead>
-        <tr>
-          <th>ID</th>
-          <th>Day</th>
-          <th>Price/KW</th>
-          <th>Power</th>
-          <th>Phase</th>
-          <th>Amount</th>
-          <th>SGST</th>
-          <th>CGST</th>
-          <th>IGST</th>
-          <th>Grand Total</th>
-        </tr>
-        </thead>
-        <tbody>
-      `;
+    <table>
+    <thead>
+    <tr>
+      <th>ID</th>
+      <th>Day</th>
+      <th>Price/KW</th>
+      <th>Power</th>
+      <th>Phase</th>
+      <th>Amount</th>
+      <th>SGST</th>
+      <th>CGST</th>
+      <th>IGST</th>
+      <th>Grand Total</th>
+    </tr>
+    </thead>
+    <tbody>
+  `;
+
+        let totalAmount = 0;
+        let totalSGST = 0;
+        let totalCGST = 0;
+        let totalIGST = 0;
+        let grandTotal = 0;
 
         companyRows.forEach((row, i) => {
           const amount = Number(row.total_amount || 0);
@@ -399,21 +405,40 @@ th {
 
           const total = amount + sgst + cgst + igst;
 
+          // 🔥 accumulate
+          totalAmount += amount;
+          totalSGST += sgst;
+          totalCGST += cgst;
+          totalIGST += igst;
+          grandTotal += total;
+
           table += `
-          <tr>
-            <td>${i + 1}</td>
-            <td>${row.day}</td>
-            <td>${row.price_per_kw}</td>
-            <td>${row.power_required}</td>
-            <td>${row.phase}</td>
-            <td>${amount.toFixed(2)}</td>
-            <td>${sgst.toFixed(2)}</td>
-            <td>${cgst.toFixed(2)}</td>
-            <td>${igst.toFixed(2)}</td>
-            <td>${total.toFixed(2)}</td>
-          </tr>
-        `;
+      <tr>
+        <td>${i + 1}</td>
+        <td>${row.day}</td>
+        <td>${row.price_per_kw}</td>
+        <td>${row.power_required}</td>
+        <td>${row.phase}</td>
+        <td>${amount.toFixed(2)}</td>
+        <td>${sgst.toFixed(2)}</td>
+        <td>${cgst.toFixed(2)}</td>
+        <td>${igst.toFixed(2)}</td>
+        <td>${total.toFixed(2)}</td>
+      </tr>
+    `;
         });
+
+        // 🔥 TOTAL ROW ADD
+        table += `
+    <tr style="font-weight:bold; background:#eaeaea;">
+      <td colspan="5">TOTAL</td>
+      <td>${totalAmount.toFixed(2)}</td>
+      <td>${totalSGST.toFixed(2)}</td>
+      <td>${totalCGST.toFixed(2)}</td>
+      <td>${totalIGST.toFixed(2)}</td>
+      <td>${grandTotal.toFixed(2)}</td>
+    </tr>
+  `;
 
         table += `</tbody></table>`;
         return table;
@@ -456,6 +481,12 @@ th {
     const generateTable = () => {
       let rowsHTML = "";
 
+      let totalAmount = 0;
+      let totalSGST = 0;
+      let totalCGST = 0;
+      let totalIGST = 0;
+      let grandTotal = 0;
+
       companyRows.forEach((row, i) => {
         const amount = Number(row.total_amount || 0);
         const state = (row.state || "").toLowerCase();
@@ -473,48 +504,67 @@ th {
 
         const total = amount + sgst + cgst + igst;
 
+        // 🔥 accumulate totals
+        totalAmount += amount;
+        totalSGST += sgst;
+        totalCGST += cgst;
+        totalIGST += igst;
+        grandTotal += total;
+
         rowsHTML += `
-        <tr>
-          <td>${i + 1}</td>
-          <td>${row.day}</td>
-          <td>${row.price_per_kw}</td>
-          <td>${row.power_required}</td>
-          <td>${row.phase}</td>
-          <td>${amount.toFixed(2)}</td>
-          <td>${sgst.toFixed(2)}</td>
-          <td>${cgst.toFixed(2)}</td>
-          <td>${igst.toFixed(2)}</td>
-          <td>${total.toFixed(2)}</td>
-        </tr>
-      `;
+      <tr>
+        <td>${i + 1}</td>
+        <td>${row.day}</td>
+        <td>${row.price_per_kw}</td>
+        <td>${row.power_required}</td>
+        <td>${row.phase}</td>
+        <td>${amount.toFixed(2)}</td>
+        <td>${sgst.toFixed(2)}</td>
+        <td>${cgst.toFixed(2)}</td>
+        <td>${igst.toFixed(2)}</td>
+        <td>${total.toFixed(2)}</td>
+      </tr>
+    `;
       });
 
-      return `
-      <div class="half-page">
-        <h2>Power Requirement</h2>
-        <h3>${company} (Stall No: ${stallNo})</h3>
+      // 🔥 TOTAL ROW
+      rowsHTML += `
+    <tr style="font-weight: bold; background: #eaeaea;">
+      <td colspan="5">TOTAL</td>
+      <td>${totalAmount.toFixed(2)}</td>
+      <td>${totalSGST.toFixed(2)}</td>
+      <td>${totalCGST.toFixed(2)}</td>
+      <td>${totalIGST.toFixed(2)}</td>
+      <td>${grandTotal.toFixed(2)}</td>
+    </tr>
+  `;
 
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Day</th>
-              <th>Price/KW</th>
-              <th>Power</th>
-              <th>Phase</th>
-              <th>Amount</th>
-              <th>SGST</th>
-              <th>CGST</th>
-              <th>IGST</th>
-              <th>Grand Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rowsHTML}
-          </tbody>
-        </table>
-      </div>
-    `;
+      return `
+    <div class="half-page">
+      <h2>Power Requirement</h2>
+      <h3>${company} (Stall No: ${stallNo})</h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Day</th>
+            <th>Price/KW</th>
+            <th>Power</th>
+            <th>Phase</th>
+            <th>Amount</th>
+            <th>SGST</th>
+            <th>CGST</th>
+            <th>IGST</th>
+            <th>Grand Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rowsHTML}
+        </tbody>
+      </table>
+    </div>
+  `;
     };
 
     const html = `

@@ -77,6 +77,8 @@ import UnlockContractor from "./List/UnlockContractor";
 import UpdateCompanyName from "./List/UpdateCompanyName";
 import ExhibitorPowerHistory from "./List/ExhibitorPowerHistory";
 import ExhibitorsPanel from "./List/ExhibitorsPanel";
+import AdminEmailsMasterComponent from "./List/AdminEmailsMasterComponent";
+import AdminExtraFurniture from "./List/AdminExtraFurniture";
 // import { useMemo } from 'react';
 
 const AdminDashboard = () => {
@@ -2594,7 +2596,10 @@ const AdminDashboard = () => {
 
   const getExhibitorBadgeBilling = () => {
     const count = parseInt(formData.extra_badges, 10) || 0;
-    const rate = new Date() > new Date("2026-03-21") ? 200 : 100;
+
+    // 🔥 FIXED PRICE (no date logic)
+    const rate = 100;
+
     const total = count * rate;
 
     const isDelhi = formData?.state?.trim().toLowerCase() === "delhi";
@@ -13611,12 +13616,15 @@ const AdminDashboard = () => {
           <li onClick={() => openOverlay("Promotes Your Brands")}>
             <FaBullhorn /> {!collapsed && "Promotes Your Brands"}{" "}
           </li>
+          <li onClick={() => openOverlay("second admin")}>
+            <FaBullhorn /> {!collapsed && "second admin"}{" "}
+          </li>
           <li onClick={() => openOverlay("Fascia Name")}>
             <BsBuildingsFill /> {!collapsed && "Fascia Name"}{" "}
           </li>
           <li onClick={() => openOverlay("Exhibitor Power")}>
             <FaPowerOff /> {!collapsed && "Exhibitor Power"}{" "}
-          </li>         
+          </li>
 
           <li onClick={() => openOverlay("Exhibitor History")}>
             <FaWpforms /> {!collapsed && "Exhibitor History"}
@@ -19548,10 +19556,10 @@ const AdminDashboard = () => {
                             "EXTRA FURNITURE REQUIREMENT" && (
                             <>
                               {/* Available Furniture List */}
-                              {showFurnitureList && (
+                              {/* {showFurnitureList && (
                                 <div className="exhibitor-extra-furniture-modal-overlay">
                                   <div className="exhibitor-extra-furniture-modal-content-table">
-                                    {/* Header with Close Button */}
+                                    
                                     <div className="exhibitor-extra-furniture-modal-header">
                                       <h2>Furniture List</h2>
                                       <button
@@ -19564,7 +19572,7 @@ const AdminDashboard = () => {
                                       </button>
                                     </div>
 
-                                    {/* Furniture Cards Grid */}
+                                  
                                     <div className="exhibitor-extra-furniture-scrollable-body">
                                       <div className="exhibitor-extra-furniture-grid">
                                         {furnitureData.map((item) => (
@@ -19616,9 +19624,30 @@ const AdminDashboard = () => {
                                     </div>
                                   </div>
                                 </div>
-                              )}
+                              )} */}
 
-                              <div
+                              <AdminExtraFurniture
+                                furnitureData={furnitureData}
+                                formData={formData}
+                                furnitureBilling={furnitureBilling}
+                                furnitureVendorDetails={furnitureVendorDetails}
+                                showExhibitorEditForm={showExhibitorEditForm}
+                                lockState={lockState}
+                                isSendingMail={isSendingMail}
+                                handleQuantityChange={handleQuantityChange}
+                                addExhibitorSelectedFurniture={
+                                  addExhibitorSelectedFurniture
+                                }
+                                updateSelectedFurniture={
+                                  updateSelectedFurniture
+                                }
+                                handleAdminUnlock={handleAdminUnlock}
+                                handleSendFurnitureMail={
+                                  handleSendFurnitureMail
+                                }
+                              />
+
+                              {/* <div
                                 style={{
                                   display: "flex",
                                   gap: "60px",
@@ -19716,7 +19745,7 @@ const AdminDashboard = () => {
                                     </tbody>
                                   </table>
                                 </div>
-                                {/* Extra Furniture Billing Section */}
+                               
                                 <div
                                   className="extra-furniture-billing-section"
                                   style={{ width: "27%" }}
@@ -19739,12 +19768,12 @@ const AdminDashboard = () => {
                                     >
                                       <button
                                         onClick={() => {
-                                          // if (selectedFurniture.length === 0) {
-                                          //   alert(
-                                          //     "Please select at least one furniture item.",
-                                          //   );
-                                          //   return;
-                                          // }
+                                          if (selectedFurniture.length === 0) {
+                                            alert(
+                                              "Please select at least one furniture item.",
+                                            );
+                                            return;
+                                          }
 
                                           const companyName =
                                             formData.company_name ||
@@ -19787,7 +19816,7 @@ const AdminDashboard = () => {
                                           : "Submit"}
                                       </button>
 
-                                      {/* 🔓 Unlock Button (only when locked) */}
+                                      
                                       {lockState.is_locked === 1 && (
                                         <button
                                           style={{
@@ -19829,7 +19858,7 @@ const AdminDashboard = () => {
                                       </span>
                                     </div>
 
-                                    {/* Taxes */}
+                                    
                                     {formData.state?.toLowerCase() ===
                                     "delhi" ? (
                                       <>
@@ -19898,7 +19927,7 @@ const AdminDashboard = () => {
                                   </div>
 
                                   <div className="Extra-Furniture-Instruction">
-                                    {/* === Dynamically fetched Furniture Vendor Description === */}
+                                    
                                     <div className="admin-vendor-wrapper">
                                       {furnitureVendorDetails.length > 0 ? (
                                         furnitureVendorDetails.map((vendor) => (
@@ -19950,7 +19979,7 @@ const AdminDashboard = () => {
                                       )}
                                     </div>
 
-                                    {/* === Send Email Button === */}
+                                    
                                     <div className="billing-button-container">
                                       <button
                                         type="button"
@@ -19967,7 +19996,7 @@ const AdminDashboard = () => {
                                           : "Send Mail"}
                                       </button>
 
-                                      {/* 👇 Show loader overlay while sending */}
+                                      
                                       {isSendingMail && (
                                         <div className="waiting-overlay">
                                           <div className="waiting-loader"></div>
@@ -19977,7 +20006,7 @@ const AdminDashboard = () => {
                                     </div>
                                   </div>
                                 </div>
-                              </div>
+                              </div> */}
                             </>
                           )}
 
@@ -23654,6 +23683,12 @@ const AdminDashboard = () => {
             </>
           )}
 
+          {overlayContent === "second admin" && (
+            <>
+              <AdminEmailsMasterComponent />
+            </>
+          )}
+
           {overlayContent === "Promotes Your Brands" && (
             <>
               {/* Top Navbar for Promotes Your Brands */}
@@ -25233,7 +25268,7 @@ const AdminDashboard = () => {
               <FasciaNameAdmin />
             </>
           )}
-          
+
           {overlayContent === "Exhibitor Power" && (
             <>
               <AdminPowerRequirement exhibitorData={exhibitorData} />

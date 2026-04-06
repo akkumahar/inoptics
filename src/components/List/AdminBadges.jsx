@@ -47,6 +47,11 @@ const AdminBadges = () => {
   const [allExhibitors, setAllExhibitors] = useState([]);
   const [exhibitorSearch, setExhibitorSearch] = useState("");
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+
+  const [uploading, setUploading] = useState(false);
+
   const [formData, setFormData] = useState({
     exhibitor_company_name: "",
     stall_no: "",
@@ -93,6 +98,10 @@ const AdminBadges = () => {
       .finally(() => setLoading(false));
   }, []);
 
+  const totalBadges = companies.reduce((total, company) => {
+    return total + (company.badges?.length || 0);
+  }, 0);
+
   /* ================= PRINT STATE ================= */
   useEffect(() => {
     const state = {};
@@ -135,6 +144,8 @@ const AdminBadges = () => {
     if (!window.confirm("Delete this badge?")) return;
 
     try {
+      setDeletingId(badgeId); // 🔥 loader start
+
       const res = await fetch(`${SITE}/api/delete_exhibitor_badge.php`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -142,8 +153,12 @@ const AdminBadges = () => {
       });
 
       const data = await res.json();
-      if (!data.success) return toast.error("Delete failed");
+      if (!data.success) {
+        setDeletingId(null);
+        return toast.error("Delete failed");
+      }
 
+      // 🔥 ⚡ INSTANT UI UPDATE (NO WAIT)
       setCompanies((prev) =>
         prev
           .map((c) => ({
@@ -154,7 +169,20 @@ const AdminBadges = () => {
       );
 
       toast.success("Badge deleted");
+
+      setDeletingId(null); // 🔥 stop immediately
+
+      // 🔥 background refresh (NO await)
+      fetch(`${SITE}/api/get_exhibitor_badges_grouped.php`)
+        .then((res) => res.json())
+        .then((fresh) => {
+          if (Array.isArray(fresh)) {
+            setCompanies(fresh);
+          }
+        })
+        .catch(() => {});
     } catch {
+      setDeletingId(null);
       toast.error("Server error");
     }
   };
@@ -262,13 +290,8 @@ const AdminBadges = () => {
     });
   }, [companies]);
 
-  const getBadgeRate = (createdAt) => {
-    if (!createdAt) return 100;
-
-    const badgeDate = new Date(createdAt);
-    const cutoff = new Date("2026-03-20");
-
-    return badgeDate <= cutoff ? 100 : 200;
+  const getBadgeRate = () => {
+    return 100;
   };
 
   useEffect(() => {
@@ -311,7 +334,7 @@ const AdminBadges = () => {
         let igst = 0;
 
         paidBadges.forEach((badge) => {
-          const rate = getBadgeRate(badge?.created_at);
+          const rate = getBadgeRate();
 
           amount += rate;
 
@@ -439,6 +462,9 @@ const AdminBadges = () => {
           State: badge.state || "",
           City: badge.city || "",
 
+          // ✅ NEW FIELDS ADDED
+          "Badge Code": `${badge.badge_series || ""}-${badge.badge_series_num || ""}`,
+
           Type: isFree ? "FREE" : "",
           Paid: !isFree ? "PAID" : "",
 
@@ -450,7 +476,7 @@ const AdminBadges = () => {
 
           Total: total.toFixed(2),
 
-          "Grand Total (Paid Only)": "", // fill later
+          "Grand Total (Paid Only)": "",
 
           "Print Status": badge.print_status === "ready" ? "READY" : "DISABLED",
         });
@@ -553,8 +579,58 @@ const AdminBadges = () => {
     }
   };
 
+  const handleCSVUpload = async (file) => {
+    if (!file) {
+      toast.error("Please select a file");
+      return;
+    }
+
+    // ✅ only CSV allowed
+    if (!file.name.endsWith(".csv")) {
+      toast.error("Only CSV file allowed");
+      return;
+    }
+
+    try {
+      setUploading(true);
+
+      const fd = new FormData();
+      fd.append("excel", file); // 🔥 EXACT NAME
+
+      const res = await fetch("https://inoptics.in/api/exhibitor_badge_by_excel.php", {
+        method: "POST",
+        body: fd,
+      });
+
+      const data = await res.json();
+
+      if (!data.success) {
+        throw new Error(data.error || "Upload failed");
+      }
+
+      toast.success(`✅ ${data.total_badges_generated} badges created`);
+
+      // 🔥 refresh data
+      const updated = await fetch(
+        `${SITE}/api/get_exhibitor_badges_grouped.php`,
+      );
+      const fresh = await updated.json();
+
+      if (Array.isArray(fresh)) {
+        setCompanies(fresh);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error(err.message || "Upload error");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (isSubmitting) return;
 
     if (!formData.name.trim()) {
       setFieldErrors({ name: "Name required" });
@@ -567,6 +643,8 @@ const AdminBadges = () => {
     }
 
     try {
+      setIsSubmitting(true); // 🔥 START
+
       const fd = new FormData();
 
       fd.append("name", formData.name.trim());
@@ -574,15 +652,11 @@ const AdminBadges = () => {
       fd.append("stall_no", formData.stall_no);
       fd.append("state", formData.state || "");
       fd.append("city", formData.city || "");
-
-      // 🔥 MOST IMPORTANT (API REQUIREMENT)
       fd.append("exhibitor_id", formData.exhibitor_id || "");
 
       if (formData.candidate_photo) {
         fd.append("candidate_photo", formData.candidate_photo);
       }
-
-      console.log("📤 Sending Data:", Object.fromEntries(fd));
 
       const res = await fetch("https://inoptics.in/api/submit-badge.php", {
         method: "POST",
@@ -590,44 +664,31 @@ const AdminBadges = () => {
       });
 
       const text = await res.text();
+      const data = JSON.parse(text);
 
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch {
-        console.error("❌ Invalid JSON:", text);
-        throw new Error("Server error (invalid response)");
-      }
-
-      if (!data.success) {
-        throw new Error(data.message || "Badge creation failed");
-      }
+      if (!data.success) throw new Error(data.message);
 
       toast.success("✅ Badge created successfully");
 
-      // ✅ modal close
       setShowBadgePopup(false);
       setPhotoPreview(null);
 
-      // ✅ form reset
       setFormData((prev) => ({
         ...prev,
         name: "",
         candidate_photo: null,
       }));
 
-      // 🔥 IMPORTANT: REFRESH DATA PROPERLY
+      // 🔥 refresh
       const updated = await fetch(
         `${SITE}/api/get_exhibitor_badges_grouped.php`,
       );
       const fresh = await updated.json();
-
-      if (Array.isArray(fresh)) {
-        setCompanies(fresh);
-      }
+      setCompanies(Array.isArray(fresh) ? fresh : []);
     } catch (err) {
-      console.error("❌ Submit error:", err);
       toast.error(err.message || "Error creating badge");
+    } finally {
+      setIsSubmitting(false); // 🔥 STOP
     }
   };
 
@@ -640,12 +701,29 @@ const AdminBadges = () => {
         <button className="badge-export-btn" onClick={exportBadgesExcel}>
           Export Excel
         </button>
+
+        <label className="upload-btn">
+          {uploading ? "Uploading..." : "Upload CSV"}
+          <input
+            type="file"
+            accept=".csv"
+            hidden
+            onChange={(e) => handleCSVUpload(e.target.files[0])}
+          />
+        </label>
+
         <button
           className="add-exhibitor-new-badge-btn"
           onClick={() => setShowExhibitorPopup(true)}
         >
           Add Exhibitor Badge
         </button>
+        <span className="add-exhibitor-new-badge-btn company-count">
+          {companies.length}
+        </span>
+        <span className="add-exhibitor-new-badge-btn company-count">
+          {totalBadges}
+        </span>
 
         <input
           type="text"
@@ -679,110 +757,109 @@ const AdminBadges = () => {
             </div>
             <div>
               {(() => {
-  const freeQuota = Number(
-    freeQuotaMap[company.company_name] || 0
-  );
+                const freeQuota = Number(
+                  freeQuotaMap[company.company_name] || 0,
+                );
 
-  let totalFree = 0;
-  let totalPaid = 0;
-  let totalAmount = 0;
-  let totalCGST = 0;
-  let totalSGST = 0;
-  let totalIGST = 0;
-  let grandTotalAll = 0;
+                let totalFree = 0;
+                let totalPaid = 0;
+                let totalAmount = 0;
+                let totalCGST = 0;
+                let totalSGST = 0;
+                let totalIGST = 0;
+                let grandTotalAll = 0;
 
-  // ✅ cleared (API se)
-  const cleared =
-    badgePaymentSummary[company.company_name]?.cleared || 0;
+                // ✅ cleared (API se)
+                const cleared =
+                  badgePaymentSummary[company.company_name]?.cleared || 0;
 
-  const sortedBadges = [...(company.badges || [])].sort(
-    (a, b) =>
-      new Date(a.created_at) - new Date(b.created_at)
-  );
+                const sortedBadges = [...(company.badges || [])].sort(
+                  (a, b) => new Date(a.created_at) - new Date(b.created_at),
+                );
 
-  sortedBadges.forEach((badge, index) => {
-    const isFree = index < freeQuota;
-    const rate = getBadgeRate(badge?.created_at);
+                sortedBadges.forEach((badge, index) => {
+                  const isFree = index < freeQuota;
+                  const rate = getBadgeRate();
 
-    const amount = isFree ? 0 : rate;
+                  const amount = isFree ? 0 : rate;
 
-    const state = (
-      badge.state ||
-      company.badges?.[0]?.state ||
-      ""
-    ).toLowerCase();
+                  const state = (
+                    badge.state ||
+                    company.badges?.[0]?.state ||
+                    ""
+                  ).toLowerCase();
 
-    let cgst = 0;
-    let sgst = 0;
-    let igst = 0;
+                  let cgst = 0;
+                  let sgst = 0;
+                  let igst = 0;
 
-    if (!isFree) {
-      if (state === "delhi") {
-        cgst = amount * 0.09;
-        sgst = amount * 0.09;
-      } else {
-        igst = amount * 0.18;
-      }
-    }
+                  if (!isFree) {
+                    if (state === "delhi") {
+                      cgst = amount * 0.09;
+                      sgst = amount * 0.09;
+                    } else {
+                      igst = amount * 0.18;
+                    }
+                  }
 
-    const total = amount + cgst + sgst + igst;
+                  const total = amount + cgst + sgst + igst;
 
-    if (isFree) totalFree++;
-    else totalPaid++;
+                  if (isFree) totalFree++;
+                  else totalPaid++;
 
-    totalAmount += amount;
-    totalCGST += cgst;
-    totalSGST += sgst;
-    totalIGST += igst;
-    grandTotalAll += total;
-  });
+                  totalAmount += amount;
+                  totalCGST += cgst;
+                  totalSGST += sgst;
+                  totalIGST += igst;
+                  grandTotalAll += total;
+                });
 
-  // ✅ pending
-  const pending = Math.max(0, grandTotalAll - cleared);
+                // ✅ pending
+                const pending = Math.max(0, grandTotalAll - cleared);
 
-  return (
-    <div className="badge-pay-summary">
-      <span>Free Badges: {totalFree}</span>
+                return (
+                  <div className="badge-pay-summary">
+                    <span>Free Badges: {totalFree}</span>
 
-      <span
-        className="badge-flag"
-        style={{
-          background:
-            freeQuota - sortedBadges.length > 0
-              ? "#d1fae5"
-              : "#fee2e2",
-          color:
-            freeQuota - sortedBadges.length > 0
-              ? "#065f46"
-              : "#991b1b",
-          fontWeight: "bold",
-        }}
-      >
-        REMAINING:{" "}
-        {Math.max(0, freeQuota - sortedBadges.length)}
-      </span>
+                    <span
+                      className="badge-flag"
+                      style={{
+                        background:
+                          freeQuota - sortedBadges.length > 0
+                            ? "#d1fae5"
+                            : "#fee2e2",
+                        color:
+                          freeQuota - sortedBadges.length > 0
+                            ? "#065f46"
+                            : "#991b1b",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      REMAINING: {Math.max(0, freeQuota - sortedBadges.length)}
+                    </span>
 
-      <span>Paid Badges: {totalPaid}</span>
+                    <span>Paid Badges: {totalPaid}</span>
 
-      <span>Amount: ₹{totalAmount.toFixed(2)}</span>
+                    <span>Amount: ₹{totalAmount.toFixed(2)}</span>
 
-      {(company.badges?.[0]?.state || "").toLowerCase() === "delhi" ? (
-        <>
-          <span>CGST: ₹{totalCGST.toFixed(2)}</span>
-          <span>SGST: ₹{totalSGST.toFixed(2)}</span>
-        </>
-      ) : (
-        <span>IGST: ₹{totalIGST.toFixed(2)}</span>
-      )}
+                    {(company.badges?.[0]?.state || "").toLowerCase() ===
+                    "delhi" ? (
+                      <>
+                        <span>CGST: ₹{totalCGST.toFixed(2)}</span>
+                        <span>SGST: ₹{totalSGST.toFixed(2)}</span>
+                      </>
+                    ) : (
+                      <span>IGST: ₹{totalIGST.toFixed(2)}</span>
+                    )}
 
-      <span>Total: ₹{grandTotalAll.toFixed(2)}</span>
+                    <span>Total: ₹{grandTotalAll.toFixed(2)}</span>
 
-      <span>Cleared: ₹{Number(cleared).toFixed(2)}</span>
+                    <span>Cleared: ₹{Number(cleared).toFixed(2)}</span>
 
-      <span>Pending: ₹{pending.toFixed(2)}</span>
-    </div>
-  );
-})()}
+                    <span>Pending: ₹{pending.toFixed(2)}</span>
+                  </div>
+                );
+              })()}
             </div>
 
             <button
@@ -868,7 +945,7 @@ const AdminBadges = () => {
                         <>
                           {sortedBadges.map((badge, index) => {
                             const isFree = index < freeQuota;
-                            const rate = getBadgeRate(badge?.created_at);
+                            const rate = getBadgeRate();
 
                             const amount = isFree ? 0 : rate;
 
@@ -956,7 +1033,11 @@ const AdminBadges = () => {
                                     className="danger"
                                     onClick={() => deleteBadge(badge.id)}
                                   >
-                                    <FaTrash />
+                                    {deletingId === badge.id ? (
+                                      <span className="spinner"></span>
+                                    ) : (
+                                      <FaTrash />
+                                    )}
                                   </button>
                                 </td>
 
@@ -1196,8 +1277,12 @@ const AdminBadges = () => {
                   />
                 )}
 
-                <button type="submit" className="badge-submit-btn">
-                  Generate Badge
+                <button
+                  type="submit"
+                  className="badge-submit-btn"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Generating..." : "Generate Badge"}
                 </button>
               </form>
             </div>

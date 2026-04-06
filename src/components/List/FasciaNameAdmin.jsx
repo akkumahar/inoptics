@@ -25,8 +25,8 @@ const FasciaNameAdmin = ({}) => {
     try {
       const res = await fetch("https://inoptics.in/api/get_exhibitors.php");
       const data = await res.json();
-      console.log("sfskjfhsd",data);
-      
+      console.log("sfskjfhsd", data);
+
       setExhibitorData(data);
     } catch (error) {
       console.error("Failed to fetch exhibitors:", error);
@@ -53,32 +53,31 @@ const FasciaNameAdmin = ({}) => {
   const getStallWithBS = (company) => {
     if (!company) return "";
 
-  const normalize = (str) =>
-    str?.toLowerCase().replace(/\s+/g, " ").trim();
+    const normalize = (str) => str?.toLowerCase().replace(/\s+/g, " ").trim();
 
-  const exhibitor = exhibitorGrouped.find(
-    (e) => normalize(e.company_name) === normalize(company)
-  );
+    const exhibitor = exhibitorGrouped.find(
+      (e) => normalize(e.company_name) === normalize(company),
+    );
 
-  if (!exhibitor) {
-    console.log("❌ Not matched:", company); // debug
-    return "";
-  }
+    if (!exhibitor) {
+      console.log("❌ Not matched:", company); // debug
+      return "";
+    }
 
-  const values = [
-    ...new Set(
-      exhibitor.category.map((cat) => {
-        const c = (cat || "").toLowerCase();
+    const values = [
+      ...new Set(
+        exhibitor.category.map((cat) => {
+          const c = (cat || "").toLowerCase();
 
-        if (c.includes("bare")) return "Bare";
-        if (c.includes("shell")) return "Shell";
+          if (c.includes("bare")) return "Bare";
+          if (c.includes("shell")) return "Shell";
 
-        return "";
-      })
-    ),
-  ].filter(Boolean);
+          return "";
+        }),
+      ),
+    ].filter(Boolean);
 
-  return values.join(", ");
+    return values.join(", ");
   };
 
   const fetchAllFascia = async () => {
@@ -529,6 +528,56 @@ const FasciaNameAdmin = ({}) => {
           );
         })}
       </div>
+
+      {showEditPopup && (
+        <div className="popup-overlay">
+          <div className="popup-box">
+            <h3>Edit Fascia Name</h3>
+
+            {/* Company Name (readonly) */}
+            <label>Company Name</label>
+            <input
+              type="text"
+              value={editData?.exhibitor_company_name || ""}
+              disabled
+            />
+
+            {/* Stall No (readonly) */}
+            <label>Stall No</label>
+            <input type="text" value={editData?.stall_no || ""} disabled />
+
+            {/* Editable Field */}
+            <label>Fascia Name</label>
+            <input
+              type="text"
+              value={editData?.facia_company_name || ""}
+              onChange={(e) =>
+                setEditData({
+                  ...editData,
+                  facia_company_name: e.target.value,
+                })
+              }
+            />
+
+            {/* City (optional readonly) */}
+            <label>City</label>
+            <input type="text" value={editData?.city || ""} disabled />
+
+            <div className="popup-buttons">
+              <button
+                className="btn cancel"
+                onClick={() => setShowEditPopup(false)}
+              >
+                Cancel
+              </button>
+
+              <button className="btn update" onClick={handleUpdate}>
+                Update
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

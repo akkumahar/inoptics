@@ -2850,7 +2850,7 @@ const ExhibitorDashboard = () => {
 
   const getExhibitorBadgeBilling = () => {
     const count = Number(extraBadges || 0);
-    const rate = new Date() > new Date("2026-03-21") ? 200 : 100;
+    const rate = 100;
     const total = count * rate;
 
     const isDelhi = currentExhibitor?.state?.trim().toLowerCase() === "delhi";
